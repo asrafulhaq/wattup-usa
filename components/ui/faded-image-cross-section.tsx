@@ -20,7 +20,7 @@ export function FadedImageCrossSection({
             </div>
 
             {/* Bottom Section: Image exactly as Figma */}
-            <div className='relative w-[1440px] h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden'>
+            <div className='relative w-full h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden'>
                 {/* 1. Base Image */}
                 <div className='image'>
                     {' '}

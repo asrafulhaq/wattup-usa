@@ -1,5 +1,5 @@
 import { BuiltFor } from '@/components/home/built-for';
-import { CtaFooter } from '@/components/home/cta-footer';
+import { CTAReady } from '@/components/home/cta-ready';
 import { ExpandingUs } from '@/components/home/expanding-us';
 import { FutureMobility } from '@/components/home/future-mobility';
 import { Hero } from '@/components/home/hero';
@@ -37,8 +37,8 @@ export default function Home() {
             {/* 7. Why Choose WATTUP Cards */}
             <WhyChoose />
 
-            {/* 8. Call to Action / Footer */}
-            <CtaFooter />
+            {/* 8. Call to Action */}
+            <CTAReady />
         </main>
     );
 }

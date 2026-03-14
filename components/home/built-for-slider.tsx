@@ -25,7 +25,7 @@ function SlidesCard({ card }: { card: SlidesCardData }) {
             </p>
             <Link
                 href={card.cta.href}
-                className='relative z-20 inline-flex px-[24px] py-[12px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] shadow-btn transition-transform hover:-translate-y-0.5 mt-2 leading-[130%] '>
+                className='relative  z-20 inline-flex px-[24px] py-[12px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] shadow-btn transition-transform hover:-translate-y-0.5 mt-2 leading-[130%] '>
                 {card.cta.label}
             </Link>
         </div>

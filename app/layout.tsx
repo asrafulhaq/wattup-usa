@@ -1,3 +1,5 @@
+import Footer from '@/components/home/footer';
+import { Navbar } from '@/components/home/navbar';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
@@ -23,7 +25,10 @@ export default function RootLayout({
             <body
                 className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
                 <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
+                    {/* The Navbar floats absolutely over the entire Hero */}
+                    <Navbar />
                     {children}
+                    <Footer />
                 </div>
             </body>
         </html>
