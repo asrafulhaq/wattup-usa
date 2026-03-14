@@ -7,30 +7,28 @@ import type { BuiltForCardData } from './built-for';
 
 function BuiltForCard({ card }: { card: BuiltForCardData }) {
     return (
-        <div className='relative group rounded-[8px] overflow-hidden h-[400px] md:h-[489px]'>
+        <div className='relative group rounded-[8px] overflow-hidden h-[400px] md:h-[489px] flex flex-col items-start justify-end gap-[10px] p-[32px] md:pt-[276px]'>
             <Image
                 src={card.image}
                 alt={card.title}
                 fill
-                className='object-cover transition-transform duration-700 group-hover:scale-105'
+                className='object-cover transition-transform duration-700 group-hover:scale-105 z-0'
                 sizes='(max-width: 768px) 100vw, 50vw'
             />
             {/* Gradient overlay for text readability */}
-            <div className='absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent' />
+            <div className='absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10' />
 
-            <div className='absolute bottom-0 left-0 p-8 w-full'>
-                <h3 className='text-[32px] font-semibold tracking-[-0.03em] leading-[110%] text-white mb-3'>
-                    {card.title}
-                </h3>
-                <p className='text-white/90 text-[16px] leading-[150%] mb-6 max-w-md'>
-                    {card.description}
-                </p>
-                <Link
-                    href={card.cta.href}
-                    className='inline-flex px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] shadow-btn transition-transform hover:-translate-y-0.5'>
-                    {card.cta.label}
-                </Link>
-            </div>
+            <h3 className='relative z-20 text-[32px] font-semibold tracking-[-0.03em] leading-[110%] text-white'>
+                {card.title}
+            </h3>
+            <p className='relative z-20 text-white/90 text-[16px] leading-[150%] max-w-md'>
+                {card.description}
+            </p>
+            <Link
+                href={card.cta.href}
+                className='relative z-20 inline-flex px-[16px] py-[10px] bg-[#0066FF] hover:bg-[#0052cc] text-white rounded-[4px] font-medium text-[14px] shadow-btn transition-transform hover:-translate-y-0.5 mt-1'>
+                {card.cta.label}
+            </Link>
         </div>
     );
 }

@@ -11,7 +11,7 @@ function HeroContent({ dark }: { dark: boolean }) {
     return (
         <>
             <div
-                className={`relative z-10 font-sans container mx-auto px-4 flex flex-col items-center text-center max-w-[642px] ${dark ? 'text-white' : 'text-dark'}`}>
+                className={`relative z-10 font-sans container mx-auto flex flex-col items-center text-center max-w-[642px] ${dark ? 'text-white' : 'text-dark'}`}>
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
@@ -68,7 +68,7 @@ const slidesData = [
                         src='/assets/images/hero-1.png'
                         alt='WattUp Hero Station'
                         fill
-                        className='object-cover object-center'
+                        className='object-cover object-center brightness-75'
                         priority
                         draggable={false}
                     />
@@ -88,7 +88,7 @@ const slidesData = [
                 {/* Background Image Setup */}
                 <div className='absolute inset-0 z-0 select-none'>
                     <Image
-                        src='/assets/images/hero-2.png'
+                        src='/assets/images/hero-2.jpg'
                         alt='WattUp Hero Station'
                         fill
                         className='object-cover object-center brightness-75'
@@ -108,7 +108,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative w-full h-dvh min-h-[961px] overflow-hidden '>
+        <section className='relative w-full h-[100dvh] lg:h-auto lg:aspect-[1440/951] max-h-[951px] overflow-hidden'>
             {/* The Navbar floats absolutely over the entire Hero */}
             <Navbar />
 

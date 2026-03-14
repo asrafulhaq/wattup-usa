@@ -78,20 +78,22 @@ export function ReusableSlider({
             </div>
 
             {showArrows && (
-                <>
-                    <button
-                        className='absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-[0px_27px_11px_rgba(0,0,0,0.01),0px_15px_9px_rgba(0,0,0,0.02),0px_7px_7px_rgba(0,0,0,0.05),0px_2px_4px_rgba(0,0,0,0.04)] text-[#2d2d2d]'
-                        onClick={scrollPrev}
-                        aria-label='Previous slide'>
-                        <ArrowLeftIcon />
-                    </button>
-                    <button
-                        className='absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-[0px_27px_11px_rgba(0,0,0,0.01),0px_15px_9px_rgba(0,0,0,0.02),0px_7px_7px_rgba(0,0,0,0.05),0px_2px_4px_rgba(0,0,0,0.04)] text-[#2d2d2d]'
-                        onClick={scrollNext}
-                        aria-label='Next slide'>
-                        <ArrowRightIcon />
-                    </button>
-                </>
+                <div className='absolute top-1/2 -translate-y-1/2 left-0 right-0 z-20 pointer-events-none'>
+                    <div className=' container mx-auto px-4 sm:px-8 xl:px-0 flex justify-between'>
+                        <button
+                            className='pointer-events-auto flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-[0px_27px_11px_rgba(0,0,0,0.01),0px_15px_9px_rgba(0,0,0,0.02),0px_7px_7px_rgba(0,0,0,0.05),0px_2px_4px_rgba(0,0,0,0.04)] text-[#2d2d2d]'
+                            onClick={scrollPrev}
+                            aria-label='Previous slide'>
+                            <ArrowLeftIcon />
+                        </button>
+                        <button
+                            className='pointer-events-auto flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-[0px_27px_11px_rgba(0,0,0,0.01),0px_15px_9px_rgba(0,0,0,0.02),0px_7px_7px_rgba(0,0,0,0.05),0px_2px_4px_rgba(0,0,0,0.04)] text-[#2d2d2d]'
+                            onClick={scrollNext}
+                            aria-label='Next slide'>
+                            <ArrowRightIcon />
+                        </button>
+                    </div>
+                </div>
             )}
 
             {showDots && (

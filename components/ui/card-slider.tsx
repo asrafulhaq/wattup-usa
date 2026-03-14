@@ -104,13 +104,13 @@ export function CardSlider({
             {showArrows && (
                 <>
                     <button
-                        className='absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-btn text-dark'
+                        className='absolute left-0 md:left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
                         onClick={scrollPrev}
                         aria-label='Previous slide'>
                         <ArrowLeftIcon />
                     </button>
                     <button
-                        className='absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-btn text-dark'
+                        className='absolute    right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
                         onClick={scrollNext}
                         aria-label='Next slide'>
                         <ArrowRightIcon />
