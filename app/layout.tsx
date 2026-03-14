@@ -1,9 +1,9 @@
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Geist } from 'next/font/google';
+import { Geist, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
     variable: '--font-plus-jakarta-sans',
@@ -21,9 +21,12 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang='en' className={cn("font-sans", geist.variable)}>
-            <body className={`${plusJakartaSans.variable} antialiased`}>
-                {children}
+        <html lang='en' className={cn('font-sans', geist.variable)}>
+            <body
+                className={`${plusJakartaSans.variable} antialiased  mx-auto`}>
+                <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
+                    {children}
+                </div>
             </body>
         </html>
     );
