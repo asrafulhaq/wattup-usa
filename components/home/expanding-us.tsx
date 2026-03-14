@@ -1,52 +1,56 @@
-import Image from 'next/image';
-import Link from 'next/link';
 import { FadeUp } from '@/components/ui/fade-up';
+import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import Link from 'next/link';
 
-const cities = ['Los Angeles', 'San Diego', 'Austin', 'Miami', 'And more'];
+const cities = [
+    'Los Angeles',
+    'San Diego',
+    'Austin',
+    'Miami',
+    'Phoenix',
+    'Chicago',
+];
 
 export function ExpandingUs() {
     return (
-        <section className="relative w-full bg-white overflow-hidden py-24 border-y border-gray-light">
-            <div className="container">
-                <div className="flex flex-col items-center text-center">
-                    <FadeUp>
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-dark mb-12">
-                            Expanding Across the U.S.
-                        </h2>
-                    </FadeUp>
+        <FadedImageCrossSection
+            imageSrc='/assets/images/location-marque-bg.png'
+            imageAlt='Charging Stations By Water'>
+            <div className='flex flex-col space-y-20 items-center text-center w-full'>
+                <FadeUp>
+                    <h2 className='headline-dark'>Expanding Across the U.S.</h2>
+                </FadeUp>
 
-                    <FadeUp delay={0.1} className="w-full overflow-hidden">
-                        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 md:gap-x-16 text-xl md:text-3xl font-bold text-gray mb-16 px-4">
-                            {cities.map((city, idx) => (
-                                <span key={idx} className={`whitespace-nowrap ${idx === 1 ? 'text-dark' : 'text-gray/50 hover:text-dark transition-colors cursor-pointer'}`}>
-                                    {city}
-                                </span>
+                <FadeUp delay={0.1} className='w-full overflow-hidden relative'>
+                    <div className='flex max-w-[1440px] mx-auto whitespace-nowrap overflow-hidden group w-full relative'>
+                        <div className='flex w-max animate-marquee group-hover:[animation-play-state:paused]'>
+                            {/* Duplicate array for seamless infinite scrolling */}
+                            {[...cities, ...cities].map((city, idx) => (
+                                <div
+                                    key={idx}
+                                    className='flex items-center text-[48px] md:text-[64px] font-bold leading-[110%] tracking-[-3%]'>
+                                    <span className='text-gray/36 hover:text-dark transition-colors duration-300 cursor-pointer '>
+                                        {city}
+                                    </span>
+                                    {/* Dot separator */}
+                                    <span className='text-gray/30 px-4 md:px-8 pointer-events-none rounded-none select-none '>
+                                        ·
+                                    </span>
+                                </div>
                             ))}
                         </div>
-                    </FadeUp>
+                    </div>
+                </FadeUp>
 
-                    <FadeUp delay={0.2}>
-                        <Link 
-                            href="/locations"
-                            className="inline-flex px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-lg font-bold text-sm shadow-btn transition-transform hover:-translate-y-0.5 mb-24"
-                        >
-                            View All Locations
-                        </Link>
-                    </FadeUp>
-                </div>
-
-                <FadeUp delay={0.4} className="relative w-full h-[300px] md:h-[600px] rounded-2xl overflow-hidden mt-8">
-                     <Image 
-                        src="/assets/images/section-bg-1.png"
-                        alt="Charging Stations By Water"
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 90vw"
-                     />
-                     {/* Gradient to smooth out the bottom if needed */}
-                     <div className="absolute bottom-0 w-full h-1/3 bg-linear-to-t from-white/20 to-transparent" />
+                <FadeUp delay={0.2} className='relative z-20'>
+                    <Link
+                        href='/locations'
+                        className='inline-flex px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-all duration-300 mb-8'>
+                        View All Locations
+                    </Link>
                 </FadeUp>
             </div>
-        </section>
+        </FadedImageCrossSection>
     );
 }
+
