@@ -3,6 +3,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
+import { technologySlidesData } from './technology-backed';
 import {
     TechnologyBackedSlide,
     TechnologySlideData,
@@ -10,74 +11,12 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const technologySlidesData: TechnologySlideData[] = [
-    {
-        number: '01.',
-        title: 'Smart charging\ninfrastructure',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-1.png',
-        textPosition: 'left',
-        textStyle: {
-            left: '252px',
-            top: '155px',
-            maxWidth: '449px',
-        },
-        gradientStyle: {
-            left: '252px',
-            top: '300px', // Right below the title, like the red box
-            width: '800px',
-            height: '456px',
-            background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
-        },
-    },
-    {
-        number: '02.',
-        title: 'High-performance\nhardware',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-2.png',
-        textPosition: 'right',
-        imageClassName: 'object-contain object-left',
-        textStyle: {
-            left: '920px',
-            top: '250px',
-            maxWidth: '497px',
-        },
-        gradientStyle: {
-            left: '700px',
-            top: '100px',
-            width: '800px',
-            height: '600px',
-            background:
-                'radial-gradient(50% 50% at 50% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
-        },
-    },
-    {
-        number: '03.',
-        title: 'Seamless payment\nintegration',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-3.png',
-        textPosition: 'left',
-        textStyle: {
-            left: '80px',
-            top: '304px',
-            maxWidth: '449px',
-        },
-        gradientStyle: {
-            left: '252px',
-            top: '200px',
-            width: '800px',
-            height: '556px',
-            background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)', // slightly varied color logic
-            filter: 'blur(150px)',
-        },
-    },
-];
-
-export function TechnologyBacked({
+/**
+ * Variant: xPercent horizontal slide animation
+ * Slides enter from the left and exit to the right with scale + rotation feel.
+ * Text fades in/out with opacity only (no y transform to prevent drift).
+ */
+export function TechnologyBackedXPercent({
     slides = technologySlidesData,
 }: {
     slides?: TechnologySlideData[];
@@ -97,13 +36,15 @@ export function TechnologyBacked({
                 if (!slide) return;
                 if (i === 0) {
                     gsap.set(slide, {
+                        xPercent: 0,
                         opacity: 1,
                         scale: 1,
                     });
                 } else {
                     gsap.set(slide, {
+                        xPercent: -120,
                         opacity: 0,
-                        scale: 0.95,
+                        scale: 0.9,
                     });
                 }
             });
@@ -117,12 +58,12 @@ export function TechnologyBacked({
                 }
             });
 
-            // Master timeline pinned to section — pin until all slides finish
+            // Master timeline pinned to section
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: section,
                     start: 'top top',
-                    end: `+=120%`,
+                    end: `+=80%`,
                     pin: true,
                     pinSpacing: true,
                     scrub: 2,
@@ -130,7 +71,7 @@ export function TechnologyBacked({
                 },
             });
 
-            // --- Hold slide 1 visible for a moment ---
+            // --- Hold slide 1 visible ---
             tl.to({}, { duration: 0.15 });
 
             // --- Transition: Slide 0 → Slide 1 ---
@@ -138,8 +79,9 @@ export function TechnologyBacked({
                 tl.to(
                     slideRefs.current[0],
                     {
+                        xPercent: 120,
                         opacity: 0,
-                        scale: 0.95,
+                        scale: 0.9,
                         duration: 1,
                         ease: 'none',
                     },
@@ -157,6 +99,7 @@ export function TechnologyBacked({
                     .to(
                         slideRefs.current[1],
                         {
+                            xPercent: 0,
                             opacity: 1,
                             scale: 1,
                             duration: 1,
@@ -183,8 +126,9 @@ export function TechnologyBacked({
                 tl.to(
                     slideRefs.current[1],
                     {
+                        xPercent: 120,
                         opacity: 0,
-                        scale: 0.95,
+                        scale: 0.9,
                         duration: 1,
                         ease: 'none',
                     },
@@ -202,6 +146,7 @@ export function TechnologyBacked({
                     .to(
                         slideRefs.current[2],
                         {
+                            xPercent: 0,
                             opacity: 1,
                             scale: 1,
                             duration: 1,
@@ -258,7 +203,14 @@ export function TechnologyBacked({
                         <TechnologyBackedSlide
                             key={index}
                             slide={slide}
-                            style={index > 0 ? { opacity: 0 } : undefined}
+                            style={
+                                index > 0
+                                    ? {
+                                          opacity: 0,
+                                          transform: 'translateX(0%)',
+                                      }
+                                    : undefined
+                            }
                             ref={el => {
                                 slideRefs.current[index] = el;
                             }}

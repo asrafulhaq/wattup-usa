@@ -49,7 +49,7 @@ export function HowItWorks() {
                                 <h3 className='headline-4 text-dark'>
                                     {step.title}
                                 </h3>
-                                <p className='text-[20px] font-semibold leading-[130%] tracking-[-3%] text-dark/70'>
+                                <p className='text-description text-dark/70'>
                                     {step.description}
                                 </p>
                             </div>

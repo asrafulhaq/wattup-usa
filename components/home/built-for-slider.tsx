@@ -20,7 +20,7 @@ function SlidesCard({ card }: { card: SlidesCardData }) {
             <h3 className='relative z-20 headline-4 text-white'>
                 {card.title}
             </h3>
-            <p className='relative z-20 text-white/90 text-[20px] leading-[130%] max-w-[572px] tracking-[-3%]'>
+            <p className='relative z-20 text-white/90 text-description max-w-[572px] '>
                 {card.description}
             </p>
             <Link

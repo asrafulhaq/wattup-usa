@@ -5,6 +5,8 @@ import { FutureMobility } from '@/components/home/future-mobility';
 import { Hero } from '@/components/home/hero';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { TechnologyBacked } from '@/components/home/technology-backed';
+import { TechnologyBackedXPercent } from '@/components/home/technology-backed-xpercent';
+import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
 
 export default function Home() {
@@ -19,13 +21,17 @@ export default function Home() {
             {/* 3. Future of Mobility Features */}
             <FutureMobility />
 
-            {/* 4. Video Technology Banner */}
-            <TechnologyBacked />
+            {/* 4. Video Presentation */}
+            <VideoPresentation />
 
-            {/* 5. How It Works Steps */}
+            {/* 5. How It Works */}
             <HowItWorks />
 
-            {/* 6. Expanding Locations */}
+            {/* 6. Technology Backed */}
+            <TechnologyBackedXPercent />
+            <TechnologyBacked />
+
+            {/* 7. Expanding Locations */}
             <ExpandingUs />
 
             {/* 7. Why Choose WATTUP Cards */}
