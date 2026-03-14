@@ -9,22 +9,21 @@ const items = [
 
 export function FutureMobility() {
     return (
-        <section className="w-full py-16 bg-background border-y border-gray-light">
-            <div className="container">
+        <section className='w-full common-section-padding bg-background '>
+            <div className='container'>
                 <FadeUp>
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-dark mb-12">
+                    <h2 className='headline-dark mb-10'>
                         Powering the Future of Mobility
                     </h2>
                 </FadeUp>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-light gap-y-8">
+                <div className='grid grid-cols-2 lg:grid-cols-4  gap-y-8'>
                     {items.map((item, index) => (
-                        <FadeUp 
-                            key={item.id} 
-                            delay={index * 0.1} 
-                            className="flex flex-col px-4 md:px-8 first:pl-0"
-                        >
-                            <h3 className="text-xl md:text-2xl font-bold text-dark max-w-[150px] leading-tight">
+                        <FadeUp
+                            key={item.id}
+                            delay={index * 0.1}
+                            className='flex flex-col px-[53px] py-3 border-r border-gray last:border-r-0 first:pl-0'>
+                            <h3 className='headline-5 text-dark max-w-[258px]'>
                                 {item.title.split(' ')[0]}
                                 <br />
                                 {item.title.split(' ')[1]}
@@ -36,3 +35,4 @@ export function FutureMobility() {
         </section>
     );
 }
+

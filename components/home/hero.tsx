@@ -11,7 +11,7 @@ function HeroContent({ dark }: { dark: boolean }) {
     return (
         <>
             <div
-                className={`relative z-10 font-sans container mx-auto flex flex-col items-center text-center max-w-[642px] ${dark ? 'text-white' : 'text-dark'}`}>
+                className={`relative z-10  container mx-auto flex flex-col items-center text-center  ${dark ? 'text-white' : 'text-dark'}`}>
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
