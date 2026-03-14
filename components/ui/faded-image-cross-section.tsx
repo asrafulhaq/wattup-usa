@@ -15,21 +15,24 @@ export function FadedImageCrossSection({
     return (
         <section className='relative w-full overflow-hidden flex flex-col items-center bg-white border-y border-gray-light'>
             {/* Top Section: Content (e.g. Marquee, Text, etc) */}
-            <div className='relative z-10 w-full flex flex-col items-center justify-start pt-24 pb-12'>
+            <div className='relative z-10 w-full flex flex-col items-center justify-start pt-24 pb-12 mb-20'>
                 {children}
             </div>
 
             {/* Bottom Section: Image exactly as Figma */}
             <div className='relative w-[1440px] h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden'>
                 {/* 1. Base Image */}
-                <Image
-                    src={imageSrc}
-                    alt={imageAlt}
-                    fill
-                    className='object-cover object-top'
-                    sizes='1440px'
-                    priority
-                />
+                <div className='image'>
+                    {' '}
+                    <Image
+                        src={imageSrc}
+                        alt={imageAlt}
+                        fill
+                        className='object-cover object-center  '
+                        sizes='1440px'
+                        priority
+                    />
+                </div>
 
                 {/* 2. Top-down White Gradient (180deg from White 0% to White 0% -> translates to a fade from white down) 
                      Based on Figma: Linear Gradient White -> White/0 */}
@@ -47,10 +50,11 @@ export function FadedImageCrossSection({
                     className='absolute inset-0 pointer-events-none'
                     style={{
                         background:
-                            'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 10%)',
+                            'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%)',
                     }}
                 />
             </div>
         </section>
     );
 }
+

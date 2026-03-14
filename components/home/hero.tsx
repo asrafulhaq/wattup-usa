@@ -39,7 +39,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                     delay={0.4}
                     yOffset={20}
                     className='w-full flex-col font-sans'>
-                    <div className='flex flex-col sm:flex-row items-center justify-center gap-[10px]'>
+                    <div className='flex flex-col sm:flex-row items-center justify-center gap-[20px]'>
                         <Link
                             href='/find-charger'
                             className='w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
@@ -108,7 +108,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative  overflow-x-hidden mx-auto w-full h-[100dvh] lg:h-auto lg:aspect-[1440/951] max-h-[951px] overflow-hidden'>
+        <section className='relative  overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[951px] overflow-hidden'>
             {/* The Navbar floats absolutely over the entire Hero */}
             <Navbar />
 
