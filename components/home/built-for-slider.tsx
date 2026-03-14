@@ -7,7 +7,7 @@ import type { SlidesCardData } from './built-for';
 
 function SlidesCard({ card }: { card: SlidesCardData }) {
     return (
-        <div className='relative group rounded-[8px] overflow-hidden w-[785px] h-[489px] flex flex-col items-start justify-end gap-[10px] p-[32px] pt-[276px]'>
+        <div className='relative group rounded-[8px] overflow-hidden w-full h-[489px] flex flex-col items-start justify-end gap-[10px] p-[32px] pt-[276px]'>
             <Image
                 src={card.image}
                 alt={card.title}
@@ -25,7 +25,7 @@ function SlidesCard({ card }: { card: SlidesCardData }) {
             </p>
             <Link
                 href={card.cta.href}
-                className='relative z-20 inline-flex px-[24px] py-[12px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] shadow-btn transition-transform hover:-translate-y-0.5 mt-2 leading-[130%] font-bold'>
+                className='relative z-20 inline-flex px-[24px] py-[12px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] shadow-btn transition-transform hover:-translate-y-0.5 mt-2 leading-[130%] '>
                 {card.cta.label}
             </Link>
         </div>

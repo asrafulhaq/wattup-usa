@@ -36,8 +36,7 @@ export function CardSlider({
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop,
         align: 'start',
-        slidesToScroll: slidesPerView === 'auto' ? 1 : slidesPerView,
-        containScroll: 'trimSnaps',
+        slidesToScroll: 1, // Always scroll 1 at a time for predictability
     });
 
     const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -78,7 +77,7 @@ export function CardSlider({
     const basisStyle =
         slidesPerView === 'auto'
             ? 'auto'
-            : `calc((100% - ${(typeof slidesPerView === 'number' ? slidesPerView - 1 : 0) * gap}px) / ${slidesPerView})`;
+            : `calc((100% - ${(typeof slidesPerView === 'number' ? Math.floor(slidesPerView) - 1 : 0) * gap}px) / ${slidesPerView})`;
 
     return (
         <div className={cn('', className)}>
@@ -93,7 +92,8 @@ export function CardSlider({
                                 key={slide.id}
                                 className={cn('', slideClassName)}
                                 style={{
-                                    flexBasis: basisStyle,
+                                    flex: `0 0 ${basisStyle}`,
+                                    minWidth: 0,
                                     paddingLeft: `${gap}px`,
                                 }}>
                                 {slide.content}
@@ -106,13 +106,13 @@ export function CardSlider({
                 {showArrows && (
                     <>
                         <button
-                            className='absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
+                            className='absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
                             onClick={scrollPrev}
                             aria-label='Previous slide'>
                             <ArrowLeftIcon />
                         </button>
                         <button
-                            className='absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
+                            className='absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
                             onClick={scrollNext}
                             aria-label='Next slide'>
                             <ArrowRightIcon />

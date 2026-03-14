@@ -1,60 +1,54 @@
-import Image from 'next/image';
 import { FadeUp } from '@/components/ui/fade-up';
+import { CardSliderWrapper } from './built-for-slider';
+
+export interface SlidesCardData {
+    id: string;
+    image: string;
+    title: string;
+    description: string;
+    cta: { label: string; href: string };
+}
+
+const slidesCardData: SlidesCardData[] = [
+    {
+        id: 'fast-charging',
+        image: '/assets/images/why-image-1.png',
+        title: 'Fast Charging',
+        description:
+            'High-performance charging stations designed for speed and reliability.',
+        cta: { label: 'Find Charging Locations', href: '/find-charger' },
+    },
+    {
+        id: 'premium-locations',
+        image: '/assets/images/why-image-2.png',
+        title: 'Premium Locations',
+        description:
+            'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
+        cta: { label: 'Find Charging Locations', href: '/find-charger' },
+    },
+    {
+        id: 'smart-infrastructure',
+        image: '/assets/images/hero-driver.jpg',
+        title: 'Smart Infrastructure',
+        description:
+            'Built with advanced technology and monitored for maximum uptime.',
+        cta: { label: 'Find Charging Locations', href: '/find-charger' },
+    },
+];
 
 export function WhyChoose() {
     return (
-        <section className="w-full py-24 bg-white overflow-hidden relative">
-            <div className="container">
+        <section className='w-full max-w-[1440px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
+            <div className='container mx-auto '>
                 <FadeUp>
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-dark mb-12">
-                        Why Choose WattUp
-                    </h2>
+                    <h2 className='headline-dark mb-10'>Why Choose WattUp</h2>
                 </FadeUp>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Fast Charging */}
-                    <FadeUp delay={0.1} className="relative group rounded-xl overflow-hidden h-[400px]">
-                        <Image
-                            src="/assets/images/car-4.png"
-                            alt="Fast Charging"
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
-                        
-                        <div className="absolute bottom-0 left-0 p-8 w-full">
-                            <h3 className="text-2xl font-bold text-white mb-3">Fast Charging</h3>
-                            <p className="text-white/90 font-medium mb-6">
-                                Provide top-tier charging speeds for drivers on the go.
-                            </p>
-                        </div>
-                    </FadeUp>
-
-                    {/* Premium Locations */}
-                    <FadeUp delay={0.3} className="relative group rounded-xl overflow-hidden h-[400px]">
-                        <Image
-                            src="/assets/images/car-5.png"
-                            alt="Premium Locations"
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
-                        
-                        <div className="absolute bottom-0 left-0 p-8 w-full">
-                            <h3 className="text-2xl font-bold text-white mb-3">Premium Locations</h3>
-                            <p className="text-white/90 font-medium mb-6">
-                                Accessible chargers positioned at premier real estate locations.
-                            </p>
-                        </div>
-                    </FadeUp>
-                </div>
-                
-                <div className="flex gap-2 mt-8">
-                    <span className="w-2.5 h-2.5 rounded-full bg-dark"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-gray"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-gray"></span>
-                </div>
+                <FadeUp delay={0.1}>
+                    <CardSliderWrapper cards={slidesCardData} />
+                </FadeUp>
             </div>
         </section>
     );
 }
+
