@@ -19,11 +19,11 @@ export default function Home() {
             {/* 3. Future of Mobility Features */}
             <FutureMobility />
 
-            {/* 4. How It Works Steps */}
-            <HowItWorks />
-
-            {/* 5. Video Technology Banner */}
+            {/* 4. Video Technology Banner */}
             <TechnologyBacked />
+
+            {/* 5. How It Works Steps */}
+            <HowItWorks />
 
             {/* 6. Expanding Locations */}
             <ExpandingUs />

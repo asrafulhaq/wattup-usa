@@ -9,7 +9,7 @@ import { Navbar } from './navbar';
 
 function HeroContent({ dark }: { dark: boolean }) {
     return (
-        <>
+        <div className=''>
             <div
                 className={`relative z-10  container mx-auto flex flex-col items-center text-center  ${dark ? 'text-white' : 'text-dark'}`}>
                 <FadeUp yOffset={30}>
@@ -53,7 +53,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                     </div>
                 </FadeUp>
             </div>
-        </>
+        </div>
     );
 }
 
@@ -108,7 +108,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative w-full h-[100dvh] lg:h-auto lg:aspect-[1440/951] max-h-[951px] overflow-hidden'>
+        <section className='relative  overflow-x-hidden mx-auto w-full h-[100dvh] lg:h-auto lg:aspect-[1440/951] max-h-[951px] overflow-hidden'>
             {/* The Navbar floats absolutely over the entire Hero */}
             <Navbar />
 

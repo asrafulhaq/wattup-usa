@@ -9,7 +9,7 @@ const items = [
 
 export function FutureMobility() {
     return (
-        <section className='w-full common-section-padding bg-background '>
+        <section className='w-full max-w-[1440px] mx-auto overflow-x-hidden common-section-padding bg-background '>
             <div className='container'>
                 <FadeUp>
                     <h2 className='headline-dark mb-10'>
