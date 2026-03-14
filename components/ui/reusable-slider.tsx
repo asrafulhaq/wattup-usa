@@ -102,7 +102,7 @@ export function ReusableSlider({
                         <button
                             key={index}
                             className={cn(
-                                'h-[10px] w-[10px] rounded-full transition-all duration-300',
+                                'h-[16px] w-[16px] rounded-full transition-all duration-300',
                                 index === selectedIndex
                                     ? 'bg-[#393939] scale-110 shadow-[0_0_0_1px_rgba(255,255,255,0.4)]'
                                     : 'bg-[#2d2d2d]/40 hover:bg-[#2d2d2d]/60 shadow-[0_0_0_1px_rgba(255,255,255,0.2)]'

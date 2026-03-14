@@ -196,13 +196,17 @@ body {
 @utility container {
     max-width: var(--container-max);
     margin-inline: auto;
-    padding-inline: 1.5rem;
 }
 
 @layer utilities {
     .headline {
         @apply text-[48px] font-semibold tracking-[-3%] leading-[110%];
     }
+
+    .headline-4 {
+        @apply text-[36px] font-semibold tracking-[-3%] leading-[110%];
+    }
+
     .headline-white {
         @apply text-[48px] font-semibold tracking-[-3%] leading-[110%] text-white;
     }

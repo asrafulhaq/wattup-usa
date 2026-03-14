@@ -14,8 +14,8 @@ export interface CardSliderProps {
     slides: CardSlideData[];
     className?: string;
     slideClassName?: string;
-    /** Number of slides visible per view on desktop. Default: 2 */
-    slidesPerView?: number;
+    /** Number of slides visible per view on desktop, or 'auto' to use exact slide width. Default: 2 */
+    slidesPerView?: number | 'auto';
     /** Gap between slides in px. Default: 20 */
     gap?: number;
     showArrows?: boolean;
@@ -36,7 +36,7 @@ export function CardSlider({
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop,
         align: 'start',
-        slidesToScroll: slidesPerView,
+        slidesToScroll: slidesPerView === 'auto' ? 1 : slidesPerView,
         containScroll: 'trimSnaps',
     });
 
@@ -75,48 +75,51 @@ export function CardSlider({
     }, [emblaApi, onSelect]);
 
     // Calculate basis based on slidesPerView and gap
-    const basisStyle = `calc((100% - ${(slidesPerView - 1) * gap}px) / ${slidesPerView})`;
+    const basisStyle =
+        slidesPerView === 'auto'
+            ? 'auto'
+            : `calc((100% - ${(typeof slidesPerView === 'number' ? slidesPerView - 1 : 0) * gap}px) / ${slidesPerView})`;
 
     return (
-        <div className={cn('relative', className)}>
-            <div
-                className='overflow-visible [clip-path:inset(-100vh_-100vw_-100vh_0)]'
-                ref={emblaRef}>
-                <div className='flex' style={{ marginLeft: `-${gap}px` }}>
-                    {slides.map(slide => (
-                        <div
-                            key={slide.id}
-                            className={cn(
-                                'min-w-0 shrink-0 grow-0 relative',
-                                slideClassName
-                            )}
-                            style={{
-                                flexBasis: basisStyle,
-                                paddingLeft: `${gap}px`,
-                            }}>
-                            {slide.content}
-                        </div>
-                    ))}
+        <div className={cn('', className)}>
+            {/* Wrapper for viewport + arrows so arrows center on cards only */}
+            <div className='relative'>
+                <div
+                    className='overflow-visible [clip-path:inset(-100vh_-100vw_-100vh_0)]'
+                    ref={emblaRef}>
+                    <div className='flex' style={{ marginLeft: `-${gap}px` }}>
+                        {slides.map(slide => (
+                            <div
+                                key={slide.id}
+                                className={cn('', slideClassName)}
+                                style={{
+                                    flexBasis: basisStyle,
+                                    paddingLeft: `${gap}px`,
+                                }}>
+                                {slide.content}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* Arrows — positioned relative to the slider viewport */}
-            {showArrows && (
-                <>
-                    <button
-                        className='absolute left-0 md:left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
-                        onClick={scrollPrev}
-                        aria-label='Previous slide'>
-                        <ArrowLeftIcon />
-                    </button>
-                    <button
-                        className='absolute    right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
-                        onClick={scrollNext}
-                        aria-label='Next slide'>
-                        <ArrowRightIcon />
-                    </button>
-                </>
-            )}
+                {/* Arrows — centered vertically on the card area */}
+                {showArrows && (
+                    <>
+                        <button
+                            className='absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
+                            onClick={scrollPrev}
+                            aria-label='Previous slide'>
+                            <ArrowLeftIcon />
+                        </button>
+                        <button
+                            className='absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/10 hover:bg-background/30 backdrop-blur-md transition-all shadow-btn text-dark'
+                            onClick={scrollNext}
+                            aria-label='Next slide'>
+                            <ArrowRightIcon />
+                        </button>
+                    </>
+                )}
+            </div>
 
             {/* Dots — below the slider */}
             {showDots && (
@@ -125,7 +128,7 @@ export function CardSlider({
                         <button
                             key={index}
                             className={cn(
-                                'h-[10px] w-[10px] rounded-full transition-all duration-300',
+                                'h-[16px] w-[16px] rounded-full transition-all duration-300',
                                 index === selectedIndex
                                     ? 'bg-dark scale-110'
                                     : 'bg-gray hover:bg-dark/60'

@@ -23,7 +23,7 @@ export default function RootLayout({
     return (
         <html lang='en' className={cn('font-sans', geist.variable)}>
             <body
-                className={`${plusJakartaSans.variable} antialiased  mx-auto`}>
+                className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
                 <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
                     {children}
                 </div>

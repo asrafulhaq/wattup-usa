@@ -1,7 +1,7 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { CardSliderWrapper } from './built-for-slider';
 
-export interface BuiltForCardData {
+export interface SlidesCardData {
     id: string;
     image: string;
     title: string;
@@ -9,7 +9,7 @@ export interface BuiltForCardData {
     cta: { label: string; href: string };
 }
 
-const builtForCards: BuiltForCardData[] = [
+const slidesCardData: SlidesCardData[] = [
     {
         id: 'drivers',
         image: '/assets/images/car1.png',
@@ -27,27 +27,27 @@ const builtForCards: BuiltForCardData[] = [
         cta: { label: 'Become a Host', href: '/host' },
     },
     {
-        id: 'partners',
-        image: '/assets/images/car-4.png',
-        title: 'For Partners',
+        id: 'drivers-1',
+        image: '/assets/images/car1.png',
+        title: 'For Drivers',
         description:
-            'Partner with WattUp and grow your business with premium EV infrastructure.',
-        cta: { label: 'Learn More', href: '/partners' },
+            'Find nearby charging stations, plug in, and get back on the road faster.',
+        cta: { label: 'Find Charging Locations', href: '/find-charger' },
     },
     {
-        id: 'fleets',
-        image: '/assets/images/car-5.png',
-        title: 'For Fleets',
+        id: 'hosts-1',
+        image: '/assets/images/car-2.png',
+        title: 'For Hosts',
         description:
-            'Reliable, high-speed charging solutions designed for fleet operations.',
-        cta: { label: 'Fleet Solutions', href: '/fleets' },
+            'Install EV charging and attract high-value customers, tenants, and visitors.',
+        cta: { label: 'Become a Host', href: '/host' },
     },
 ];
 
 export function BuiltFor() {
     return (
-        <section className='w-full common-section-padding bg-background overflow-hidden relative'>
-            <div className='container'>
+        <section className='w-full max-w-[1440px] mx-auto overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
+            <div className='container mx-auto'>
                 <FadeUp>
                     <h2 className='headline-dark mb-10'>
                         Built for Drivers and Property Owners
@@ -55,7 +55,7 @@ export function BuiltFor() {
                 </FadeUp>
 
                 <FadeUp delay={0.1}>
-                    <CardSliderWrapper cards={builtForCards} />
+                    <CardSliderWrapper cards={slidesCardData} />
                 </FadeUp>
             </div>
         </section>
