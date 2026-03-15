@@ -183,15 +183,55 @@ function EllipsisIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
+function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={16}
+            height={16}
+            viewBox='0 0 16 16'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M1 8h14m-7 7V1'
+                stroke='#fff'
+                strokeWidth={2}
+                strokeLinecap='round'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
+function CancelIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={12}
+            height={12}
+            viewBox='0 0 12 12'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M1 10.9L10.899 1m0 9.9L.999 1'
+                stroke='#fff'
+                strokeWidth={2}
+                strokeLinecap='round'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
 export {
     ArrowLeftIcon,
     ArrowRightIcon,
+    CancelIcon,
     CarretDownIcon,
     CarretUpIcon,
     CloseIcon,
     EllipsisIcon,
     FacebookIcon,
     InstagramIcon,
+    PlusIcon,
     SearchIcon,
     XIcon,
 };
