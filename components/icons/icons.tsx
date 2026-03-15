@@ -242,6 +242,55 @@ function CheckboxIcon(props: React.SVGProps<SVGSVGElement>) {
         </svg>
     );
 }
+function MobileMenuIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={43}
+            height={43}
+            viewBox='0 0 43 43'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            style={{ display: 'block' }}
+            {...props}>
+            <rect
+                width={43}
+                height={43}
+                rx={21.5}
+                fill='#fff'
+            />
+            <path
+                d='M30.824 18.387H10.977c-.452 0-.827-.47-.827-1.037s.375-1.038.827-1.038h19.847c.452 0 .826.47.826 1.038 0 .567-.374 1.037-.826 1.037zM30.824 26.688H10.977c-.452 0-.827-.47-.827-1.038 0-.567.375-1.038.827-1.038h19.847c.452 0 .826.47.826 1.038 0 .567-.374 1.038-.826 1.038z'
+                fill='#2D2D2D'
+            />
+        </svg>
+    );
+}
+function MobileMenuCloseIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={43}
+            height={43}
+            viewBox='0 0 43 43'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            style={{ display: 'block' }}
+            {...props}>
+            <rect
+                width={43}
+                height={43}
+                rx={21.5}
+                fill='#fff'
+            />
+            <path
+                d='M14 15.05l12 12M14 27.05l12-12'
+                stroke='#2D2D2D'
+                strokeWidth={2.12125}
+                strokeLinecap='square'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
 export {
     ArrowLeftIcon,
     ArrowRightIcon,
@@ -253,8 +302,11 @@ export {
     EllipsisIcon,
     FacebookIcon,
     InstagramIcon,
+    MobileMenuCloseIcon,
+    MobileMenuIcon,
     PlusIcon,
     SearchIcon,
     XIcon,
 };
+
 

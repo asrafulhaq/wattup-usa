@@ -4,7 +4,7 @@ import { CardSliderWrapper } from './built-for-slider';
 
 export function BuiltFor() {
     return (
-        <section className='w-full max-w-[1440px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
+        <section className='w-full max-w-[1444px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
             <div className='container mx-auto '>
                 <FadeUp>
                     <h2 className='headline-dark mb-10'>

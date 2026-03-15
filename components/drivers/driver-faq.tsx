@@ -32,7 +32,7 @@ export function DriverFAQ() {
     };
 
     return (
-        <section className='w-full max-w-[1440px] mx-auto common-section-padding'>
+        <section className='w-full max-w-[1444px] mx-auto common-section-padding'>
             <div className='container mx-auto flex flex-col'>
                 <FadeUp>
                     <h2 className='headline-dark mb-10'>FAQ&apos;s</h2>

@@ -19,7 +19,7 @@ export function TechnologyBacked() {
                 </div>
             </div>
             {/* Main Content Area */}
-            <div className='relative w-full max-w-[1440px] mx-auto h-[756px] flex flex-col items-center justify-center lg:px-[100px]'>
+            <div className='relative w-full max-w-[1444px] mx-auto h-[756px] flex flex-col items-center justify-center lg:px-[100px]'>
                 {/* Background Gradient Effect - placed here so it goes behind text & image */}
                 <div
                     className='absolute z-0 pointer-events-none'

@@ -79,7 +79,7 @@ export function ReusableSlider({
 
             {showArrows && (
                 <div className='absolute top-1/2 -translate-y-1/2 left-0 right-0 z-20 pointer-events-none'>
-                    <div className=' container mx-auto px-4 sm:px-8 xl:px-0 flex justify-between'>
+                    <div className='container mx-auto flex justify-between'>
                         <button
                             className='pointer-events-auto flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[#f1f1f1]/50 hover:bg-[#f1f1f1]/80 backdrop-blur-md transition-all shadow-[0px_27px_11px_rgba(0,0,0,0.01),0px_15px_9px_rgba(0,0,0,0.02),0px_7px_7px_rgba(0,0,0,0.05),0px_2px_4px_rgba(0,0,0,0.04)] text-[#2d2d2d]'
                             onClick={scrollPrev}

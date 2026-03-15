@@ -36,7 +36,7 @@ export function CTAReady({
                     {/* Dark gradient overlay to match Figma contrast if needed, or just light darkening for text readability */}
                     <div className='absolute inset-0 bg-black/20' />
                 </div>
-                <div className='container mx-auto px-4'>
+                <div className='container mx-auto'>
                     <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[218px]'>
                         <FadeUp className='w-full'>
                             <h2 className='headline-white pb-6'>

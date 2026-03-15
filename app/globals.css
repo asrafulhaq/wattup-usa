@@ -119,7 +119,7 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 
     /* Container */
-    --container-max: 1360px;
+    --container-max: 1366px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -194,9 +194,13 @@ body {
     }
 }
 @utility container {
+    width: calc(100% - 84px);
     max-width: var(--container-max);
     margin-inline: auto;
-    /* padding-inline: clamp(1rem, 3vw, 2.5rem); */
+
+    @media (max-width: 767px) {
+        width: calc(100% - 32px);
+    }
 }
 
 @layer utilities {

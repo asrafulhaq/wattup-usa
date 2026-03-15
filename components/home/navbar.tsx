@@ -1,13 +1,22 @@
 'use client';
 
-import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MobileMenuCloseIcon, MobileMenuIcon } from '../icons/icons';
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [mobileMenuOpen]);
     const navLinks = [
         { label: 'Home', href: '/' },
         { label: 'For Drivers', href: '/for-drivers' },
@@ -18,7 +27,7 @@ export function Navbar() {
 
     return (
         <>
-            <nav className='absolute inset-x-0 top-0 z-50 text-white font-sans'>
+            <nav className='absolute inset-x-0 top-0 z-50 text-white font-sans isolate pointer-events-auto'>
                 <div className='container flex items-center justify-between pt-8'>
                     {/* Logo */}
                     <Link
@@ -55,43 +64,41 @@ export function Navbar() {
                     </div>
 
                     {/* Mobile Menu Icon */}
-                    <div className='lg:hidden flex items-center shrink-0'>
-                        <button
-                            className='text-white p-2 hover:bg-white/10 rounded-md transition-colors'
-                            onClick={() => setMobileMenuOpen(true)}
-                            aria-label='Open mobile menu'>
-                            <Menu className='w-6 h-6' />
-                        </button>
-                    </div>
+                    <button
+                        className='lg:hidden shrink-0 touch-manipulation'
+                        onClick={() => setMobileMenuOpen(true)}
+                        aria-label='Open mobile menu'>
+                        <MobileMenuIcon />
+                    </button>
                 </div>
             </nav>
 
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
-                <div className='fixed inset-0 z-100 bg-foreground text-white p-6 flex flex-col md:hidden'>
+                <div className='fixed h-dvh px-4 pt-7 inset-0 z-100 bg-white text-dark  flex flex-col md:hidden'>
                     <div className='flex items-center justify-between mb-12'>
-                        <div className='relative h-6 w-32'>
+                        <div className='relative h-6 w-36'>
                             <Image
-                                src='/assets/images/logo.svg'
+                                src='/assets/images/logo_dark.svg'
                                 alt='WattUp Logo'
                                 fill
                                 className='object-left object-contain'
                             />
                         </div>
                         <button
-                            className='p-2 hover:bg-white/10 rounded-md transition-colors'
+                            className='p-px rounded-full bg-white shadow-btn hover:bg-white/10 transition-colors'
                             onClick={() => setMobileMenuOpen(false)}
                             aria-label='Close mobile menu'>
-                            <X className='w-6 h-6' />
+                            <MobileMenuCloseIcon />
                         </button>
                     </div>
 
-                    <div className='flex flex-col gap-6 text-2xl font-semibold tracking-tight'>
+                    <div className='flex mt-[177px] flex-col justify-center items-center gap-3 text-2xl font-semibold tracking-tight'>
                         {navLinks.map(link => (
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className='hover:text-primary transition-colors block'
+                                className=' text-[24px] py-[10px] font-medium leading-[100%] tracking-[-3%] hover:text-primary transition-colors block'
                                 onClick={() => setMobileMenuOpen(false)}>
                                 {link.label}
                             </Link>
@@ -101,7 +108,7 @@ export function Navbar() {
                     <div className='mt-auto pb-8'>
                         <Link
                             href='/contact'
-                            className='w-full flex items-center justify-center py-4 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary-hover transition-colors shadow-btn'
+                            className='w-full flex items-center justify-center py-4 px-[28px] h-[53px] bg-primary text-white rounded-lg font-bold text-[16px] leading-[130%] hover:bg-primary-hover transition-colors shadow-btn'
                             onClick={() => setMobileMenuOpen(false)}>
                             Contact Us
                         </Link>

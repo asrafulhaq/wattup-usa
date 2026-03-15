@@ -14,7 +14,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
-                            'headline mb-5',
+                            'headline w-[642px] mb-5',
                             dark ? 'text-dark' : 'text-white'
                         )}>
                         Powering the Next <br className='hidden md:block' />
@@ -107,7 +107,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative  overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[951px] overflow-hidden'>
+        <section className='relative  overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[961px] overflow-hidden'>
             <ReusableSlider slides={slidesData} className='w-full h-full' />
         </section>
     );

@@ -66,7 +66,7 @@ export function FindLocation() {
     };
 
     return (
-        <section className='relative w-full max-w-[1440px] mx-auto common-section-padding '>
+        <section className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
             {/* Header */}
             <div className='mb-[40px] container mx-auto'>
                 <FadeUp>

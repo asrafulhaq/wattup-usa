@@ -163,7 +163,7 @@ export function TechnologyBacked({
             ref={sectionRef}
             className='relative common-section-padding z-10 h-[1100px] bg-black overflow-hidden'>
             {/* Inner container capped at 1440px */}
-            <div className='relative w-full max-w-[1440px] mx-auto h-full'>
+            <div className='relative w-full max-w-[1444px] mx-auto h-full'>
                 {/* Header — stays on top */}
                 <div className='relative z-30 flex flex-col items-center text-center'>
                     <h2 className='headline-white mb-4'>

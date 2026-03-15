@@ -23,6 +23,7 @@ export default function RootLayout({
     return (
         <html lang='en' className={cn('font-sans', plusJakartaSans.variable)}>
             <body
+                suppressHydrationWarning
                 className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
                 <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
                     {/* The Navbar floats absolutely over the entire Hero */}
