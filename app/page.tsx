@@ -38,8 +38,29 @@ export default function Home() {
             <WhyChoose />
 
             {/* 8. Call to Action */}
-            <CTAReady />
+            <CTAReady
+                heading={
+                    <h2 className='headline-white pb-6'>
+                        Ready to Charge
+                        <br />
+                        with WattUp?
+                    </h2>
+                }
+                subHeading={
+                    <p className='text-lg md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white'>
+                        Find a charging station near you or partner
+                        <br className='hidden md:block' />
+                        with us to bring EV charging to your property.
+                    </p>
+                }
+                buttonText='Find a Charger'
+                buttonLink='/find-charger'
+                buttonText2='Partner With Us'
+                buttonLink2='/partner'
+            />
         </main>
     );
 }
+
+
 

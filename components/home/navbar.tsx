@@ -10,8 +10,8 @@ export function Navbar() {
 
     const navLinks = [
         { label: 'Home', href: '/' },
-        { label: 'For Drivers', href: '/drivers' },
-        { label: 'For Hosts', href: '/hosts' },
+        { label: 'For Drivers', href: '/for-drivers' },
+        { label: 'For Hosts', href: '/for-hosts' },
         { label: 'Locations', href: '/locations' },
         { label: 'About', href: '/about' },
     ];

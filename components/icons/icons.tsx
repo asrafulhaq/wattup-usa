@@ -91,6 +91,108 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
         </svg>
     );
 }
+function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={17}
+            height={17}
+            viewBox='0 0 17 17'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M15.234 16.366a.8.8 0 101.132-1.132l-.566.566-.566.566zm-2.493-4.757a.8.8 0 10-1.132 1.132l.566-.566.566-.566zm1.392-4.142h-.8a5.867 5.867 0 01-5.867 5.866v1.6a7.467 7.467 0 007.467-7.466h-.8zm-6.667 6.666v-.8A5.867 5.867 0 011.6 7.467H0a7.467 7.467 0 007.466 7.466v-.8zM.8 7.467h.8A5.867 5.867 0 017.466 1.6V0A7.467 7.467 0 000 7.467h.8zM7.466.8v.8a5.867 5.867 0 015.867 5.867h1.6A7.467 7.467 0 007.466 0v.8zm8.334 15l.566-.566-3.625-3.625-.566.566-.566.566 3.625 3.625.566-.566z'
+                fill='#2D2D2D'
+                fillOpacity={0.7}
+            />
+        </svg>
+    );
+}
+function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={12}
+            height={12}
+            viewBox='0 0 12 12'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M.8.8l10 10m0-10l-10 10'
+                stroke='#2D2D2D'
+                strokeOpacity={0.7}
+                strokeWidth={1.6}
+                strokeLinecap='round'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
+function CarretUpIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={14}
+            height={8}
+            viewBox='0 0 14 8'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M13 7L7 1 1 7'
+                stroke='#2D2D2D'
+                strokeOpacity={0.5}
+                strokeWidth={2}
+                strokeLinecap='round'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
+function CarretDownIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={14}
+            height={8}
+            viewBox='0 0 14 8'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <path
+                d='M13 1L7 7 1 1'
+                stroke='#2D2D2D'
+                strokeOpacity={0.5}
+                strokeWidth={2}
+                strokeLinecap='round'
+                strokeLinejoin='round'
+            />
+        </svg>
+    );
+}
 
-export { ArrowLeftIcon, ArrowRightIcon, FacebookIcon, InstagramIcon, XIcon };
+function EllipsisIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            width={11}
+            height={11}
+            viewBox='0 0 11 11'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            {...props}>
+            <circle cx={5.1476} cy={5.1476} r={5.1476} fill='#fff' />
+        </svg>
+    );
+}
+
+export {
+    ArrowLeftIcon,
+    ArrowRightIcon,
+    CarretDownIcon,
+    CarretUpIcon,
+    CloseIcon,
+    EllipsisIcon,
+    FacebookIcon,
+    InstagramIcon,
+    SearchIcon,
+    XIcon,
+};
 
