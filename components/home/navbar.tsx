@@ -27,8 +27,8 @@ export function Navbar() {
 
     return (
         <>
-            <nav className='absolute inset-x-0 top-0 z-50 text-white font-sans isolate pointer-events-auto'>
-                <div className='container flex items-center justify-between pt-8'>
+            <nav className='absolute inset-x-0 top-0 z-100 text-white font-sans pointer-events-none'>
+                <div className='container flex items-center justify-between pt-8 pointer-events-auto'>
                     {/* Logo */}
                     <Link
                         href='/'

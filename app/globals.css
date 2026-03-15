@@ -205,7 +205,7 @@ body {
 
 @layer utilities {
     .headline {
-        @apply text-[48px] font-semibold tracking-[-3%] leading-[110%];
+        @apply text-[32px] md:text-[48px] font-semibold tracking-[-3%] leading-[110%];
     }
 
     .headline-3 {

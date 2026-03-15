@@ -8,13 +8,13 @@ import Link from 'next/link';
 
 function HeroContent({ dark }: { dark: boolean }) {
     return (
-        <div className=''>
+        <div className='pt-[99px] md:pt-[116px]'>
             <div
                 className={`relative z-10  container mx-auto flex flex-col items-center text-center  ${dark ? 'text-white' : 'text-dark'}`}>
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
-                            'headline w-[642px] mb-5',
+                            'headline max-sm:h-[105px] w-[348px] md:w-[642px] mb-4 md:mb-5',
                             dark ? 'text-dark' : 'text-white'
                         )}>
                         Powering the Next <br className='hidden md:block' />
@@ -25,11 +25,11 @@ function HeroContent({ dark }: { dark: boolean }) {
                 <FadeUp delay={0.2} yOffset={20}>
                     <p
                         className={cn(
-                            'text-lg md:text-[20px] font-normal max-w-[416px] mx-auto mb-8 leading-[120%]',
+                            'text-[16px] md:text-[20px] font-normal max-w-[416px] mx-auto mb-6 md:mb-8 leading-[120%]',
                             dark ? 'text-dark' : 'text-white'
                         )}>
                         Fast, reliable charging stations located
-                        <br className='hidden sm:block' />
+                        <br className='hidden md:block' />
                         where you live, work, and travel.
                     </p>
                 </FadeUp>
@@ -38,15 +38,15 @@ function HeroContent({ dark }: { dark: boolean }) {
                     delay={0.4}
                     yOffset={20}
                     className='w-full flex-col font-sans'>
-                    <div className='flex flex-col sm:flex-row items-center justify-center gap-[16px]'>
+                    <div className='flex flex-row items-center justify-center gap-[16px]'>
                         <Link
                             href='/find-charger'
-                            className='w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
+                            className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
                             Find a Charger
                         </Link>
                         <Link
                             href='/partner'
-                            className='w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-white text-dark hover:bg-gray-light rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
+                            className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
                             Partner With Us
                         </Link>
                     </div>
@@ -60,17 +60,19 @@ const slidesData = [
     {
         id: 1,
         content: (
-            <div className='relative w-full h-full flex flex-col items-center justify-start pt-[116px]'>
+            <div className='relative w-full h-full flex flex-col items-center justify-start'>
                 {/* Background Image Setup */}
-                <div className='absolute inset-0 z-0 select-none'>
+                <div className='absolute inset-0 z-0 select-none bg-[#032e4d]'>
                     <Image
                         src='/assets/images/hero-1.png'
                         alt='WattUp Hero Station'
                         fill
-                        className='object-cover object-center brightness-75'
+                        className='object-cover object-center  '
                         priority
                         draggable={false}
                     />
+                    {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+
                     {/* Subtle Gradient Overlay for Text Readability */}
                     <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
                 </div>
@@ -83,17 +85,18 @@ const slidesData = [
     {
         id: 2,
         content: (
-            <div className='relative w-full h-full flex flex-col items-center justify-start pt-[116px]'>
+            <div className='relative w-full h-full flex flex-col items-center justify-start'>
                 {/* Background Image Setup */}
-                <div className='absolute inset-0 z-0 select-none'>
+                <div className='absolute inset-0 z-0 select-none bg-[#cfd8e3]'>
                     <Image
-                        src='/assets/images/hero-2.jpg'
+                        src='/assets/images/hero-2.png'
                         alt='WattUp Hero Station'
                         fill
-                        className='object-cover object-center brightness-75'
+                        className='object-cover object-bottom'
                         priority
                         draggable={false}
                     />
+
                     {/* Subtle Gradient Overlay for Text Readability */}
                     <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
                 </div>
@@ -107,7 +110,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative  overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[961px] overflow-hidden'>
+        <section className='relative  overflow-x-hidden mx-auto w-full  md:aspect-1440/951 h-[744px] md:h-[961px] overflow-hidden'>
             <ReusableSlider slides={slidesData} className='w-full h-full' />
         </section>
     );
