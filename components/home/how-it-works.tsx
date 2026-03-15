@@ -1,8 +1,49 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { HomePageHowItWorksStepData } from '@/data';
 import Image from 'next/image';
+import { CardSlider } from '../ui/card-slider';
+
+function StepCard({
+    step,
+    isMobileSlider = false,
+}: {
+    step: { title: string; description: string; image: string };
+    isMobileSlider?: boolean;
+}) {
+    return (
+        <div className='flex flex-col'>
+            {/* Image Container: 373px height on mobile, 472px on desktop */}
+            <div
+                className={`relative w-full rounded-[8px] overflow-hidden bg-gray-light shrink-0 ${isMobileSlider ? 'h-[373px] mb-4' : 'h-[472px] mb-6'} `}>
+                <Image
+                    src={step.image}
+                    alt={step.title}
+                    fill
+                    className='object-cover transition-transform duration-700 hover:scale-105'
+                    sizes={
+                        isMobileSlider
+                            ? '(max-width: 768px) 100vw, 33vw'
+                            : '(max-width: 768px) 100vw, 33vw'
+                    }
+                />
+            </div>
+            {/* Text Container: Gap 8px between Title and Description */}
+            <div className='flex flex-col gap-2'>
+                <h3 className='headline-4 text-dark'>{step.title}</h3>
+                <p className='text-description text-dark/70'>
+                    {step.description}
+                </p>
+            </div>
+        </div>
+    );
+}
 
 export function HowItWorks({ heading }: { heading?: React.ReactNode }) {
+    const mobileSlides = HomePageHowItWorksStepData.map((step, index) => ({
+        id: index,
+        content: <StepCard step={step} isMobileSlider={true} />,
+    }));
+
     return (
         <section className='w-full common-section-padding bg-white overflow-hidden'>
             <div className='container'>
@@ -12,31 +53,27 @@ export function HowItWorks({ heading }: { heading?: React.ReactNode }) {
                     </h2>
                 </FadeUp>
 
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-5 '>
+                {/* Desktop Grid View */}
+                <div className='hidden md:grid grid-cols-3 gap-5'>
                     {HomePageHowItWorksStepData.map((step, index) => (
-                        <FadeUp
-                            key={index}
-                            delay={index * 0.2}
-                            className='flex flex-col gap-6'>
-                            <div className='relative w-full h-[472px] rounded-[8px] overflow-hidden bg-gray-light mb-1'>
-                                <Image
-                                    src={step.image}
-                                    alt={step.title}
-                                    fill
-                                    className='object-cover transition-transform duration-700 hover:scale-105'
-                                    sizes='(max-width: 768px) 100vw, 33vw'
-                                />
-                            </div>
-                            <div className='flex flex-col gap-2'>
-                                <h3 className='headline-4 text-dark'>
-                                    {step.title}
-                                </h3>
-                                <p className='text-description text-dark/70'>
-                                    {step.description}
-                                </p>
-                            </div>
+                        <FadeUp key={index} delay={index * 0.2}>
+                            <StepCard step={step} isMobileSlider={false} />
                         </FadeUp>
                     ))}
+                </div>
+
+                {/* Mobile Slider View */}
+                <div className='block md:hidden'>
+                    <FadeUp>
+                        <CardSlider
+                            slides={mobileSlides}
+                            mobilePerView={1.05} // ~90% width to show a peek of the next card
+                            gap={20}
+                            showArrows={false}
+                            showDots={true}
+                            loop={false}
+                        />
+                    </FadeUp>
                 </div>
             </div>
         </section>

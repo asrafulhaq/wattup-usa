@@ -19,9 +19,6 @@ export function FutureMobility() {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 md:gap-y-8 w-fit text-left'>
                     {items.map((item, index) => {
-                        // At md (2-col): items 0,2 get border-r; items 1,3 don't.
-                        // At md (2-col): items 0,2 are row-starts — item 2 needs pl-0 (not pl-[53px]).
-                        // At lg (4-col): all except last get border-r; only first gets pl-0 (first:pl-0 already handles it).
                         const isEvenIndex = index % 2 === 0; // 0,2 → left column at md
                         const isOddIndex = index % 2 === 1; // 1,3 → right column at md (no border)
                         const isSecondRowStart = index === 2; // first of second row at md → pl-0
