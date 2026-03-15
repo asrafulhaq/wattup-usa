@@ -46,16 +46,8 @@ export default function ForDriversPage() {
 
             {/* 7. Why Choose WATTUP Cards */}
             <CTAReady
-                heading={
-                    <h2 className='headline-white pb-6'>
-                        Find a Charger Near You
-                    </h2>
-                }
-                subHeading={
-                    <p className='text-lg md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white'>
-                        Explore the WattUp charging network.
-                    </p>
-                }
+                heading='Find a Charger Near You'
+                subHeading='Explore the WattUp charging network.'
                 buttonText='Find Locations'
                 buttonLink='/locations'
             />

@@ -9,6 +9,7 @@ export function CTAReady({
     buttonLink,
     buttonText2,
     buttonLink2,
+    image,
 }: {
     heading: React.ReactNode;
     subHeading: React.ReactNode;
@@ -16,6 +17,7 @@ export function CTAReady({
     buttonLink: string;
     buttonText2?: string;
     buttonLink2?: string;
+    image?: string;
 }) {
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
@@ -24,7 +26,7 @@ export function CTAReady({
                 {/* Background Image Setup */}
                 <div className='absolute inset-0 z-0 select-none'>
                     <Image
-                        src='/assets/images/footer-section-bg.png'
+                        src={image || '/assets/images/footer-section-bg.png'}
                         alt='WattUp Sunset Background'
                         fill
                         className='object-cover object-center'
@@ -37,24 +39,29 @@ export function CTAReady({
                 <div className='container mx-auto px-4'>
                     <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[218px]'>
                         <FadeUp className='w-full'>
-                            {heading || (
-                                <h2 className='headline-white pb-6'>
-                                    Ready to Charge
-                                    <br />
-                                    with WattUp?
-                                </h2>
-                            )}
+                            <h2 className='headline-white pb-6'>
+                                {heading || (
+                                    <>
+                                        Ready to Charge
+                                        <br />
+                                        with WattUp?
+                                    </>
+                                )}
+                            </h2>
                         </FadeUp>
 
                         <FadeUp delay={0.2} className='w-full'>
-                            {subHeading || (
-                                <p className='text-lg md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white'>
-                                    Find a charging station near you or partner
-                                    <br className='hidden md:block' />
-                                    with us to bring EV charging to your
-                                    property.
-                                </p>
-                            )}
+                            <p className='text-lg md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white'>
+                                {subHeading || (
+                                    <>
+                                        Find a charging station near you or
+                                        partner
+                                        <br className='hidden md:block' />
+                                        with us to bring EV charging to your
+                                        property.
+                                    </>
+                                )}
+                            </p>
                         </FadeUp>
 
                         <FadeUp

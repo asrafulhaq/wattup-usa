@@ -306,3 +306,22 @@ export const HostPageTechnologyFeaturesData = [
         title: 'High-performance\nhardware',
     },
 ];
+
+export const AboutPageCorePrinciplesData = [
+    {
+        title: 'Mission',
+        description: 'Our mission is to make EV charging accessible and reliable everywhere.',
+    },
+    {
+        title: 'Vision',
+        description: 'We believe the future of mobility depends on scalable charging infrastructure.',
+    },
+    {
+        title: 'Future',
+        description: 'EV adoption is growing rapidly, and charging networks will play a critical role.',
+    },
+    {
+        title: 'Sustainability',
+        description: 'Supporting the transition to clean transportation and sustainable infrastructure.',
+    },
+];

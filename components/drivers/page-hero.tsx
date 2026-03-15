@@ -1,4 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,6 +10,7 @@ export function PageHero({
     subHeading,
     buttonText,
     buttonLink,
+    buttonLight,
 }: {
     image: string;
     alt?: string;
@@ -16,6 +18,7 @@ export function PageHero({
     subHeading: React.ReactNode;
     buttonText: string;
     buttonLink: string;
+    buttonLight?: boolean;
 }) {
     return (
         <section className='relative overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[951px] flex flex-col items-center justify-start pt-[116px] overflow-hidden'>
@@ -60,7 +63,12 @@ export function PageHero({
                     <div className='flex items-center justify-center '>
                         <Link
                             href={buttonLink || '/find-charger'}
-                            className='w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap'>
+                            className={cn(
+                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap',
+                                buttonLight
+                                    ? 'bg-white hover:bg-white/90 text-dark'
+                                    : 'bg-primary hover:bg-primary-hover text-white'
+                            )}>
                             {buttonText || 'Find a Charger'}
                         </Link>
                     </div>
