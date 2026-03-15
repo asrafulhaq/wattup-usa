@@ -1,9 +1,9 @@
 'use client';
 
 import { CardSlider } from '@/components/ui/card-slider';
+import { SlidesCardData } from '@/data';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { SlidesCardData } from './built-for';
 
 function SlidesCard({ card }: { card: SlidesCardData }) {
     return (
