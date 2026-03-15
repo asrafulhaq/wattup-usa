@@ -1,3 +1,4 @@
+import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { FindLocation } from '@/components/drivers/find-location';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
@@ -18,6 +19,9 @@ export default function ForDriversPage() {
 
             {/* 4. Find Location */}
             <FindLocation />
+
+            {/* 5. Charging Where You Go */}
+            <ChargingWhereYouGo />
 
             {/* 7. Why Choose WATTUP Cards */}
             <CTAReady

@@ -16,7 +16,7 @@ export function PageHero() {
                     draggable={false}
                 />
                 {/* Subtle Gradient Overlay for Text Readability */}
-                <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+            {/*     <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' /> */}
             </div>
 
             {/* Content Container */}
