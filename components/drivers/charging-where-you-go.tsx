@@ -1,6 +1,6 @@
 import { FadeUp } from '@/components/ui/fade-up';
-import { cn } from '@/lib/utils';
 import { CarginglocationsForDrivers, LocationData } from '@/data';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { CardSlider } from '../ui/card-slider';
 
@@ -17,7 +17,7 @@ function LocationCard({
             <div
                 className={cn(
                     'relative w-full rounded-[8px] overflow-hidden',
-                    isMobileSlider ? 'h-[335px] sm:h-[373px]' : 'h-[370px]'
+                    isMobileSlider ? 'h-[373px] sm:h-[373px]' : 'h-[370px]'
                 )}>
                 <Image
                     src={location.image}
@@ -32,7 +32,9 @@ function LocationCard({
                 />
             </div>
             {/* Title */}
-            <h3 className='headline-4 text-nowrap text-dark'>{location.title}</h3>
+            <h3 className='headline-4 text-nowrap text-dark'>
+                {location.title}
+            </h3>
         </div>
     );
 }
