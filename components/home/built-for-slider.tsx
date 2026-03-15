@@ -2,17 +2,21 @@
 
 import { CardSlider } from '@/components/ui/card-slider';
 import { SlidesCardData } from '@/data';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
 function SlidesCard({ card }: { card: SlidesCardData }) {
     return (
-        <div className='relative group rounded-[8px] overflow-hidden w-full h-[489px] flex flex-col items-start justify-end gap-[10px] p-[32px] pt-[276px]'>
+        <div className='relative group rounded-[8px] overflow-hidden h-[520px] md:h-[489px] w-full flex flex-col items-start justify-end gap-[10px] p-[32px] pt-[276px] md:pt-[276px]'>
             <Image
                 src={card.image}
                 alt={card.title}
                 fill
-                className='object-cover  transition-transform duration-700 z-0'
+                sizes='(max-width: 767px) 330px, 785px'
+                className={cn(
+                    'object-cover  transition-transform duration-700 z-0'
+                )}
             />
             {/* Gradient overlay for text readability */}
             <div className='absolute inset-0 bg-linear-to-t from-black/10 via-black/10 to-transparent pointer-events-none z-10' />
@@ -41,7 +45,9 @@ export function CardSliderWrapper({ cards }: { cards: SlidesCardData[] }) {
     return (
         <CardSlider
             slides={slides}
-            slidesPerView={1.5}
+            slidesPerView={2}
+            mobilePerView={1.05}
+            desktopPerView={1.8}
             gap={20}
             showArrows={true}
             showDots={true}

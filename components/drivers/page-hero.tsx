@@ -21,14 +21,14 @@ export function PageHero({
     buttonLight?: boolean;
 }) {
     return (
-        <section className='relative overflow-x-hidden mx-auto w-full h-dvh lg:h-auto lg:aspect-1440/951 max-h-[951px] flex flex-col items-center justify-start pt-[116px] overflow-hidden'>
+        <section className='relative overflow-x-hidden mx-auto w-full h-[782px] md:aspect-1440/951 md:h-[951px] flex flex-col items-center justify-start pt-[99px] md:pt-[116px] overflow-hidden'>
             {/* Background Image Setup */}
             <div className='absolute inset-0 z-0 select-none'>
                 <Image
                     src={image || '/assets/images/for-driver-page-hero.png'}
                     alt={alt || 'Page Hero Background'}
                     fill
-                    className='object-cover object-center'
+                    className='object-cover  object-[77%_100%] md:object-center'
                     priority
                     draggable={false}
                 />
@@ -39,13 +39,13 @@ export function PageHero({
             {/* Content Container */}
             <div className='relative z-10 container mx-auto flex flex-col items-center text-center text-white'>
                 <FadeUp yOffset={30}>
-                    <h1 className='headline mb-5 text-white'>
+                    <h1 className='headline mb-4 md:mb-5 text-white'>
                         {heading || 'EV Charging Made Simple'}
                     </h1>
                 </FadeUp>
 
                 <FadeUp delay={0.2} yOffset={20}>
-                    <p className='text-lg md:text-[20px] font-normal max-w-[416px] mx-auto mb-8 leading-[120%] text-white'>
+                    <p className='text-lg md:text-[20px] font-normal max-w-[416px] mx-auto mb-6 md:mb-8 leading-[120%] text-white'>
                         {subHeading || (
                             <>
                                 Fast, reliable charging stations located
@@ -64,7 +64,7 @@ export function PageHero({
                         <Link
                             href={buttonLink || '/find-charger'}
                             className={cn(
-                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-medium text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap',
+                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap',
                                 buttonLight
                                     ? 'bg-white hover:bg-white/90 text-dark'
                                     : 'bg-primary hover:bg-primary-hover text-white'

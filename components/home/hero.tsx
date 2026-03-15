@@ -64,10 +64,18 @@ const slidesData = [
                 {/* Background Image Setup */}
                 <div className='absolute inset-0 z-0 select-none bg-[#032e4d]'>
                     <Image
+                        src='/assets/images/hero-1-md.png'
+                        alt='WattUp Hero Station'
+                        fill
+                        className='object-cover hidden md:block object-center'
+                        priority
+                        draggable={false}
+                    />
+                    <Image
                         src='/assets/images/hero-1.png'
                         alt='WattUp Hero Station'
                         fill
-                        className='object-cover object-center  '
+                        className='object-cover md:hidden object-center'
                         priority
                         draggable={false}
                     />
@@ -89,10 +97,18 @@ const slidesData = [
                 {/* Background Image Setup */}
                 <div className='absolute inset-0 z-0 select-none bg-[#cfd8e3]'>
                     <Image
+                        src='/assets/images/hero-2-md.png'
+                        alt='WattUp Hero Station'
+                        fill
+                        className='object-cover hidden md:block object-bottom'
+                        priority
+                        draggable={false}
+                    />
+                    <Image
                         src='/assets/images/hero-2.png'
                         alt='WattUp Hero Station'
                         fill
-                        className='object-cover object-bottom'
+                        className='object-cover md:hidden object-bottom'
                         priority
                         draggable={false}
                     />

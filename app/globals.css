@@ -216,19 +216,19 @@ body {
     }
 
     .headline-5 {
-        @apply text-[32px] font-semibold tracking-[-3%] leading-[110%];
+        @apply text-[24px] md:text-[32px] font-medium md:font-semibold tracking-[-3%] leading-[100%] md:leading-[110%];
     }
     .headline-white {
-        @apply text-[48px] font-semibold tracking-[-3%] leading-[110%] text-white;
+        @apply text-[32px] md:text-[48px] font-semibold tracking-[-3%] leading-[110%] text-white;
     }
     .headline-dark {
-        @apply text-[48px] font-semibold tracking-[-3%] leading-[110%] text-dark;
+        @apply text-[32px] md:text-[48px] font-semibold tracking-[-3%] leading-[110%] text-dark;
     }
     .text-description {
         @apply text-[20px] font-semibold leading-[130%] tracking-[-3%];
     }
     .common-section-padding {
-        @apply py-[82px];
+        @apply py-[40px] sm:py-[82px];
     }
     .input-label {
         @apply font-semibold text-[20px] leading-[130%] tracking-[-3%] text-dark;

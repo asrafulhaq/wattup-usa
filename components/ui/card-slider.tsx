@@ -14,8 +14,12 @@ export interface CardSliderProps {
     slides: CardSlideData[];
     className?: string;
     slideClassName?: string;
-    /** Number of slides visible per view on desktop, or 'auto' to use exact slide width. Default: 2 */
+    /** Number of slides visible per view on all sizes. Overridden by mobilePerView/desktopPerView if provided. Default: 2 */
     slidesPerView?: number | 'auto';
+    /** Slides per view on mobile (< md). Defaults to slidesPerView. */
+    mobilePerView?: number;
+    /** Slides per view on desktop (≥ md). Defaults to slidesPerView. */
+    desktopPerView?: number;
     /** Gap between slides in px. Default: 20 */
     gap?: number;
     showArrows?: boolean;
@@ -28,6 +32,8 @@ export function CardSlider({
     className,
     slideClassName,
     slidesPerView = 2,
+    mobilePerView,
+    desktopPerView,
     gap = 20,
     showArrows = true,
     showDots = true,
@@ -36,11 +42,21 @@ export function CardSlider({
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop,
         align: 'start',
-        slidesToScroll: 1, // Always scroll 1 at a time for predictability
+        slidesToScroll: 1,
     });
 
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    // Track viewport for responsive slides per view
+    React.useEffect(() => {
+        const mq = window.matchMedia('(max-width: 767px)');
+        setIsMobile(mq.matches);
+        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+    }, []);
 
     const scrollPrev = React.useCallback(
         () => emblaApi && emblaApi.scrollPrev(),
@@ -73,11 +89,17 @@ export function CardSlider({
         };
     }, [emblaApi, onSelect]);
 
-    // Calculate basis based on slidesPerView and gap
+    // Resolve active slides per view
+    const activeSlidesPerView = React.useMemo(() => {
+        if (isMobile && mobilePerView != null) return mobilePerView;
+        if (!isMobile && desktopPerView != null) return desktopPerView;
+        return slidesPerView;
+    }, [isMobile, mobilePerView, desktopPerView, slidesPerView]);
+
     const basisStyle =
-        slidesPerView === 'auto'
+        activeSlidesPerView === 'auto'
             ? 'auto'
-            : `calc((100% - ${(typeof slidesPerView === 'number' ? Math.floor(slidesPerView) - 1 : 0) * gap}px) / ${slidesPerView})`;
+            : `calc((100% - ${(typeof activeSlidesPerView === 'number' ? Math.floor(activeSlidesPerView) - 1 : 0) * gap}px) / ${activeSlidesPerView})`;
 
     return (
         <div className={cn('', className)}>
@@ -102,17 +124,17 @@ export function CardSlider({
                     </div>
                 </div>
 
-                {/* Arrows — centered vertically on the card area */}
+                {/* Arrows — hidden on mobile per Figma, visible on desktop */}
                 {showArrows && (
                     <>
                         <button
-                            className='absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
+                            className='hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
                             onClick={scrollPrev}
                             aria-label='Previous slide'>
                             <ArrowLeftIcon />
                         </button>
                         <button
-                            className='absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
+                            className='hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-background/30 hover:bg-background/50 backdrop-blur-md transition-all shadow-btn text-dark'
                             onClick={scrollNext}
                             aria-label='Next slide'>
                             <ArrowRightIcon />
@@ -123,7 +145,7 @@ export function CardSlider({
 
             {/* Dots — below the slider */}
             {showDots && (
-                <div className='flex gap-[10px] items-center mt-8'>
+                <div className='flex gap-[10px] items-center max-md:justify-center mt-8'>
                     {scrollSnaps.map((_, index) => (
                         <button
                             key={index}
