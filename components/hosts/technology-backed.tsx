@@ -24,12 +24,12 @@ export function TechnologyBacked() {
                 <div
                     className='absolute z-0 pointer-events-none'
                     style={{
-                        left: '0px',
+                        left: '150px',
                         top: '100px',
                         width: '800px',
                         height: '600px',
                         background:
-                            'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
+                            'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 20%, rgba(55, 48, 32, 0) 100%)',
                         filter: 'blur(150px)',
                     }}
                 />
@@ -58,10 +58,10 @@ export function TechnologyBacked() {
                 {/* Right side: Hardware Image Overlaying Borders */}
                 <div className='absolute z-20 top-0 right-0 h-[756px] w-[600px] lg:w-[1080px] pointer-events-none'>
                     {/* Top gradient blur to blend image smoothly */}
-                    <div className='absolute top-0 left-0 right-0 h-[80px] bg-linear-to-b from-black to-transparent z-30' />
+                    <div className='absolute top-0 left-0 right-0 h-[120px] bg-linear-to-b from-black to-transparent z-30' />
 
                     {/* Bottom gradient blur to blend image smoothly */}
-                    <div className='absolute bottom-0 left-0 right-0 h-[150px] bg-linear-to-t from-black to-transparent z-30' />
+                    <div className='absolute bottom-0 left-0 right-0 h-[350px] bg-linear-to-t from-black to-transparent z-30' />
 
                     <div className='relative w-full h-full'>
                         <Image
