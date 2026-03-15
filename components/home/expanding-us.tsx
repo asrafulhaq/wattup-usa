@@ -13,13 +13,13 @@ const cities = [
 
 export function ExpandingUs() {
     return (
-        <div className='pt-[82px]'>
+        <div className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
                 imageSrc='/assets/images/location-marque-bg.png'
                 imageAlt='Charging Stations By Water'>
-                <div className='flex flex-col space-y-20  items-center text-center w-full'>
+                <div className='flex flex-col space-y-[32px] md:space-y-20  items-center text-center w-full'>
                     <FadeUp>
-                        <h2 className='headline-dark'>
+                        <h2 className='headline-dark max-sm:w-[348px]'>
                             Expanding Across the U.S.
                         </h2>
                     </FadeUp>
@@ -33,7 +33,7 @@ export function ExpandingUs() {
                                 {[...cities, ...cities].map((city, idx) => (
                                     <div
                                         key={idx}
-                                        className='flex items-center text-[48px] md:text-[64px] font-bold leading-[110%] tracking-[-3%]'>
+                                        className='flex items-center text-[40px] md:text-[64px] font-bold leading-[110%] tracking-[-3%]'>
                                         <span className='text-gray/36 hover:text-dark transition-colors duration-300 cursor-pointer '>
                                             {city}
                                         </span>
@@ -50,7 +50,7 @@ export function ExpandingUs() {
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
                         <Link
                             href='/locations'
-                            className='inline-flex px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-all duration-300 mb-8'>
+                            className='inline-flex justify-center max-md:w-[348px] max-md:mx-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-all duration-300 mb-8'>
                             View All Locations
                         </Link>
                     </FadeUp>

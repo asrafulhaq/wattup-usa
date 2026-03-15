@@ -12,7 +12,7 @@ export function FutureMobility() {
         <section className='w-full max-w-[1444px] mx-auto overflow-x-hidden common-section-padding bg-background '>
             <div className='container'>
                 <FadeUp>
-                    <h2 className='headline-dark max-md:w-[322px] mb-10'>
+                    <h2 className='headline-dark max-sm:w-[322px] mb-10'>
                         Powering the Future of Mobility
                     </h2>
                 </FadeUp>
