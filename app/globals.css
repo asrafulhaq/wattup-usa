@@ -226,7 +226,12 @@ body {
     .common-section-padding {
         @apply py-[82px];
     }
-
+    .input-label {
+        @apply font-semibold text-[20px] leading-[130%] tracking-[-3%] text-dark;
+    }
+    .input-field {
+        @apply w-full bg-gray/30 rounded-[8px] px-5 h-[56px] text-[16px] leading-[130%] tracking-[-3%]  font-medium outline-none border border-transparent focus:border-primary transition-colors text-dark placeholder:text-dark/50;
+    }
     .animate-marquee {
         animation: marquee 30s linear infinite;
     }
@@ -240,3 +245,4 @@ body {
         transform: translateX(-50%);
     }
 }
+
