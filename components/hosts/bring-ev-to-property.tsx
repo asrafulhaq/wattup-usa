@@ -2,15 +2,6 @@ import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
 import Link from 'next/link';
 
-const cities = [
-    'Los Angeles',
-    'San Diego',
-    'Austin',
-    'Miami',
-    'Phoenix',
-    'Chicago',
-];
-
 export function BringEvToProperty() {
     return (
         <div className='pt-[82px]'>

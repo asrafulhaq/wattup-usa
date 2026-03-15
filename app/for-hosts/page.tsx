@@ -3,6 +3,7 @@ import { PageHero } from '@/components/drivers/page-hero';
 import { WhyChoose } from '@/components/home/why-choose';
 import { BringEvToProperty } from '@/components/hosts/bring-ev-to-property';
 import { HowItWorksForHosts } from '@/components/hosts/how-it-works-hosts';
+import { TechnologyBacked } from '@/components/hosts/technology-backed';
 import {
     HostPageBenifitsCardsData,
     HostPageWhyChooseSlideCardData,
@@ -42,18 +43,21 @@ export default function ForHostPage() {
             {/* 3. How It Works */}
             <HowItWorksForHosts />
 
-            {/* 4. Benifits Cards */}
+            {/* 4. Technology Backed */}
+            <TechnologyBacked />
+
+            {/* 5. Benifits Cards */}
             <WhyChoose
                 heading='Generate Revenue From Charging'
                 slides={HostPageBenifitsCardsData}
             />
 
-            {/* 5. Charging Where You Go */}
+            {/* 6. Charging Where You Go */}
             <ChargingWhereYouGo
                 heading='Ideal locations'
                 locations={IdealLocationsForHosts}
             />
-            {/* 6. Bring EV to property */}
+            {/* 7. Bring EV to property */}
             <BringEvToProperty />
         </main>
     );

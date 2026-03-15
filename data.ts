@@ -291,3 +291,18 @@ export const IdealLocationsForHosts = [
     },
 ];
 
+
+export const HostPageTechnologyFeaturesData = [
+    {
+        number: '01.',
+        title: 'Smart charging\ninfrastructure',
+    },
+    {
+        number: '02.',
+        title: 'Secure payments',
+    },
+    {
+        number: '03.',
+        title: 'High-performance\nhardware',
+    },
+];
