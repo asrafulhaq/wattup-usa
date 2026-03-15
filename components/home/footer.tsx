@@ -41,7 +41,7 @@ const Footer = () => {
                     </div>
 
                     {/* Links (Right) */}
-                    <div className='grid grid-cols-2 gap-x-[80px] md:gap-x-[120px]'>
+                    <div className='grid grid-cols-2 gap-x-[80px] md:gap-x-[120px] max-md:mb-8'>
                         {/* Column 1 */}
                         <div className='flex flex-col'>
                             {COLUMN_1_LINKS.map(link => (
@@ -68,9 +68,9 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Row: Text & Social Icons */}
-                <div className='flex flex-col md:flex-row justify-between items-end gap-12 w-full'>
+                <div className='flex flex-col-reverse md:flex-row justify-between items-start md:items-end gap-12 w-full'>
                     {/* Text block & Copyright (Left) */}
-                    <div className='flex text-[12px] text-white/70 leading-[129%] flex-col items-start max-w-[700px]'>
+                    <div className='flex text-[14 px] text-white/70 leading-[129%] mt-3 flex-col items-start max-w-[700px]'>
                         <p className='mb-[16px]'>
                             Lorem ipsum dolor sit amet consectetur. Blandit enim
                             integer cras id pellentesque dui. Vel duis massa nec
@@ -86,7 +86,7 @@ const Footer = () => {
                     </div>
 
                     {/* Social Icons (Right) */}
-                    <div className='flex items-center gap-[24px] mb-1'>
+                    <div className='flex items-center gap-[20px] md:gap-[24px] max-md:-mb-7'>
                         {SOCIAL_LINKS.map(social => (
                             <Link
                                 key={social.label}

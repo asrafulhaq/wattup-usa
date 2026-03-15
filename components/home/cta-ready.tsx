@@ -22,7 +22,7 @@ export function CTAReady({
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
             {/* Top CTA Banner - 1440x960px Figma Specs */}
-            <div className='relative w-full bg-black h-[960px] flex flex-col items-center justify-start  mx-auto'>
+            <div className='relative w-full bg-black h-[744px] md:h-[960px] flex flex-col items-center justify-start  mx-auto'>
                 {/* Background Image Setup */}
                 <div className='absolute inset-0 z-0 select-none'>
                     <Image
@@ -37,7 +37,7 @@ export function CTAReady({
                     <div className='absolute inset-0 bg-black/20' />
                 </div>
                 <div className='container mx-auto'>
-                    <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[218px]'>
+                    <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[99px] md:pt-[218px]'>
                         <FadeUp className='w-full'>
                             <h2 className='headline-white pb-6'>
                                 {heading || (
@@ -66,16 +66,16 @@ export function CTAReady({
 
                         <FadeUp
                             delay={0.4}
-                            className='flex flex-col sm:flex-row items-center justify-center gap-[12px] w-full'>
+                            className='flex flex-row items-center justify-center gap-[12px] w-full'>
                             <Link
                                 href={buttonLink || '/find-charger'}
-                                className='w-full sm:w-[210px] h-[56px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
+                                className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
                                 {buttonText || 'Find a Charger'}
                             </Link>
                             {buttonText2 && buttonLink2 && (
                                 <Link
                                     href={buttonLink2 || '/partner'}
-                                    className='w-full sm:w-[210px] h-[56px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
+                                    className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
                                     {buttonText2 || 'Partner With Us'}
                                 </Link>
                             )}
