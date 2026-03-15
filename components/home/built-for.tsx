@@ -1,48 +1,6 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { HomePageBuiltForSlidesCardData } from '@/data';
 import { CardSliderWrapper } from './built-for-slider';
-
-export interface SlidesCardData {
-    id: string;
-    image: string;
-    title: string;
-    description: string;
-    cta: { label: string; href: string };
-}
-
-const slidesCardData: SlidesCardData[] = [
-    {
-        id: 'drivers',
-        image: '/assets/images/car1.png',
-        title: 'For Drivers',
-        description:
-            'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/find-charger' },
-    },
-    {
-        id: 'hosts',
-        image: '/assets/images/car-2.png',
-        title: 'For Hosts',
-        description:
-            'Install EV charging and attract high-value customers, tenants, and visitors.',
-        cta: { label: 'Become a Host', href: '/host' },
-    },
-    {
-        id: 'drivers-1',
-        image: '/assets/images/car1.png',
-        title: 'For Drivers',
-        description:
-            'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/find-charger' },
-    },
-    {
-        id: 'hosts-1',
-        image: '/assets/images/car-2.png',
-        title: 'For Hosts',
-        description:
-            'Install EV charging and attract high-value customers, tenants, and visitors.',
-        cta: { label: 'Become a Host', href: '/host' },
-    },
-];
 
 export function BuiltFor() {
     return (
@@ -55,7 +13,7 @@ export function BuiltFor() {
                 </FadeUp>
 
                 <FadeUp delay={0.1}>
-                    <CardSliderWrapper cards={slidesCardData} />
+                    <CardSliderWrapper cards={HomePageBuiltForSlidesCardData} />
                 </FadeUp>
             </div>
         </section>

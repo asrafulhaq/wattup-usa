@@ -5,17 +5,24 @@ export interface FadedImageCrossSectionProps {
     children: React.ReactNode;
     imageSrc: string;
     imageAlt?: string;
+    bottomGradient?: boolean;
+    topFaddingStyle?: React.CSSProperties;
 }
 
 export function FadedImageCrossSection({
     children,
     imageSrc,
     imageAlt = 'Section background',
+    bottomGradient = true,
+    topFaddingStyle = {
+        background:
+            'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 50%)',
+    },
 }: FadedImageCrossSectionProps) {
     return (
         <section className='relative w-full overflow-hidden flex flex-col items-center bg-white'>
             {/* Top Section: Content (e.g. Marquee, Text, etc) */}
-            <div className='relative z-10 w-full flex flex-col items-center justify-start pt-24 pb-12 mb-20'>
+            <div className='relative z-10 w-full flex flex-col items-center justify-start '>
                 {children}
             </div>
 
@@ -38,21 +45,21 @@ export function FadedImageCrossSection({
                      Based on Figma: Linear Gradient White -> White/0 */}
                 <div
                     className='absolute inset-0 pointer-events-none'
-                    style={{
-                        background:
-                            'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 50%)',
-                    }}
+                    style={topFaddingStyle}
                 />
 
                 {/* 3. Bottom-up White Gradient (180deg White 0% to White 87% to White)
                      Based on Figma: Linear Gradient fading out the bottom */}
-                <div
-                    className='absolute inset-0 pointer-events-none'
-                    style={{
-                        background:
-                            'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%)',
-                    }}
-                />
+
+                {bottomGradient && (
+                    <div
+                        className='absolute inset-0 pointer-events-none'
+                        style={{
+                            background:
+                                'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%)',
+                        }}
+                    />
+                )}
             </div>
         </section>
     );

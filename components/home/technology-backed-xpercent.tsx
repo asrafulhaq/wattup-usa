@@ -3,11 +3,9 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
-import { technologySlidesData } from './technology-backed';
-import {
-    TechnologyBackedSlide,
-    TechnologySlideData,
-} from './technology-backed-slide';
+
+import { HomePagetechnologySlidesData, TechnologySlideData } from '@/data';
+import { TechnologyBackedSlide } from './technology-backed-slide';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
  * Text fades in/out with opacity only (no y transform to prevent drift).
  */
 export function TechnologyBackedXPercent({
-    slides = technologySlidesData,
+    slides = HomePagetechnologySlidesData,
 }: {
     slides?: TechnologySlideData[];
 }) {

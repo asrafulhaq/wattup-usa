@@ -25,7 +25,7 @@ const faqs = [
 ];
 
 export function DriverFAQ() {
-    const [openIndex, setOpenIndex] = useState<number>(0);
+    const [openIndex, setOpenIndex] = useState<number>(-1);
 
     const toggleFaq = (index: number) => {
         setOpenIndex(openIndex === index ? -1 : index);

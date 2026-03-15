@@ -1,18 +1,6 @@
+import { TechnologySlideData } from '@/data';
 import Image from 'next/image';
 import { forwardRef } from 'react';
-
-export interface TechnologySlideData {
-    number: string;
-    title: string;
-    description: string;
-    image: string;
-    textPosition: 'left' | 'right';
-    className?: string; // Allow custom styling per slide
-    textStyle?: React.CSSProperties; // Allow exact absolute positioning
-    gradientClass?: string;
-    gradientStyle?: React.CSSProperties; // Detailed background styling
-    imageClassName?: string; // Custom image object-position per slide
-}
 
 interface TechnologyBackedSlideProps {
     slide: TechnologySlideData;
@@ -45,7 +33,7 @@ export const TechnologyBackedSlide = forwardRef<
 
             {/* Vignette — dark edges that blend corners into black background */}
             <div
-                className='absolute inset-0 z-[1] pointer-events-none'
+                className='absolute inset-0 z-1 pointer-events-none'
                 style={{
                     boxShadow: 'inset 0 0 150px 60px rgba(0, 0, 0, 0.95)',
                 }}

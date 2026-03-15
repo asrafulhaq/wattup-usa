@@ -1,84 +1,15 @@
 'use client';
 
+import { HomePagetechnologySlidesData, TechnologySlideData } from '@/data';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
-import {
-    TechnologyBackedSlide,
-    TechnologySlideData,
-} from './technology-backed-slide';
+import { TechnologyBackedSlide } from './technology-backed-slide';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const technologySlidesData: TechnologySlideData[] = [
-    {
-        number: '01.',
-        title: 'Smart charging\ninfrastructure',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-1.png',
-        textPosition: 'left',
-        textStyle: {
-            left: '252px',
-            top: '155px',
-            maxWidth: '449px',
-        },
-        gradientStyle: {
-            left: '252px',
-            top: '300px', // Right below the title, like the red box
-            width: '800px',
-            height: '456px',
-            background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
-        },
-    },
-    {
-        number: '02.',
-        title: 'High-performance\nhardware',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-2.png',
-        textPosition: 'right',
-        imageClassName: 'object-contain object-left',
-        textStyle: {
-            left: '920px',
-            top: '250px',
-            maxWidth: '497px',
-        },
-        gradientStyle: {
-            left: '700px',
-            top: '100px',
-            width: '800px',
-            height: '600px',
-            background:
-                'radial-gradient(50% 50% at 50% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
-        },
-    },
-    {
-        number: '03.',
-        title: 'Seamless payment\nintegration',
-        description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-3.png',
-        textPosition: 'left',
-        textStyle: {
-            left: '80px',
-            top: '304px',
-            maxWidth: '449px',
-        },
-        gradientStyle: {
-            left: '252px',
-            top: '200px',
-            width: '800px',
-            height: '556px',
-            background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)', // slightly varied color logic
-            filter: 'blur(150px)',
-        },
-    },
-];
-
 export function TechnologyBacked({
-    slides = technologySlidesData,
+    slides = HomePagetechnologySlidesData,
 }: {
     slides?: TechnologySlideData[];
 }) {
