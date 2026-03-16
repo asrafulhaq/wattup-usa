@@ -16,6 +16,7 @@ export interface TechnologySlideData {
     title: string;
     description: string;
     image: string;
+    mobileImage?: string;
     textPosition: 'left' | 'right';
     className?: string; // Allow custom styling per slide
     textStyle?: React.CSSProperties; // Allow exact absolute positioning
@@ -86,6 +87,7 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         title: 'Smart charging\ninfrastructure',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
         image: '/assets/images/technology-backed-1.png',
+        mobileImage: '/assets/images/technology-backed-1-mobile.png',
         textPosition: 'left',
         textStyle: {
             left: '252px',
@@ -107,6 +109,7 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         title: 'High-performance\nhardware',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
         image: '/assets/images/technology-backed-2.png',
+        mobileImage: '/assets/images/technology-backed-2-mobile.png',
         textPosition: 'right',
         imageClassName: 'object-contain object-left',
         textStyle: {
@@ -129,6 +132,7 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         title: 'Seamless payment\nintegration',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
         image: '/assets/images/technology-backed-3.png',
+        mobileImage: '/assets/images/technology-backed-3-mobile.png',
         textPosition: 'left',
         textStyle: {
             left: '80px',
@@ -291,7 +295,6 @@ export const IdealLocationsForHosts = [
     },
 ];
 
-
 export const HostPageTechnologyFeaturesData = [
     {
         number: '01.',
@@ -310,18 +313,24 @@ export const HostPageTechnologyFeaturesData = [
 export const AboutPageCorePrinciplesData = [
     {
         title: 'Mission',
-        description: 'Our mission is to make EV charging accessible and reliable everywhere.',
+        description:
+            'Our mission is to make EV charging accessible and reliable everywhere.',
     },
     {
         title: 'Vision',
-        description: 'We believe the future of mobility depends on scalable charging infrastructure.',
+        description:
+            'We believe the future of mobility depends on scalable charging infrastructure.',
     },
     {
         title: 'Future',
-        description: 'EV adoption is growing rapidly, and charging networks will play a critical role.',
+        description:
+            'EV adoption is growing rapidly, and charging networks will play a critical role.',
     },
     {
         title: 'Sustainability',
-        description: 'Supporting the transition to clean transportation and sustainable infrastructure.',
+        description:
+            'Supporting the transition to clean transportation and sustainable infrastructure.',
     },
 ];
+
+

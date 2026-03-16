@@ -49,11 +49,11 @@ export function TechnologyBacked({
             });
 
             // --- TIMING CONFIGURATION ---
-            /** 
+            /**
              * STAY_TIME: How long each slide remains static (in timeline units).
              * Increase this to make slides "stick" longer.
              */
-            const STAY_TIME = 10; 
+            const STAY_TIME = 10;
 
             /**
              * TRANSITION_TIME: How long the animation between slides takes.
@@ -74,7 +74,9 @@ export function TechnologyBacked({
             // Total units spent transitioning (one less than slides)
             const totalTransitionUnits = (slides.length - 1) * TRANSITION_TIME;
             // Calculate total scroll distance in % of viewport height
-            const totalScrollPercentage = (totalStayUnits + totalTransitionUnits) * SCROLL_SPEED_MULTIPLIER;
+            const totalScrollPercentage =
+                (totalStayUnits + totalTransitionUnits) *
+                SCROLL_SPEED_MULTIPLIER;
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -152,7 +154,7 @@ export function TechnologyBacked({
                         <br />
                         by Global Innovation
                     </h2>
-                    <p className='text-description text-white/60 max-w-[534px] mb-[40px] md:mb-[54px]'>
+                    <p className='text-description text-white/60 max-md:max-w-[348px] max-w-[534px] mb-[40px] md:mb-[54px]'>
                         Our charging infrastructure combines advanced hardware
                         with intelligent network management to deliver reliable,
                         high-performance EV charging.
@@ -162,7 +164,7 @@ export function TechnologyBacked({
                 {/* Slides Area */}
                 <div
                     ref={slidesContainerRef}
-                    className='relative w-full grow max-md:h-[600px] overflow-hidden'>
+                    className='relative w-full grow h-[600px] md:h-[756px] overflow-hidden'>
                     {slides.map((slide, index) => (
                         <TechnologyBackedSlide
                             key={index}
