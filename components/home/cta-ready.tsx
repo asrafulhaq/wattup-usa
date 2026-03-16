@@ -39,7 +39,7 @@ export function CTAReady({
             {/* Top CTA Banner - 1440x960px Figma Specs */}
             <div
                 className={cn(
-                    'relative w-full bg-black h-[744px] md:h-[960px] flex flex-col items-center justify-start  mx-auto',
+                    'relative w-full bg-black h-[744px] md:h-[960px] xl:h-[1080px] flex flex-col items-center justify-start  mx-auto',
                     sectionClass
                 )}>
                 {/* Background Image Setup */}

@@ -39,7 +39,7 @@ export function PageHero({
     return (
         <section
             className={cn(
-                'relative overflow-x-hidden mx-auto w-full h-[744px] md:aspect-1440/951 md:h-[951px] flex flex-col items-center justify-start pt-[99px] md:pt-[116px] overflow-hidden',
+                'relative overflow-x-hidden mx-auto w-full h-[744px] md:aspect-1440/951 md:h-[951px] xl:h-[1080px] flex flex-col items-center justify-start pt-[99px] md:pt-[116px] overflow-hidden',
                 sectionClass
             )}>
             {/* Background Image Setup */}
@@ -93,7 +93,7 @@ export function PageHero({
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
-                            'headline mb-4 md:mb-5 text-white',
+                            'headline max-md:text-nowrap mb-4 md:mb-5 text-white',
                             headingClass
                         )}>
                         {heading || 'EV Charging Made Simple'}

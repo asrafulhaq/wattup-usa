@@ -48,7 +48,7 @@ const Footer = () => {
                                 <Link
                                     key={link.label}
                                     href={link.href}
-                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[129%] tracking-[-3%] transition-colors'>
+                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[129%] text-nowrap tracking-[-3%] transition-colors'>
                                     {link.label}
                                 </Link>
                             ))}
@@ -59,7 +59,7 @@ const Footer = () => {
                                 <Link
                                     key={link.label}
                                     href={link.href}
-                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[129%] tracking-[-3%] transition-colors'>
+                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[129%] text-nowrap tracking-[-3%] transition-colors'>
                                     {link.label}
                                 </Link>
                             ))}

@@ -7,12 +7,18 @@ export default function LocationsPage() {
             {/* 01. Hero Section */}
             <PageHero
                 image='/assets/images/location-page-hero-bg.png'
+                mobileImage='/assets/images/location-page-hero-bg-mobile.png'
                 alt='Location Page Hero Background'
                 heading=' Find a Charging Station'
+                imageClass='max-md:object-[16%] xl:object-bottom'
+                imageWrapperClass='max-md:-mb-[145px]'
+                headingClass='max-md:text-nowrap'
+                subHeadingClass='max-w-[256px]'
+                overlay={true}
                 subHeading={
                     <>
-                        Explore WattUp locations across our
-                        <br className='hidden sm:block' />
+                        Explore WattUp locations across our{' '}
+                        <br className='hidden md:block' />
                         network.
                     </>
                 }
