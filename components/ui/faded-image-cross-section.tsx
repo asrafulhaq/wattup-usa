@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import React from 'react';
 
@@ -7,6 +8,7 @@ export interface FadedImageCrossSectionProps {
     imageAlt?: string;
     bottomGradient?: boolean;
     topFaddingStyle?: React.CSSProperties;
+    sectionClass?: string;
 }
 
 export function FadedImageCrossSection({
@@ -18,16 +20,22 @@ export function FadedImageCrossSection({
         background:
             'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 50%)',
     },
+    sectionClass,
 }: FadedImageCrossSectionProps) {
     return (
-        <section className='relative w-full overflow-hidden flex flex-col items-center bg-white'>
+        <section
+            className={`relative w-full overflow-hidden flex flex-col items-center bg-white ${sectionClass}`}>
             {/* Top Section: Content (e.g. Marquee, Text, etc) */}
             <div className='relative z-10 w-full flex flex-col items-center justify-start '>
                 {children}
             </div>
 
             {/* Bottom Section: Image exactly as Figma */}
-            <div className='relative w-full max-md:h-[686px] h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden max-md:-mb-40'>
+            <div
+                className={cn(
+                    'relative w-full max-md:h-[744px] h-[995px] xl:h-[1080px] z-0 -mt-[238px] shrink-0 overflow-hidden',
+                    sectionClass
+                )}>
                 {/* 1. Base Image */}
                 <div className='image'>
                     {' '}

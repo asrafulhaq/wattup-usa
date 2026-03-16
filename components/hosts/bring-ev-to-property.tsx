@@ -4,15 +4,16 @@ import Link from 'next/link';
 
 export function BringEvToProperty() {
     return (
-        <div className='pt-[82px]'>
+        <div className='md:pt-[82px]'>
             {' '}
             <FadedImageCrossSection
                 imageSrc='/assets/images/host-crossfade.png'
                 imageAlt='Charging Stations By Water'
                 bottomGradient={false}
+                sectionClass='max-md:pt-[82px]'
                 topFaddingStyle={{
                     background:
-                        'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 0%)',
+                        'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 30%)',
                 }}>
                 <div className='flex flex-col items-center text-center w-full'>
                     <FadeUp>
