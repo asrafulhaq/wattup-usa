@@ -53,7 +53,7 @@ export function TechnologyBacked({
                 scrollTrigger: {
                     trigger: section,
                     start: 'top top',
-                    end: `+=120%`,
+                    end: `+=400%`,
                     pin: true,
                     pinSpacing: true,
                     scrub: 2,

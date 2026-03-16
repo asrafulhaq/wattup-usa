@@ -70,7 +70,7 @@ const Footer = () => {
                 {/* Bottom Row: Text & Social Icons */}
                 <div className='flex flex-col-reverse md:flex-row justify-between items-start md:items-end gap-12 w-full'>
                     {/* Text block & Copyright (Left) */}
-                    <div className='flex text-[14 px] text-white/70 leading-[129%] mt-3 flex-col items-start max-w-[700px]'>
+                    <div className='flex text-[14px] text-white/70 leading-[129%] mt-3 flex-col items-start max-w-[700px]'>
                         <p className='mb-[16px]'>
                             Lorem ipsum dolor sit amet consectetur. Blandit enim
                             integer cras id pellentesque dui. Vel duis massa nec
