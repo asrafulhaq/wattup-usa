@@ -1,4 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -10,36 +11,69 @@ export function CTAReady({
     buttonText2,
     buttonLink2,
     image,
+    headingClass,
+    subHeadingClass,
+    overlay,
+    overlayClass,
+    sectionClass,
+    imageWrapperClass,
+    imageClass,
 }: {
     heading: React.ReactNode;
-    subHeading: React.ReactNode;
-    buttonText: string;
-    buttonLink: string;
+    headingClass?: string;
+    subHeadingClass?: string;
+    sectionClass?: string;
+    imageWrapperClass?: string;
+    imageClass?: string;
+    subHeading?: React.ReactNode;
+    buttonText?: string;
+    buttonLink?: string;
     buttonText2?: string;
     buttonLink2?: string;
     image?: string;
+    overlay?: boolean;
+    overlayClass?: string;
 }) {
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
             {/* Top CTA Banner - 1440x960px Figma Specs */}
-            <div className='relative w-full bg-black h-[744px] md:h-[960px] flex flex-col items-center justify-start  mx-auto'>
+            <div
+                className={cn(
+                    'relative w-full bg-black h-[744px] md:h-[960px] flex flex-col items-center justify-start  mx-auto',
+                    sectionClass
+                )}>
                 {/* Background Image Setup */}
-                <div className='absolute inset-0 z-0 select-none'>
+                <div
+                    className={cn(
+                        'absolute inset-0 z-0 select-none',
+                        imageWrapperClass
+                    )}>
                     <Image
                         src={image || '/assets/images/footer-section-bg.png'}
                         alt='WattUp Sunset Background'
                         fill
-                        className='object-cover object-center'
+                        className={cn('object-cover object-center', imageClass)}
                         priority
                         draggable={false}
                     />
                     {/* Dark gradient overlay to match Figma contrast if needed, or just light darkening for text readability */}
-                    <div className='absolute inset-0 bg-black/20' />
+                    {overlay && (
+                        <div
+                            className={cn(
+                                'absolute inset-0 bg-black/20',
+                                overlayClass
+                            )}
+                        />
+                    )}
                 </div>
                 <div className='container mx-auto'>
                     <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[99px] md:pt-[218px]'>
                         <FadeUp className='w-full'>
-                            <h2 className='headline-white pb-6'>
+                            <h2
+                                className={cn(
+                                    'headline-white pb-6',
+                                    headingClass
+                                )}>
                                 {heading || (
                                     <>
                                         Ready to Charge
@@ -51,7 +85,11 @@ export function CTAReady({
                         </FadeUp>
 
                         <FadeUp delay={0.2} className='w-full'>
-                            <p className='text-lg md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white'>
+                            <p
+                                className={cn(
+                                    'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white',
+                                    subHeadingClass
+                                )}>
                                 {subHeading || (
                                     <>
                                         Find a charging station near you or
