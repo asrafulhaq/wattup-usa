@@ -17,8 +17,10 @@ export function PageHero({
     subHeadingClass,
     overlayClass,
     overlay = true,
+    alt,
 }: {
     image?: string;
+    alt?: string;
     heading: React.ReactNode;
     subHeading: React.ReactNode;
     buttonText: string;
@@ -46,7 +48,7 @@ export function PageHero({
                 )}>
                 <Image
                     src={image || '/assets/images/for-driver-page-hero.png'}
-                    alt='Page Hero Background'
+                    alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
                         'object-cover  object-[77%_100%] md:object-center',
