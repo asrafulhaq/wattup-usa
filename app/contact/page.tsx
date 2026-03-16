@@ -8,13 +8,19 @@ export default function ContactUsPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
+                sectionClass=''
+                headingClass=''
+                subHeadingClass='max-md:w-[306px] max-md:leading-[110%]'
+                overlay={true}
+                overlayClass=''
                 image='/assets/images/contact-page-hero.png'
-                alt='Contact Page Hero Background'
+                imageClass='object-cover object-[65%_bottom] max-md:scale-125  md:object-center'
+                imageWrapperClass='-mb-7'
                 heading='Get in Touch'
                 subHeading={
                     <>
                         Contact our team for support,
-                        <br className='hidden sm:block' />
+                        <br className='hidden md:block' />
                         partnerships, or general inquiries.
                     </>
                 }
