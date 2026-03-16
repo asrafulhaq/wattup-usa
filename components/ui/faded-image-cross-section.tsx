@@ -27,7 +27,7 @@ export function FadedImageCrossSection({
             </div>
 
             {/* Bottom Section: Image exactly as Figma */}
-            <div className='relative w-full h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden'>
+            <div className='relative w-full max-md:h-[686px] h-[995px] z-0 -mt-[238px] shrink-0 overflow-hidden max-md:-mb-40'>
                 {/* 1. Base Image */}
                 <div className='image'>
                     {' '}
@@ -35,7 +35,7 @@ export function FadedImageCrossSection({
                         src={imageSrc}
                         alt={imageAlt}
                         fill
-                        className='object-cover object-center  '
+                        className='object-cover '
                         sizes='1440px'
                         priority
                     />
@@ -53,12 +53,22 @@ export function FadedImageCrossSection({
 
                 {bottomGradient && (
                     <div
-                        className='absolute inset-0 pointer-events-none'
+                        className='absolute inset-0 pointer-events-none bg-linear-to-t from-white via-white/80 to-transparent'
                         style={{
-                            background:
+                            // Keep md-specific height constraints for the gradient
+                            backgroundImage:
                                 'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%)',
-                        }}
-                    />
+                        }}>
+                        {/* We use a max-md specific override to blend the bottom 50% correctly 
+                            since the image is 486px and container is 686px */}
+                        <div
+                            className='absolute md:hidden inset-0 bg-linear-to-t from-white via-white/90 to-transparent pointer-events-none'
+                            style={{
+                                backgroundImage:
+                                    'linear-gradient(to top, #FFFFFF 25%, rgba(255, 255, 255, 0) 35%)',
+                            }}
+                        />
+                    </div>
                 )}
             </div>
         </section>

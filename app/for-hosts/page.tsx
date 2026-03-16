@@ -50,6 +50,7 @@ export default function ForHostPage() {
             <WhyChoose
                 heading='Generate Revenue From Charging'
                 slides={HostPageBenifitsCardsData}
+                headingClass='max-md:w-[348px]'
             />
 
             {/* 6. Charging Where You Go */}
@@ -62,4 +63,5 @@ export default function ForHostPage() {
         </main>
     );
 }
+
 

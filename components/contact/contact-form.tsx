@@ -2,18 +2,19 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { CheckboxIcon } from '@/components/icons/icons';
 
 export function ContactForm() {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
 
     return (
-        <section className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden common-section-padding'>
-            <div className='relative w-full container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-0'>
+        <section className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden pt-[40px] pb-[39px] lg:pt-[100px] lg:pb-[100px]'>
+            <div className='relative w-full container mx-auto px-[16px] xl:px-0 grid grid-cols-1 lg:grid-cols-2 gap-[40px] lg:gap-0'>
                 {/* Left Column: Contact Details */}
-                <div className='flex flex-col gap-10'>
+                <div className='flex flex-col gap-[24px]'>
                     <h2 className='headline-dark'>Contact details:</h2>
 
-                    <div className='flex flex-col gap-10'>
+                    <div className='flex flex-col gap-[24px]'>
                         <div className='flex flex-col gap-2'>
                             <p className='text-[16px] xl:text-[20px] leading-[120%] text-dark/50 font-normal'>
                                 Email:
@@ -129,25 +130,28 @@ function DriverForm() {
                 </div>
             </div>
 
-            <label className='flex items-center gap-3 cursor-pointer mt-2 group'>
-                <div className='relative flex items-center justify-center w-5 h-5 shrink-0'>
+            <label className='flex items-center gap-2 cursor-pointer mt-2 group'>
+                <div className='relative flex items-center justify-center w-4 h-4 shrink-0'>
                     <input
                         type='checkbox'
-                        className='peer h-full w-full appearance-none rounded-[4px] border border-dark/20 bg-white checked:bg-primary checked:border-primary cursor-pointer transition-all'
+                        className='peer absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full'
                     />
-                    <svg
-                        className='absolute w-3  h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity'
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'>
-                        <polyline points='20 6 9 17 4 12' />
-                    </svg>
+                    <CheckboxIcon className='absolute inset-0 pointer-events-none peer-checked:opacity-0 transition-opacity' />
+                    <div className='absolute inset-0 bg-primary rounded-[3.5px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity flex items-center justify-center'>
+                        <svg
+                            className='w-[10px] h-[10px] text-white'
+                            xmlns='http://www.w3.org/2000/svg'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='4'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'>
+                            <polyline points='20 6 9 17 4 12' />
+                        </svg>
+                    </div>
                 </div>
-                <span className='text-[16px] text-dark group-hover:text-dark/80 font-medium'>
+                <span className='text-[16px] text-dark group-hover:text-dark/80 font-normal md:font-medium text-nowrap'>
                     I agree to the processing of my personal data
                 </span>
             </label>
@@ -205,25 +209,28 @@ function HostForm() {
                 </div>
             </div>
 
-            <label className='flex items-center gap-3 cursor-pointer mt-2 group'>
-                <div className='relative flex items-center justify-center w-5 h-5 shrink-0'>
+            <label className='flex items-center gap-2 cursor-pointer mt-2 group'>
+                <div className='relative flex items-center justify-center w-4 h-4 shrink-0'>
                     <input
                         type='checkbox'
-                        className='peer h-full w-full appearance-none rounded-[4px] border border-dark/20 bg-white checked:bg-primary checked:border-primary cursor-pointer transition-all'
+                        className='peer absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full'
                     />
-                    <svg
-                        className='absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity'
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'>
-                        <polyline points='20 6 9 17 4 12' />
-                    </svg>
+                    <CheckboxIcon className='absolute inset-0 pointer-events-none peer-checked:opacity-0 transition-opacity' />
+                    <div className='absolute inset-0 bg-primary rounded-[3.5px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity flex items-center justify-center'>
+                        <svg
+                            className='w-[10px] h-[10px] text-white'
+                            xmlns='http://www.w3.org/2000/svg'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='4'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'>
+                            <polyline points='20 6 9 17 4 12' />
+                        </svg>
+                    </div>
                 </div>
-                <span className='text-[16px] text-dark group-hover:text-dark/80 font-medium'>
+                <span className='text-[16px] text-dark group-hover:text-dark/80 font-normal md:font-medium text-nowrap'>
                     I agree to the processing of my personal data
                 </span>
             </label>
@@ -236,5 +243,4 @@ function HostForm() {
         </form>
     );
 }
-
 

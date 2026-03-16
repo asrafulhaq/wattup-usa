@@ -32,14 +32,14 @@ export function DriverFAQ() {
     };
 
     return (
-        <section className='w-full max-w-[1440px] mx-auto common-section-padding'>
+        <section className='w-full max-w-[1444px] mx-auto common-section-padding'>
             <div className='container mx-auto flex flex-col'>
                 <FadeUp>
-                    <h2 className='headline-dark mb-10'>FAQ&apos;s</h2>
+                    <h2 className='headline-dark mb-8 md:mb-10'>FAQ&apos;s</h2>
                 </FadeUp>
-                <div className='flex flex-col lg:flex-row gap-10 lg:gap-10 items-center justify-between w-full'>
+                <div className='flex flex-col lg:flex-row gap-[32px] lg:gap-10 items-center justify-between w-full'>
                     {/* Left Column (FAQ Content) */}
-                    <div className='flex flex-col w-full lg:w-[701px] shrink-0'>
+                    <div className='flex flex-col w-full lg:flex-[1.2] xl:w-[701px] shrink-0 lg:shrink'>
                         <div className='flex flex-col w-full'>
                             {faqs.map((faq, index) => {
                                 const isOpen = openIndex === index;
@@ -56,7 +56,7 @@ export function DriverFAQ() {
                                             <button
                                                 onClick={() => toggleFaq(index)}
                                                 className='flex items-center justify-between w-full py-6 group text-left'>
-                                                <span className='text-[24px] leading-[100%] tracking-[-0.03em] font-medium text-dark pr-4'>
+                                                <span className='text-[20px] md:text-[24px] leading-[100%] tracking-[-0.03em] font-semibold md:font-medium text-dark pr-4'>
                                                     {faq.question}
                                                 </span>
                                                 <div className='relative shrink-0 w-6 h-6 rounded-full bg-dark flex items-center justify-center transition-colors hover:bg-dark/80'>
@@ -103,13 +103,13 @@ export function DriverFAQ() {
                     {/* Right Column (Image) */}
                     <FadeUp
                         delay={0.2}
-                        className='lg:flex-1 h-[288px] lg:h-[288px] w-[620px] shrink-0 relative'>
-                        <div className='w-full h-full relative rounded-[16px] overflow-hidden'>
+                        className='lg:flex-[0.8] xl:flex-1 h-[373px] lg:h-[288px] w-full shrink-0 lg:shrink relative'>
+                        <div className='w-full h-full relative rounded-[8px] overflow-hidden'>
                             <Image
                                 src='/assets/images/faq-image.png'
                                 alt='Driver charging EV'
                                 fill
-                                className='object-cover'
+                                className='object-cover object-center'
                             />
                         </div>
                     </FadeUp>
