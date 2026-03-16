@@ -126,7 +126,7 @@ const slidesData = [
 
 export function Hero() {
     return (
-        <section className='relative  overflow-x-hidden mx-auto w-full  md:aspect-1440/951 h-[744px] md:h-[961px] overflow-hidden'>
+        <section className='relative  overflow-x-hidden mx-auto w-full  md:aspect-1440/951 h-[744px] md:h-[961px] xl:h-[1080px] overflow-hidden'>
             <ReusableSlider slides={slidesData} className='w-full h-full' />
         </section>
     );

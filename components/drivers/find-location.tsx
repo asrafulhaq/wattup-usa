@@ -60,9 +60,9 @@ export function FindLocation() {
     return (
         <section className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
             {/* Header */}
-            <div className='mb-[40px] container mx-auto'>
+            <div className='mb-5 md:mb-[40px] container mx-auto'>
                 <FadeUp>
-                    <h1 className='headline-dark mb-6'>
+                    <h1 className='headline-dark mb-4 md:mb-6'>
                         Find Charging Locations
                     </h1>
                 </FadeUp>
@@ -75,11 +75,11 @@ export function FindLocation() {
             </div>
 
             {/* Main Content Layout */}
-            <div className='flex flex-col lg:flex-row gap-10 lg:gap-14 container mx-auto items-stretch'>
+            <div className='flex flex-col lg:flex-row gap-6 lg:gap-14 container mx-auto items-stretch'>
                 {/* Left Sidebar */}
                 <div className='w-full lg:w-[420px] shrink-0 flex flex-col'>
                     {/* Search & Filters Row */}
-                    <div className='flex items-center gap-3 mb-6'>
+                    <div className='flex items-center gap-3 mb-4 md:mb-6'>
                         {/* Search Input */}
                         <div className='flex-1 h-[48px] bg-gray/30 rounded-[8px] flex items-center p-[14px] gap-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all'>
                             <SearchIcon className='shrink-0' />
@@ -159,7 +159,7 @@ export function FindLocation() {
                     </div>
 
                     {/* Active Station Details */}
-                    <div className='mt-6 md:mt-2 flex flex-col'>
+                    <div className='md:mt-6  mt-2 flex flex-col mb-0!'>
                         {/* Title & Power */}
                         <div
                             className='flex justify-between items-start cursor-pointer md:cursor-default'
@@ -173,7 +173,7 @@ export function FindLocation() {
                                         , {activeStation.location}
                                     </span>
                                 </h3>
-                                <p className='text-[20px] text-dark/50 font-semibold mb-6 md:mb-0'>
+                                <p className='text-[20px] text-dark/50 font-semibold '>
                                     {activeStation.power}
                                 </p>
                             </div>
@@ -236,7 +236,7 @@ export function FindLocation() {
                         </div>
 
                         {/* Directions Button */}
-                        <div className='mt-3 md:mt-8'>
+                        <div className='mt-4 md:mt-8'>
                             <button className='h-[48px] md:h-[45px] px-[24px] inline-flex bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors tracking-[-3%] leading-[130%] items-center justify-center shadow-btn'>
                                 Directions
                             </button>

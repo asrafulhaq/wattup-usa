@@ -39,7 +39,7 @@ export function CTAReady({
             {/* Top CTA Banner - 1440x960px Figma Specs */}
             <div
                 className={cn(
-                    'relative w-full bg-black h-[744px] md:h-[960px] flex flex-col items-center justify-start  mx-auto',
+                    'relative w-full bg-black h-[744px] md:h-[960px] xl:h-[1080px] flex flex-col items-center justify-start  mx-auto',
                     sectionClass
                 )}>
                 {/* Background Image Setup */}
@@ -52,7 +52,10 @@ export function CTAReady({
                         src={image || '/assets/images/footer-section-bg.png'}
                         alt='WattUp Sunset Background'
                         fill
-                        className={cn('object-cover object-center', imageClass)}
+                        className={cn(
+                            'object-cover md:object-center',
+                            imageClass
+                        )}
                         priority
                         draggable={false}
                     />
@@ -71,7 +74,7 @@ export function CTAReady({
                         <FadeUp className='w-full'>
                             <h2
                                 className={cn(
-                                    'headline-white pb-6',
+                                    'headline-white pb-4 md:pb-6',
                                     headingClass
                                 )}>
                                 {heading || (
@@ -87,7 +90,7 @@ export function CTAReady({
                         <FadeUp delay={0.2} className='w-full'>
                             <p
                                 className={cn(
-                                    'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white',
+                                    'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-6 md:mb-8 leading-[120%] text-white',
                                     subHeadingClass
                                 )}>
                                 {subHeading || (

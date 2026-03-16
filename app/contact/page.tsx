@@ -33,8 +33,9 @@ export default function ContactUsPage() {
 
             {/* 3. CTA Section */}
             <CTAReady
+                sectionClass='xl:h-[1080px]'
                 image='/assets/images/contact-page-cta-image.png'
-                imageClass='max-md:object-[40%_70%]'
+                imageClass='max-md:object-[40%_70%] xl:object-bottom'
                 heading={
                     <>
                         Interested in hosting EV

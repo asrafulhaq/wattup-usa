@@ -16,7 +16,8 @@ export function ExpandingUs() {
         <div className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
                 imageSrc='/assets/images/location-marque-bg.png'
-                imageAlt='Charging Stations By Water'>
+                imageAlt='Charging Stations By Water'
+                sectionClass='max-md:-mb-22'>
                 <div className='flex flex-col space-y-[32px] md:space-y-20  items-center text-center w-full'>
                     <FadeUp>
                         <h2 className='headline-dark max-sm:w-[348px]'>
