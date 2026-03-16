@@ -74,7 +74,7 @@ export function CTAReady({
                         <FadeUp className='w-full'>
                             <h2
                                 className={cn(
-                                    'headline-white pb-6',
+                                    'headline-white pb-4 md:pb-6',
                                     headingClass
                                 )}>
                                 {heading || (
