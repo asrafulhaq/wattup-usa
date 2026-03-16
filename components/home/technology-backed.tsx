@@ -48,130 +48,111 @@ export function TechnologyBacked({
                 }
             });
 
-            // Master timeline pinned to section — pin until all slides finish
+            // --- TIMING CONFIGURATION ---
+            /** 
+             * STAY_TIME: How long each slide remains static (in timeline units).
+             * Increase this to make slides "stick" longer.
+             */
+            const STAY_TIME = 10; 
+
+            /**
+             * TRANSITION_TIME: How long the animation between slides takes.
+             * Increase this for slower transitions, decrease for faster ones.
+             */
+            const TRANSITION_TIME = 10;
+
+            /**
+             * SCROLL_SPEED_MULTIPLIER: Controls the total scroll distance.
+             * A value of 50 means each timeline unit (1 durations) equals 50% of viewport height.
+             * Higher values = slower overall scroll speed (more scrolling needed).
+             */
+            const SCROLL_SPEED_MULTIPLIER = 50;
+
+            // --- CALCULATIONS ---
+            // Total units spent staying still
+            const totalStayUnits = slides.length * STAY_TIME;
+            // Total units spent transitioning (one less than slides)
+            const totalTransitionUnits = (slides.length - 1) * TRANSITION_TIME;
+            // Calculate total scroll distance in % of viewport height
+            const totalScrollPercentage = (totalStayUnits + totalTransitionUnits) * SCROLL_SPEED_MULTIPLIER;
+
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: section,
                     start: 'top top',
-                    end: `+=400%`,
+                    end: `+=${totalScrollPercentage}%`,
                     pin: true,
                     pinSpacing: true,
-                    scrub: 2,
+                    scrub: 2, // Smooth damping (buttery feel)
                     anticipatePin: 1,
                 },
             });
 
-            // --- Hold slide 1 visible for a moment ---
-            tl.to({}, { duration: 0.15 });
+            slides.forEach((_, i) => {
+                // 1. Hold: Stay on the current slide
+                tl.to({}, { duration: STAY_TIME });
 
-            // --- Transition: Slide 0 → Slide 1 ---
-            if (slideRefs.current[1]) {
-                tl.to(
-                    slideRefs.current[0],
-                    {
-                        opacity: 0,
-                        scale: 0.95,
-                        duration: 1,
-                        ease: 'none',
-                    },
-                    '>'
-                )
-                    .to(
-                        textRefs.current[0],
+                // 2. Transition: Move to next slide if it exists
+                if (i < slides.length - 1) {
+                    tl.to(
+                        slideRefs.current[i],
                         {
                             opacity: 0,
-                            duration: 1,
-                            ease: 'none',
+                            scale: 0.95,
+                            duration: TRANSITION_TIME,
+                            ease: 'none', // 'none' is best for scrub timelines to keep speed linear with scroll
                         },
-                        '<'
+                        '>'
                     )
-                    .to(
-                        slideRefs.current[1],
-                        {
-                            opacity: 1,
-                            scale: 1,
-                            duration: 1,
-                            ease: 'none',
-                        },
-                        '<'
-                    )
-                    .to(
-                        textRefs.current[1],
-                        {
-                            opacity: 1,
-                            duration: 1,
-                            ease: 'none',
-                        },
-                        '<'
-                    );
-
-                // --- Hold slide 2 visible ---
-                tl.to({}, { duration: 0.15 });
-            }
-
-            // --- Transition: Slide 1 → Slide 2 ---
-            if (slideRefs.current[2]) {
-                tl.to(
-                    slideRefs.current[1],
-                    {
-                        opacity: 0,
-                        scale: 0.95,
-                        duration: 1,
-                        ease: 'none',
-                    },
-                    '>'
-                )
-                    .to(
-                        textRefs.current[1],
-                        {
-                            opacity: 0,
-                            duration: 1,
-                            ease: 'none',
-                        },
-                        '<'
-                    )
-                    .to(
-                        slideRefs.current[2],
-                        {
-                            opacity: 1,
-                            scale: 1,
-                            duration: 1,
-                            ease: 'none',
-                        },
-                        '<'
-                    )
-                    .to(
-                        textRefs.current[2],
-                        {
-                            opacity: 1,
-                            duration: 1,
-                            ease: 'none',
-                        },
-                        '<'
-                    );
-
-                // --- Hold slide 3 visible before unpin ---
-                tl.to({}, { duration: 0.5 });
-            }
+                        .to(
+                            textRefs.current[i],
+                            {
+                                opacity: 0,
+                                duration: TRANSITION_TIME,
+                                ease: 'none',
+                            },
+                            '<'
+                        )
+                        .to(
+                            slideRefs.current[i + 1],
+                            {
+                                opacity: 1,
+                                scale: 1,
+                                duration: TRANSITION_TIME,
+                                ease: 'none',
+                            },
+                            '<'
+                        )
+                        .to(
+                            textRefs.current[i + 1],
+                            {
+                                opacity: 1,
+                                duration: TRANSITION_TIME,
+                                ease: 'none',
+                            },
+                            '<'
+                        );
+                }
+            });
         }, section);
 
         return () => ctx.revert();
-    }, [slides.length]);
+    }, [slides]);
 
     return (
         <section
             ref={sectionRef}
-            className='relative common-section-padding z-10 h-[1100px] bg-black overflow-hidden'>
+            className='relative common-section-padding z-10 h-auto md:min-h-screen bg-black overflow-hidden'>
             {/* Inner container capped at 1440px */}
-            <div className='relative w-full max-w-[1444px] mx-auto h-full'>
+            <div className='relative w-full max-w-[1444px] mx-auto h-full flex flex-col'>
                 {/* Header — stays on top */}
-                <div className='relative z-30 flex flex-col items-center text-center'>
+                <div className='relative z-30 flex flex-col items-center text-center shrink-0'>
                     <h2 className='headline-white mb-4'>
                         Technology Backed
                         <br />
                         by Global Innovation
                     </h2>
-                    <p className='text-description text-white/60 max-w-[534px] mb-[54px]'>
+                    <p className='text-description text-white/60 max-w-[534px] mb-[40px] md:mb-[54px]'>
                         Our charging infrastructure combines advanced hardware
                         with intelligent network management to deliver reliable,
                         high-performance EV charging.
@@ -181,10 +162,7 @@ export function TechnologyBacked({
                 {/* Slides Area */}
                 <div
                     ref={slidesContainerRef}
-                    className='relative w-full'
-                    style={{
-                        height: 'calc(100% - 260px)',
-                    }}>
+                    className='relative w-full grow max-md:h-[600px] overflow-hidden'>
                     {slides.map((slide, index) => (
                         <TechnologyBackedSlide
                             key={index}
