@@ -93,7 +93,7 @@ export function PageHero({
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
-                            'headline max-md:text-nowrap mb-4 md:mb-5 text-white',
+                            'headline  mb-4 md:mb-5 text-white',
                             headingClass
                         )}>
                         {heading || 'EV Charging Made Simple'}

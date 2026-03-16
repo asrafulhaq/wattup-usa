@@ -19,10 +19,12 @@ export default function ForHostPage() {
                 alt='Driver Page Hero Background'
                 heading={
                     <>
-                        Turn Your Property Into
-                        <br className='hidden sm:block' />a Charging Destination
+                        Turn Your Property Into{' '}
+                        <br className='hidden md:block' />a Charging Destination
                     </>
                 }
+                imageClass='max-md:object-[41%]'
+                headingClass='max-md:w-[348px]'
                 subHeading={
                     <>
                         Install EV charging and attract new
@@ -63,5 +65,4 @@ export default function ForHostPage() {
         </main>
     );
 }
-
 
