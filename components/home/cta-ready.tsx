@@ -90,7 +90,7 @@ export function CTAReady({
                         <FadeUp delay={0.2} className='w-full'>
                             <p
                                 className={cn(
-                                    'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-8 leading-[120%] text-white',
+                                    'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-6 md:mb-8 leading-[120%] text-white',
                                     subHeadingClass
                                 )}>
                                 {subHeading || (

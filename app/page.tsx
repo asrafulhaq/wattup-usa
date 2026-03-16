@@ -34,7 +34,10 @@ export default function Home() {
             <ExpandingUs />
 
             {/* 7. Why Choose WATTUP Cards */}
-            <WhyChoose />
+            <WhyChoose
+                heading='Why Choose WattUp'
+                headingClass='max-md:max-w-[348px] max-md:text-nowrap'
+            />
 
             {/* 8. Call to Action */}
             <CTAReady
