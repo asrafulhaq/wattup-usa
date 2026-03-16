@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 export function PageHero({
     image,
+    mobileImage,
     heading,
     subHeading,
     buttonText,
@@ -20,6 +21,7 @@ export function PageHero({
     alt,
 }: {
     image?: string;
+    mobileImage?: string;
     alt?: string;
     heading: React.ReactNode;
     subHeading: React.ReactNode;
@@ -43,16 +45,33 @@ export function PageHero({
             {/* Background Image Setup */}
             <div
                 className={cn(
-                    'absolute inset-0 z-0 select-none -mb-7',
+                    'absolute inset-0 z-0 select-none',
                     imageWrapperClass
                 )}>
+                {mobileImage && (
+                    <Image
+                        src={
+                            mobileImage ||
+                            '/assets/images/for-driver-page-hero.png'
+                        }
+                        alt={alt || 'Page Hero Background'}
+                        fill
+                        className={cn(
+                            'object-cover md:hidden md:object-center',
+                            imageClass
+                        )}
+                        priority
+                        draggable={false}
+                    />
+                )}
                 <Image
                     src={image || '/assets/images/for-driver-page-hero.png'}
                     alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
-                        'object-cover  object-[77%_100%] md:object-center',
-                        imageClass
+                        'object-cover md:object-center',
+                        imageClass,
+                        mobileImage && 'hidden md:block'
                     )}
                     priority
                     draggable={false}

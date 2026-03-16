@@ -52,7 +52,10 @@ export function CTAReady({
                         src={image || '/assets/images/footer-section-bg.png'}
                         alt='WattUp Sunset Background'
                         fill
-                        className={cn('object-cover object-center', imageClass)}
+                        className={cn(
+                            'object-cover md:object-center',
+                            imageClass
+                        )}
                         priority
                         draggable={false}
                     />
