@@ -81,7 +81,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/hero-1-md.png'
+                            src='/assets/images/homepage-hero-1.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
@@ -155,4 +155,5 @@ export async function Hero() {
         </section>
     );
 }
+
 

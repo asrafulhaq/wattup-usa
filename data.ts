@@ -77,7 +77,7 @@ export const HomePageHowItWorksStepData = [
         title: 'Charge & Go',
         description:
             'Receive real-time updates and pay seamlessly when your charge is complete.',
-        image: '/assets/images/how-it-works-3.png',
+        image: '/assets/images/how-it-works-4.png',
     },
 ];
 
@@ -169,8 +169,15 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
     {
+        id: 'symless-experience',
+        image: '/assets/images/why-image-3.png',
+        title: 'Seamless Experience',
+        description: 'Simple access, easy payments, and reliable performance.',
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+    },
+    {
         id: 'smart-infrastructure',
-        image: '/assets/images/hero-driver.jpg',
+        image: '/assets/images/why-image-4.png',
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
@@ -333,7 +340,6 @@ export const AboutPageCorePrinciplesData = [
     },
 ];
 
-
 export const PolicyOptionsData = [
     {
         title: 'Intellectual Property',
@@ -372,16 +378,4 @@ export const PolicyLeagalsData = [
             'We do not sell your personal data. We may share information with trusted third-party service providers only as necessary to operate the website or comply with legal obligations.',
     },
 ];
-
-
-
-
-
-
-
-
-
-
-
-
 
