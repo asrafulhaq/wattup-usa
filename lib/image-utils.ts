@@ -1,8 +1,9 @@
 import { getPlaiceholder } from "plaiceholder";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { cache } from "react";
 
-export async function getBlurDataUrl(src: string): Promise<string | undefined> {
+export const getBlurDataUrl = cache(async (src: string): Promise<string | undefined> => {
   try {
     // If it's an external URL
     if (src.startsWith('http')) {
@@ -21,4 +22,4 @@ export async function getBlurDataUrl(src: string): Promise<string | undefined> {
     console.error("Error generating blur data url for", src, err);
     return undefined;
   }
-}
+});

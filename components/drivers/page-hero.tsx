@@ -17,6 +17,7 @@ export async function PageHero({
     sectionClass,
     headingClass,
     subHeadingClass,
+    contentContainerClass,
     overlayClass,
     overlay = true,
     alt,
@@ -25,13 +26,14 @@ export async function PageHero({
     mobileImage?: string;
     alt?: string;
     heading: React.ReactNode;
-    subHeading: React.ReactNode;
-    buttonText: string;
-    buttonLink: string;
+    subHeading?: React.ReactNode;
+    buttonText?: string;
+    buttonLink?: string;
     buttonLight?: boolean;
     imageWrapperClass?: string;
     imageClass?: string;
     sectionClass?: string;
+    contentContainerClass?: string;
     headingClass?: string;
     subHeadingClass?: string;
     overlayClass?: string;
@@ -80,7 +82,7 @@ export async function PageHero({
                     alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
-                        'object-cover md:object-center',
+                        'object-cover md:object-top',
                         imageClass,
                         mobileImage && 'hidden md:block'
                     )}
@@ -102,7 +104,11 @@ export async function PageHero({
             </div>
 
             {/* Content Container */}
-            <div className='relative z-10 container mx-auto flex flex-col items-center text-center text-white'>
+            <div
+                className={cn(
+                    'relative z-10 container mx-auto flex flex-col items-center text-center text-white',
+                    contentContainerClass
+                )}>
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
@@ -113,43 +119,47 @@ export async function PageHero({
                     </h1>
                 </FadeUp>
 
-                <FadeUp delay={0.2} yOffset={20}>
-                    <p
-                        className={cn(
-                            'text-[16px] md:text-[20px] font-normal max-w-[416px] mx-auto mb-6 md:mb-8 leading-[120%] text-white',
-                            subHeadingClass
-                        )}>
-                        {subHeading || (
-                            <>
-                                Fast, reliable charging stations located
-                                <br className='hidden sm:block' />
-                                where you live, work, and travel.
-                            </>
-                        )}
-                    </p>
-                </FadeUp>
-
-                <FadeUp
-                    delay={0.4}
-                    yOffset={20}
-                    className='w-full flex-col font-sans'>
-                    <div className='flex items-center justify-center '>
-                        <Link
-                            href={buttonLink || '/find-charger'}
+                {subHeading && (
+                    <FadeUp delay={0.2} yOffset={20}>
+                        <p
                             className={cn(
-                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap',
-                                buttonLight
-                                    ? 'bg-white hover:bg-white/90 text-dark'
-                                    : 'bg-primary hover:bg-primary-hover text-white'
+                                'text-[16px] md:text-[20px] font-normal max-w-[416px] mx-auto mb-6 md:mb-8 leading-[120%] text-white',
+                                subHeadingClass
                             )}>
-                            {buttonText || 'Find a Charger'}
-                        </Link>
-                    </div>
-                </FadeUp>
+                            {subHeading || (
+                                <>
+                                    Fast, reliable charging stations located
+                                    <br className='hidden sm:block' />
+                                    where you live, work, and travel.
+                                </>
+                            )}
+                        </p>
+                    </FadeUp>
+                )}
+                {buttonLink && buttonText && (
+                    <FadeUp
+                        delay={0.4}
+                        yOffset={20}
+                        className='w-full flex-col font-sans'>
+                        <div className='flex items-center justify-center '>
+                            <Link
+                                href={buttonLink || '/find-charger'}
+                                className={cn(
+                                    'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap',
+                                    buttonLight
+                                        ? 'bg-white hover:bg-white/90 text-dark'
+                                        : 'bg-primary hover:bg-primary-hover text-white'
+                                )}>
+                                {buttonText || 'Find a Charger'}
+                            </Link>
+                        </div>
+                    </FadeUp>
+                )}
             </div>
         </section>
     );
 }
 
 export default PageHero;
+
 

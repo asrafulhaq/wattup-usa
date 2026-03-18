@@ -11,8 +11,8 @@ const COLUMN_1_LINKS = [
 ];
 
 const COLUMN_2_LINKS = [
-    { label: 'Privacy Policy', href: '/#' },
-    { label: 'Terms of Use', href: '/#' },
+    { label: 'Privacy Policy', href: '/policy' },
+    { label: 'Terms of Use', href: '/policy#legal' },
     { label: 'Why WattUp USA', href: '/#why-wattup' },
     { label: 'Technology', href: '/#technology' },
     { label: 'Who we serve', href: '/#who-we-serve' },

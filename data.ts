@@ -334,3 +334,54 @@ export const AboutPageCorePrinciplesData = [
 ];
 
 
+export const PolicyOptionsData = [
+    {
+        title: 'Intellectual Property',
+        description:
+            'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA',
+        image: '/assets/images/policy-1.png',
+    },
+    {
+        title: 'Limitation of Liability',
+        description:
+            'We strive to ensure that all information on this website is accurate and up to date. However, we make no guarantees regarding completeness',
+        image: '/assets/images/policy-2.png',
+    },
+    {
+        title: 'External Links',
+        description:
+            'This website may contain links to third-party websites. We are not responsible for the content, policies',
+        image: '/assets/images/policy-3.png',
+    },
+];
+
+export const PolicyLeagalsData = [
+    {
+        title: 'Use of Data',
+        description:
+            'We may collect personal information such as your name, email address, and usage data when you interact with our website (e.g., via forms, subscriptions, or analytics tools).',
+    },
+    {
+        title: 'Cookies',
+        description:
+            'We use cookies and similar tracking technologies to enhance your browsing experience. You can control or disable cookies through your browser settings.',
+    },
+    {
+        title: 'Data Sharing',
+        description:
+            'We do not sell your personal data. We may share information with trusted third-party service providers only as necessary to operate the website or comply with legal obligations.',
+    },
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
