@@ -60,8 +60,8 @@ export function PageHero({
                             'object-cover md:hidden md:object-center',
                             imageClass
                         )}
-                        fetchPriority='high'
-                        priority={true}
+                        placeholder='blur'
+                        preload={true}
                         draggable={false}
                     />
                 )}
