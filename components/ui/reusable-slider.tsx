@@ -2,8 +2,23 @@
 
 import { cn } from '@/lib/utils';
 import useEmblaCarousel from 'embla-carousel-react';
+import Fade from 'embla-carousel-fade';
 import * as React from 'react';
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons/icons';
+
+// ============================================================
+// 🎨 FADE ANIMATION CONFIGURATION
+// Modify these values to control the transition behavior.
+// ============================================================
+
+// FADE_SPEED_DURATION controls the speed of the crossfade transition.
+// Note: This is NOT in milliseconds. Embla uses physics-based animation (spring physics).
+// Higher numbers = slower transition speed.
+// Lower numbers = faster, snappier transition speed.
+// Default Embla scroll duration is 25.
+const FADE_SPEED_DURATION = 60;
+
+// ============================================================
 
 export interface SlideData {
     id: string | number;
@@ -25,7 +40,12 @@ export function ReusableSlider({
     showArrows = true,
     showDots = true,
 }: ReusableSliderProps) {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+    // Pass the duration to the core Embla options to control the fade speed.
+    // The Fade plugin reads the physics progress from the core scroll engine.
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        { loop: true, duration: FADE_SPEED_DURATION },
+        [Fade()]
+    );
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
 
@@ -116,4 +136,6 @@ export function ReusableSlider({
         </div>
     );
 }
+
+
 
