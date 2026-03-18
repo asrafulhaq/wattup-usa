@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
     const faviconUrl =  `${baseUrl}/assets/images/logo.png`; // Update with actual WattUp logo path if different
-    const ogImageUrl = `${baseUrl}/assets/images/logo.png`;  // Create an og-image later if needed
+    const ogImageUrl = `${baseUrl}/assets/images/hero-1-md.png`;  // Create an og-image later if needed
     const twitterImageUrl = ogImageUrl;
        
     return {
