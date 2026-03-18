@@ -1,8 +1,8 @@
 'use client';
 
+import { CheckboxIcon } from '@/components/icons/icons';
 import Link from 'next/link';
 import { useState } from 'react';
-import { CheckboxIcon } from '@/components/icons/icons';
 
 export function ContactForm() {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
@@ -158,7 +158,7 @@ function DriverForm() {
 
             <button
                 type='submit'
-                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-300'>
+                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
                 Submit Inquiry
             </button>
         </form>
@@ -237,7 +237,7 @@ function HostForm() {
 
             <button
                 type='submit'
-                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-300'>
+                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
                 Submit Inquiry
             </button>
         </form>

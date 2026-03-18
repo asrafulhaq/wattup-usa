@@ -124,7 +124,7 @@ export function PageHero({
                         <Link
                             href={buttonLink || '/find-charger'}
                             className={cn(
-                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-transform hover:-translate-y-0.5 shadow-btn whitespace-nowrap',
+                                'w-full sm:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap',
                                 buttonLight
                                     ? 'bg-white hover:bg-white/90 text-dark'
                                     : 'bg-primary hover:bg-primary-hover text-white'
