@@ -237,7 +237,7 @@ export function FindLocation() {
 
                         {/* Directions Button */}
                         <div className='mt-4 md:mt-8'>
-                            <button className='h-[48px] md:h-[45px] px-[24px] inline-flex bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors tracking-[-3%] leading-[130%] items-center justify-center shadow-btn'>
+                            <button className='h-[48px] md:h-[45px] px-[24px] inline-flex bg-primary hover:bg-primary-hover duration-500 text-white rounded-[8px] font-bold text-[16px] transition-colors tracking-[-3%] leading-[130%] items-center justify-center shadow-btn'>
                                 Directions
                             </button>
                         </div>

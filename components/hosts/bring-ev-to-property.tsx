@@ -31,7 +31,7 @@ export function BringEvToProperty() {
                     <FadeUp delay={0.2} className='relative z-20'>
                         <Link
                             href='/contact'
-                            className='inline-flex max-md:w-[348px] justify-center h-[53px] px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-all duration-300 mb-8'>
+                            className='inline-flex max-md:w-[348px] justify-center h-[53px] px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
                             Request Partnership
                         </Link>
                     </FadeUp>

@@ -1,5 +1,11 @@
 import { FindLocation } from '@/components/drivers/find-location';
 import { PageHero } from '@/components/drivers/page-hero';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Charging Locations | Find a WattUp Station',
+    description: 'Explore WattUp EV charging locations across our network and find a fast, reliable charger near you.',
+};
 
 export default function LocationsPage() {
     return (

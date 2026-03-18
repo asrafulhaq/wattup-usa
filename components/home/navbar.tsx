@@ -108,7 +108,7 @@ export function Navbar() {
                     <div className='mt-auto pb-8'>
                         <Link
                             href='/contact'
-                            className='w-full flex items-center justify-center py-4 px-[28px] h-[53px] bg-primary text-white rounded-lg font-bold text-[16px] leading-[130%] hover:bg-primary-hover transition-colors shadow-btn'
+                            className='w-full flex items-center justify-center py-4 px-[28px] h-[53px] bg-primary text-white rounded-lg font-bold text-[16px] leading-[130%] hover:bg-primary-hover transition-colors duration-500 shadow-btn'
                             onClick={() => setMobileMenuOpen(false)}>
                             Contact Us
                         </Link>

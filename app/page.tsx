@@ -7,6 +7,12 @@ import { HowItWorks } from '@/components/home/how-it-works';
 import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'EV Charging for Properties & Drivers',
+    description: 'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
+};
 
 export default function Home() {
     return (

@@ -5,10 +5,9 @@ import Link from 'next/link';
 const cities = [
     'Los Angeles',
     'San Diego',
-    'Austin',
-    'Miami',
+    'San Jose',
+    'San Francisco',
     'Phoenix',
-    'Chicago',
 ];
 
 export function ExpandingUs() {
@@ -51,7 +50,7 @@ export function ExpandingUs() {
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
                         <Link
                             href='/locations'
-                            className='inline-flex justify-center max-md:w-[348px] max-md:mx-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-all duration-300 mb-8'>
+                            className='inline-flex justify-center max-md:w-[348px] max-md:mx-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
                             View All Locations
                         </Link>
                     </FadeUp>
@@ -60,4 +59,5 @@ export function ExpandingUs() {
         </div>
     );
 }
+
 

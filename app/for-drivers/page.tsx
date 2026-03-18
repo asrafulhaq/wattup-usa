@@ -6,6 +6,12 @@ import { CTAReady } from '@/components/home/cta-ready';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { WhyChoose } from '@/components/home/why-choose';
 import { CarginglocationsForDrivers } from '@/data';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'For Drivers | EV Charging Made Simple',
+    description: 'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
+};
 
 export default function ForDriversPage() {
     return (
