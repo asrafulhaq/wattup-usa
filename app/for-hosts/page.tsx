@@ -9,6 +9,12 @@ import {
     HostPageWhyChooseSlideCardData,
     IdealLocationsForHosts,
 } from '@/data';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'For Property Hosts | Turn Your Property Into a Charging Destination',
+    description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+};
 
 export default function ForHostPage() {
     return (

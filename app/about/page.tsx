@@ -2,6 +2,12 @@ import { PageHero } from '@/components/drivers/page-hero';
 
 import { CorePrinciples } from '@/components/about/core-principles';
 import { CTAReady } from '@/components/home/cta-ready';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'About Us | Powering the Future of EV Charging',
+    description: 'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+};
 
 export default function AboutPage() {
     return (

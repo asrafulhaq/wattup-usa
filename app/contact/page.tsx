@@ -2,6 +2,12 @@ import { PageHero } from '@/components/drivers/page-hero';
 
 import { ContactForm } from '@/components/contact/contact-form';
 import { CTAReady } from '@/components/home/cta-ready';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Contact Us | WattUp EV Charging',
+    description: 'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
+};
 
 export default function ContactUsPage() {
     return (
