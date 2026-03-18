@@ -31,7 +31,7 @@ export function Navbar() {
 
     return (
         <>
-            <nav className='absolute inset-x-0 top-0 z-100 text-white font-sans pointer-events-none'>
+            <nav className='absolute inset-x-0 top-0 max-md:-mt-3 z-100 text-white font-sans pointer-events-none'>
                 <div className='container flex items-center justify-between pt-8 pointer-events-auto'>
                     {/* Logo */}
                     <Link
@@ -75,10 +75,11 @@ export function Navbar() {
 
                     {/* Mobile Menu Icon */}
                     <button
-                        className='lg:hidden shrink-0 touch-manipulation'
+                        className='lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation'
                         onClick={() => setMobileMenuOpen(true)}
                         aria-label='Open mobile menu'>
-                        <MobileMenuIcon />
+                        {/*  <MobileMenuIcon /> */}
+                        Menu
                     </button>
                 </div>
             </nav>
@@ -96,13 +97,14 @@ export function Navbar() {
                             />
                         </div>
                         <button
-                            className='p-px rounded-full bg-white shadow-btn hover:bg-white/10 transition-colors'
+                            className='p-px rounded-full text-dark transition-colors text-[16px] leading-[130%] tracking-[-3%] font-semibold shrink-0 touch-manipulation'
                             onClick={() => setMobileMenuOpen(false)}
                             aria-label='Close mobile menu'>
-                            <MobileMenuCloseIcon />
+                            {/*  <MobileMenuCloseIcon /> */}
+                            Close
                         </button>
                     </div>
-
+             
                     <div className='flex mt-[177px] flex-col justify-center items-center gap-3 text-2xl font-semibold tracking-tight'>
                         {navLinks.map(link => (
                             <Link
@@ -131,4 +133,6 @@ export function Navbar() {
         </>
     );
 }
+
+
 
