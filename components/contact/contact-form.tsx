@@ -8,7 +8,7 @@ export function ContactForm() {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
 
     return (
-        <section className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden pt-[40px] pb-[39px] lg:pt-[100px] lg:pb-[100px]'>
+        <section id='contact-us' className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden pt-[40px] pb-[39px] lg:pt-[100px] lg:pb-[100px]'>
             <div className='relative w-full container mx-auto px-[16px] xl:px-0 grid grid-cols-1 lg:grid-cols-2 gap-[40px] lg:gap-0'>
                 {/* Left Column: Contact Details */}
                 <div className='flex flex-col gap-[24px]'>

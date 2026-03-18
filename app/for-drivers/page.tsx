@@ -35,7 +35,7 @@ export default function ForDriversPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/contact'
+                buttonLink='/locations#map'
             />
 
             {/* 2. How It Works */}
@@ -62,7 +62,7 @@ export default function ForDriversPage() {
                 heading='Find a Charger Near You'
                 subHeading='Explore the WattUp charging network.'
                 buttonText='Find Locations'
-                buttonLink='/locations'
+                buttonLink='/locations#map'
             />
         </main>
     );

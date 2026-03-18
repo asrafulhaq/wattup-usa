@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay'
 import Fade from 'embla-carousel-fade';
 import * as React from 'react';
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons/icons';
@@ -44,7 +45,7 @@ export function ReusableSlider({
     // The Fade plugin reads the physics progress from the core scroll engine.
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true, duration: FADE_SPEED_DURATION },
-        [Fade()]
+        [Fade(), Autoplay({ delay: 4000, playOnInit: true, stopOnInteraction: false })]
     );
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
@@ -117,7 +118,7 @@ export function ReusableSlider({
             )}
 
             {showDots && (
-                <div className='absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-[10px] items-center'>
+                <div className='absolute hidden md:flex bottom-8 left-1/2 -translate-x-1/2 z-20 gap-[10px] items-center'>
                     {scrollSnaps.map((_, index) => (
                         <button
                             key={index}

@@ -88,9 +88,9 @@ export default function Home() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations'
+                buttonLink='/locations#map'
                 buttonText2='Partner With Us'
-                buttonLink2='/contact'
+                buttonLink2='/contact#contact-us'
             />
         </main>
     );

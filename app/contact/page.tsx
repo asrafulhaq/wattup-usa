@@ -32,7 +32,7 @@ export default function ContactUsPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/contact'
+                buttonLink='/locations#map'
             />
 
             {/* 2. Contact Form */}
@@ -58,7 +58,7 @@ export default function ContactUsPage() {
                     </>
                 }
                 buttonText='Become a Host'
-                buttonLink='/contact'
+                buttonLink='/contact#contact-us'
             />
         </main>
     );

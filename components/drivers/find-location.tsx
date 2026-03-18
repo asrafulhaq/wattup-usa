@@ -58,7 +58,7 @@ export function FindLocation() {
     };
 
     return (
-        <section className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
+        <section id='map' className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
             {/* Header */}
             <div className='mb-5 md:mb-[40px] container mx-auto'>
                 <FadeUp>

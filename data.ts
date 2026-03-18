@@ -32,7 +32,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/locations' },
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
     {
         id: 'hosts',
@@ -40,7 +40,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
-        cta: { label: 'Become a Host', href: '/contact' },
+        cta: { label: 'Become a Host', href: '/contact#contact-us' },
     },
     {
         id: 'drivers-1',
@@ -48,7 +48,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/locations' },
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
     {
         id: 'hosts-1',
@@ -56,7 +56,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
-        cta: { label: 'Become a Host', href: '/contact' },
+        cta: { label: 'Become a Host', href: '/contact#contact-us' },
     },
 ];
 
@@ -158,7 +158,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Fast Charging',
         description:
             'High-performance charging stations designed for speed and reliability.',
-        cta: { label: 'Find Charging Locations', href: '/locations' },
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
     {
         id: 'premium-locations',
@@ -166,7 +166,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Premium Locations',
         description:
             'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
-        cta: { label: 'Find Charging Locations', href: '/locations' },
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
     {
         id: 'smart-infrastructure',
@@ -174,7 +174,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
-        cta: { label: 'Find Charging Locations', href: '/locations' },
+        cta: { label: 'Find Charging Locations', href: '/locations#map' },
     },
 ];
 
@@ -184,21 +184,21 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
         image: '/assets/images/for-host-slide-card-image-1.png',
         title: 'Increase Property Value',
         description: " Enhance your property's long-term appeal.",
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'attract-visitors',
         image: '/assets/images/for-host-slide-card-image-2.png',
         title: 'Attract Visitors',
         description: ' EV drivers actively look for charging locations.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'support-sustainability',
         image: '/assets/images/for-host-slide-card-image-1.png',
         title: 'Support Sustainability',
         description: ' Show commitment to clean mobility.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
 ];
 
@@ -231,14 +231,14 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
         image: '/assets/images/host-page-benifit-image-1.png',
         title: 'Charging Revenue',
         description: 'Drivers pay to charge their vehicles at your location.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'increased-foot-traffic',
         image: '/assets/images/host-page-benifit-image-2.png',
         title: 'Increased Foot Traffic',
         description: 'EV drivers choose locations where they can charge.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'longer-customer-visits',
@@ -246,14 +246,14 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
         title: 'Longer Customer Visits',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'property-value-growth',
         image: '/assets/images/car-2.png',
         title: 'Property Value Growth',
         description: 'EV infrastructure increases long-term property value.',
-        cta: { label: 'Request Partnership', href: '/contact' },
+        cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
 ];
 

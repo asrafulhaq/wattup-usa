@@ -49,7 +49,7 @@ export function ExpandingUs() {
 
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
                         <Link
-                            href='/locations'
+                            href='/locations#map'
                             className='inline-flex justify-center max-md:w-[348px] max-md:mx-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
                             View All Locations
                         </Link>

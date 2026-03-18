@@ -37,7 +37,7 @@ export default function AboutPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/contact'
+                buttonLink='/locations#map'
                 buttonLight={true}
             />
 
@@ -53,7 +53,7 @@ export default function AboutPage() {
                 heading='Partner With Us'
                 subHeading=' Explore the WattUp charging network.'
                 buttonText='Request Assessment'
-                buttonLink='/contact'
+                buttonLink='/contact#contact-us'
             />
         </main>
     );

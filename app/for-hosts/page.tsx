@@ -39,7 +39,7 @@ export default function ForHostPage() {
                     </>
                 }
                 buttonText='Request Partnership'
-                buttonLink='/contact'
+                buttonLink='/contact#contact-us'
             />
 
             {/* 2. Why Choose WATTUP Cards */}

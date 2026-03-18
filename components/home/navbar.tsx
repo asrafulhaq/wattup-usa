@@ -2,11 +2,15 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { MobileMenuCloseIcon, MobileMenuIcon } from '../icons/icons';
+import { cn } from '@/lib/utils';
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const pathname = usePathname();
+
     useEffect(() => {
         if (mobileMenuOpen) {
             document.body.style.overflow = 'hidden';
@@ -48,7 +52,10 @@ export function Navbar() {
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className='text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors'>
+                                className={cn(
+                                    'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors',
+                                    pathname === link.href ? 'text-primary' : ''
+                                )}>
                                 {link.label}
                             </Link>
                         ))}
@@ -58,7 +65,10 @@ export function Navbar() {
                     <div className='hidden lg:flex items-center shrink-0'>
                         <Link
                             href='/contact'
-                            className='text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors'>
+                            className={cn(
+                                'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors',
+                                pathname === '/contact' ? 'text-primary' : ''
+                            )}>
                             Contact Us
                         </Link>
                     </div>
@@ -98,7 +108,10 @@ export function Navbar() {
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className=' text-[24px] py-[10px] font-medium leading-[100%] tracking-[-3%] hover:text-primary transition-colors block'
+                                className={cn(
+                                    'text-[24px] py-[10px] font-medium leading-[100%] tracking-[-3%] hover:text-primary transition-colors block',
+                                    pathname === link.href ? 'text-primary' : ''
+                                )}
                                 onClick={() => setMobileMenuOpen(false)}>
                                 {link.label}
                             </Link>
