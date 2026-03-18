@@ -10,13 +10,13 @@ import { useEffect, useRef } from 'react';
 // Adjust these variables to tune the feel of the scroll across the entire site.
 
 // How long the scroll animation lasts (in seconds). Higher = slower/smoother.
-const SCROLL_DURATION = 1.5;
+const SCROLL_DURATION = .4;
 
 // Multiplier for mouse wheel scrolling speed. Default is 1. Higher = faster scrolling.
-const WHEEL_MULTIPLIER = 1;
+const WHEEL_MULTIPLIER = 2;
 
 // Multiplier for touch/trackpad scrolling speed. Default is 2. Higher = faster scrolling on touch devices.
-const TOUCH_MULTIPLIER = 2;
+const TOUCH_MULTIPLIER = 4;
 
 // Offset (in pixels) for anchor links (e.g. #contact-us). Negative values stop scrolling *above* the element.
 const SCROLL_OFFSET = -10;

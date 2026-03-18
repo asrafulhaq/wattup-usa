@@ -3,9 +3,8 @@ import { Navbar } from '@/components/home/navbar';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import './globals.css';
 import Script from 'next/script';
-import { SmoothScroll } from '@/components/ui/smooth-scroll';
+import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
     variable: '--font-sans',
@@ -13,23 +12,31 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
- 
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
-    const faviconUrl =  `${baseUrl}/assets/images/logo.png`; // Update with actual WattUp logo path if different
-    const ogImageUrl = `${baseUrl}/assets/images/hero-1-md.png`;  // Create an og-image later if needed
+    const faviconUrl = `${baseUrl}/assets/images/logo.png`; // Update with actual WattUp logo path if different
+    const ogImageUrl = `${baseUrl}/assets/images/hero-1-md.png`; // Create an og-image later if needed
     const twitterImageUrl = ogImageUrl;
-       
+
     return {
         metadataBase: new URL(baseUrl),
         title: {
-            default: 'WattUp USA | EV Charging Solutions for Properties & Drivers',
-            template: '%s | WattUp USA'
+            default:
+                'WattUp USA | EV Charging Solutions for Properties & Drivers',
+            template: '%s | WattUp USA',
         },
         description:
             'Partner with WattUp USA to bring seamless EV charging to your property, or find a reliable charger near you. The future of mobility starts here.',
 
-        keywords: ['EV Charging', 'Electric Vehicle', 'EV Charger Installation', 'Commercial EV Charging', 'WattUp USA', 'EV Drivers', 'Property Management EV'],
+        keywords: [
+            'EV Charging',
+            'Electric Vehicle',
+            'EV Charger Installation',
+            'Commercial EV Charging',
+            'WattUp USA',
+            'EV Drivers',
+            'Property Management EV',
+        ],
         robots: 'index, follow',
         openGraph: {
             type: 'website',
@@ -73,7 +80,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang='en' className={cn('font-sans', plusJakartaSans.variable)}>
+        <html
+            scroll-behavior='smooth'
+            lang='en'
+            className={cn('font-sans', plusJakartaSans.variable)}>
             <body
                 suppressHydrationWarning
                 className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
@@ -111,7 +121,7 @@ export default function RootLayout({
                         `}
                 </Script>
 
-                <SmoothScroll />
+                {/*  <SmoothScroll /> */}
                 <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
                     {/* The Navbar floats absolutely over the entire Hero */}
                     <Navbar />
@@ -122,10 +132,4 @@ export default function RootLayout({
         </html>
     );
 }
-
-
-
-
-
-
 
