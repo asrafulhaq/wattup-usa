@@ -6,7 +6,8 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Contact Us | WattUp EV Charging',
-    description: 'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
+    description:
+        'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
 };
 
 export default function ContactUsPage() {
@@ -31,7 +32,7 @@ export default function ContactUsPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/find-charger'
+                buttonLink='/contact'
             />
 
             {/* 2. Contact Form */}

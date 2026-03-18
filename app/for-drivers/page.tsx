@@ -10,7 +10,8 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'For Drivers | EV Charging Made Simple',
-    description: 'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
+    description:
+        'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
 };
 
 export default function ForDriversPage() {
@@ -34,7 +35,7 @@ export default function ForDriversPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/find-charger'
+                buttonLink='/contact'
             />
 
             {/* 2. How It Works */}

@@ -11,17 +11,17 @@ const COLUMN_1_LINKS = [
 ];
 
 const COLUMN_2_LINKS = [
-    { label: 'Privacy Policy', href: '/privacy-policy' },
-    { label: 'Terms of Use', href: '/terms-of-use' },
-    { label: 'Why WattUp USA', href: '/why-wattup-usa' },
-    { label: 'Technology', href: '/technology' },
-    { label: 'Who we serve', href: '/who-we-serve' },
+    { label: 'Privacy Policy', href: '/#' },
+    { label: 'Terms of Use', href: '/#' },
+    { label: 'Why WattUp USA', href: '/#why-wattup' },
+    { label: 'Technology', href: '/#technology' },
+    { label: 'Who we serve', href: '/#who-we-serve' },
 ];
 
 const SOCIAL_LINKS = [
-    { icon: InstagramIcon, href: '#', label: 'Instagram' },
-    { icon: FacebookIcon, href: '#', label: 'Facebook' },
-    { icon: XIcon, href: '#', label: 'X' },
+    { icon: InstagramIcon, href: '/#', label: 'Instagram' },
+    { icon: FacebookIcon, href: '/#', label: 'Facebook' },
+    { icon: XIcon, href: '/#', label: 'X' },
 ];
 
 const Footer = () => {

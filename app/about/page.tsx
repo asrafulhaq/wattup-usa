@@ -6,7 +6,8 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'About Us | Powering the Future of EV Charging',
-    description: 'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+    description:
+        'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
 };
 
 export default function AboutPage() {
@@ -36,7 +37,7 @@ export default function AboutPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/find-charger'
+                buttonLink='/contact'
                 buttonLight={true}
             />
 

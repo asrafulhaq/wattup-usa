@@ -1,7 +1,6 @@
-'use client';
-
 import { FadeUp } from '@/components/ui/fade-up';
 import { ReusableSlider } from '@/components/ui/reusable-slider';
+import { getBlurDataUrl } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,12 +39,12 @@ function HeroContent({ dark }: { dark: boolean }) {
                     className='w-full flex-col font-sans'>
                     <div className='flex flex-row items-center justify-center gap-[16px]'>
                         <Link
-                            href='/find-charger'
+                            href='/locations'
                             className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap'>
                             Find a Charger
                         </Link>
                         <Link
-                            href='/partner'
+                            href='/contact'
                             className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500  shadow-btn whitespace-nowrap'>
                             Partner With Us
                         </Link>
@@ -56,75 +55,97 @@ function HeroContent({ dark }: { dark: boolean }) {
     );
 }
 
-const slidesData = [
-    {
-        id: 1,
-        content: (
-            <div className='relative w-full h-full flex flex-col items-center justify-start'>
-                {/* Background Image Setup */}
-                <div className='absolute inset-0 z-0 select-none bg-[#032e4d]'>
-                    <Image
-                        src='/assets/images/hero-1-md.png'
-                        alt='WattUp Hero Station'
-                        fill
-                        className='object-cover hidden md:block object-center'
-                        priority
-                        draggable={false}
-                    />
-                    <Image
-                        src='/assets/images/hero-1.png'
-                        alt='WattUp Hero Station'
-                        fill
-                        className='object-cover md:hidden object-center'
-                        priority
-                        draggable={false}
-                    />
-                    {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+export async function Hero() {
 
-                    {/* Subtle Gradient Overlay for Text Readability */}
-                    <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+    // Generate blur data URLs on the server at request/build time
+    const [
+        slide1Desktop,
+        slide1Mobile,
+        slide2Desktop,
+        slide2Mobile
+    ] = await Promise.all([
+        getBlurDataUrl('/assets/images/hero-1-md.png'),
+        getBlurDataUrl('/assets/images/hero-1.png'),
+        getBlurDataUrl('/assets/images/hero-2-md.png'),
+        getBlurDataUrl('/assets/images/hero-2.png')
+    ]);
+
+    const slidesData = [
+        {
+            id: 1,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='absolute inset-0 z-0 select-none bg-[#032e4d]'>
+                        <Image
+                            src='/assets/images/hero-1-md.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-center'
+                            priority
+                            draggable={false}
+                            placeholder={slide1Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide1Desktop}
+                        />
+                        <Image
+                            src='/assets/images/hero-1.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-center'
+                            priority
+                            draggable={false}
+                            placeholder={slide1Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide1Mobile}
+                        />
+                        {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
                 </div>
+            ),
+        },
+        {
+            id: 2,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='absolute inset-0 z-0 select-none bg-[#cfd8e3]'>
+                        <Image
+                            src='/assets/images/hero-2-md.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-bottom'
+                            priority
+                            draggable={false}
+                            placeholder={slide2Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide2Desktop}
+                        />
+                        <Image
+                            src='/assets/images/hero-2.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-bottom'
+                            priority
+                            draggable={false}
+                            placeholder={slide2Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide2Mobile}
+                        />
 
-                {/* Content Container */}
-                <HeroContent dark={false} />
-            </div>
-        ),
-    },
-    {
-        id: 2,
-        content: (
-            <div className='relative w-full h-full flex flex-col items-center justify-start'>
-                {/* Background Image Setup */}
-                <div className='absolute inset-0 z-0 select-none bg-[#cfd8e3]'>
-                    <Image
-                        src='/assets/images/hero-2-md.png'
-                        alt='WattUp Hero Station'
-                        fill
-                        className='object-cover hidden md:block object-bottom'
-                        priority
-                        draggable={false}
-                    />
-                    <Image
-                        src='/assets/images/hero-2.png'
-                        alt='WattUp Hero Station'
-                        fill
-                        className='object-cover md:hidden object-bottom'
-                        priority
-                        draggable={false}
-                    />
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
 
-                    {/* Subtle Gradient Overlay for Text Readability */}
-                    <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    {/* Content Container */}
+                    <HeroContent dark={true} />
                 </div>
+            ),
+        },
+    ];
 
-                {/* Content Container */}
-                <HeroContent dark={true} />
-            </div>
-        ),
-    },
-];
-
-export function Hero() {
     return (
         <section className='relative  overflow-x-hidden mx-auto w-full  md:aspect-1440/951 h-[744px] md:h-[961px] xl:h-[1080px] overflow-hidden'>
             <ReusableSlider slides={slidesData} className='w-full h-full' />

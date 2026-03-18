@@ -1,9 +1,10 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { getBlurDataUrl } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export function PageHero({
+export async function PageHero({
     image,
     mobileImage,
     heading,
@@ -36,6 +37,14 @@ export function PageHero({
     overlayClass?: string;
     overlay?: boolean;
 }) {
+    const desktopImagePath = image || '/assets/images/for-driver-page-hero.png';
+    const blurDataURL = await getBlurDataUrl(desktopImagePath);
+
+    let mobileBlurDataURL = blurDataURL;
+    if (mobileImage) {
+        mobileBlurDataURL = await getBlurDataUrl(mobileImage);
+    }
+
     return (
         <section
             className={cn(
@@ -60,7 +69,8 @@ export function PageHero({
                             'object-cover md:hidden md:object-center',
                             imageClass
                         )}
-                        placeholder='blur'
+                        placeholder={mobileBlurDataURL ? 'blur' : 'empty'}
+                        blurDataURL={mobileBlurDataURL}
                         preload={true}
                         draggable={false}
                     />
@@ -76,6 +86,8 @@ export function PageHero({
                     )}
                     priority
                     draggable={false}
+                    placeholder={blurDataURL ? 'blur' : 'empty'}
+                    blurDataURL={blurDataURL}
                 />
 
                 {/* Subtle Gradient Overlay for Text Readability */}

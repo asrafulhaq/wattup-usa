@@ -12,7 +12,7 @@ const cities = [
 
 export function ExpandingUs() {
     return (
-        <div className='pt-[40px] md:pt-[82px]'>
+        <div id='who-we-serve' className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
                 imageSrc='/assets/images/location-marque-bg.png'
                 imageAlt='Charging Stations By Water'
