@@ -14,7 +14,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export async function generateMetadata(): Promise<Metadata> {
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
-    const faviconUrl = `${baseUrl}/assets/images/logo.png`; // Update with actual WattUp logo path if different
     const ogImageUrl = `${baseUrl}/assets/images/hero-1-md.png`; // Create an og-image later if needed
     const twitterImageUrl = ogImageUrl;
 
@@ -64,9 +63,25 @@ export async function generateMetadata(): Promise<Metadata> {
             creator: '@wattupusa',
         },
         icons: {
-            icon: faviconUrl,
-            shortcut: faviconUrl,
-            apple: faviconUrl,
+            icon: [
+                // Only PWA/manifest-sized icons here — tab favicon is handled
+                // by theme-aware <link> tags in the <head> below
+         /*        {
+                    url: '/assets/icons/android-chrome-192x192.png',
+                    sizes: '192x192',
+                    type: 'image/png',
+                },
+                {
+                    url: '/assets/icons/android-chrome-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                }, */
+            ],
+            apple: {
+                url: '/assets/icons/apple-touch-icon.png',
+                sizes: '180x180',
+                type: 'image/png',
+            },
         },
         verification: {
             google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
@@ -84,6 +99,21 @@ export default function RootLayout({
             scroll-behavior='smooth'
             lang='en'
             className={cn('font-sans', plusJakartaSans.variable)}>
+            <head>
+                {/* Theme-aware favicons — browser picks based on system color scheme */}
+                <link
+                    rel='icon'
+                    href='/assets/images/favicon-light.png'
+                 media='(prefers-color-scheme: dark)' 
+                />
+               
+                 <link
+                    rel='icon'
+                    href='/assets/images/favicon-Dark.png'
+                    media='(prefers-color-scheme: light)'
+                /> 
+                
+            </head>
             <body
                 suppressHydrationWarning
                 className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
@@ -132,4 +162,6 @@ export default function RootLayout({
         </html>
     );
 }
+
+
 
