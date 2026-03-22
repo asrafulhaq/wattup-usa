@@ -103,13 +103,13 @@ export default function RootLayout({
                 {/* Theme-aware favicons — browser picks based on system color scheme */}
                 <link
                     rel='icon'
-                    href='/assets/images/favicon-light.png'
+                    href='/assets/images/favicon-light-sq.png'
                  media='(prefers-color-scheme: dark)' 
                 />
                
                  <link
                     rel='icon'
-                    href='/assets/images/favicon-Dark.png'
+                    href='/assets/images/favicon-Dark-sq.png'
                     media='(prefers-color-scheme: light)'
                 /> 
                 
