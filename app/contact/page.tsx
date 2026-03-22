@@ -22,7 +22,6 @@ export default function ContactUsPage() {
                 overlayClass=''
                 image='/assets/images/contact-page-hero.png'
                 imageClass='object-cover object-[65%_bottom] max-md:scale-125  md:object-center'
-                imageWrapperClass='-mb-7'
                 heading='Get in Touch'
                 subHeading={
                     <>
@@ -32,7 +31,7 @@ export default function ContactUsPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations#map'
+                buttonLink='#'
             />
 
             {/* 2. Contact Form */}

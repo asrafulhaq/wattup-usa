@@ -1,9 +1,6 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay'
-import Fade from 'embla-carousel-fade';
 import * as React from 'react';
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons/icons';
 
@@ -12,12 +9,11 @@ import { ArrowLeftIcon, ArrowRightIcon } from '../icons/icons';
 // Modify these values to control the transition behavior.
 // ============================================================
 
-// FADE_SPEED_DURATION controls the speed of the crossfade transition.
-// Note: This is NOT in milliseconds. Embla uses physics-based animation (spring physics).
-// Higher numbers = slower transition speed.
-// Lower numbers = faster, snappier transition speed.
-// Default Embla scroll duration is 25.
-const FADE_SPEED_DURATION = 60;
+// CSS transition duration for the crossfade effect (in milliseconds).
+const FADE_DURATION_MS = 800;
+
+// Autoplay interval (in milliseconds).
+const AUTOPLAY_DELAY_MS = 8000;
 
 // ============================================================
 
@@ -41,61 +37,68 @@ export function ReusableSlider({
     showArrows = true,
     showDots = true,
 }: ReusableSliderProps) {
-    // Pass the duration to the core Embla options to control the fade speed.
-    // The Fade plugin reads the physics progress from the core scroll engine.
-    const [emblaRef, emblaApi] = useEmblaCarousel(
-        { loop: true, duration: FADE_SPEED_DURATION },
-        [Fade(), Autoplay({ delay: 4000, playOnInit: true, stopOnInteraction: false })]
-    );
     const [selectedIndex, setSelectedIndex] = React.useState(0);
-    const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
-
-    const scrollPrev = React.useCallback(
-        () => emblaApi && emblaApi.scrollPrev(),
-        [emblaApi]
-    );
-    const scrollNext = React.useCallback(
-        () => emblaApi && emblaApi.scrollNext(),
-        [emblaApi]
-    );
-    const scrollTo = React.useCallback(
-        (index: number) => emblaApi && emblaApi.scrollTo(index),
-        [emblaApi]
+    const autoplayRef = React.useRef<ReturnType<typeof setInterval> | null>(
+        null
     );
 
-    const onSelect = React.useCallback(() => {
-        if (!emblaApi) return;
-        setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, [emblaApi]);
+    const totalSlides = slides.length;
 
+    // Reset autoplay timer whenever the selected index changes.
+    const resetAutoplay = React.useCallback(() => {
+        if (autoplayRef.current) clearInterval(autoplayRef.current);
+        autoplayRef.current = setInterval(() => {
+            setSelectedIndex(prev => (prev + 1) % totalSlides);
+        }, AUTOPLAY_DELAY_MS);
+    }, [totalSlides]);
+
+    // Start autoplay on mount.
     React.useEffect(() => {
-        if (!emblaApi) return;
-        onSelect();
-        setScrollSnaps(emblaApi.scrollSnapList());
-        emblaApi.on('select', onSelect);
-        emblaApi.on('reInit', onSelect);
-
+        resetAutoplay();
         return () => {
-            emblaApi.off('select', onSelect);
-            emblaApi.off('reInit', onSelect);
+            if (autoplayRef.current) clearInterval(autoplayRef.current);
         };
-    }, [emblaApi, onSelect]);
+    }, [resetAutoplay]);
+
+    const scrollPrev = React.useCallback(() => {
+        setSelectedIndex(prev => (prev - 1 + totalSlides) % totalSlides);
+        resetAutoplay();
+    }, [totalSlides, resetAutoplay]);
+
+    const scrollNext = React.useCallback(() => {
+        setSelectedIndex(prev => (prev + 1) % totalSlides);
+        resetAutoplay();
+    }, [totalSlides, resetAutoplay]);
+
+    const scrollTo = React.useCallback(
+        (index: number) => {
+            setSelectedIndex(index);
+            resetAutoplay();
+        },
+        [resetAutoplay]
+    );
 
     return (
         <div className={cn('relative', className)}>
-            <div className='overflow-hidden h-full' ref={emblaRef}>
-                <div className='flex h-full -ml-4'>
-                    {slides.map(slide => (
-                        <div
-                            key={slide.id}
-                            className={cn(
-                                'min-w-0 shrink-0 grow-0 basis-full pl-4 relative h-full',
-                                slideClassName
-                            )}>
-                            {slide.content}
-                        </div>
-                    ))}
-                </div>
+            {/* Slide stack — all slides are layered on top of each other */}
+            <div className='relative h-full w-full'>
+                {slides.map((slide, index) => (
+                    <div
+                        key={slide.id}
+                        className={cn(
+                            'absolute inset-0 h-full w-full',
+                            slideClassName
+                        )}
+                        style={{
+                            opacity: index === selectedIndex ? 1 : 0,
+                            zIndex: index === selectedIndex ? 10 : 0,
+                            transition: `opacity ${FADE_DURATION_MS}ms ease-in-out`,
+                            pointerEvents:
+                                index === selectedIndex ? 'auto' : 'none',
+                        }}>
+                        {slide.content}
+                    </div>
+                ))}
             </div>
 
             {showArrows && (
@@ -119,11 +122,11 @@ export function ReusableSlider({
 
             {showDots && (
                 <div className='absolute hidden md:flex bottom-8 left-1/2 -translate-x-1/2 z-20 gap-[10px] items-center'>
-                    {scrollSnaps.map((_, index) => (
+                    {slides.map((_, index) => (
                         <button
                             key={index}
                             className={cn(
-                                'h-[16px] w-[16px] rounded-full transition-all duration-300',
+                                'h-[16px] w-[16px] rounded-full transition-all duration-500',
                                 index === selectedIndex
                                     ? 'bg-[#393939] scale-110 shadow-[0_0_0_1px_rgba(255,255,255,0.4)]'
                                     : 'bg-[#2d2d2d]/40 hover:bg-[#2d2d2d]/60 shadow-[0_0_0_1px_rgba(255,255,255,0.2)]'
@@ -137,6 +140,4 @@ export function ReusableSlider({
         </div>
     );
 }
-
-
 

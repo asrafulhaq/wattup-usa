@@ -1,6 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { ReusableSlider } from '@/components/ui/reusable-slider';
-import { getBlurDataUrl } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -42,7 +41,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                     className='w-full flex-col font-sans'>
                     <div className='flex flex-row items-center justify-center gap-[16px]'>
                         <Link
-                            href='/locations#map'
+                            href='#'
                             className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap'>
                             Find a Charger
                         </Link>
@@ -59,9 +58,8 @@ function HeroContent({ dark }: { dark: boolean }) {
 }
 
 export async function Hero() {
-
     // Generate blur data URLs on the server at request/build time
-    const [
+    /*     const [
         slide1Desktop,
         slide1Mobile,
         slide2Desktop,
@@ -71,7 +69,7 @@ export async function Hero() {
         getBlurDataUrl('/assets/images/hero-1.png'),
         getBlurDataUrl('/assets/images/hero-2-md.png'),
         getBlurDataUrl('/assets/images/hero-2.png')
-    ]);
+    ]); */
 
     const slidesData = [
         {
@@ -87,8 +85,8 @@ export async function Hero() {
                             className='object-cover hidden md:block object-center'
                             priority
                             draggable={false}
-                            placeholder={slide1Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide1Desktop}
+                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide1Desktop} */
                         />
                         <Image
                             src='/assets/images/hero-1.png'
@@ -97,8 +95,8 @@ export async function Hero() {
                             className='object-cover md:hidden object-center'
                             priority
                             draggable={false}
-                            placeholder={slide1Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide1Mobile}
+                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide1Mobile} */
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
 
@@ -124,8 +122,8 @@ export async function Hero() {
                             className='object-cover hidden md:block object-bottom'
                             priority
                             draggable={false}
-                            placeholder={slide2Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide2Desktop}
+                            /*       placeholder={slide2Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide2Desktop} */
                         />
                         <Image
                             src='/assets/images/hero-2.png'
@@ -134,8 +132,8 @@ export async function Hero() {
                             className='object-cover md:hidden object-bottom'
                             priority
                             draggable={false}
-                            placeholder={slide2Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide2Mobile}
+                            /* placeholder={slide2Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide2Mobile} */
                         />
 
                         {/* Subtle Gradient Overlay for Text Readability */}
@@ -147,6 +145,117 @@ export async function Hero() {
                 </div>
             ),
         },
+        {
+            id: 3,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
+                        <Image
+                            src='/assets/images/homepage-hero-3.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-center'
+                            priority
+                            draggable={false}
+                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide1Desktop} */
+                        />
+                        <Image
+                            src='/assets/images/homepage-hero-3.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-center'
+                            priority
+                            draggable={false}
+                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide1Mobile} */
+                        />
+                        {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
+                </div>
+            ),
+        },
+        {
+            id: 4,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
+                        <Image
+                            src='/assets/images/homepage-hero-4.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-center'
+                            priority
+                            draggable={false}
+                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide1Desktop} */
+                        />
+                        <Image
+                            src='/assets/images/homepage-hero-4.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-center'
+                            priority
+                            draggable={false}
+                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide1Mobile} */
+                        />
+                        {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
+                </div>
+            ),
+        },
+        {
+            id: 5,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
+                        <Image
+                            src='/assets/images/homepage-hero-5.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-center'
+                            priority
+                            draggable={false}
+                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
+                            blurDataURL={slide1Desktop} */
+                        />
+                        <Image
+                            src='/assets/images/homepage-hero-5.png'
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-center'
+                            priority
+                            draggable={false}
+                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
+                            blurDataURL={slide1Mobile} */
+                        />
+                        {/* Seamless fade for mobile to reduce zoom while covering top sky */}
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
+                </div>
+            ),
+        },
     ];
 
     return (
@@ -155,5 +264,4 @@ export async function Hero() {
         </section>
     );
 }
-
 

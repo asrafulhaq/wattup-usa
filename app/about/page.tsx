@@ -19,7 +19,6 @@ export default function AboutPage() {
                 mobileImage='/assets/images/about-page-hero-image-mobile.png'
                 alt='About Page Hero Background'
                 sectionClass=''
-                imageWrapperClass='max-md:-mb-80'
                 imageClass='max-md:object-[45%_top]'
                 overlay={false}
                 heading={
@@ -37,8 +36,9 @@ export default function AboutPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations#map'
+                buttonLink='#'
                 buttonLight={true}
+                buttonClass='max-md:bg-primary max-md:hover:bg-primary-hover max-md:text-white'
             />
 
             {/* 2. Core Principals */}

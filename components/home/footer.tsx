@@ -6,7 +6,7 @@ const COLUMN_1_LINKS = [
     { label: 'Home', href: '/' },
     { label: 'For Drivers', href: '/for-drivers' },
     { label: 'For Hosts', href: '/for-hosts' },
-    { label: 'Locations', href: '/locations' },
+    { label: 'Locations', href: '#' },
     { label: 'About', href: '/about' },
 ];
 
@@ -108,7 +108,4 @@ const Footer = () => {
 };
 
 export default Footer;
-
-
-
 

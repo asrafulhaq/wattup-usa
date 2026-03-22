@@ -1,21 +1,23 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app'
+    const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app';
 
-  const routes = [
-    '',
-    '/about',
-    '/contact',
-    '/for-drivers',
-    '/for-hosts',
-    '/locations',
-  ]
+    const routes = [
+        '',
+        '/about',
+        '/contact',
+        '/for-drivers',
+        '/for-hosts',
+        '#',
+    ];
 
-  return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: route === '' ? 'weekly' : 'monthly',
-    priority: route === '' ? 1 : 0.8,
-  }))
+    return routes.map(route => ({
+        url: `${baseUrl}${route}`,
+        lastModified: new Date(),
+        changeFrequency: route === '' ? 'weekly' : 'monthly',
+        priority: route === '' ? 1 : 0.8,
+    }));
 }
+

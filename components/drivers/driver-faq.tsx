@@ -50,7 +50,7 @@ export function DriverFAQ() {
                                         className='w-full'>
                                         <div
                                             className={cn(
-                                                'flex flex-col border-b border-dark/20 w-full overflow-hidden transition-all duration-300',
+                                                'flex flex-col border-b border-dark/20 w-full overflow-hidden transition-all duration-500',
                                                 isOpen ? 'pb-6' : 'pb-0'
                                             )}>
                                             <button
@@ -62,7 +62,7 @@ export function DriverFAQ() {
                                                 <div className='relative shrink-0 w-6 h-6 rounded-full bg-dark flex items-center justify-center transition-colors hover:bg-dark/80'>
                                                     <PlusIcon
                                                         className={cn(
-                                                            'absolute w-3 h-3 transition-all duration-300',
+                                                            'absolute w-3 h-3 transition-all duration-500',
                                                             isOpen
                                                                 ? 'opacity-0 rotate-90'
                                                                 : 'opacity-100 rotate-0'
@@ -71,7 +71,7 @@ export function DriverFAQ() {
                                                     <CancelIcon
                                                         stroke='#fff'
                                                         className={cn(
-                                                            'absolute w-[10px] h-[10px] transition-all duration-300',
+                                                            'absolute w-[10px] h-[10px] transition-all duration-500',
                                                             isOpen
                                                                 ? 'opacity-100 rotate-0'
                                                                 : 'opacity-0 -rotate-90'
@@ -82,7 +82,7 @@ export function DriverFAQ() {
 
                                             <div
                                                 className={cn(
-                                                    'grid transition-all duration-300 ease-in-out',
+                                                    'grid transition-all duration-500 ease-in-out',
                                                     isOpen
                                                         ? 'grid-rows-[1fr] opacity-100'
                                                         : 'grid-rows-[0fr] opacity-0'

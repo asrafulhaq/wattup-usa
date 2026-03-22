@@ -1,15 +1,12 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { MobileMenuCloseIcon, MobileMenuIcon } from '../icons/icons';
-import { cn } from '@/lib/utils';
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const pathname = usePathname();
 
     useEffect(() => {
         if (mobileMenuOpen) {
@@ -25,7 +22,7 @@ export function Navbar() {
         { label: 'Home', href: '/' },
         { label: 'For Drivers', href: '/for-drivers' },
         { label: 'For Hosts', href: '/for-hosts' },
-        { label: 'Locations', href: '/locations' },
+        /*   { label: 'Locations', href: '#' }, */
         { label: 'About', href: '/about' },
     ];
 
@@ -53,8 +50,7 @@ export function Navbar() {
                                 key={link.label}
                                 href={link.href}
                                 className={cn(
-                                    'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors',
-                                    pathname === link.href ? 'text-primary' : ''
+                                    'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors'
                                 )}>
                                 {link.label}
                             </Link>
@@ -66,8 +62,7 @@ export function Navbar() {
                         <Link
                             href='/contact'
                             className={cn(
-                                'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/70 transition-colors',
-                                pathname === '/contact' ? 'text-primary' : ''
+                                'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors'
                             )}>
                             Contact Us
                         </Link>
@@ -104,15 +99,14 @@ export function Navbar() {
                             Close
                         </button>
                     </div>
-             
+
                     <div className='flex mt-[177px] flex-col justify-center items-center gap-3 text-2xl font-semibold tracking-tight'>
                         {navLinks.map(link => (
                             <Link
                                 key={link.label}
                                 href={link.href}
                                 className={cn(
-                                    'text-[24px] py-[10px] font-medium leading-[100%] tracking-[-3%] hover:text-primary transition-colors block',
-                                    pathname === link.href ? 'text-primary' : ''
+                                    'text-[24px] py-[10px] font-medium leading-[100%] tracking-[-3%] hover:text-dark/80 transition-colors block'
                                 )}
                                 onClick={() => setMobileMenuOpen(false)}>
                                 {link.label}
@@ -133,6 +127,4 @@ export function Navbar() {
         </>
     );
 }
-
-
 

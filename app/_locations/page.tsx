@@ -18,7 +18,6 @@ export default function LocationsPage() {
                 alt='Location Page Hero Background'
                 heading=' Find a Charging Station'
                 imageClass='max-md:object-[16%] xl:object-bottom'
-                imageWrapperClass='max-md:-mb-[145px]'
                 headingClass='max-md:text-nowrap'
                 subHeadingClass='max-md:max-w-[256px] max-w-[416px]'
                 overlay={true}
@@ -30,7 +29,7 @@ export default function LocationsPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations#map'
+                buttonLink='#'
             />
 
             {/* 2. Find Location */}

@@ -58,7 +58,9 @@ export function FindLocation() {
     };
 
     return (
-        <section id='map' className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
+        <section
+            id='map'
+            className='relative w-full max-w-[1444px] mx-auto common-section-padding '>
             {/* Header */}
             <div className='mb-5 md:mb-[40px] container mx-auto'>
                 <FadeUp>
@@ -122,7 +124,7 @@ export function FindLocation() {
                         </button>
 
                         {openConnectors && (
-                            <div className='flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-200'>
+                            <div className='flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2 duration-500'>
                                 {['CCS', 'Tesla', 'Type 1', 'Type 2'].map(
                                     type => (
                                         <button
@@ -189,7 +191,7 @@ export function FindLocation() {
                         {/* Expandable Details */}
                         <div
                             className={cn(
-                                'grid transition-all duration-300 ease-in-out md:grid-rows-[1fr] md:opacity-100 md:mt-8',
+                                'grid transition-all duration-500 ease-in-out md:grid-rows-[1fr] md:opacity-100 md:mt-8',
                                 openStation
                                     ? 'grid-rows-[1fr] opacity-100 mt-6'
                                     : 'grid-rows-[0fr] opacity-0 mt-0'

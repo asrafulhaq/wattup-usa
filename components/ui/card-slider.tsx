@@ -150,7 +150,7 @@ export function CardSlider({
                         <button
                             key={index}
                             className={cn(
-                                'h-[16px] w-[16px] rounded-full transition-all duration-300',
+                                'h-[16px] w-[16px] rounded-full transition-all duration-500',
                                 index === selectedIndex
                                     ? 'bg-dark scale-110'
                                     : 'bg-gray hover:bg-dark/60'

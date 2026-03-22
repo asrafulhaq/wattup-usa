@@ -21,7 +21,6 @@ export default function ForDriversPage() {
             <PageHero
                 image='/assets/images/for-driver-page-hero.png'
                 mobileImage='/assets/images/for-driver-page-hero-mobile.png'
-                imageWrapperClass='max-md:-mb-[150px]'
                 imageClass='max-md:object-[67%]'
                 overlay={true}
                 overlayClass='absolute top-0 w-full h-[400px] md:h-[951px] bg-linear-to-b from-[#54A6FF]/84 to-transparent mix-blend-multiply after:content-[""] after:absolute after:inset-0 after:bg-linear-to-b after:from-black/37 after:to-transparent'
@@ -35,7 +34,7 @@ export default function ForDriversPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations#map'
+                buttonLink='#'
             />
 
             {/* 2. How It Works */}
@@ -62,7 +61,7 @@ export default function ForDriversPage() {
                 heading='Find a Charger Near You'
                 subHeading='Explore the WattUp charging network.'
                 buttonText='Find Locations'
-                buttonLink='/locations#map'
+                buttonLink='#'
             />
         </main>
     );

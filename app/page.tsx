@@ -8,36 +8,38 @@ import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
 import type { Metadata } from 'next';
-    const baseUrl =
-        process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
+const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
 export const metadata: Metadata = {
     title: 'EV Charging for Properties & Drivers',
-    description: 'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
-   openGraph: {
-    title: 'EV Charging for Properties & Drivers',
-    description: 'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
-    images: [
-        {
-            url: `${baseUrl}/assets/images/hero-1-md.png`,
-            width: 1200,
-            height: 630,
-            alt: 'WattUp USA EV Charging',
-        },
-    ],
-   },
-   twitter: {
-    title: 'EV Charging for Properties & Drivers',
-    description: 'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
-    images: [
-        {
-            url: `${baseUrl}/assets/images/hero-1-md.png`,
-            width: 1200,
-            height: 630,
-            alt: 'WattUp USA EV Charging',
-        },
-    ],
-   },
-        
+    description:
+        'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
+    openGraph: {
+        title: 'EV Charging for Properties & Drivers',
+        description:
+            'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/hero-1-md.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
+    twitter: {
+        title: 'EV Charging for Properties & Drivers',
+        description:
+            'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/hero-1-md.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
 };
 
 export default function Home() {
@@ -88,12 +90,11 @@ export default function Home() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='/locations#map'
+                buttonLink='#'
                 buttonText2='Partner With Us'
                 buttonLink2='/contact#contact-us'
             />
         </main>
     );
 }
-
 

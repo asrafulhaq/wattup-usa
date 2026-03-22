@@ -32,7 +32,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
     {
         id: 'hosts',
@@ -48,7 +48,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
     {
         id: 'hosts-1',
@@ -158,7 +158,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Fast Charging',
         description:
             'High-performance charging stations designed for speed and reliability.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
     {
         id: 'premium-locations',
@@ -166,14 +166,14 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Premium Locations',
         description:
             'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
     {
         id: 'symless-experience',
         image: '/assets/images/why-image-3.png',
         title: 'Seamless Experience',
         description: 'Simple access, easy payments, and reliable performance.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
     {
         id: 'smart-infrastructure',
@@ -181,7 +181,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
-        cta: { label: 'Find Charging Locations', href: '/locations#map' },
+        cta: { label: 'Find Charging Locations', href: '#' },
     },
 ];
 

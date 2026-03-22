@@ -8,7 +8,9 @@ export function ContactForm() {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
 
     return (
-        <section id='contact-us' className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden pt-[40px] pb-[39px] lg:pt-[100px] lg:pb-[100px]'>
+        <section
+            id='contact-us'
+            className='relative w-full bg-white flex flex-col items-center justify-center overflow-hidden pt-[40px] pb-[39px] lg:pt-[100px] lg:pb-[100px]'>
             <div className='relative w-full container mx-auto px-[16px] xl:px-0 grid grid-cols-1 lg:grid-cols-2 gap-[40px] lg:gap-0'>
                 {/* Left Column: Contact Details */}
                 <div className='flex flex-col gap-[24px]'>
@@ -47,7 +49,7 @@ export function ContactForm() {
                     <div className='relative flex bg-gray/30 rounded-[8px] p-1 w-fit mb-10'>
                         {/* Sliding Background Indicator */}
                         <div
-                            className='absolute top-1 bottom-1 left-1 z-0 bg-black rounded-[8px] transition-all duration-300 ease-in-out shadow-sm'
+                            className='absolute top-1 bottom-1 left-1 z-0 bg-black rounded-[8px] transition-all duration-500 ease-in-out shadow-sm'
                             style={{
                                 width: 'calc(50% - 4px)',
                                 transform:
@@ -59,7 +61,7 @@ export function ContactForm() {
 
                         <button
                             onClick={() => setActiveTab('driver')}
-                            className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-300 ${
+                            className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
                                 activeTab === 'driver'
                                     ? 'text-white font-bold'
                                     : 'text-dark/50 font-medium hover:text-dark'
@@ -68,7 +70,7 @@ export function ContactForm() {
                         </button>
                         <button
                             onClick={() => setActiveTab('host')}
-                            className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-300 ${
+                            className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
                                 activeTab === 'host'
                                     ? 'text-white font-bold'
                                     : 'text-dark/50 font-medium hover:text-dark'
