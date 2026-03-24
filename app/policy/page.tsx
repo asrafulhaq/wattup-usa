@@ -2,11 +2,38 @@ import { PageHero } from '@/components/drivers/page-hero';
 import PolicyLeagals from '@/components/privacy/legal';
 import { PrivacyOptions } from '@/components/privacy/privacy-options';
 import type { Metadata } from 'next';
+import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | WattUp USA',
     description:
         'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+        openGraph: {
+            title: 'Privacy Policy | WattUp USA',
+            description:
+                'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+            images: [
+                {
+                    url: `${baseUrl}/assets/images/policy/og-image.png`,
+                    width: 1200,
+                    height: 630,
+                    alt: 'WattUp USA EV Charging',
+                },
+            ],
+        },
+        twitter: {
+            title: 'Privacy Policy | WattUp USA',
+            description:
+                'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+            images: [
+                {
+                    url: `${baseUrl}/assets/images/policy/og-image.png`,
+                    width: 1200,
+                    height: 630,
+                    alt: 'WattUp USA EV Charging',
+                },
+            ],
+        },
 };
 
 export default function PolicyPage() {

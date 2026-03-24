@@ -3,11 +3,38 @@ import { PageHero } from '@/components/drivers/page-hero';
 import { ContactForm } from '@/components/contact/contact-form';
 import { CTAReady } from '@/components/home/cta-ready';
 import type { Metadata } from 'next';
+import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'Contact Us | WattUp EV Charging',
     description:
         'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
+        openGraph: {
+            title: 'Contact Us | WattUp EV Charging',
+            description:
+                'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
+            images: [
+                {
+                    url: `${baseUrl}/assets/images/contact/og-image.png`,
+                    width: 1200,
+                    height: 630,
+                    alt: 'WattUp USA EV Charging',
+                },
+            ],
+        },
+        twitter: {
+            title: 'Contact Us | WattUp EV Charging',
+            description:
+                'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
+            images: [
+                {
+                    url: `${baseUrl}/assets/images/contact/og-image.png`,
+                    width: 1200,
+                    height: 630,
+                    alt: 'WattUp USA EV Charging',
+                },
+            ],
+        },
 };
 
 export default function ContactUsPage() {
