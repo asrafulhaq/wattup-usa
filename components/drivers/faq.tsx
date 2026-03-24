@@ -1,30 +1,14 @@
 'use client';
 import { CancelIcon, PlusIcon } from '@/components/icons/icons';
-import { FadeUp } from '@/components/ui/fade-up';
+import { FadeUp } from '@/components/ui/fade-up'
+import { FAQ } from '@/data';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';
 
-const faqs = [
-    {
-        question: 'How do I start charging?',
-        answer: 'Lorem ipsum dolor sit amet consectetur',
-    },
-    {
-        question: 'Do I need an app?',
-        answer: 'Lorem ipsum dolor sit amet consectetur...',
-    },
-    {
-        question: 'How long does charging take?',
-        answer: 'Lorem ipsum dolor sit amet consectetur...',
-    },
-    {
-        question: 'What vehicles are compatible?',
-        answer: 'Lorem ipsum dolor sit amet consectetur...',
-    },
-];
 
-export function DriverFAQ() {
+
+export function FAQSection({faqs, description,sectionClass,image}: {faqs: FAQ[], description?: string,sectionClass?: string,image?: string}) {
     const [openIndex, setOpenIndex] = useState<number>(-1);
 
     const toggleFaq = (index: number) => {
@@ -33,11 +17,25 @@ export function DriverFAQ() {
 
     return (
         <section className='w-full max-w-[1444px] mx-auto common-section-padding'>
-            <div className='container mx-auto flex flex-col'>
-                <FadeUp>
-                    <h2 className='headline-dark mb-8 md:mb-10'>FAQ&apos;s</h2>
-                </FadeUp>
-                <div className='flex flex-col lg:flex-row gap-[32px] lg:gap-10 items-center justify-between w-full'>
+            <div
+                className={cn('container mx-auto flex flex-col', sectionClass)}>
+              
+                    <h2
+                        className={cn(
+                            'headline-dark',
+                            description ? '' : 'mb-8 md:mb-10'
+                        )}>
+                        FAQ&apos;s
+                    </h2>
+                
+                {description && (
+                    <FadeUp>
+                        <p className='text-description font-normal! mt-4 md:mt-6 md:mb-4'>
+                            {description}
+                        </p>
+                    </FadeUp>
+                )}
+                <div className='flex flex-col lg:flex-row gap-[32px] md:gap-10 items-center justify-between w-full'>
                     {/* Left Column (FAQ Content) */}
                     <div className='flex flex-col w-full lg:flex-[1.2] xl:w-[701px] shrink-0 lg:shrink'>
                         <div className='flex flex-col w-full'>
@@ -101,21 +99,25 @@ export function DriverFAQ() {
                     </div>
 
                     {/* Right Column (Image) */}
-                    <FadeUp
-                        delay={0.2}
-                        className='lg:flex-[0.8] xl:flex-1 h-[373px] lg:h-[288px] w-full shrink-0 lg:shrink relative'>
-                        <div className='w-full h-full relative rounded-[8px] overflow-hidden'>
-                            <Image
-                                src='/assets/images/drivers/faq-image.png'
-                                alt='Driver charging EV'
-                                fill
-                                className='object-cover object-center'
-                            />
-                        </div>
-                    </FadeUp>
+                    {image && (
+                        <FadeUp
+                            delay={0.2}
+                            className='lg:flex-[0.8] xl:flex-1 h-[373px] lg:h-[288px] w-full shrink-0 lg:shrink relative'>
+                            <div className='w-full h-full relative rounded-[8px] overflow-hidden'>
+                                <Image
+                                    src={image}
+                                    alt='Driver charging EV'
+                                    fill
+                                    className='object-cover object-center'
+                                />
+                            </div>
+                        </FadeUp>
+                    )}
                 </div>
             </div>
         </section>
     );
 }
+
+
 

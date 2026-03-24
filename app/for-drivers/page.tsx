@@ -1,5 +1,5 @@
 import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
-import { DriverFAQ } from '@/components/drivers/driver-faq';
+import { FAQSection } from '@/components/drivers/faq';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
 import { ExpandingUs } from '@/components/home/expanding-us';
@@ -7,6 +7,7 @@ import { HowItWorks } from '@/components/home/how-it-works';
 import { WhyChoose } from '@/components/home/why-choose';
 import {
     CarginglocationsForDrivers,
+    DriverFAQData,
     DriverPageHowItWorksStepData,
     DriverPageWhyChooseSlideCardData,
 } from '@/data';
@@ -84,7 +85,7 @@ export default function ForDriversPage() {
             />
 
             {/* 6. Driver FAQ */}
-            <DriverFAQ />
+            <FAQSection faqs={DriverFAQData} image='/assets/images/drivers/faq-image.png' />
 
             {/* 7. Why Choose WATTUP Cards */}
             <CTAReady

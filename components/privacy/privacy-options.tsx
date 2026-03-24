@@ -48,10 +48,10 @@ export function PrivacyOptions() {
     return (
         <section className='w-full common-section-padding bg-white overflow-hidden'>
             <div className='container'>
-                <FadeUp>
+               
                     <h2 className='headline-dark mb-6'>Policy:</h2>
-                </FadeUp>
-                <FadeUp delay={0.2}>
+               
+                <FadeUp>
                     <p className='text-description max-w-[842px] mb-4 font-normal! '>
                         This website is operated by WattUp USA. By accessing and
                         using this website, you agree to comply with and be

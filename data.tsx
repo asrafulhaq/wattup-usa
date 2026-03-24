@@ -33,6 +33,10 @@ export interface HowItWorksStepData {
     mobileImage?: string;
     imageClass?: string;
 }
+export interface FAQ {
+    question: string;
+    answer: string;
+}
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
         id: 'drivers',
@@ -235,7 +239,11 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
         id: 'premium-locations',
         image: '/assets/images/drivers/driver-why-choose-2.png',
         title: 'Convenient Locations',
-        description: <>Charge where you <br className="md:hidden"/> already go.</>,
+        description: (
+            <>
+                Charge where you <br className='md:hidden' /> already go.
+            </>
+        ),
         cta: { label: 'Find Charging Locations', href: '#' },
         imageClass: 'max-md:object-[25%_top]',
     },
@@ -300,7 +308,12 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
         id: 'generate-revenue',
         image: '/assets/images/hosts/why-choose-4.png',
         mobileImage: '/assets/images/hosts/why-choose-mobile-4.png',
-        title: <>Generate <br className="md:hidden"/>Revenue</>,
+        title: (
+            <>
+                Generate <br className='md:hidden' />
+                Revenue
+            </>
+        ),
         description: ' Turn parking spaces into a new income stream.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
@@ -521,24 +534,54 @@ export const PolicyLeagalsData = [
     },
 ];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const DriverFAQData: FAQ[] = [
+    {
+        question: 'How do I start charging?',
+        answer: 'Simply plug the connector into your EV, and the charging session will begin automatically or through the WattUp app.',
+    },
+    {
+        question: 'Do I need an app?',
+        answer: 'While our app offers the best experience with real-time tracking, you can also start a session using a credit card or RFID tag.',
+    },
+    {
+        question: 'How long does charging take?',
+        answer: 'Charging time varies depending on your vehicle\'s battery size and the charger\'s speed, typically ranging from 30 minutes to a few hours.',
+    },
+    {
+        question: 'What vehicles are compatible?',
+        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
+    },
+];
+export const faqPageFaqData: FAQ[] = [
+    {
+        question: 'How do I start charging?',
+        answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+    },
+    {
+        question: 'Do I need an app?',
+        answer: 'While our app offers the best experience with real-time tracking, you can also start a session using a credit card or RFID tag.',
+    },
+    {
+        question: 'How long does charging take?',
+        answer: 'Charging time varies depending on your vehicle\'s battery size and the charger\'s speed, typically ranging from 30 minutes to a few hours.',
+    },
+    {
+        question: 'What vehicles are compatible?',
+        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
+    },
+    {
+        question: 'How can I contact you?',
+        answer: 'You can reach our 24/7 customer support team via the "Help" section in our app, or by calling our toll-free support line.',
+    },
+    {
+        question: 'What are your payment terms?',
+        answer: 'We offer pay-as-you-go pricing based on energy consumed (kWh) or time spent charging, depending on local regulations.',
+    },
+    {
+        question: 'What vehicles are compatible?',
+        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
+    },
+];
 
 
 

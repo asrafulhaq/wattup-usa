@@ -12,6 +12,7 @@ export async function CTAReady({
     buttonText2,
     buttonLink2,
     image,
+    mobileImage,
     headingClass,
     subHeadingClass,
     overlay,
@@ -31,7 +32,8 @@ export async function CTAReady({
     buttonLink?: string;
     buttonText2?: string;
     buttonLink2?: string;
-    image?: string;
+        image?: string;
+    mobileImage?:string
     overlay?: boolean;
     overlayClass?: string;
 }) {
@@ -52,13 +54,34 @@ export async function CTAReady({
                         'absolute inset-0 z-0 select-none',
                         imageWrapperClass
                     )}>
+                    {mobileImage && (
+                        <Image
+                            src={
+                                mobileImage ||
+                                '/assets/images/home/footer-section-bg.png'
+                            }
+                            alt='WattUp Sunset Background'
+                            fill
+                            className={cn(
+                                'object-cover md:object-center md:hidden',
+                                imageClass
+                            )}
+                            placeholder={blurDataUrl ? 'blur' : 'empty'}
+                            blurDataURL={blurDataUrl}
+                            priority
+                            draggable={false}
+                        />
+                    )}
                     <Image
-                        src={image || '/assets/images/home/footer-section-bg.png'}
+                        src={
+                            image || '/assets/images/home/footer-section-bg.png'
+                        }
                         alt='WattUp Sunset Background'
                         fill
                         className={cn(
                             'object-cover md:object-center',
-                            imageClass
+                            imageClass,
+                            mobileImage && 'max-md:hidden'
                         )}
                         placeholder={blurDataUrl ? 'blur' : 'empty'}
                         blurDataURL={blurDataUrl}
@@ -133,4 +156,5 @@ export async function CTAReady({
         </section>
     );
 }
+
 
