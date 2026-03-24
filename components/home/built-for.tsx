@@ -2,7 +2,13 @@ import { FadeUp } from '@/components/ui/fade-up';
 import { HomePageBuiltForSlidesCardData } from '@/data';
 import { CardSliderWrapper } from './built-for-slider';
 
-export function BuiltFor() {
+export function BuiltFor({
+    cardHeadingClass,
+    cardDescriptionClass,
+}: {
+    cardHeadingClass?: string;
+    cardDescriptionClass?: string;
+}) {
     return (
         <section className='w-full max-w-[1444px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
             <div className='container mx-auto '>
@@ -13,7 +19,11 @@ export function BuiltFor() {
                 </FadeUp>
 
                 <FadeUp delay={0.1}>
-                    <CardSliderWrapper cards={HomePageBuiltForSlidesCardData} />
+                    <CardSliderWrapper
+                        cardHeadingClass={cardHeadingClass}
+                        cardDescriptionClass={cardDescriptionClass}
+                        cards={HomePageBuiltForSlidesCardData}
+                    />
                 </FadeUp>
             </div>
         </section>

@@ -17,8 +17,8 @@ export default function PolicyPage() {
                 image='/assets/images/policy/policy-page-hero.png'
                 alt='Policy Page Hero Background'
                 heading='Privacy and legal'
-                imageClass='md:-mt-[172px] max-md:object-[-13%_bottom] max-md:scale-150'
-                sectionClass='max-md:h-[604px]'
+                imageClass='max-md:object-[-13%_bottom] max-md:scale-150'
+                sectionClass='max-md:h-[554px] md:h-[905px]! '
                 contentContainerClass='md:items-start w-full md:text-left'
                 headingClass='md:text-left max-md:text-nowrap'
                 overlay
@@ -32,4 +32,6 @@ export default function PolicyPage() {
         </main>
     );
 }
+
+
 

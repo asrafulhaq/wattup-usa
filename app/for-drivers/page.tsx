@@ -1,8 +1,8 @@
 import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { DriverFAQ } from '@/components/drivers/driver-faq';
-import { FindLocation } from '@/components/drivers/find-location';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
+import { ExpandingUs } from '@/components/home/expanding-us';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { WhyChoose } from '@/components/home/why-choose';
 import {
@@ -74,8 +74,8 @@ export default function ForDriversPage() {
             {/* 3. Why Choose WATTUP Cards */}
             <WhyChoose slides={DriverPageWhyChooseSlideCardData} />
 
-            {/* 4. Find Location */}
-            <FindLocation />
+            {/* 4. Expanding Us */}
+            <ExpandingUs />
 
             {/* 5. Charging Where You Go */}
             <ChargingWhereYouGo

@@ -50,7 +50,7 @@ export default function Home() {
             <Hero />
 
             {/* 2. Drivers and Property Owners */}
-            <BuiltFor />
+            <BuiltFor cardDescriptionClass='max-md:text-[16px]!' />
 
             {/* 3. Future of Mobility Features */}
             <FutureMobility />

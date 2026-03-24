@@ -46,7 +46,7 @@ export function PrivacyOptions() {
     }));
 
     return (
-        <section className='w-full md:-mt-[172px] common-section-padding bg-white overflow-hidden'>
+        <section className='w-full common-section-padding bg-white overflow-hidden'>
             <div className='container'>
                 <FadeUp>
                     <h2 className='headline-dark mb-6'>Policy:</h2>
@@ -93,4 +93,5 @@ export function PrivacyOptions() {
         </section>
     );
 }
+
 

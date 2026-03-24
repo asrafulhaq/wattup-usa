@@ -1,5 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
-import { HostPageHowItWorksStepsData } from '@/data';
+import { HostPageHowItWorksStepsData, HowItWorksStepData } from '@/data';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { CardSlider } from '../ui/card-slider';
@@ -8,7 +8,7 @@ function HostStepCard({
     step,
     isMobileSlider = false,
 }: {
-    step: { title: string; description: string; image: string };
+    step: HowItWorksStepData;
     isMobileSlider?: boolean;
 }) {
     return (
@@ -19,11 +19,33 @@ function HostStepCard({
                     'relative w-full rounded-[8px] overflow-hidden',
                     isMobileSlider ? 'h-[373px] sm:h-[373px]' : 'h-[370px]'
                 )}>
+                {step?.mobileImage && (
+                    <Image
+                        src={step.mobileImage}
+                        alt="How it Works - Wattup"
+                        fill
+                        className={cn(
+                            'max-md:block hidden object-cover transition-transform w-full duration-500',
+                            step?.imageClass,
+                            
+                        )}
+                        sizes={
+                            isMobileSlider
+                                ? '(max-width: 768px) 100vw, 50vw'
+                                : '(max-width: 768px) 100vw, 50vw'
+                        }
+                    />
+                )}
+
                 <Image
                     src={step.image}
-                    alt={step.title}
+                    alt="How it Works - Wattup"
                     fill
-                    className='object-cover transition-transform w-full duration-500 group-hover:scale-105'
+                    className={cn(
+                        'object-cover transition-transform w-full duration-500',
+                        step?.imageClass,
+                        step?.mobileImage && 'hidden md:block'
+                    )}
                     sizes={
                         isMobileSlider
                             ? '(max-width: 768px) 100vw, 50vw'
@@ -86,4 +108,7 @@ export function HowItWorksForHosts() {
         </section>
     );
 }
+
+
+
 

@@ -51,7 +51,25 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
             'Install EV charging and attract high-value customers, tenants, and visitors.',
         cta: { label: 'Become a Host', href: '/contact#contact-us' },
         imageClass: 'max-md:object-[14%_top]',
-    }
+    },
+    {
+        id: 'drivers-1',
+        image: '/assets/images/shared/car1.png',
+        title: 'For Drivers',
+        description:
+            'Find nearby charging stations, plug in, and get back on the road faster.',
+        cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[14%_top]',
+    },
+    {
+        id: 'hosts-1',
+        image: '/assets/images/shared/car-2.png',
+        title: 'For Hosts',
+        description:
+            'Install EV charging and attract high-value customers, tenants, and visitors.',
+        cta: { label: 'Become a Host', href: '/contact#contact-us' },
+        imageClass: 'max-md:object-[14%_top]',
+    },
 ];
 
 export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
@@ -217,7 +235,7 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
         id: 'premium-locations',
         image: '/assets/images/drivers/driver-why-choose-2.png',
         title: 'Convenient Locations',
-        description: 'Charge where you already go.',
+        description: <>Charge where you <br className="md:hidden"/> already go.</>,
         cta: { label: 'Find Charging Locations', href: '#' },
         imageClass: 'max-md:object-[25%_top]',
     },
@@ -244,14 +262,23 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'increase-property-value',
         image: '/assets/images/hosts/why-choose-1.png',
-        title: 'Increase Property Value',
+        title: (
+            <>
+                Increase Property <br className='md:hidden' /> Value
+            </>
+        ),
         description: " Enhance your property's long-term appeal.",
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'attract-visitors',
         image: '/assets/images/hosts/why-choose-2.png',
-        title: 'Attract Visitors',
+        title: (
+            <>
+                Attract <br className='md:hidden' />
+                Visitors
+            </>
+        ),
         description: ' EV drivers actively look for charging locations.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
         imageClass: 'max-md:object-[70%_top]',
@@ -259,7 +286,12 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'support-sustainability',
         image: '/assets/images/hosts/why-choose-3.png',
-        title: 'Support Sustainability',
+        title: (
+            <>
+                Support <br className='md:hidden' />
+                Sustainability
+            </>
+        ),
         description: ' Show commitment to clean mobility.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
         imageClass: 'max-md:object-[70%_top]',
@@ -268,10 +300,9 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
         id: 'generate-revenue',
         image: '/assets/images/hosts/why-choose-4.png',
         mobileImage: '/assets/images/hosts/why-choose-mobile-4.png',
-        title: 'Generate Revenue',
+        title: <>Generate <br className="md:hidden"/>Revenue</>,
         description: ' Turn parking spaces into a new income stream.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
-       
     },
 ];
 
@@ -306,32 +337,71 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     {
         id: 'charging-revenue',
         image: '/assets/images/hosts/host-page-benifit-image-1.png',
-        mobileImage:'/assets/images/hosts/host-page-benifit-image-mobile-1.png',
-        title: <>Charging <br /> Revenue</>,
-        description: 'Drivers pay to charge their vehicles at your location.',
+        mobileImage:
+            '/assets/images/hosts/host-page-benifit-image-mobile-1.png',
+        title: (
+            <>
+                Charging <br className='md:hidden' /> Revenue
+            </>
+        ),
+        description: (
+            <>
+                Drivers pay to charge their <br className='md:hidden' />{' '}
+                vehicles at your location.
+            </>
+        ),
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'longer-customer-visit',
         image: '/assets/images/hosts/host-page-benifit-image-2.png',
-        title: 'Longer Customer Visits',
-        description:
-            'Charging takes time, increasing time spent at your property.',
+        title: (
+            <>
+                Longer
+                <br className='md:hidden' /> Customer Visits
+            </>
+        ),
+        description: (
+            <>
+                <span className='max-md:hidden'>Charging takes time,</span>{' '}
+                increasing time spent at your <br className='md:hidden' />{' '}
+                property.
+            </>
+        ),
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'increased-foot-traffic',
         image: '/assets/images/hosts/host-page-benifit-image-3.png',
-        title: 'Increased Foot Traffic',
-        description: 'EV drivers choose locations where they can charge.',
+        title: (
+            <>
+                Increased Foot <br className='md:hidden' />
+                Traffic
+            </>
+        ),
+        description: (
+            <>
+                EV drivers choose locations <br className='md:hidden' /> where
+                they can charge.
+            </>
+        ),
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
-        imageClass:'max-md:object-[60%_top]'
+        imageClass: 'max-md:object-[60%_top]',
     },
     {
         id: 'property-value-growth',
         image: '/assets/images/hosts/host-page-benifit-image-4.png',
-        title: 'Property Value Growth',
-        description: 'EV infrastructure increases long-term property value.',
+        title: (
+            <>
+                Property Value <br className='md:hidden' /> Growth
+            </>
+        ),
+        description: (
+            <>
+                EV infrastructure increases <br className='md:hidden' />
+                long-term property value.
+            </>
+        ),
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
 ];
@@ -450,6 +520,20 @@ export const PolicyLeagalsData = [
             'We do not sell your personal data. We may share information with trusted third-party service providers only as necessary to operate the website or comply with legal obligations.',
     },
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

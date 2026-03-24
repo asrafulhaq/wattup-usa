@@ -5,8 +5,8 @@ import Link from 'next/link';
 const cities = [
     'Los Angeles',
     'San Diego',
-    'San Jose',
-    'San Francisco',
+    'Austin',
+    'Miami',
     'Phoenix',
 ];
 

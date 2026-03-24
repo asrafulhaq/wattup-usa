@@ -8,16 +8,19 @@ import Link from 'next/link';
 
 function SlidesCard({
     card,
+    cardHeadingClass,
+    cardDescriptionClass,
 }: {
     card: SlidesCardData;
-    imageClass?: string;
+    cardHeadingClass?:string
+    cardDescriptionClass?:string;
 }) {
     return (
         <div className='relative group rounded-[8px] overflow-hidden h-[520px] md:h-[489px] w-full flex flex-col items-start justify-end gap-[10px] py-8 px-6 pt-[276px] md:pt-[276px] text-left'>
             {card?.mobileImage && (
                 <Image
                     src={card?.mobileImage}
-                    alt={card.title}
+                    alt='Built For - Wattup'
                     fill
                     sizes='(max-width: 767px) 330px, 785px'
                     className={cn(
@@ -28,7 +31,7 @@ function SlidesCard({
             )}
             <Image
                 src={card.image}
-                alt={card.title}
+                alt='Built For - Wattup'
                 fill
                 sizes='(max-width: 767px) 330px, 785px'
                 className={cn(
@@ -40,10 +43,18 @@ function SlidesCard({
             {/* Gradient overlay for text readability */}
             <div className='absolute inset-0 bg-linear-to-t from-black/10 via-black/10 to-transparent pointer-events-none z-10' />
 
-            <h3 className='relative z-20 min-w-[282px] text-nowrap headline-4 text-white'>
+            <h3
+                className={cn(
+                    'relative z-20 min-w-[282px] headline-4 text-white',
+                    cardHeadingClass && cardHeadingClass
+                )}>
                 {card.title}
             </h3>
-            <p className='relative z-20  text-white/90 text-[20px] font-semibold leading-[130%] tracking-[-3%] max-md:max-w-[282px] max-w-[572px] '>
+            <p
+                className={cn(
+                    'relative z-20  text-white/90 text-[20px] font-semibold leading-[130%] tracking-[-3%] max-md:max-w-[282px] max-w-[572px] ',
+                    cardDescriptionClass && cardDescriptionClass
+                )}>
                 {card.description}
             </p>
             <Link
@@ -57,13 +68,22 @@ function SlidesCard({
 
 export function CardSliderWrapper({
     cards,
+    cardHeadingClass,
+    cardDescriptionClass,
 }: {
     cards: SlidesCardData[];
-
+    cardHeadingClass?: string;
+    cardDescriptionClass?: string;
 }) {
     const slides = cards.map(card => ({
         id: card.id,
-        content: <SlidesCard card={card} />,
+        content: (
+            <SlidesCard
+                cardHeadingClass={cardHeadingClass}
+                cardDescriptionClass={cardDescriptionClass}
+                card={card}
+            />
+        ),
     }));
 
     return (
@@ -78,6 +98,7 @@ export function CardSliderWrapper({
         />
     );
 }
+
 
 
 

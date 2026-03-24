@@ -10,10 +10,35 @@ import {
     IdealLocationsForHosts,
 } from '@/data';
 import type { Metadata } from 'next';
+import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'For Property Hosts | Turn Your Property Into a Charging Destination',
     description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+    openGraph: {
+        title: 'For Hosts | Turn Your Property Into a Charging Destination',
+        description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/hosts/og-image.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
+    twitter: {
+        title: 'For Hosts | Turn Your Property Into a Charging Destination',
+        description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/hosts/og-image.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
 };
 
 export default function ForHostPage() {

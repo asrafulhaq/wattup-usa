@@ -228,7 +228,7 @@ body {
         @apply text-[16px] md:text-[20px] font-semibold leading-[130%] tracking-[-3%];
     }
     .common-section-padding {
-        @apply py-[40px] sm:py-[82px];
+        @apply py-[40px] md:py-[82px];
     }
     .input-label {
         @apply font-semibold text-[20px] leading-[130%] tracking-[-3%] text-dark;

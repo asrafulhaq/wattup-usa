@@ -7,7 +7,7 @@ function StepCard({
     step,
     isMobileSlider = false,
 }: {
-    step: { title: string; description: string; image: string };
+    step: HowItWorksStepData;
     isMobileSlider?: boolean;
 }) {
     return (
@@ -17,7 +17,7 @@ function StepCard({
                 className={`relative w-full rounded-[8px] overflow-hidden bg-gray-light shrink-0 ${isMobileSlider ? 'h-[373px] mb-4' : 'h-[472px] mb-6'} `}>
                 <Image
                     src={step.image}
-                    alt={step.title}
+                    alt="How it Works - Wattup"
                     fill
                     className='object-cover transition-transform duration-700 hover:scale-105'
                     sizes={
