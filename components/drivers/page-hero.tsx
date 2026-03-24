@@ -40,13 +40,7 @@ export async function PageHero({
     overlayClass?: string;
     overlay?: boolean;
 }) {
-    /*  const desktopImagePath = image || '/assets/images/for-driver-page-hero.png'; */
-    /* const blurDataURL = await getBlurDataUrl(desktopImagePath); */
 
-    /* let mobileBlurDataURL = blurDataURL; */
-    /* if (mobileImage) {
-        mobileBlurDataURL = await getBlurDataUrl(mobileImage);
-    } */
 
     return (
         <section
@@ -72,9 +66,7 @@ export async function PageHero({
                             'object-cover md:hidden md:object-center',
                             imageClass
                         )}
-                        /*     placeholder={mobileBlurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={mobileBlurDataURL} */
-                        preload={true}
+                        priority
                         draggable={false}
                     />
                 )}
@@ -89,8 +81,6 @@ export async function PageHero({
                     )}
                     priority
                     draggable={false}
-                    /* placeholder={blurDataURL ? 'blur' : 'empty'}
-                    blurDataURL={blurDataURL} */
                 />
 
                 {/* Subtle Gradient Overlay for Text Readability */}

@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 function HeroContent({ dark }: { dark: boolean }) {
     return (
-        <div className='pt-8 md:pt-[116px] flex flex-col items-center justify-start flex-grow w-full z-10 bg-white md:bg-transparent'>
+        <div className='pt-8 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent'>
             <div
                 className={cn(
                     'relative z-10 container mx-auto flex flex-col items-center text-center',
@@ -58,18 +58,6 @@ function HeroContent({ dark }: { dark: boolean }) {
 }
 
 export async function Hero() {
-    // Generate blur data URLs on the server at request/build time
-    /*     const [
-        slide1Desktop,
-        slide1Mobile,
-        slide2Desktop,
-        slide2Mobile
-    ] = await Promise.all([
-        getBlurDataUrl('/assets/images/hero-1-md.png'),
-        getBlurDataUrl('/assets/images/hero-1.png'),
-        getBlurDataUrl('/assets/images/hero-2-md.png'),
-        getBlurDataUrl('/assets/images/hero-2.png')
-    ]); */
 
     const slidesData = [
         {
@@ -85,8 +73,6 @@ export async function Hero() {
                             className='object-cover hidden md:block object-center'
                             priority
                             draggable={false}
-                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide1Desktop} */
                         />
                         <Image
                             src='/assets/images/hero-1.png'
@@ -95,8 +81,6 @@ export async function Hero() {
                             className='object-cover md:hidden object-center'
                             priority
                             draggable={false}
-                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide1Mobile} */
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
 
@@ -122,8 +106,6 @@ export async function Hero() {
                             className='object-cover hidden md:block object-bottom'
                             priority
                             draggable={false}
-                            /*       placeholder={slide2Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide2Desktop} */
                         />
                         <Image
                             src='/assets/images/hero-2.png'
@@ -132,8 +114,6 @@ export async function Hero() {
                             className='object-cover md:hidden object-bottom'
                             priority
                             draggable={false}
-                            /* placeholder={slide2Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide2Mobile} */
                         />
 
                         {/* Subtle Gradient Overlay for Text Readability */}
@@ -168,8 +148,6 @@ export async function Hero() {
                             className='object-cover md:hidden object-center'
                             priority
                             draggable={false}
-                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide1Mobile} */
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
 
@@ -195,8 +173,6 @@ export async function Hero() {
                             className='object-cover hidden md:block object-center'
                             priority
                             draggable={false}
-                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide1Desktop} */
                         />
                         <Image
                             src='/assets/images/homepage-hero-4.png'
@@ -205,8 +181,6 @@ export async function Hero() {
                             className='object-cover md:hidden object-center'
                             priority
                             draggable={false}
-                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide1Mobile} */
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
 
@@ -232,8 +206,6 @@ export async function Hero() {
                             className='object-cover hidden md:block object-center'
                             priority
                             draggable={false}
-                            /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
-                            blurDataURL={slide1Desktop} */
                         />
                         <Image
                             src='/assets/images/homepage-hero-5.png'
@@ -242,8 +214,6 @@ export async function Hero() {
                             className='object-cover md:hidden object-center'
                             priority
                             draggable={false}
-                            /*  placeholder={slide1Mobile ? 'blur' : 'empty'}
-                            blurDataURL={slide1Mobile} */
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
 
