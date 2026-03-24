@@ -7,8 +7,9 @@ import { HowItWorks } from '@/components/home/how-it-works';
 import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
+import { HomePageWhyChooseSlideCardData } from '@/data';
 import type { Metadata } from 'next';
-const baseUrl =
+export const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
 export const metadata: Metadata = {
     title: 'EV Charging for Properties & Drivers',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/hero-1-md.png`,
+                url: `${baseUrl}/assets/images/home/hero-1-md.png`,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/hero-1-md.png`,
+                url: `${baseUrl}/assets/images/home/hero-1-md.png`,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -69,6 +70,7 @@ export default function Home() {
 
             {/* 7. Why Choose WATTUP Cards */}
             <WhyChoose
+                slides={HomePageWhyChooseSlideCardData}
                 heading='Why Choose WattUp'
                 headingClass='max-md:max-w-[348px] max-md:text-nowrap'
             />

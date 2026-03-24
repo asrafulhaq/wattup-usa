@@ -13,7 +13,9 @@ export function WhyChoose({
     headingClass?: string;
 }) {
     return (
-        <section id='why-wattup' className='w-full  max-w-[1444px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
+        <section
+            id='why-wattup'
+            className='w-full  max-w-[1444px] mx-auto  overflow-x-hidden common-section-padding bg-background overflow-hidden relative'>
             <div className='container mx-auto '>
                 <FadeUp>
                     <h2

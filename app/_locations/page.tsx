@@ -13,8 +13,8 @@ export default function LocationsPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/location-page-hero-bg.png'
-                mobileImage='/assets/images/location-page-hero-bg-mobile.png'
+                image='/assets/images/locations/location-page-hero-bg.png'
+                mobileImage='/assets/images/locations/location-page-hero-bg-mobile.png'
                 alt='Location Page Hero Background'
                 heading=' Find a Charging Station'
                 imageClass='max-md:object-[16%] xl:object-bottom'

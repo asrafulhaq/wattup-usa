@@ -1,5 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
-import { HomePageHowItWorksStepData } from '@/data';
+import { HomePageHowItWorksStepData, HowItWorksStepData } from '@/data';
 import Image from 'next/image';
 import { CardSlider } from '../ui/card-slider';
 
@@ -38,11 +38,19 @@ function StepCard({
     );
 }
 
-export function HowItWorks({ heading }: { heading?: React.ReactNode }) {
-    const mobileSlides = HomePageHowItWorksStepData.map((step, index) => ({
-        id: index,
-        content: <StepCard step={step} isMobileSlider={true} />,
-    }));
+export function HowItWorks({
+    heading,
+    stepData = HomePageHowItWorksStepData,
+}: {
+    heading?: React.ReactNode;
+    stepData?: HowItWorksStepData[];
+}) {
+    const mobileSlides = stepData?.map(
+        (step: HowItWorksStepData, index: number) => ({
+            id: index,
+            content: <StepCard step={step} isMobileSlider={true} />,
+        })
+    );
 
     return (
         <section className='w-full common-section-padding bg-white overflow-hidden'>
@@ -55,7 +63,7 @@ export function HowItWorks({ heading }: { heading?: React.ReactNode }) {
 
                 {/* Desktop Grid View */}
                 <div className='hidden md:grid grid-cols-3 gap-5'>
-                    {HomePageHowItWorksStepData.map((step, index) => (
+                    {stepData.map((step, index) => (
                         <FadeUp key={index} delay={index * 0.2}>
                             <StepCard step={step} isMobileSlider={false} />
                         </FadeUp>

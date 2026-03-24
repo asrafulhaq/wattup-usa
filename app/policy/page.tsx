@@ -14,7 +14,7 @@ export default function PolicyPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/policy-page-hero.png'
+                image='/assets/images/policy/policy-page-hero.png'
                 alt='Policy Page Hero Background'
                 heading='Privacy and legal'
                 imageClass='md:-mt-[172px] max-md:object-[-13%_bottom] max-md:scale-150'

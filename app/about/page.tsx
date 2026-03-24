@@ -15,8 +15,8 @@ export default function AboutPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/about-page-hero-image.png'
-                mobileImage='/assets/images/about-page-hero-image-mobile.png'
+                image='/assets/images/about/about-page-hero-image.png'
+                mobileImage='/assets/images/about/about-page-hero-image-mobile.png'
                 alt='About Page Hero Background'
                 sectionClass=''
                 imageClass='max-md:object-[45%_top]'
@@ -47,7 +47,7 @@ export default function AboutPage() {
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
-                image='/assets/images/partner-image.png'
+                image='/assets/images/about/partner-image.png'
                 imageClass='max-md:object-[73%_top] xl:object-bottom'
                 imageWrapperClass='-mb-26'
                 heading='Partner With Us'

@@ -14,7 +14,7 @@ export function ExpandingUs() {
     return (
         <div id='who-we-serve' className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
-                imageSrc='/assets/images/location-marque-bg.png'
+                imageSrc='/assets/images/home/location-marque-bg.png'
                 imageAlt='Charging Stations By Water'
                 sectionClass='max-md:-mb-22'>
                 <div className='flex flex-col space-y-[32px] md:space-y-20  items-center text-center w-full'>

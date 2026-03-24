@@ -36,7 +36,7 @@ export async function CTAReady({
     overlayClass?: string;
 }) {
     const blurDataUrl = await getBlurDataUrl(
-        image || '/assets/images/footer-section-bg.png'
+        image || '/assets/images/home/footer-section-bg.png'
     );
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
@@ -53,7 +53,7 @@ export async function CTAReady({
                         imageWrapperClass
                     )}>
                     <Image
-                        src={image || '/assets/images/footer-section-bg.png'}
+                        src={image || '/assets/images/home/footer-section-bg.png'}
                         alt='WattUp Sunset Background'
                         fill
                         className={cn(

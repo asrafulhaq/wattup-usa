@@ -250,7 +250,7 @@ export function FindLocation() {
                 <div className='flex-1 w-full h-[246px] min-h-[246px] md:min-h-[600px] lg:h-[727px] relative rounded-[12px] md:rounded-[16px] overflow-hidden border border-gray/50 bg-gray/50 mb-0 md:mb-0'>
                     {/* Fixed Height required for Image fill to work perfectly relative to parent */}
                     <Image
-                        src='/assets/images/map.png'
+                        src='/assets/images/drivers/map.png'
                         alt='Charging Stations Map'
                         fill
                         className='object-cover object-center bg-gray/50 pointer-events-none'

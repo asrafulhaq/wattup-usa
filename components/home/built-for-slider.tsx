@@ -6,25 +6,44 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-function SlidesCard({ card }: { card: SlidesCardData }) {
+function SlidesCard({
+    card,
+}: {
+    card: SlidesCardData;
+    imageClass?: string;
+}) {
     return (
-        <div className='relative group rounded-[8px] overflow-hidden h-[520px] md:h-[489px] w-full flex flex-col items-start justify-end gap-[10px] p-[32px] pt-[276px] md:pt-[276px]'>
+        <div className='relative group rounded-[8px] overflow-hidden h-[520px] md:h-[489px] w-full flex flex-col items-start justify-end gap-[10px] py-8 px-6 pt-[276px] md:pt-[276px] text-left'>
+            {card?.mobileImage && (
+                <Image
+                    src={card?.mobileImage}
+                    alt={card.title}
+                    fill
+                    sizes='(max-width: 767px) 330px, 785px'
+                    className={cn(
+                        'object-cover max-md:block hidden transition-transform  duration-700 z-0',
+                        card?.imageClass
+                    )}
+                />
+            )}
             <Image
                 src={card.image}
                 alt={card.title}
                 fill
                 sizes='(max-width: 767px) 330px, 785px'
                 className={cn(
-                    'object-cover  transition-transform duration-700 z-0'
+                    'object-cover  transition-transform  duration-700 z-0',
+                    card?.imageClass,
+                    card?.mobileImage && 'max-md:hidden'
                 )}
             />
             {/* Gradient overlay for text readability */}
             <div className='absolute inset-0 bg-linear-to-t from-black/10 via-black/10 to-transparent pointer-events-none z-10' />
 
-            <h3 className='relative z-20 headline-4 text-white'>
+            <h3 className='relative z-20 min-w-[282px] text-nowrap headline-4 text-white'>
                 {card.title}
             </h3>
-            <p className='relative z-20 text-white/90 text-description max-w-[572px] '>
+            <p className='relative z-20  text-white/90 text-[20px] font-semibold leading-[130%] tracking-[-3%] max-md:max-w-[282px] max-w-[572px] '>
                 {card.description}
             </p>
             <Link
@@ -36,7 +55,12 @@ function SlidesCard({ card }: { card: SlidesCardData }) {
     );
 }
 
-export function CardSliderWrapper({ cards }: { cards: SlidesCardData[] }) {
+export function CardSliderWrapper({
+    cards,
+}: {
+    cards: SlidesCardData[];
+
+}) {
     const slides = cards.map(card => ({
         id: card.id,
         content: <SlidesCard card={card} />,
@@ -54,4 +78,7 @@ export function CardSliderWrapper({ cards }: { cards: SlidesCardData[] }) {
         />
     );
 }
+
+
+
 

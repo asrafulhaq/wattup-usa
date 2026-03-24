@@ -106,7 +106,7 @@ export function DriverFAQ() {
                         className='lg:flex-[0.8] xl:flex-1 h-[373px] lg:h-[288px] w-full shrink-0 lg:shrink relative'>
                         <div className='w-full h-full relative rounded-[8px] overflow-hidden'>
                             <Image
-                                src='/assets/images/faq-image.png'
+                                src='/assets/images/drivers/faq-image.png'
                                 alt='Driver charging EV'
                                 fill
                                 className='object-cover object-center'

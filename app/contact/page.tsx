@@ -20,7 +20,7 @@ export default function ContactUsPage() {
                 subHeadingClass='max-md:w-[306px] max-md:leading-[110%]'
                 overlay={true}
                 overlayClass=''
-                image='/assets/images/contact-page-hero.png'
+                image='/assets/images/contact/contact-page-hero.png'
                 imageClass='object-cover object-[65%_bottom] max-md:scale-125  md:object-center'
                 heading='Get in Touch'
                 subHeading={
@@ -40,7 +40,7 @@ export default function ContactUsPage() {
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
-                image='/assets/images/contact-page-cta-image.png'
+                image='/assets/images/contact/contact-page-cta-image.png'
                 imageClass='max-md:object-[40%_70%] xl:object-bottom'
                 heading={
                     <>

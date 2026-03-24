@@ -11,7 +11,7 @@ export function VideoPresentation() {
                     loop
                     muted
                     playsInline
-                    poster='/assets/images/hero-2.png'>
+                    poster='/assets/images/home/hero-2.png'>
                     <source src='/assets/videos/video-1.mp4' type='video/mp4' />
                 </video>
             </div>

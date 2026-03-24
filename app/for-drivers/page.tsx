@@ -5,13 +5,44 @@ import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { WhyChoose } from '@/components/home/why-choose';
-import { CarginglocationsForDrivers } from '@/data';
+import {
+    CarginglocationsForDrivers,
+    DriverPageHowItWorksStepData,
+    DriverPageWhyChooseSlideCardData,
+} from '@/data';
 import type { Metadata } from 'next';
+import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'For Drivers | EV Charging Made Simple',
     description:
         'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
+    openGraph: {
+        title: 'For Drivers | EV Charging Made Simple',
+        description:
+            'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/drivers/og-image.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
+    twitter: {
+        title: 'For Drivers | EV Charging Made Simple',
+        description:
+            'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
+        images: [
+            {
+                url: `${baseUrl}/assets/images/drivers/og-image.png`,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
 };
 
 export default function ForDriversPage() {
@@ -19,8 +50,8 @@ export default function ForDriversPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/for-driver-page-hero.png'
-                mobileImage='/assets/images/for-driver-page-hero-mobile.png'
+                image='/assets/images/drivers/for-driver-page-hero.png'
+                mobileImage='/assets/images/drivers/for-driver-page-hero-mobile.png'
                 imageClass='max-md:object-[67%]'
                 overlay={true}
                 overlayClass='absolute top-0 w-full h-[400px] md:h-[951px] bg-linear-to-b from-[#54A6FF]/84 to-transparent mix-blend-multiply after:content-[""] after:absolute after:inset-0 after:bg-linear-to-b after:from-black/37 after:to-transparent'
@@ -38,10 +69,10 @@ export default function ForDriversPage() {
             />
 
             {/* 2. How It Works */}
-            <HowItWorks />
+            <HowItWorks stepData={DriverPageHowItWorksStepData} />
 
             {/* 3. Why Choose WATTUP Cards */}
-            <WhyChoose />
+            <WhyChoose slides={DriverPageWhyChooseSlideCardData} />
 
             {/* 4. Find Location */}
             <FindLocation />

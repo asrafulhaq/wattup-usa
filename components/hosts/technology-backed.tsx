@@ -46,14 +46,14 @@ export function TechnologyBacked() {
 
                     <div className='relative w-[617px] z-20 lg:w-full h-[450px] lg:h-full'>
                         <Image
-                            src='/assets/images/technology-backed-for-host.png'
+                            src='/assets/images/hosts/technology-backed-for-host.png'
                             alt='Wattup Charging Hardware'
                             fill
                             className='object-cover hidden md:block object-right lg:object-left'
                             priority
                         />
                         <Image
-                            src='/assets/images/technology-backed-for-host-mobile.png'
+                            src='/assets/images/hosts/technology-backed-for-host-mobile.png'
                             alt='Wattup Charging Hardware'
                             fill
                             className='object-cover md:hidden max-md:object-[-50%_center] '

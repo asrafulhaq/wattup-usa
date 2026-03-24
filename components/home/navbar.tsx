@@ -35,7 +35,7 @@ export function Navbar() {
                         href='/'
                         className='relative flex items-center h-6 w-36 shrink-0'>
                         <Image
-                            src='/assets/images/logo.svg'
+                            src='/assets/images/shared/logo.svg'
                             alt='WattUp Logo'
                             fill
                             className='object-left object-contain mix-blend-plus-lighter'
@@ -85,7 +85,7 @@ export function Navbar() {
                     <div className='flex items-center justify-between mb-12'>
                         <div className='relative h-6 w-36'>
                             <Image
-                                src='/assets/images/logo_dark.svg'
+                                src='/assets/images/shared/logo_dark.svg'
                                 alt='WattUp Logo'
                                 fill
                                 className='object-left object-contain'

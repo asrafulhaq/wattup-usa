@@ -67,7 +67,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/homepage-hero-1.png'
+                            src='/assets/images/home/homepage-hero-1.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
@@ -75,7 +75,7 @@ export async function Hero() {
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/hero-1.png'
+                            src='/assets/images/home/hero-1.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
@@ -100,7 +100,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#cfd8e3]'>
                         <Image
-                            src='/assets/images/hero-2-md.png'
+                            src='/assets/images/home/hero-2-md.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-bottom'
@@ -108,7 +108,7 @@ export async function Hero() {
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/hero-2.png'
+                            src='/assets/images/home/hero-2.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-bottom'
@@ -132,7 +132,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/homepage-hero-3.png'
+                            src='/assets/images/home/homepage-hero-3.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
@@ -142,7 +142,7 @@ export async function Hero() {
                             blurDataURL={slide1Desktop} */
                         />
                         <Image
-                            src='/assets/images/homepage-hero-3.png'
+                            src='/assets/images/home/homepage-hero-3.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
@@ -167,7 +167,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/homepage-hero-4.png'
+                            src='/assets/images/home/homepage-hero-4.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
@@ -175,7 +175,7 @@ export async function Hero() {
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/homepage-hero-4.png'
+                            src='/assets/images/home/homepage-hero-4.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
@@ -200,7 +200,7 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/homepage-hero-5.png'
+                            src='/assets/images/home/homepage-hero-5.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
@@ -208,7 +208,7 @@ export async function Hero() {
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/homepage-hero-5.png'
+                            src='/assets/images/home/homepage-hero-5.png'
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'

@@ -7,7 +7,7 @@ export function BringEvToProperty() {
         <div className='md:pt-[82px]'>
             {' '}
             <FadedImageCrossSection
-                imageSrc='/assets/images/host-crossfade.png'
+                imageSrc='/assets/images/hosts/host-crossfade.png'
                 imageAlt='Charging Stations By Water'
                 bottomGradient={false}
                 sectionClass='max-md:pt-[82px]'

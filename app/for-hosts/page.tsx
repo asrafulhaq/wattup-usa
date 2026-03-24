@@ -21,7 +21,7 @@ export default function ForHostPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/for-host-page-hero.png'
+                image='/assets/images/hosts/for-host-page-hero.png'
                 alt='Driver Page Hero Background'
                 heading={
                     <>

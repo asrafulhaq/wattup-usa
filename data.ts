@@ -1,9 +1,11 @@
 export interface SlidesCardData {
     id: string;
     image: string;
+    mobileImage?: string;
     title: string;
     description: string;
     cta: { label: string; href: string };
+    imageClass?: string;
 }
 
 export interface LocationData {
@@ -24,60 +26,68 @@ export interface TechnologySlideData {
     gradientStyle?: React.CSSProperties; // Detailed background styling
     imageClassName?: string; // Custom image object-position per slide
 }
-
+export interface HowItWorksStepData {
+    title: string;
+    description: string;
+    image: string;
+}
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
         id: 'drivers',
-        image: '/assets/images/car1.png',
+        image: '/assets/images/shared/car1.png',
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[14%_top]',
     },
     {
         id: 'hosts',
-        image: '/assets/images/car-2.png',
+        image: '/assets/images/shared/car-2.png',
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
         cta: { label: 'Become a Host', href: '/contact#contact-us' },
+        imageClass: 'max-md:object-[14%_top]',
     },
     {
         id: 'drivers-1',
-        image: '/assets/images/car1.png',
+        image: '/assets/images/shared/car1.png',
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[14%_top]',
     },
     {
         id: 'hosts-1',
-        image: '/assets/images/car-2.png',
+        image: '/assets/images/shared/car-2.png',
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
         cta: { label: 'Become a Host', href: '/contact#contact-us' },
+        imageClass: 'max-md:object-[14%_top]',
     },
 ];
 
-export const HomePageHowItWorksStepData = [
+export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
     {
         title: 'Find a Station',
         description:
             'Locate a WattUp charging station near you using our network map.',
-        image: '/assets/images/how-it-works-1.png',
+        image: '/assets/images/shared/how-it-works-1.png',
     },
     {
         title: 'Plug In',
         description:
-            'Check in with our app, plug in your vehicle, and start charging.',
-        image: '/assets/images/how-it-works-2.png',
+            'Connect your EV and start charging instantly. Wait until the car charges',
+        image: '/assets/images/shared/how-it-works-2.png',
     },
     {
         title: 'Charge & Go',
         description:
-            'Receive real-time updates and pay seamlessly when your charge is complete.',
-        image: '/assets/images/how-it-works-4.png',
+            'Fast, reliable charging so you can get back on the road quickly.',
+        image: '/assets/images/shared/how-it-works-4.png',
     },
 ];
 
@@ -86,8 +96,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '01.',
         title: 'Smart charging\ninfrastructure',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-1.png',
-        mobileImage: '/assets/images/technology-backed-1-mobile.png',
+        image: '/assets/images/home/technology-backed-1.png',
+        mobileImage: '/assets/images/home/technology-backed-1-mobile.png',
         textPosition: 'left',
         textStyle: {
             left: '252px',
@@ -108,8 +118,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '02.',
         title: 'High-performance\nhardware',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-2.png',
-        mobileImage: '/assets/images/technology-backed-2-mobile.png',
+        image: '/assets/images/home/technology-backed-2.png',
+        mobileImage: '/assets/images/home/technology-backed-2-mobile.png',
         textPosition: 'right',
         imageClassName: 'object-contain object-left',
         textStyle: {
@@ -131,8 +141,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '03.',
         title: 'Seamless payment\nintegration',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/technology-backed-3.png',
-        mobileImage: '/assets/images/technology-backed-3-mobile.png',
+        image: '/assets/images/home/technology-backed-3.png',
+        mobileImage: '/assets/images/home/technology-backed-3-mobile.png',
         textPosition: 'left',
         textStyle: {
             left: '80px',
@@ -154,55 +164,116 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
 export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'fast-charging',
-        image: '/assets/images/why-image-1.png',
+        image: '/assets/images/home/why-image-1.png',
         title: 'Fast Charging',
         description:
             'High-performance charging stations designed for speed and reliability.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[70%_top]',
     },
     {
         id: 'premium-locations',
-        image: '/assets/images/why-image-2.png',
+        image: '/assets/images/home/why-image-2.png',
         title: 'Premium Locations',
         description:
             'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[70%_top]',
     },
     {
         id: 'symless-experience',
-        image: '/assets/images/why-image-3.png',
+        image: '/assets/images/home/why-image-3.png',
         title: 'Seamless Experience',
         description: 'Simple access, easy payments, and reliable performance.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[90%_top]',
     },
     {
         id: 'smart-infrastructure',
-        image: '/assets/images/why-image-4.png',
+        image: '/assets/images/home/why-image-4.png',
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
         cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[35%_top]',
+    },
+];
+
+export const DriverPageHowItWorksStepData: HowItWorksStepData[] = [
+    {
+        title: 'Find a Station',
+        description:
+            'Locate a WattUp charging station near you using our network map.',
+        image: '/assets/images/shared/how-it-works-1.png',
+    },
+    {
+        title: 'Plug In',
+        description:
+            'Connect your EV and start charging instantly. Wait until the car charges',
+        image: '/assets/images/shared/how-it-works-2.png',
+    },
+    {
+        title: 'Charge & Go',
+        description:
+            'Fast, reliable charging so you can get back on the road quickly.',
+        image: '/assets/images/shared/how-it-works-5.png',
+    },
+];
+export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
+    {
+        id: 'fast-charging',
+        image: '/assets/images/drivers/driver-why-choose-1.png',
+        mobileImage: '/assets/images/drivers/driver-why-choose-mobile-1.png',
+        title: 'Fast Charging',
+        description: 'Reliable high-performance stations.',
+        cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[40%_top]',
+    },
+    {
+        id: 'premium-locations',
+        image: '/assets/images/drivers/driver-why-choose-2.png',
+        title: 'Convenient Locations',
+        description: 'Charge where you already go.',
+        cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[25%_top]',
+    },
+    {
+        id: 'symless-experience',
+        image: '/assets/images/drivers/driver-why-choose-3.png',
+        title: 'Reliable Network',
+        description: 'Stations monitored for consistent performance.',
+        cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[14%_top]',
+    },
+    {
+        id: 'smart-infrastructure',
+        image: '/assets/images/drivers/driver-why-choose-4.png',
+        mobileImage: '/assets/images/drivers/driver-why-choose-mobile-4.png',
+        title: 'Simple Experience',
+        description: 'Easy access and seamless payments.',
+        cta: { label: 'Find Charging Locations', href: '#' },
+        imageClass: 'max-md:object-[60%_top]',
     },
 ];
 
 export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'increase-property-value',
-        image: '/assets/images/for-host-slide-card-image-1.png',
+        image: '/assets/images/hosts/for-host-slide-card-image-1.png',
         title: 'Increase Property Value',
         description: " Enhance your property's long-term appeal.",
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'attract-visitors',
-        image: '/assets/images/for-host-slide-card-image-2.png',
+        image: '/assets/images/hosts/for-host-slide-card-image-2.png',
         title: 'Attract Visitors',
         description: ' EV drivers actively look for charging locations.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'support-sustainability',
-        image: '/assets/images/for-host-slide-card-image-1.png',
+        image: '/assets/images/hosts/for-host-slide-card-image-1.png',
         title: 'Support Sustainability',
         description: ' Show commitment to clean mobility.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
@@ -213,43 +284,43 @@ export const HostPageHowItWorksStepsData = [
     {
         title: 'Site Assessment',
         description: 'We evaluate your location.',
-        image: '/assets/images/hosts-how-it-works-1.png',
+        image: '/assets/images/hosts/hosts-how-it-works-1.png',
     },
     {
         title: 'Installation',
         description: 'Professional charger installation.',
-        image: '/assets/images/hosts-how-it-works-2.png',
+        image: '/assets/images/hosts/hosts-how-it-works-2.png',
     },
     {
         title: 'Integration',
         description: 'Stations connected to the  WattUp network.',
-        image: '/assets/images/hosts-how-it-works-3.png',
+        image: '/assets/images/hosts/hosts-how-it-works-3.png',
     },
     {
         title: 'Ongoing Support',
         description: 'Continuous monitoring and support.',
-        image: '/assets/images/hosts-how-it-works-4.png',
+        image: '/assets/images/hosts/hosts-how-it-works-4.png',
     },
 ];
 
 export const HostPageBenifitsCardsData: SlidesCardData[] = [
     {
         id: 'charging-revenue',
-        image: '/assets/images/host-page-benifit-image-1.png',
+        image: '/assets/images/hosts/host-page-benifit-image-1.png',
         title: 'Charging Revenue',
         description: 'Drivers pay to charge their vehicles at your location.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'increased-foot-traffic',
-        image: '/assets/images/host-page-benifit-image-2.png',
+        image: '/assets/images/hosts/host-page-benifit-image-2.png',
         title: 'Increased Foot Traffic',
         description: 'EV drivers choose locations where they can charge.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
     },
     {
         id: 'longer-customer-visits',
-        image: '/assets/images/car1.png',
+        image: '/assets/images/shared/car1.png',
         title: 'Longer Customer Visits',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
@@ -257,7 +328,7 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     },
     {
         id: 'property-value-growth',
-        image: '/assets/images/car-2.png',
+        image: '/assets/images/shared/car-2.png',
         title: 'Property Value Growth',
         description: 'EV infrastructure increases long-term property value.',
         cta: { label: 'Request Partnership', href: '/contact#contact-us' },
@@ -267,38 +338,38 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
 export const CarginglocationsForDrivers = [
     {
         title: 'Retail Centers',
-        image: '/assets/images/card-image-1.png',
+        image: '/assets/images/shared/card-image-1.png',
     },
     {
         title: 'Hotels',
-        image: '/assets/images/card-image-2.png',
+        image: '/assets/images/shared/card-image-2.png',
     },
     {
         title: 'Office Buildings',
-        image: '/assets/images/card-image-5.png',
+        image: '/assets/images/shared/card-image-5.png',
     },
     {
         title: 'Residential Communities',
-        image: '/assets/images/card-image-4.png',
+        image: '/assets/images/shared/card-image-4.png',
     },
 ];
 
 export const IdealLocationsForHosts = [
     {
         title: 'Hotels',
-        image: '/assets/images/card-image-2.png',
+        image: '/assets/images/shared/card-image-2.png',
     },
     {
         title: 'Retail Centers',
-        image: '/assets/images/card-image-1.png',
+        image: '/assets/images/shared/card-image-1.png',
     },
     {
         title: 'Office Buildings',
-        image: '/assets/images/card-image-5.png',
+        image: '/assets/images/shared/card-image-5.png',
     },
     {
         title: 'Residential Communities',
-        image: '/assets/images/card-image-4.png',
+        image: '/assets/images/shared/card-image-4.png',
     },
 ];
 
@@ -345,19 +416,19 @@ export const PolicyOptionsData = [
         title: 'Intellectual Property',
         description:
             'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA',
-        image: '/assets/images/policy-1.png',
+        image: '/assets/images/policy/policy-1.png',
     },
     {
         title: 'Limitation of Liability',
         description:
             'We strive to ensure that all information on this website is accurate and up to date. However, we make no guarantees regarding completeness',
-        image: '/assets/images/policy-2.png',
+        image: '/assets/images/policy/policy-2.png',
     },
     {
         title: 'External Links',
         description:
             'This website may contain links to third-party websites. We are not responsible for the content, policies',
-        image: '/assets/images/policy-3.png',
+        image: '/assets/images/policy/policy-3.png',
     },
 ];
 
@@ -378,4 +449,22 @@ export const PolicyLeagalsData = [
             'We do not sell your personal data. We may share information with trusted third-party service providers only as necessary to operate the website or comply with legal obligations.',
     },
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

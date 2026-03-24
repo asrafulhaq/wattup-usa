@@ -58,7 +58,7 @@ export async function PageHero({
                     <Image
                         src={
                             mobileImage ||
-                            '/assets/images/for-driver-page-hero.png'
+                            '/assets/images/drivers/for-driver-page-hero.png'
                         }
                         alt={alt || 'Page Hero Background'}
                         fill
@@ -71,7 +71,7 @@ export async function PageHero({
                     />
                 )}
                 <Image
-                    src={image || '/assets/images/for-driver-page-hero.png'}
+                    src={image || '/assets/images/drivers/for-driver-page-hero.png'}
                     alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
