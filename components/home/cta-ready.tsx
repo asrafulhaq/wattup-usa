@@ -34,8 +34,10 @@ export async function CTAReady({
     image?: string;
     overlay?: boolean;
     overlayClass?: string;
-    }) {
-    const blurDataUrl = await getBlurDataUrl(image || '/assets/images/footer-section-bg.png');
+}) {
+    const blurDataUrl = await getBlurDataUrl(
+        image || '/assets/images/footer-section-bg.png'
+    );
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
             {/* Top CTA Banner - 1440x960px Figma Specs */}

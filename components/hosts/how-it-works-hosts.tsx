@@ -1,8 +1,8 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { HostPageHowItWorksStepsData } from '@/data';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { CardSlider } from '../ui/card-slider';
-import { cn } from '@/lib/utils';
 
 function HostStepCard({
     step,
@@ -55,7 +55,9 @@ export function HowItWorksForHosts() {
             <div className='container mx-auto flex flex-col'>
                 {/* Header */}
                 <FadeUp>
-                    <h2 className='headline-dark max-md:[w-348px] mb-[40px]'>How It Works</h2>
+                    <h2 className='headline-dark max-md:[w-348px] mb-[40px]'>
+                        How It Works
+                    </h2>
                 </FadeUp>
 
                 {/* Desktop Grid Layout */}
