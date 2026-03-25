@@ -3,10 +3,17 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const params = useParams();
+    const pathname = usePathname();
+
+    const isPressReleaseDetails =
+        pathname.includes('/press-release/') && params.slug ? true : false;
+
 
     useEffect(() => {
         if (mobileMenuOpen) {
@@ -35,7 +42,7 @@ export function Navbar() {
                         href='/'
                         className='relative flex items-center h-6 w-36 shrink-0'>
                         <Image
-                            src='/assets/images/shared/logo.svg'
+                            src={isPressReleaseDetails ? '/assets/images/shared/logo_dark.svg' : '/assets/images/shared/logo.svg'}
                             alt='WattUp Logo'
                             fill
                             className='object-left object-contain mix-blend-plus-lighter'
@@ -50,7 +57,8 @@ export function Navbar() {
                                 key={link.label}
                                 href={link.href}
                                 className={cn(
-                                    'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors'
+                                    'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
+                                    isPressReleaseDetails && 'text-dark hover:text-dark/80'
                                 )}>
                                 {link.label}
                             </Link>
@@ -62,7 +70,8 @@ export function Navbar() {
                         <Link
                             href='/contact'
                             className={cn(
-                                'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors'
+                                'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
+                                isPressReleaseDetails && 'text-dark hover:text-dark/80'
                             )}>
                             Contact Us
                         </Link>
@@ -70,7 +79,10 @@ export function Navbar() {
 
                     {/* Mobile Menu Icon */}
                     <button
-                        className='lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation'
+                        className={cn(
+                            'lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation',
+                            isPressReleaseDetails && 'text-dark hover:text-dark/80'
+                        )}
                         onClick={() => setMobileMenuOpen(true)}
                         aria-label='Open mobile menu'>
                         {/*  <MobileMenuIcon /> */}

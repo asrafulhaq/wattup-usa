@@ -37,6 +37,17 @@ export interface FAQ {
     question: string;
     answer: string;
 }
+export interface PressReleaseArchiveData {
+    id: string;
+    image: string;
+    secondImage?: string;
+    mobileImage?: string;
+    date: string;
+    title: string;
+    slug: string;
+    description: string;
+    imageClass?: string;
+}
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
         id: 'drivers',
@@ -545,7 +556,7 @@ export const DriverFAQData: FAQ[] = [
     },
     {
         question: 'How long does charging take?',
-        answer: 'Charging time varies depending on your vehicle\'s battery size and the charger\'s speed, typically ranging from 30 minutes to a few hours.',
+        answer: "Charging time varies depending on your vehicle's battery size and the charger's speed, typically ranging from 30 minutes to a few hours.",
     },
     {
         question: 'What vehicles are compatible?',
@@ -563,7 +574,7 @@ export const faqPageFaqData: FAQ[] = [
     },
     {
         question: 'How long does charging take?',
-        answer: 'Charging time varies depending on your vehicle\'s battery size and the charger\'s speed, typically ranging from 30 minutes to a few hours.',
+        answer: "Charging time varies depending on your vehicle's battery size and the charger's speed, typically ranging from 30 minutes to a few hours.",
     },
     {
         question: 'What vehicles are compatible?',
@@ -582,6 +593,88 @@ export const faqPageFaqData: FAQ[] = [
         answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
     },
 ];
+
+export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
+    {
+        id: '1',
+        image: '/assets/images/press-release/press-release-1.png',
+        secondImage: '/assets/images/press-release/press-release-1-second.png',
+        mobileImage: '/assets/images/press-release/press-release-1-mobile.png',
+        date: 'March 23, 2026',
+        title: 'Expansion of EV Charging Infrastructure in Urban Areas',
+        slug: 'expansion-of-ev-charging-infrastructure-in-urban-areas',
+        description:
+            'We are proud to announce the successful deployment of new electric vehicle charging stations across several urban locations. This expan...',
+        imageClass: '',
+    },
+    {
+        id: '2',
+        image: '/assets/images/press-release/press-release-2.png',
+        secondImage: '/assets/images/press-release/press-release-2.png',
+        mobileImage: '/assets/images/press-release/press-release-2-mobile.png',
+        date: 'March 25, 2026',
+        title: 'Partnership with Local',
+        slug: 'partnership-with-local',
+        description:
+            'Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties. This initiative allows...',
+        imageClass: '',
+    },
+    {
+        id: '3',
+        image: '/assets/images/press-release/press-release-3.png',
+        secondImage: '/assets/images/press-release/press-release-3.png',
+        mobileImage: '/assets/images/press-release/press-release-3-mobile.png',
+        date: 'February 9, 2026',
+        title: 'Commitment to Sustainability',
+        slug: 'commitment-to-sustainability',
+        description:
+            'As part of our sustainability strategy, we are integrating renewable energy sources into our charging infrastructure. This step reduc... ',
+        imageClass: '',
+    },
+    {
+        id: '4',
+        image: '/assets/images/press-release/press-release-4.png',
+        secondImage: '/assets/images/press-release/press-release-4.png',
+        mobileImage: '/assets/images/press-release/press-release-4-mobile.png',
+        date: 'March 05, 2026',
+        title: 'Introduction of Fast-Charging Solutions',
+        slug: 'introduction-of-fast-charging-solutions',
+        description:
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. These solutions are ideal for high ...',
+        imageClass: '',
+    },
+    {
+        id: '5',
+        image: '/assets/images/press-release/press-release-5.png',
+        secondImage: '/assets/images/press-release/press-release-5.png',
+        mobileImage: '/assets/images/press-release/press-release-5-mobile.png',
+        date: 'April 23, 2026',
+        title: 'Launch of Smart Charging Management System',
+        slug: 'launch-of-smart-charging-management-system',
+        description:
+            'We have introduced an advanced smart management system for EV charging stations. This technology allows users and operators to ...',
+        imageClass: '',
+    },
+    {
+        id: '6',
+        image: '/assets/images/press-release/press-release-6.png',
+        secondImage: '/assets/images/press-release/press-release-6.png',
+        mobileImage: '/assets/images/press-release/press-release-6-mobile.png',
+        date: 'March 01, 2026',
+        title: 'Entry into New Regional Markets',
+        slug: 'entry-into-new-regional-markets',
+        description:
+            'Our company is expanding into new regions, bringing reliable and scalable EV charging solutions to a wider audience. This step ...',
+        imageClass: '',
+    },
+];
+
+
+
+
+
+
+
 
 
 

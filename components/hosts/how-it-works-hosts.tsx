@@ -96,7 +96,7 @@ export function HowItWorksForHosts() {
                     <FadeUp>
                         <CardSlider
                             slides={mobileSlides}
-                            mobilePerView={1.05} // ~90% width to show a peek of the next card
+                            mobilePerView={1} // ~90% width to show a peek of the next card
                             gap={20}
                             showArrows={false}
                             showDots={true}

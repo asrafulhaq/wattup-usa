@@ -2,9 +2,9 @@ import { PageHero } from '@/components/drivers/page-hero';
 
 import { FAQSection } from '@/components/drivers/faq';
 import { CTAReady } from '@/components/home/cta-ready';
+import { faqPageFaqData } from '@/data';
 import type { Metadata } from 'next';
 import { baseUrl } from '../page';
-import { DriverFAQData, faqPageFaqData } from '@/data';
 
 export const metadata: Metadata = {
     title: 'FAQ | WattUp EV Charging',
@@ -79,12 +79,4 @@ export default function FAQPage() {
         </main>
     );
 }
-
-
-
-
-
-
-
-
 

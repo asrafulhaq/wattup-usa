@@ -18,6 +18,7 @@ export async function PageHero({
     headingClass,
     subHeadingClass,
     contentContainerClass,
+    textContainerClass,
     overlayClass,
     overlay = true,
     alt,
@@ -35,6 +36,7 @@ export async function PageHero({
     imageClass?: string;
     sectionClass?: string;
     contentContainerClass?: string;
+    textContainerClass?: string;
     headingClass?: string;
     subHeadingClass?: string;
     overlayClass?: string;
@@ -100,7 +102,7 @@ export async function PageHero({
                     'pt-8 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent',
                     contentContainerClass
                 )}>
-                <div className='relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white'>
+                <div className={cn('relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white', textContainerClass)}>
                     <FadeUp yOffset={30}>
                         <h1
                             className={cn(
