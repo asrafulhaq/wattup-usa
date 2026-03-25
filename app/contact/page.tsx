@@ -1,3 +1,4 @@
+import { contactImageUrls } from '@/lib/images/contact';
 import { PageHero } from '@/components/drivers/page-hero';
 
 import { ContactForm } from '@/components/contact/contact-form';
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
                 'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/contact/og-image.png`,
+                    url: contactImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
                 'Get in touch with the WattUp team for support, partnerships, or general inquiries about our EV charging network.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/contact/og-image.png`,
+                    url: contactImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -47,7 +48,7 @@ export default function ContactUsPage() {
                 subHeadingClass='max-md:w-[306px] max-md:leading-[110%]'
                 overlay={true}
                 overlayClass=''
-                image='/assets/images/contact/contact-page-hero.png'
+                image={contactImageUrls.contactPageHero}
                 imageClass='object-cover object-[65%_bottom] max-md:scale-125  md:object-center'
                 heading='Get in Touch'
                 subHeading={
@@ -67,7 +68,7 @@ export default function ContactUsPage() {
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
-                image='/assets/images/contact/contact-page-cta-image.png'
+                image={contactImageUrls.contactPageCtaImage}
                 imageClass='max-md:object-[40%_70%] xl:object-bottom'
                 heading={
                     <>

@@ -11,8 +11,8 @@ import {
     DriverPageHowItWorksStepData,
     DriverPageWhyChooseSlideCardData,
 } from '@/data';
+import { driversImageUrls } from '@/lib/images/drivers';
 import type { Metadata } from 'next';
-import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'For Drivers | EV Charging Made Simple',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
             'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
         images: [
             {
-                url: `${baseUrl}/assets/images/drivers/og-image.png`,
+                url: driversImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
             'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
         images: [
             {
-                url: `${baseUrl}/assets/images/drivers/og-image.png`,
+                url: driversImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -51,8 +51,8 @@ export default function ForDriversPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/drivers/for-driver-page-hero.png'
-                mobileImage='/assets/images/drivers/for-driver-page-hero-mobile.png'
+                image={driversImageUrls.forDriverPageHero}
+                mobileImage={driversImageUrls.forDriverPageHeroMobile}
                 imageClass='max-md:object-[67%]'
                 overlay={true}
                 overlayClass='absolute top-0 w-full h-[400px] md:h-[951px] bg-linear-to-b from-[#54A6FF]/84 to-transparent mix-blend-multiply after:content-[""] after:absolute after:inset-0 after:bg-linear-to-b after:from-black/37 after:to-transparent'
@@ -85,7 +85,10 @@ export default function ForDriversPage() {
             />
 
             {/* 6. Driver FAQ */}
-            <FAQSection faqs={DriverFAQData} image='/assets/images/drivers/faq-image.png' />
+            <FAQSection
+                faqs={DriverFAQData}
+                image={driversImageUrls.faqImage}
+            />
 
             {/* 7. Why Choose WATTUP Cards */}
             <CTAReady

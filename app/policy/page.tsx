@@ -1,3 +1,4 @@
+import { policyImageUrls } from '@/lib/images/policy';
 import { PageHero } from '@/components/drivers/page-hero';
 import PolicyLeagals from '@/components/privacy/legal';
 import { PrivacyOptions } from '@/components/privacy/privacy-options';
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
                 'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/policy/og-image.png`,
+                    url: policyImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
                 'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/policy/og-image.png`,
+                    url: policyImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -41,7 +42,7 @@ export default function PolicyPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/policy/policy-page-hero.png'
+                image={policyImageUrls.policyPageHero}
                 alt='Policy Page Hero Background'
                 heading='Privacy and legal'
                 imageClass='max-md:object-[-13%_bottom] max-md:scale-150'

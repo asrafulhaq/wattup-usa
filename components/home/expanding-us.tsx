@@ -1,20 +1,15 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import { homeImageUrls } from '@/lib/images/home';
 import Link from 'next/link';
 
-const cities = [
-    'Los Angeles',
-    'San Diego',
-    'Austin',
-    'Miami',
-    'Phoenix',
-];
+const cities = ['Los Angeles', 'San Diego', 'Austin', 'Miami', 'Phoenix'];
 
 export function ExpandingUs() {
     return (
         <div id='who-we-serve' className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
-                imageSrc='/assets/images/home/location-marque-bg.png'
+                imageSrc={homeImageUrls.locationMarqueBg}
                 imageAlt='Charging Stations By Water'
                 sectionClass='max-md:-mb-22'>
                 <div className='flex flex-col space-y-[32px] md:space-y-20  items-center text-center w-full'>

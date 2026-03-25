@@ -8,6 +8,7 @@ import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
 import { HomePageWhyChooseSlideCardData } from '@/data';
+import { homeImages, homeImageUrls } from '@/lib/images/home';
 import type { Metadata } from 'next';
 export const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/home/hero-1-md.png`,
+                url: homeImageUrls.hero1Md,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/home/hero-1-md.png`,
+                url: homeImageUrls.hero1Md,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',

@@ -1,9 +1,10 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { ReusableSlider } from '@/components/ui/reusable-slider';
+import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link';
 
+import Link from 'next/link';
 function HeroContent({ dark }: { dark: boolean }) {
     return (
         <div className='pt-8 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent'>
@@ -58,7 +59,6 @@ function HeroContent({ dark }: { dark: boolean }) {
 }
 
 export async function Hero() {
-
     const slidesData = [
         {
             id: 1,
@@ -67,19 +67,19 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/home/homepage-hero-1.png'
+                            src={homeImageUrls.homepageHero1}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/home/hero-1.png'
+                            src={homeImageUrls.hero1}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -100,19 +100,19 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#cfd8e3]'>
                         <Image
-                            src='/assets/images/home/hero-2-md.png'
+                            src={homeImageUrls.hero2Md}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-bottom'
-                            priority
+                            preload
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/home/hero-2.png'
+                            src={homeImageUrls.hero2}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-bottom'
-                            priority
+                            preload
                             draggable={false}
                         />
 
@@ -132,21 +132,21 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/home/homepage-hero-3.png'
+                            src={homeImageUrls.homepageHero3}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            priority
+                            preload
                             draggable={false}
                             /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
                             blurDataURL={slide1Desktop} */
                         />
                         <Image
-                            src='/assets/images/home/homepage-hero-3.png'
+                            src={homeImageUrls.homepageHero3}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -167,19 +167,19 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/home/homepage-hero-4.png'
+                            src={homeImageUrls.homepageHero4}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/home/homepage-hero-4.png'
+                            src={homeImageUrls.homepageHero4}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -200,19 +200,19 @@ export async function Hero() {
                     {/* Background Image Setup */}
                     <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#032e4d]'>
                         <Image
-                            src='/assets/images/home/homepage-hero-5.png'
+                            src={homeImageUrls.homepageHero5}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         <Image
-                            src='/assets/images/home/homepage-hero-5.png'
+                            src={homeImageUrls.homepageHero5}
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            priority
+                            preload
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}

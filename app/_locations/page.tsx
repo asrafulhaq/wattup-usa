@@ -1,3 +1,4 @@
+import { locationsImageUrls } from '@/lib/images/locations';
 import { FindLocation } from '@/components/drivers/find-location';
 import { PageHero } from '@/components/drivers/page-hero';
 import type { Metadata } from 'next';
@@ -13,8 +14,8 @@ export default function LocationsPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/locations/location-page-hero-bg.png'
-                mobileImage='/assets/images/locations/location-page-hero-bg-mobile.png'
+                image={locationsImageUrls.locationPageHeroBg}
+                mobileImage={locationsImageUrls.locationPageHeroBgMobile}
                 alt='Location Page Hero Background'
                 heading=' Find a Charging Station'
                 imageClass='max-md:object-[16%] xl:object-bottom'

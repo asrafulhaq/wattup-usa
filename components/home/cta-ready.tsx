@@ -1,6 +1,7 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { getBlurDataUrl } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
+import { homeImages, homeImageUrls } from '@/lib/images/home';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -38,7 +39,7 @@ export async function CTAReady({
     overlayClass?: string;
 }) {
     const blurDataUrl = await getBlurDataUrl(
-        image || '/assets/images/home/footer-section-bg.png'
+        image || homeImageUrls.footerSectionBg
     );
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
@@ -58,7 +59,7 @@ export async function CTAReady({
                         <Image
                             src={
                                 mobileImage ||
-                                '/assets/images/home/footer-section-bg.png'
+                                homeImageUrls.footerSectionBg
                             }
                             alt='WattUp Sunset Background'
                             fill
@@ -74,7 +75,7 @@ export async function CTAReady({
                     )}
                     <Image
                         src={
-                            image || '/assets/images/home/footer-section-bg.png'
+                            image || homeImageUrls.footerSectionBg
                         }
                         alt='WattUp Sunset Background'
                         fill

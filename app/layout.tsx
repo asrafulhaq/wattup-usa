@@ -1,6 +1,8 @@
+import { sharedImageUrls } from '@/lib/images/shared';
 import Footer from '@/components/home/footer';
 import { Navbar } from '@/components/home/navbar';
 import { cn } from '@/lib/utils';
+import { homeImages } from '@/lib/images/home';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
@@ -14,7 +16,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export async function generateMetadata(): Promise<Metadata> {
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
-    const ogImageUrl = `${baseUrl}/assets/images/home/hero-1-md.png`; // Create an og-image later if needed
+    const ogImageUrl = homeImages.hero1Md;
     const twitterImageUrl = ogImageUrl;
 
     return {
@@ -103,16 +105,16 @@ export default function RootLayout({
                 {/* Theme-aware favicons — browser picks based on system color scheme */}
                 <link
                     rel='icon'
-                    href='/assets/images/shared/favicon-light-sq.png'
-                 media='(prefers-color-scheme: dark)' 
+                    href={sharedImageUrls.faviconLightSq}
+                    media='(prefers-color-scheme: dark)'
                 />
-               
-                 <link
+
+                <link
                     rel='icon'
-                    href='/assets/images/shared/favicon-Dark-sq.png'
+                    href={sharedImageUrls.faviconDarkSq}
                     media='(prefers-color-scheme: light)'
-                /> 
-                
+                />
+                <link rel='preconnect' href='https://res.cloudinary.com' />
             </head>
             <body
                 suppressHydrationWarning
@@ -162,6 +164,7 @@ export default function RootLayout({
         </html>
     );
 }
+
 
 
 

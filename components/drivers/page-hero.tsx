@@ -1,3 +1,4 @@
+import { driversImageUrls } from '@/lib/images/drivers';
 import { FadeUp } from '@/components/ui/fade-up';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -60,7 +61,7 @@ export async function PageHero({
                     <Image
                         src={
                             mobileImage ||
-                            '/assets/images/drivers/for-driver-page-hero.png'
+                            driversImageUrls.forDriverPageHero
                         }
                         alt={alt || 'Page Hero Background'}
                         fill
@@ -68,12 +69,12 @@ export async function PageHero({
                             'object-cover md:hidden md:object-center',
                             imageClass
                         )}
-                        priority
+                        preload
                         draggable={false}
                     />
                 )}
                 <Image
-                    src={image || '/assets/images/drivers/for-driver-page-hero.png'}
+                    src={image || driversImageUrls.forDriverPageHero}
                     alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
@@ -81,7 +82,7 @@ export async function PageHero({
                         imageClass,
                         mobileImage && 'hidden md:block'
                     )}
-                    priority
+                    preload
                     draggable={false}
                 />
 
