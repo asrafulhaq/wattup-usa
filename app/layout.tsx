@@ -1,8 +1,9 @@
-import { sharedImageUrls } from '@/lib/images/shared';
 import Footer from '@/components/home/footer';
 import { Navbar } from '@/components/home/navbar';
-import { cn } from '@/lib/utils';
 import { homeImages } from '@/lib/images/home';
+import { sharedImageUrls } from '@/lib/images/shared';
+import { videoUrls } from '@/lib/images/videos';
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
@@ -68,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
             icon: [
                 // Only PWA/manifest-sized icons here — tab favicon is handled
                 // by theme-aware <link> tags in the <head> below
-         /*        {
+                /*        {
                     url: '/assets/icons/android-chrome-192x192.png',
                     sizes: '192x192',
                     type: 'image/png',
@@ -115,6 +116,7 @@ export default function RootLayout({
                     media='(prefers-color-scheme: light)'
                 />
                 <link rel='preconnect' href='https://res.cloudinary.com' />
+                <link rel='preload' as='image' href={videoUrls.video1} />
             </head>
             <body
                 suppressHydrationWarning
@@ -164,7 +166,4 @@ export default function RootLayout({
         </html>
     );
 }
-
-
-
 

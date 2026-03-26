@@ -69,7 +69,7 @@ export async function PageHero({
                             'object-cover md:hidden md:object-center',
                             imageClass
                         )}
-                        preload
+                        priority
                         draggable={false}
                     />
                 )}
@@ -82,7 +82,7 @@ export async function PageHero({
                         imageClass,
                         mobileImage && 'hidden md:block'
                     )}
-                    preload
+                    priority
                     draggable={false}
                 />
 

@@ -14,6 +14,7 @@ export function VideoPresentation() {
                     loop
                     muted
                     playsInline
+                    preload='metadata'
                     poster={homeImages.hero2}>
                     <source src={videoUrls.video1} type='video/mp4' />
                 </video>
@@ -21,4 +22,5 @@ export function VideoPresentation() {
         </section>
     );
 }
+
 

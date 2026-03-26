@@ -1,10 +1,12 @@
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dsfms7jb4';
 
 /** Build a full Cloudinary delivery URL from a public ID */
+/** Build an optimized Cloudinary delivery URL */
 export function cloudinaryUrl(publicId: string) {
-    return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${publicId}`;
+    // f_auto: picks AVIF/WebP automatically
+    // q_auto: compresses quality without losing detail
+    return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto/${publicId}`;
 }
-
 /**
  * Public IDs .
  */

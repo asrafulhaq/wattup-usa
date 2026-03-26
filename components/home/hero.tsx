@@ -71,7 +71,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         <Image
@@ -79,7 +79,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -104,7 +104,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-bottom'
-                            preload
+                            priority
                             draggable={false}
                         />
                         <Image
@@ -112,7 +112,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-bottom'
-                            preload
+                            priority
                             draggable={false}
                         />
 
@@ -136,7 +136,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            preload
+                            priority
                             draggable={false}
                             /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
                             blurDataURL={slide1Desktop} */
@@ -146,7 +146,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -171,7 +171,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         <Image
@@ -179,7 +179,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}
@@ -204,7 +204,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover hidden md:block object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         <Image
@@ -212,7 +212,7 @@ export async function Hero() {
                             alt='WattUp Hero Station'
                             fill
                             className='object-cover md:hidden object-center'
-                            preload
+                            priority
                             draggable={false}
                         />
                         {/* Seamless fade for mobile to reduce zoom while covering top sky */}

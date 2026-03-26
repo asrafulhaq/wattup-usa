@@ -8,7 +8,7 @@ import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
 import { WhyChoose } from '@/components/home/why-choose';
 import { HomePageWhyChooseSlideCardData } from '@/data';
-import { homeImages, homeImageUrls } from '@/lib/images/home';
+import { homeImageUrls } from '@/lib/images/home';
 import type { Metadata } from 'next';
 export const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
