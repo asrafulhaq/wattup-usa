@@ -1,4 +1,7 @@
 'use client';
+import { videoUrls } from '@/lib/images/videos';
+
+import { homeImages } from '@/lib/images/home';
 
 export function VideoPresentation() {
     return (
@@ -11,11 +14,13 @@ export function VideoPresentation() {
                     loop
                     muted
                     playsInline
-                    poster='/assets/images/home/hero-2.png'>
-                    <source src='/assets/videos/video-1.mp4' type='video/mp4' />
+                    preload='metadata'
+                    poster={homeImages.hero2}>
+                    <source src={videoUrls.video1} type='video/mp4' />
                 </video>
             </div>
         </section>
     );
 }
+
 

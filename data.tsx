@@ -1,3 +1,10 @@
+import { driversImageUrls } from '@/lib/images/drivers';
+import { homeImageUrls } from '@/lib/images/home';
+import { hostsImageUrls } from '@/lib/images/hosts';
+import { policyImageUrls } from '@/lib/images/policy';
+import { pressReleaseImageUrls } from '@/lib/images/press-release';
+import { sharedImageUrls } from '@/lib/images/shared';
+
 export interface SlidesCardData {
     id: string;
     image: string;
@@ -48,10 +55,17 @@ export interface PressReleaseArchiveData {
     description: string;
     imageClass?: string;
 }
+
+export interface Cities {
+    name: string;
+    capacity: string;
+    stationName: string;
+    contact: string;
+}
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
         id: 'drivers',
-        image: '/assets/images/shared/car1.png',
+        image: sharedImageUrls.car1,
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
@@ -60,7 +74,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     },
     {
         id: 'hosts',
-        image: '/assets/images/shared/car-2.png',
+        image: sharedImageUrls.car2,
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
@@ -69,7 +83,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     },
     {
         id: 'drivers-1',
-        image: '/assets/images/shared/car1.png',
+        image: sharedImageUrls.car1,
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
@@ -78,7 +92,7 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     },
     {
         id: 'hosts-1',
-        image: '/assets/images/shared/car-2.png',
+        image: sharedImageUrls.car2,
         title: 'For Hosts',
         description:
             'Install EV charging and attract high-value customers, tenants, and visitors.',
@@ -92,19 +106,19 @@ export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
         title: 'Find a Station',
         description:
             'Locate a WattUp charging station near you using our network map.',
-        image: '/assets/images/shared/how-it-works-1.png',
+        image: sharedImageUrls.howItWorks1,
     },
     {
         title: 'Plug In',
         description:
             'Connect your EV and start charging instantly. Wait until the car charges',
-        image: '/assets/images/shared/how-it-works-2.png',
+        image: sharedImageUrls.howItWorks2,
     },
     {
         title: 'Charge & Go',
         description:
             'Fast, reliable charging so you can get back on the road quickly.',
-        image: '/assets/images/shared/how-it-works-4.png',
+        image: sharedImageUrls.howItWorks4,
     },
 ];
 
@@ -113,8 +127,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '01.',
         title: 'Smart charging\ninfrastructure',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/home/technology-backed-1.png',
-        mobileImage: '/assets/images/home/technology-backed-1-mobile.png',
+        image: homeImageUrls.technologyBacked1,
+        mobileImage: homeImageUrls.technologyBacked1Mobile,
         textPosition: 'left',
         textStyle: {
             left: '252px',
@@ -135,8 +149,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '02.',
         title: 'High-performance\nhardware',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/home/technology-backed-2.png',
-        mobileImage: '/assets/images/home/technology-backed-2-mobile.png',
+        image: homeImageUrls.technologyBacked2,
+        mobileImage: homeImageUrls.technologyBacked2Mobile,
         textPosition: 'right',
         imageClassName: 'object-contain object-left',
         textStyle: {
@@ -158,8 +172,8 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
         number: '03.',
         title: 'Seamless payment\nintegration',
         description: 'Lorem ipsum dolor sit amet\nconsectetur',
-        image: '/assets/images/home/technology-backed-3.png',
-        mobileImage: '/assets/images/home/technology-backed-3-mobile.png',
+        image: homeImageUrls.technologyBacked3,
+        mobileImage: homeImageUrls.technologyBacked3Mobile,
         textPosition: 'left',
         textStyle: {
             left: '80px',
@@ -181,7 +195,7 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
 export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'fast-charging',
-        image: '/assets/images/home/why-image-1.png',
+        image: homeImageUrls.whyImage1,
         title: 'Fast Charging',
         description:
             'High-performance charging stations designed for speed and reliability.',
@@ -190,7 +204,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'premium-locations',
-        image: '/assets/images/home/why-image-2.png',
+        image: homeImageUrls.whyImage2,
         title: 'Premium Locations',
         description:
             'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
@@ -199,7 +213,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'symless-experience',
-        image: '/assets/images/home/why-image-3.png',
+        image: homeImageUrls.whyImage3,
         title: 'Seamless Experience',
         description: 'Simple access, easy payments, and reliable performance.',
         cta: { label: 'Find Charging Locations', href: '#' },
@@ -207,7 +221,7 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'smart-infrastructure',
-        image: '/assets/images/home/why-image-4.png',
+        image: homeImageUrls.whyImage4,
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
@@ -221,26 +235,26 @@ export const DriverPageHowItWorksStepData: HowItWorksStepData[] = [
         title: 'Find a Station',
         description:
             'Locate a WattUp charging station near you using our network map.',
-        image: '/assets/images/shared/how-it-works-1.png',
+        image: sharedImageUrls.howItWorks1,
     },
     {
         title: 'Plug In',
         description:
             'Connect your EV and start charging instantly. Wait until the car charges',
-        image: '/assets/images/shared/how-it-works-2.png',
+        image: sharedImageUrls.howItWorks2,
     },
     {
         title: 'Charge & Go',
         description:
             'Fast, reliable charging so you can get back on the road quickly.',
-        image: '/assets/images/shared/how-it-works-5.png',
+        image: sharedImageUrls.howItWorks5,
     },
 ];
 export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'fast-charging',
-        image: '/assets/images/drivers/driver-why-choose-1.png',
-        mobileImage: '/assets/images/drivers/driver-why-choose-mobile-1.png',
+        image: driversImageUrls.driverWhyChoose1,
+        mobileImage: driversImageUrls.driverWhyChooseMobile1,
         title: 'Fast Charging',
         description: 'Reliable high-performance stations.',
         cta: { label: 'Find Charging Locations', href: '#' },
@@ -248,7 +262,7 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'premium-locations',
-        image: '/assets/images/drivers/driver-why-choose-2.png',
+        image: driversImageUrls.driverWhyChoose2,
         title: 'Convenient Locations',
         description: (
             <>
@@ -260,7 +274,7 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'symless-experience',
-        image: '/assets/images/drivers/driver-why-choose-3.png',
+        image: driversImageUrls.driverWhyChoose3,
         title: 'Reliable Network',
         description: 'Stations monitored for consistent performance.',
         cta: { label: 'Find Charging Locations', href: '#' },
@@ -268,8 +282,8 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'smart-infrastructure',
-        image: '/assets/images/drivers/driver-why-choose-4.png',
-        mobileImage: '/assets/images/drivers/driver-why-choose-mobile-4.png',
+        image: driversImageUrls.driverWhyChoose4,
+        mobileImage: driversImageUrls.driverWhyChooseMobile4,
         title: 'Simple Experience',
         description: 'Easy access and seamless payments.',
         cta: { label: 'Find Charging Locations', href: '#' },
@@ -277,10 +291,60 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
 ];
 
+export const cities: Cities[] = [
+    {
+        name: 'Los Angeles',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Diego',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Jose',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Francisco',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Fresno',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Sacramento',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Long Beach',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Oakland',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+];
 export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'increase-property-value',
-        image: '/assets/images/hosts/why-choose-1.png',
+        image: hostsImageUrls.whyChoose1,
         title: (
             <>
                 Increase Property <br className='md:hidden' /> Value
@@ -291,7 +355,7 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'attract-visitors',
-        image: '/assets/images/hosts/why-choose-2.png',
+        image: hostsImageUrls.whyChoose2,
         title: (
             <>
                 Attract <br className='md:hidden' />
@@ -304,7 +368,7 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'support-sustainability',
-        image: '/assets/images/hosts/why-choose-3.png',
+        image: hostsImageUrls.whyChoose3,
         title: (
             <>
                 Support <br className='md:hidden' />
@@ -317,8 +381,8 @@ export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
     {
         id: 'generate-revenue',
-        image: '/assets/images/hosts/why-choose-4.png',
-        mobileImage: '/assets/images/hosts/why-choose-mobile-4.png',
+        image: hostsImageUrls.whyChoose4,
+        mobileImage: hostsImageUrls.whyChooseMobile4,
         title: (
             <>
                 Generate <br className='md:hidden' />
@@ -334,35 +398,34 @@ export const HostPageHowItWorksStepsData: HowItWorksStepData[] = [
     {
         title: 'Site Assessment',
         description: 'We evaluate your location.',
-        image: '/assets/images/hosts/hosts-how-it-works-1.png',
+        image: hostsImageUrls.hostsHowItWorks1,
     },
     {
         title: 'Installation',
         description: 'Professional charger installation.',
-        image: '/assets/images/hosts/hosts-how-it-works-2.png',
-        mobileImage: '/assets/images/hosts/hosts-how-it-works-mobile-2.png',
+        image: hostsImageUrls.hostsHowItWorks2,
+        mobileImage: hostsImageUrls.hostsHowItWorksMobile2,
         imageClass: 'max-md:object-[70%_top]',
     },
     {
         title: 'Integration',
         description: 'Stations connected to the  WattUp network.',
-        image: '/assets/images/hosts/hosts-how-it-works-3.png',
-        mobileImage: '/assets/images/hosts/hosts-how-it-works-mobile-3.png',
+        image: hostsImageUrls.hostsHowItWorks3,
+        mobileImage: hostsImageUrls.hostsHowItWorksMobile3,
     },
     {
         title: 'Ongoing Support',
         description: 'Continuous monitoring and support.',
-        image: '/assets/images/hosts/hosts-how-it-works-4.png',
-        mobileImage: '/assets/images/hosts/hosts-how-it-works-mobile-4.png',
+        image: hostsImageUrls.hostsHowItWorks4,
+        mobileImage: hostsImageUrls.hostsHowItWorksMobile4,
     },
 ];
 
 export const HostPageBenifitsCardsData: SlidesCardData[] = [
     {
         id: 'charging-revenue',
-        image: '/assets/images/hosts/host-page-benifit-image-1.png',
-        mobileImage:
-            '/assets/images/hosts/host-page-benifit-image-mobile-1.png',
+        image: hostsImageUrls.hostPageBenifitImage1,
+        mobileImage: hostsImageUrls.hostPageBenifitImageMobile1,
         title: (
             <>
                 Charging <br className='md:hidden' /> Revenue
@@ -378,7 +441,7 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     },
     {
         id: 'longer-customer-visit',
-        image: '/assets/images/hosts/host-page-benifit-image-2.png',
+        image: hostsImageUrls.hostPageBenifitImage2,
         title: (
             <>
                 Longer
@@ -396,7 +459,7 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     },
     {
         id: 'increased-foot-traffic',
-        image: '/assets/images/hosts/host-page-benifit-image-3.png',
+        image: hostsImageUrls.hostPageBenifitImage3,
         title: (
             <>
                 Increased Foot <br className='md:hidden' />
@@ -414,7 +477,7 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     },
     {
         id: 'property-value-growth',
-        image: '/assets/images/hosts/host-page-benifit-image-4.png',
+        image: hostsImageUrls.hostPageBenifitImage4,
         title: (
             <>
                 Property Value <br className='md:hidden' /> Growth
@@ -433,38 +496,38 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
 export const CarginglocationsForDrivers = [
     {
         title: 'Retail Centers',
-        image: '/assets/images/shared/card-image-1.png',
+        image: sharedImageUrls.cardImage1,
     },
     {
         title: 'Hotels',
-        image: '/assets/images/shared/card-image-2.png',
+        image: sharedImageUrls.cardImage2,
     },
     {
         title: 'Office Buildings',
-        image: '/assets/images/shared/card-image-5.png',
+        image: sharedImageUrls.cardImage5,
     },
     {
         title: 'Residential Communities',
-        image: '/assets/images/shared/card-image-4.png',
+        image: sharedImageUrls.cardImage4,
     },
 ];
 
 export const IdealLocationsForHosts = [
     {
         title: 'Hotels',
-        image: '/assets/images/shared/card-image-2.png',
+        image: sharedImageUrls.cardImage2,
     },
     {
         title: 'Retail Centers',
-        image: '/assets/images/shared/card-image-1.png',
+        image: sharedImageUrls.cardImage1,
     },
     {
         title: 'Office Buildings',
-        image: '/assets/images/shared/card-image-5.png',
+        image: sharedImageUrls.cardImage5,
     },
     {
         title: 'Residential Communities',
-        image: '/assets/images/shared/card-image-4.png',
+        image: sharedImageUrls.cardImage4,
     },
 ];
 
@@ -511,19 +574,19 @@ export const PolicyOptionsData = [
         title: 'Intellectual Property',
         description:
             'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA',
-        image: '/assets/images/policy/policy-1.png',
+        image: policyImageUrls.policy1,
     },
     {
         title: 'Limitation of Liability',
         description:
             'We strive to ensure that all information on this website is accurate and up to date. However, we make no guarantees regarding completeness',
-        image: '/assets/images/policy/policy-2.png',
+        image: policyImageUrls.policy2,
     },
     {
         title: 'External Links',
         description:
             'This website may contain links to third-party websites. We are not responsible for the content, policies',
-        image: '/assets/images/policy/policy-3.png',
+        image: policyImageUrls.policy3,
     },
 ];
 
@@ -597,9 +660,9 @@ export const faqPageFaqData: FAQ[] = [
 export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     {
         id: '1',
-        image: '/assets/images/press-release/press-release-1.png',
-        secondImage: '/assets/images/press-release/press-release-1-second.png',
-        mobileImage: '/assets/images/press-release/press-release-1-mobile.png',
+        image: pressReleaseImageUrls.pressRelease1,
+        secondImage: pressReleaseImageUrls.pressRelease1Second,
+        mobileImage: pressReleaseImageUrls.pressRelease1Mobile,
         date: 'March 23, 2026',
         title: 'Expansion of EV Charging Infrastructure in Urban Areas',
         slug: 'expansion-of-ev-charging-infrastructure-in-urban-areas',
@@ -609,9 +672,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
     {
         id: '2',
-        image: '/assets/images/press-release/press-release-2.png',
-        secondImage: '/assets/images/press-release/press-release-2.png',
-        mobileImage: '/assets/images/press-release/press-release-2-mobile.png',
+        image: pressReleaseImageUrls.pressRelease2,
+        secondImage: pressReleaseImageUrls.pressRelease2,
+        mobileImage: pressReleaseImageUrls.pressRelease2Mobile,
         date: 'March 25, 2026',
         title: 'Partnership with Local',
         slug: 'partnership-with-local',
@@ -621,9 +684,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
     {
         id: '3',
-        image: '/assets/images/press-release/press-release-3.png',
-        secondImage: '/assets/images/press-release/press-release-3.png',
-        mobileImage: '/assets/images/press-release/press-release-3-mobile.png',
+        image: pressReleaseImageUrls.pressRelease3,
+        secondImage: pressReleaseImageUrls.pressRelease3,
+        mobileImage: pressReleaseImageUrls.pressRelease3Mobile,
         date: 'February 9, 2026',
         title: 'Commitment to Sustainability',
         slug: 'commitment-to-sustainability',
@@ -633,9 +696,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
     {
         id: '4',
-        image: '/assets/images/press-release/press-release-4.png',
-        secondImage: '/assets/images/press-release/press-release-4.png',
-        mobileImage: '/assets/images/press-release/press-release-4-mobile.png',
+        image: pressReleaseImageUrls.pressRelease4,
+        secondImage: pressReleaseImageUrls.pressRelease4,
+        mobileImage: pressReleaseImageUrls.pressRelease4Mobile,
         date: 'March 05, 2026',
         title: 'Introduction of Fast-Charging Solutions',
         slug: 'introduction-of-fast-charging-solutions',
@@ -645,9 +708,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
     {
         id: '5',
-        image: '/assets/images/press-release/press-release-5.png',
-        secondImage: '/assets/images/press-release/press-release-5.png',
-        mobileImage: '/assets/images/press-release/press-release-5-mobile.png',
+        image: pressReleaseImageUrls.pressRelease5,
+        secondImage: pressReleaseImageUrls.pressRelease5,
+        mobileImage: pressReleaseImageUrls.pressRelease5Mobile,
         date: 'April 23, 2026',
         title: 'Launch of Smart Charging Management System',
         slug: 'launch-of-smart-charging-management-system',
@@ -657,9 +720,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
     {
         id: '6',
-        image: '/assets/images/press-release/press-release-6.png',
-        secondImage: '/assets/images/press-release/press-release-6.png',
-        mobileImage: '/assets/images/press-release/press-release-6-mobile.png',
+        image: pressReleaseImageUrls.pressRelease6,
+        secondImage: pressReleaseImageUrls.pressRelease6,
+        mobileImage: pressReleaseImageUrls.pressRelease6Mobile,
         date: 'March 01, 2026',
         title: 'Entry into New Regional Markets',
         slug: 'entry-into-new-regional-markets',
@@ -668,15 +731,4 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
         imageClass: '',
     },
 ];
-
-
-
-
-
-
-
-
-
-
-
 

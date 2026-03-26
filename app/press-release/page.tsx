@@ -1,3 +1,4 @@
+import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
 import { PressReleaseArchive } from '@/components/press-release/press-release-archive';
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
             'WattUp is a leading EV charging network in the USA, providing reliable and convenient EV charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/press-release/og-image.png`,
+                url: pressReleaseImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
             'WattUp is a leading EV charging network in the USA, providing reliable and convenient EV charging solutions for drivers and property owners.',
         images: [
             {
-                url: `${baseUrl}/assets/images/press-release/og-image.png`,
+                url: pressReleaseImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -41,7 +42,7 @@ export default function PressReleasePage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/press-release/hero-image.png'
+                image={pressReleaseImageUrls.heroImage}
                 alt='Press Release Page Hero Background'
                 heading='Press release archive'
                 imageClass='max-md:object-[15%_bottom]'
@@ -58,8 +59,8 @@ export default function PressReleasePage() {
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
-                image='/assets/images/press-release/cta-image.png'
-                mobileImage='/assets/images/press-release/cta-image-mobile.png'
+                image={pressReleaseImageUrls.ctaImage}
+                mobileImage={pressReleaseImageUrls.ctaImageMobile}
                 heading='Partner With Us'
                 subHeading='Explore the WattUp charging network.'
                 buttonText='Request Assessment'

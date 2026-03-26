@@ -1,3 +1,4 @@
+import { notFoundImageUrls } from '@/lib/images/not-found';
 import { FadeUp } from '@/components/ui/fade-up';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
         description: '404 | WattUp USA',
         images: [
             {
-                url: `${baseUrl}/assets/images/404/og-image.png`,
+                url: notFoundImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
         description: '404 | WattUp USA',
         images: [
             {
-                url: `${baseUrl}/assets/images/404/og-image.png`,
+                url: notFoundImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -46,7 +47,7 @@ export default function NotFound() {
                         'absolute inset-0 z-0 select-none bg-[#032e4d]'
                     )}>
                     <Image
-                        src={'/assets/images/404/hero-image.png'}
+                        src={notFoundImageUrls.heroImage}
                         alt={'Page Hero Background'}
                         fill
                         className={cn('object-cover md:object-top')}

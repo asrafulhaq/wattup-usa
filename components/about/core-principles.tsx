@@ -1,3 +1,4 @@
+import { aboutImageUrls } from '@/lib/images/about';
 import { AboutPageCorePrinciplesData } from '@/data';
 import Image from 'next/image';
 
@@ -13,7 +14,7 @@ export function CorePrinciples() {
                 {/* Main Image */}
                 <div className='relative w-full h-[400px] lg:h-[681px] rounded-[8px] overflow-hidden mb-6 md:mb-[32px]'>
                     <Image
-                        src='/assets/images/about/core-principals.png'
+                        src={aboutImageUrls.corePrincipals}
                         alt='Core Principles - EV Charging'
                         fill
                         className='object-cover max-md:object-[65%_center]'

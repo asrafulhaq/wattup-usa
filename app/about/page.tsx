@@ -1,3 +1,4 @@
+import { aboutImageUrls } from '@/lib/images/about';
 import { PageHero } from '@/components/drivers/page-hero';
 
 import { CorePrinciples } from '@/components/about/core-principles';
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
                 'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/about/og-image.png`,
+                    url: aboutImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
                 'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
             images: [
                 {
-                    url: `${baseUrl}/assets/images/about/og-image.png`,
+                    url: aboutImageUrls.ogImage,
                     width: 1200,
                     height: 630,
                     alt: 'WattUp USA EV Charging',
@@ -42,8 +43,8 @@ export default function AboutPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/about/about-page-hero-image.png'
-                mobileImage='/assets/images/about/about-page-hero-image-mobile.png'
+                image={aboutImageUrls.aboutPageHeroImage}
+                mobileImage={aboutImageUrls.aboutPageHeroImageMobile}
                 alt='About Page Hero Background'
                 sectionClass=''
                 imageClass='max-md:object-[45%_top]'
@@ -74,7 +75,7 @@ export default function AboutPage() {
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
-                image='/assets/images/about/partner-image.png'
+                image={aboutImageUrls.partnerImage}
                 imageClass='max-md:object-[73%_top] xl:object-bottom'
                 imageWrapperClass='-mb-26'
                 heading='Partner With Us'

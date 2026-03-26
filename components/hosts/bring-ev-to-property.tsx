@@ -1,3 +1,4 @@
+import { hostsImageUrls } from '@/lib/images/hosts';
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
 import Link from 'next/link';
@@ -7,7 +8,7 @@ export function BringEvToProperty() {
         <div className='md:pt-[82px]'>
             {' '}
             <FadedImageCrossSection
-                imageSrc='/assets/images/hosts/host-crossfade.png'
+                imageSrc={hostsImageUrls.hostCrossfade}
                 imageAlt='Charging Stations By Water'
                 bottomGradient={false}
                 sectionClass='max-md:pt-[82px]'

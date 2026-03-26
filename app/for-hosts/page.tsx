@@ -1,3 +1,4 @@
+import { hostsImageUrls } from '@/lib/images/hosts';
 import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { PageHero } from '@/components/drivers/page-hero';
 import { WhyChoose } from '@/components/home/why-choose';
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
         description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
         images: [
             {
-                url: `${baseUrl}/assets/images/hosts/og-image.png`,
+                url: hostsImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
         description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
         images: [
             {
-                url: `${baseUrl}/assets/images/hosts/og-image.png`,
+                url: hostsImageUrls.ogImage,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -46,7 +47,7 @@ export default function ForHostPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image='/assets/images/hosts/for-host-page-hero.png'
+                image={hostsImageUrls.forHostPageHero}
                 alt='Driver Page Hero Background'
                 heading={
                     <>
