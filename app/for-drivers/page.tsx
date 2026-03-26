@@ -1,8 +1,8 @@
 import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
+import { ExpandingUsDrivers } from '@/components/drivers/expanding-us-drivers';
 import { FAQSection } from '@/components/drivers/faq';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
-import { ExpandingUs } from '@/components/home/expanding-us';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { WhyChoose } from '@/components/home/why-choose';
 import {
@@ -76,7 +76,7 @@ export default function ForDriversPage() {
             <WhyChoose slides={DriverPageWhyChooseSlideCardData} />
 
             {/* 4. Expanding Us */}
-            <ExpandingUs />
+            <ExpandingUsDrivers />
 
             {/* 5. Charging Where You Go */}
             <ChargingWhereYouGo

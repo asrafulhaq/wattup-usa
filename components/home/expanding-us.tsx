@@ -1,9 +1,10 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import { cities } from '@/data';
 import { homeImageUrls } from '@/lib/images/home';
 import Link from 'next/link';
 
-const cities = ['Los Angeles', 'San Diego', 'Austin', 'Miami', 'Phoenix'];
+
 
 export function ExpandingUs() {
     return (
@@ -30,7 +31,7 @@ export function ExpandingUs() {
                                         key={idx}
                                         className='flex items-center text-[40px] md:text-[64px] font-bold leading-[110%] tracking-[-3%]'>
                                         <span className='text-gray/36 hover:text-dark transition-colors duration-500 cursor-pointer '>
-                                            {city}
+                                            {city?.name}
                                         </span>
                                         {/* Dot separator */}
                                         <span className='text-gray/30 px-4 md:px-8 pointer-events-none rounded-none select-none '>

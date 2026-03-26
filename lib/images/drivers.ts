@@ -9,7 +9,7 @@ export const driversImages = {
     driverWhyChooseMobile4: 'driver-why-choose-mobile-4_wyfpgg',
     faqImage: 'faq-image_srfinr',
     forDriverPageHeroMobile: 'for-driver-page-hero-mobile_rev1cw',
-    forDriverPageHero: 'for-driver-page-hero_goh5np',
+    forDriverPageHero: 'hero-image_x2y7j3',
     map: 'map_dtyac1',
     ogImage: 'og-image_xxtfwu',
 };
@@ -17,6 +17,7 @@ export const driversImages = {
 export const driversImageUrls = Object.fromEntries(
     Object.entries(driversImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof driversImages, string>;
+
 
 
 

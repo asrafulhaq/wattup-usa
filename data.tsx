@@ -1,9 +1,9 @@
 import { driversImageUrls } from '@/lib/images/drivers';
+import { homeImageUrls } from '@/lib/images/home';
 import { hostsImageUrls } from '@/lib/images/hosts';
 import { policyImageUrls } from '@/lib/images/policy';
 import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import { sharedImageUrls } from '@/lib/images/shared';
-import { homeImageUrls } from '@/lib/images/home';
 
 export interface SlidesCardData {
     id: string;
@@ -54,6 +54,13 @@ export interface PressReleaseArchiveData {
     slug: string;
     description: string;
     imageClass?: string;
+}
+
+export interface Cities {
+    name: string;
+    capacity: string;
+    stationName: string;
+    contact: string;
 }
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
@@ -284,6 +291,56 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
     },
 ];
 
+export const cities: Cities[] = [
+    {
+        name: 'Los Angeles',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Diego',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Jose',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Francisco',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Fresno',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Sacramento',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Long Beach',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Oakland',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+];
 export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
     {
         id: 'increase-property-value',
@@ -368,8 +425,7 @@ export const HostPageBenifitsCardsData: SlidesCardData[] = [
     {
         id: 'charging-revenue',
         image: hostsImageUrls.hostPageBenifitImage1,
-        mobileImage:
-            hostsImageUrls.hostPageBenifitImageMobile1,
+        mobileImage: hostsImageUrls.hostPageBenifitImageMobile1,
         title: (
             <>
                 Charging <br className='md:hidden' /> Revenue
