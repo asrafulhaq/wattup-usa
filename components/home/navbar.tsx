@@ -1,5 +1,4 @@
 'use client';
-import { sharedImageUrls } from '@/lib/images/shared';
 
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -14,7 +13,6 @@ export function Navbar() {
 
     const isPressReleaseDetails =
         pathname.includes('/press-release/') && params.slug ? true : false;
-
 
     useEffect(() => {
         if (mobileMenuOpen) {
@@ -43,7 +41,11 @@ export function Navbar() {
                         href='/'
                         className='relative flex items-center h-6 w-36 shrink-0'>
                         <Image
-                            src={isPressReleaseDetails ? sharedImageUrls.logoDark : sharedImageUrls.logoSvg}
+                            src={
+                                isPressReleaseDetails
+                                    ? '/assets/images/shared/logo_dark.svg'
+                                    : '/assets/images/shared/logo.svg'
+                            }
                             alt='WattUp Logo'
                             fill
                             className='object-left object-contain mix-blend-plus-lighter'
@@ -59,7 +61,8 @@ export function Navbar() {
                                 href={link.href}
                                 className={cn(
                                     'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
-                                    isPressReleaseDetails && 'text-dark hover:text-dark/80'
+                                    isPressReleaseDetails &&
+                                        'text-dark hover:text-dark/80'
                                 )}>
                                 {link.label}
                             </Link>
@@ -72,7 +75,8 @@ export function Navbar() {
                             href='/contact'
                             className={cn(
                                 'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
-                                isPressReleaseDetails && 'text-dark hover:text-dark/80'
+                                isPressReleaseDetails &&
+                                    'text-dark hover:text-dark/80'
                             )}>
                             Contact Us
                         </Link>
@@ -82,7 +86,8 @@ export function Navbar() {
                     <button
                         className={cn(
                             'lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation',
-                            isPressReleaseDetails && 'text-dark hover:text-dark/80'
+                            isPressReleaseDetails &&
+                                'text-dark hover:text-dark/80'
                         )}
                         onClick={() => setMobileMenuOpen(true)}
                         aria-label='Open mobile menu'>
@@ -98,7 +103,7 @@ export function Navbar() {
                     <div className='flex items-center justify-between mb-12'>
                         <div className='relative h-6 w-36'>
                             <Image
-                                src={sharedImageUrls.logoDark}
+                                src='/assets/images/shared/logo_dark.svg'
                                 alt='WattUp Logo'
                                 fill
                                 className='object-left object-contain'
