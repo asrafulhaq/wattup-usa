@@ -1,9 +1,8 @@
 import { PageHero } from '@/components/drivers/page-hero';
 import { faqImageUrls } from '@/lib/images/faq';
 
-import { FAQSection } from '@/components/drivers/faq';
+import { FAQGrouped } from '@/components/faq/faq-grouped';
 import { CTAReady } from '@/components/home/cta-ready';
-import { faqPageFaqData } from '@/data';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -60,11 +59,7 @@ export default function FAQPage() {
             />
 
             {/* 2. FAQ */}
-            <FAQSection
-                description={`If you don't  find the answer to your question here, just write to us.`}
-                sectionClass=' w-[348px] md:w-[710px] mx-auto'
-                faqs={faqPageFaqData}
-            />
+            <FAQGrouped />
 
             {/* 3. CTA Section */}
             <CTAReady

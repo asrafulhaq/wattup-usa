@@ -850,3 +850,79 @@ export const ContactInfoData: ContactInfoItemData[] = [
     },
 ];
 
+
+export interface GroupedFAQ {
+    category: string;
+    items: FAQ[];
+}
+
+export const GroupedFAQData: GroupedFAQ[] = [
+    {
+        category: 'Order',
+        items: [
+            {
+                question: 'How do I start charging?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'Do I need an app?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How long does charging take?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Incentives',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Preparing for Delivery',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Charging Solutions',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+];
