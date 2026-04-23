@@ -22,7 +22,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: homeImageUrls.hero1Md,
+                url: homeImageUrls.slide_1_layered,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
             'Powering the future of EV charging with reliable, fast, and accessible charging solutions for drivers and property owners.',
         images: [
             {
-                url: homeImageUrls.hero1Md,
+                url: homeImageUrls.slide_1_layered,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -93,7 +93,7 @@ export default function Home() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='#'
+                buttonLink='/locations#locations'
                 buttonText2='Partner With Us'
                 buttonLink2='/contact#contact-us'
             />

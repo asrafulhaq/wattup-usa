@@ -4,33 +4,31 @@ import { cities } from '@/data';
 import { homeImageUrls } from '@/lib/images/home';
 import Link from 'next/link';
 
-
-
 export function ExpandingUs() {
     return (
-        <div id='who-we-serve' className='pt-[40px] md:pt-[82px]'>
+        <div id='locations' className='pt-10 md:pt-20.5'>
             <FadedImageCrossSection
                 imageSrc={homeImageUrls.locationMarqueBg}
                 imageAlt='Charging Stations By Water'
                 sectionClass='max-md:-mb-22'>
-                <div className='flex flex-col space-y-[32px] md:space-y-20  items-center text-center w-full'>
+                <div className='flex flex-col space-y-8 md:space-y-20  items-center text-center w-full'>
                     <FadeUp>
-                        <h2 className='headline-dark max-sm:w-[348px]'>
+                        <h2 className='headline-dark max-sm:w-87'>
                             Expanding Across the U.S.
                         </h2>
                     </FadeUp>
 
                     <FadeUp
                         delay={0.1}
-                        className='w-full overflow-hidden relative'>
-                        <div className='flex max-w-[1444px] mx-auto whitespace-nowrap overflow-hidden group w-full relative'>
-                            <div className='flex w-max animate-marquee group-hover:paused'>
+                        className='w-full overflow-x-hidden relative'>
+                        <div className='flex w-full whitespace-nowrap group relative'>
+                            <div className='flex w-max animate-marquee  group-hover:paused'>
                                 {/* Duplicate array for seamless infinite scrolling */}
                                 {[...cities, ...cities].map((city, idx) => (
                                     <div
                                         key={idx}
-                                        className='flex items-center text-[40px] md:text-[64px] font-bold leading-[110%] tracking-[-3%]'>
-                                        <span className='text-gray/36 hover:text-dark transition-colors duration-500 cursor-pointer '>
+                                        className='flex items-center text-[40px] md:text-[64px] font-bold leading-[110%]  tracking-[-3%]'>
+                                        <span className='text-gray/36 hover:text-dark transition-colors  duration-500 cursor-pointer '>
                                             {city?.name}
                                         </span>
                                         {/* Dot separator */}
@@ -46,7 +44,7 @@ export function ExpandingUs() {
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
                         <Link
                             href='#'
-                            className='inline-flex justify-center max-md:w-[348px] max-md:mx-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
+                            className='inline-flex justify-center max-md:w-87 max-md:mx-auto px-7 py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
                             View All Locations
                         </Link>
                     </FadeUp>

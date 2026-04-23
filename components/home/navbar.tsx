@@ -1,5 +1,6 @@
 'use client';
 
+import { sharedImageUrls } from '@/lib/images/shared';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +29,7 @@ export function Navbar() {
         { label: 'Home', href: '/' },
         { label: 'For Drivers', href: '/for-drivers' },
         { label: 'For Hosts', href: '/for-hosts' },
-        /*   { label: 'Locations', href: '#' }, */
+        { label: 'Locations', href: '/locations' },
         { label: 'About', href: '/about' },
     ];
 
@@ -43,8 +44,8 @@ export function Navbar() {
                         <Image
                             src={
                                 isPressReleaseDetails
-                                    ? '/assets/images/shared/logo_dark.svg'
-                                    : '/assets/images/shared/logo.svg'
+                                    ? sharedImageUrls.logoDark
+                                    : sharedImageUrls.logoSvg
                             }
                             alt='WattUp Logo'
                             fill

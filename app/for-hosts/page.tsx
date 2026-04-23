@@ -1,4 +1,3 @@
-import { hostsImageUrls } from '@/lib/images/hosts';
 import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { PageHero } from '@/components/drivers/page-hero';
 import { WhyChoose } from '@/components/home/why-choose';
@@ -10,15 +9,17 @@ import {
     HostPageWhyChooseSlideCardData,
     IdealLocationsForHosts,
 } from '@/data';
+import { hostsImageUrls } from '@/lib/images/hosts';
 import type { Metadata } from 'next';
-import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'For Property Hosts | Turn Your Property Into a Charging Destination',
-    description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+    description:
+        'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
     openGraph: {
         title: 'For Hosts | Turn Your Property Into a Charging Destination',
-        description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+        description:
+            'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
         images: [
             {
                 url: hostsImageUrls.ogImage,
@@ -30,7 +31,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         title: 'For Hosts | Turn Your Property Into a Charging Destination',
-        description: 'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
+        description:
+            'Partner with WattUp to install EV charging and attract new customers, tenants, and visitors to your commercial property.',
         images: [
             {
                 url: hostsImageUrls.ogImage,

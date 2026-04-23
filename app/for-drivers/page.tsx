@@ -24,7 +24,7 @@ export const metadata: Metadata = {
             'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
         images: [
             {
-                url: driversImageUrls.ogImage,
+                url: driversImageUrls.og_image_layered,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
             'Find fast, reliable WattUp charging stations located where you live, work, and travel.',
         images: [
             {
-                url: driversImageUrls.ogImage,
+                url: driversImageUrls.og_image_layered,
                 width: 1200,
                 height: 630,
                 alt: 'WattUp USA EV Charging',
@@ -51,11 +51,12 @@ export default function ForDriversPage() {
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
             <PageHero
-                image={driversImageUrls.forDriverPageHero}
-                mobileImage={driversImageUrls.forDriverPageHeroMobile}
-                imageClass='max-md:object-[67%]'
+                image={driversImageUrls.hero_image_layered}
+                mobileImage={driversImageUrls.hero_image_layered}
+                imageClass='max-md:object-[67%] max-md:object-left'
                 overlay={true}
                 overlayClass='absolute top-0 w-full h-[400px] md:h-[951px] bg-linear-to-b from-[#54A6FF]/84 to-transparent mix-blend-multiply after:content-[""] after:absolute after:inset-0 after:bg-linear-to-b after:from-black/37 after:to-transparent'
+                contentContainerClass='mb-0'
                 alt='Driver Page Hero Background'
                 heading='EV Charging Made Simple'
                 subHeading={
@@ -66,7 +67,7 @@ export default function ForDriversPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='#'
+                buttonLink='/locations#locations'
             />
 
             {/* 2. How It Works */}
@@ -96,7 +97,7 @@ export default function ForDriversPage() {
                 heading='Find a Charger Near You'
                 subHeading='Explore the WattUp charging network.'
                 buttonText='Find Locations'
-                buttonLink='#'
+                buttonLink='/locations#locations'
             />
         </main>
     );
