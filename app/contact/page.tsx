@@ -1,7 +1,9 @@
 import { PageHero } from '@/components/drivers/page-hero';
 import { contactImageUrls } from '@/lib/images/contact';
 
-import { ContactForm } from '@/components/contact/contact-form';
+import ContactFormCentered from '@/components/contact/contact-form-centered';
+import { ContactInfo } from '@/components/contact/contact-info';
+import { HowCanWeHelp } from '@/components/contact/how-can-we-help';
 import { CTAReady } from '@/components/home/cta-ready';
 import type { Metadata } from 'next';
 
@@ -61,10 +63,17 @@ export default function ContactUsPage() {
                 buttonLink='/locations#locations'
             />
 
-            {/* 2. Contact Form */}
-            <ContactForm />
+            {/* 3. How Can We Help (FAQ) */}
+            <HowCanWeHelp />
 
-            {/* 3. CTA Section */}
+            {/* 4. Contact Info */}
+            <ContactInfo />
+
+            {/* 5. Contact Form Section */}
+
+            <ContactFormCentered />
+
+            {/* 6. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
                 image={contactImageUrls.contactPageCtaImage}
@@ -83,8 +92,7 @@ export default function ContactUsPage() {
                         to your property.
                     </>
                 }
-                buttonText='Become a Host'
-                buttonLink='/contact#contact-us'
+                enabledButtons={false}
             />
         </main>
     );

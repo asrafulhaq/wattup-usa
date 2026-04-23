@@ -815,3 +815,38 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     },
 ];
 
+export interface ContactInfoItemData {
+    title: string;
+    description: string;
+    linkText: string;
+    linkHref: string;
+    isExternal?: boolean;
+    isBlueLink?: boolean;
+    descriptionClass?: string;
+}
+
+export const ContactInfoData: ContactInfoItemData[] = [
+    {
+        title: 'Driver Support',
+        description: 'Questions about charging, locations, or usage.',
+        linkText: 'support@wattup.com',
+        linkHref: 'mailto:support@wattup.com',
+        descriptionClass: 'max-w-[346px]',
+    },
+    {
+        title: 'Partnerships',
+        description: 'Interested in installing EV charging at your property.',
+        linkText: 'partners@wattup.com',
+        linkHref: 'mailto:partners@wattup.com',
+        descriptionClass: 'max-w-[323px]',
+    },
+    {
+        title: 'Legal Inquiries',
+        description: 'For legal and policy-related questions.',
+        linkText: 'View Legal Pages',
+        linkHref: '/policy#legal',
+        descriptionClass: 'max-w-[293px]',
+        isBlueLink: true,
+    },
+];
+

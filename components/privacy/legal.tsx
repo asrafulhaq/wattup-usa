@@ -1,10 +1,12 @@
 import { PolicyLeagalsData } from '@/data';
-import { FadeUp } from '../ui/fade-up';
 import Link from 'next/link';
+import { FadeUp } from '../ui/fade-up';
 
 const PolicyLeagals = () => {
     return (
-        <section className='w-full common-section-padding bg-white overflow-hidden'>
+        <section
+            id='legal'
+            className='w-full common-section-padding bg-white overflow-hidden'>
             <div className='container'>
                 <FadeUp>
                     <h2 className='headline-dark mb-6'>Legal:</h2>
