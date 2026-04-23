@@ -9,10 +9,10 @@ const PressReleaseDetails = ({
 }) => {
     return (
         <article className='w-full common-section-padding bg-background'>
-            <div className='mx-auto flex flex-col items-center'>
+            <div className=' container max-md:px-4 items-center  w-full max-w-[700px] mx-auto flex flex-col '>
                 {/* Hero Image */}
                 {pressRelease?.image && (
-                    <FadeUp className='w-full max-w-[1360px] h-[293px] sm:h-[400px] md:h-[560px] relative md:rounded-[12px] overflow-hidden mb-[40px] mx-[-110px]! md:mx-0 shrink-0'>
+                    <FadeUp className='w-full max-w-[700px] h-[293px] sm:h-[400px] rounded-[12px] overflow-hidden max-md:mx-4 mb-[40px]'>
                         <Image
                             src={pressRelease.image}
                             alt={pressRelease.title || 'Press Release Image'}
@@ -23,7 +23,7 @@ const PressReleaseDetails = ({
                 )}
 
                 {/* Main Content Block 1 */}
-                <div className='container max-md:px-4 items-center  w-full max-w-[700px] text-description leading-[140%]! traking-[0%]! font-normal! flex flex-col gap-[32px] md:gap-[56px] text-dark'>
+                <div className='text-description leading-[140%]! traking-[0%]! font-normal! flex flex-col gap-[32px] md:gap-[56px] text-dark'>
                     <FadeUp>
                         <p className=''>
                             We are excited to announce a major milestone in our
@@ -69,7 +69,7 @@ const PressReleaseDetails = ({
 
                 {/* Second Image (if available) */}
                 {pressRelease?.secondImage && (
-                    <FadeUp className='w-full max-w-[1360px] h-[293px] sm:h-[400px] md:h-[560px] relative md:rounded-[12px] overflow-hidden my-[40px] shrink-0'>
+                    <FadeUp className='w-full max-w-[700px] h-[293px] sm:h-[400px] relative rounded-[12px] overflow-hidden my-[40px] shrink-0'>
                         <Image
                             src={pressRelease.secondImage}
                             alt={`${pressRelease.title || 'Press Release'} secondary image`}
@@ -80,7 +80,7 @@ const PressReleaseDetails = ({
                 )}
 
                 {/* Main Content Block 2 */}
-                <div className='container max-md:px-4 w-full max-w-[700px] text-description leading-[140%]! traking-[0%]! font-normal! flex flex-col gap-[32px] md:gap-[56px] text-dark'>
+                <div className='text-description leading-[140%]! traking-[0%]! font-normal! flex flex-col gap-[32px] md:gap-[56px] text-dark'>
                     <FadeUp>
                         <p className=''>
                             Our rollout includes a diverse range of charging
@@ -114,9 +114,4 @@ const PressReleaseDetails = ({
 };
 
 export default PressReleaseDetails;
-
-
-
-
-
 
