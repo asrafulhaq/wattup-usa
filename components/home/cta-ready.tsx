@@ -21,6 +21,7 @@ export async function CTAReady({
     sectionClass,
     imageWrapperClass,
     imageClass,
+    enabledButtons = true,
 }: {
     heading: React.ReactNode;
     headingClass?: string;
@@ -37,6 +38,7 @@ export async function CTAReady({
     mobileImage?: string;
     overlay?: boolean;
     overlayClass?: string;
+    enabledButtons?: boolean;
 }) {
     const blurDataUrl = await getBlurDataUrl(
         image || homeImageUrls.footerSectionBg
@@ -130,22 +132,24 @@ export async function CTAReady({
                             </p>
                         </FadeUp>
 
-                        <FadeUp
-                            delay={0.4}
-                            className='flex flex-row items-center justify-center gap-[12px] w-full'>
-                            <Link
-                                href={buttonLink || '/contact'}
-                                className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
-                                {buttonText || 'Find a Charger'}
-                            </Link>
-                            {buttonText2 && buttonLink2 && (
+                        {enabledButtons && (
+                            <FadeUp
+                                delay={0.4}
+                                className='flex flex-row items-center justify-center gap-[12px] w-full'>
                                 <Link
-                                    href={buttonLink2 || '/contact'}
+                                    href={buttonLink || '/contact'}
                                     className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
-                                    {buttonText2 || 'Partner With Us'}
+                                    {buttonText || 'Find a Charger'}
                                 </Link>
-                            )}
-                        </FadeUp>
+                                {buttonText2 && buttonLink2 && (
+                                    <Link
+                                        href={buttonLink2 || '/contact'}
+                                        className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
+                                        {buttonText2 || 'Partner With Us'}
+                                    </Link>
+                                )}
+                            </FadeUp>
+                        )}
                     </div>
                 </div>
             </div>

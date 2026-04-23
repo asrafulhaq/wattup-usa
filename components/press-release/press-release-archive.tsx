@@ -3,71 +3,58 @@ import { PressReleaseArchiveData, pressReleaseArchiveData } from '@/data';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CardSlider } from '../ui/card-slider';
 
-function PressReleaseCard({
-    item,
-    isMobileSlider = false,
-}: {
-    item: PressReleaseArchiveData;
-    isMobileSlider?: boolean;
-}) {
+function PressReleaseCard({ item }: { item: PressReleaseArchiveData }) {
     return (
-        <div className='flex flex-col gap-5 group cursor-pointer w-full'>
+        <div className='flex flex-col md:flex-row gap-6 md:gap-8 group cursor-pointer w-full items-start'>
             {/* Image Container */}
-            <div
-                className={cn(
-                    'relative w-full max-w-[330px] md:max-w-[670px] rounded-[8px] overflow-hidden',
-                    isMobileSlider ? 'h-[373px] sm:h-[373px]' : 'h-[370px]'
-                )}>
+            <div className='relative w-full md:w-[440px] h-[240px] shrink-0 rounded-[8px] overflow-hidden'>
                 {item?.mobileImage && (
                     <Image
                         src={item.mobileImage}
-                        alt='How it Works - Wattup'
+                        alt={item.title}
                         fill
-                        className={cn(
-                            'max-md:block hidden object-cover transition-transform w-full duration-500',
-                            item?.imageClass
-                        )}
-                        sizes={
-                            isMobileSlider
-                                ? '(max-width: 768px) 100vw, 50vw'
-                                : '(max-width: 768px) 100vw, 50vw'
-                        }
+                        className='max-md:block hidden object-cover transition-transform duration-500 group-hover:scale-105'
+                        sizes='(max-width: 768px) 100vw, 440px'
                     />
                 )}
 
                 <Image
                     src={item.image}
-                    alt='How it Works - Wattup'
+                    alt={item.title}
                     fill
                     className={cn(
-                        'object-cover transition-transform w-full duration-500',
-                        item?.imageClass,
+                        'object-cover transition-transform duration-500 group-hover:scale-105',
                         item?.mobileImage && 'hidden md:block'
                     )}
-                    sizes={
-                        isMobileSlider
-                            ? '(max-width: 768px) 100vw, 50vw'
-                            : '(max-width: 768px) 100vw, 50vw'
-                    }
+                    sizes='(max-width: 768px) 100vw, 440px'
                 />
             </div>
-            <div className='content flex max-w-[330px] md:max-w-[670px] flex-col gap-5'>
-                {/*  Date */}
-                <p className='text-[20px] font-semibold max-w-[670px] leading-[130%] traking-[-03%] text-dark/70'>
-                    {item?.date || 'March 25, 2026'}
+
+            <div className='content flex flex-col gap-3 md:gap-5 flex-1'>
+                {/* Date & Read Time */}
+                <p className='text-[16px] font-medium leading-[130%] tracking-[-0.03em] text-dark/70'>
+                    {item?.date || 'March 25, 2026'}{' '}
+                    <span className='mx-2'>•</span>
+                    {item?.readTime || '5 min read'}
                 </p>
-                {/* Title */}
+
+                {/* Title & Description */}
                 <div className='flex flex-col gap-3'>
-                    <h3 className='headline-5  text-dark'>{item.title}</h3>
-                    <p className='text-[16px] md:text-[20px] font-normal max-w-[670px] leading-[130%] md:leading-[120%] text-dark md:text-dark/70'>
+                    <h3 className='headline-5 text-dark'>{item.title}</h3>
+                    <p className='text-[16px] md:text-[20px] font-normal leading-[130%] text-dark/70 max-md:line-clamp-3 max-md:text-ellipsis'>
                         {item.description}
                     </p>
                 </div>
+
                 <Link
                     href={`/press-release/${item.slug}`}
-                    className='text-primary hover:text-primary-hover text-[16px] font-semibold block'>
+                    className='text-primary max-md:hidden hover:text-primary-hover py-[10px] text-[16px] font-semibold flex items-center gap-2'>
+                    Keep Reading
+                </Link>
+                <Link
+                    href={`/press-release/${item.slug}`}
+                    className='text-primary md:hidden hover:text-primary-hover py-[10px] text-[16px] font-semibold flex items-center gap-2'>
                     Read More
                 </Link>
             </div>
@@ -76,17 +63,12 @@ function PressReleaseCard({
 }
 
 export function PressReleaseArchive() {
-    const mobileSlides = pressReleaseArchiveData.map((item, index) => ({
-        id: index,
-        content: <PressReleaseCard item={item} isMobileSlider={true} />,
-    }));
-
     return (
         <section className='w-full max-w-[1444px] mx-auto common-section-padding max-md:pt-0! overflow-hidden'>
             <div className='container mx-auto flex flex-col'>
                 {/* Header */}
 
-                <h2 className='headline-dark hidden md:block max-md:[w-348px] mb-6'>
+                <h2 className='headline-dark max-md:[w-348px] mb-6'>
                     Our main news
                 </h2>
                 <FadeUp>
@@ -96,34 +78,15 @@ export function PressReleaseArchive() {
                     </p>
                 </FadeUp>
 
-                {/* Desktop Grid Layout */}
-                <div className='hidden md:grid grid-cols-2 gap-10'>
+                <div className='flex flex-col gap-8 md:gap-12'>
                     {pressReleaseArchiveData.map((item, index) => (
                         <FadeUp key={index} delay={index * 0.1}>
-                            <PressReleaseCard
-                                item={item}
-                                isMobileSlider={false}
-                            />
+                            <PressReleaseCard item={item} />
                         </FadeUp>
                     ))}
-                </div>
-
-                {/* Mobile Slider View */}
-                <div className='block md:hidden'>
-                    <FadeUp>
-                        <CardSlider
-                            slides={mobileSlides}
-                            mobilePerView={1} // ~90% width to show a peek of the next card
-                            gap={20}
-                            showArrows={false}
-                            showDots={true}
-                            loop={false}
-                        />
-                    </FadeUp>
                 </div>
             </div>
         </section>
     );
 }
-
 

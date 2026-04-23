@@ -55,6 +55,7 @@ export interface PressReleaseArchiveData {
     slug: string;
     description: string;
     imageClass?: string;
+    readTime?: string;
 }
 
 export interface Cities {
@@ -750,8 +751,9 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
         title: 'Expansion of EV Charging Infrastructure in Urban Areas',
         slug: 'expansion-of-ev-charging-infrastructure-in-urban-areas',
         description:
-            'We are proud to announce the successful deployment of new electric vehicle charging stations across several urban locations. This expan...',
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
+        readTime: '5 min read',
     },
     {
         id: '2',
@@ -762,21 +764,11 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
         title: 'Partnership with Local',
         slug: 'partnership-with-local',
         description:
-            'Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties. This initiative allows...',
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
+        readTime: '5 min read',
     },
-    {
-        id: '3',
-        image: pressReleaseImageUrls.pressRelease3,
-        secondImage: pressReleaseImageUrls.pressRelease3,
-        mobileImage: pressReleaseImageUrls.pressRelease3Mobile,
-        date: 'February 9, 2026',
-        title: 'Commitment to Sustainability',
-        slug: 'commitment-to-sustainability',
-        description:
-            'As part of our sustainability strategy, we are integrating renewable energy sources into our charging infrastructure. This step reduc... ',
-        imageClass: '',
-    },
+
     {
         id: '4',
         image: pressReleaseImageUrls.pressRelease4,
@@ -786,8 +778,22 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
         title: 'Introduction of Fast-Charging Solutions',
         slug: 'introduction-of-fast-charging-solutions',
         description:
-            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. These solutions are ideal for high ...',
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
+        readTime: '5 min read',
+    },
+    {
+        id: '3',
+        image: pressReleaseImageUrls.pressRelease6,
+        secondImage: pressReleaseImageUrls.pressRelease3,
+        mobileImage: pressReleaseImageUrls.pressRelease3Mobile,
+        date: 'February 9, 2026',
+        title: 'Commitment to Sustainability',
+        slug: 'commitment-to-sustainability',
+        description:
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
+        imageClass: '',
+        readTime: '10 min read',
     },
     {
         id: '5',
@@ -798,20 +804,133 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
         title: 'Launch of Smart Charging Management System',
         slug: 'launch-of-smart-charging-management-system',
         description:
-            'We have introduced an advanced smart management system for EV charging stations. This technology allows users and operators to ...',
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
+        readTime: '5 min read',
     },
     {
         id: '6',
-        image: pressReleaseImageUrls.pressRelease6,
-        secondImage: pressReleaseImageUrls.pressRelease6,
-        mobileImage: pressReleaseImageUrls.pressRelease6Mobile,
+        image: pressReleaseImageUrls.pressRelease4,
+        secondImage: pressReleaseImageUrls.pressRelease4,
+        mobileImage: pressReleaseImageUrls.pressRelease4Mobile,
         date: 'March 01, 2026',
         title: 'Entry into New Regional Markets',
         slug: 'entry-into-new-regional-markets',
         description:
-            'Our company is expanding into new regions, bringing reliable and scalable EV charging solutions to a wider audience. This step ...',
+            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
+        readTime: '7 min read',
+    },
+];
+
+export interface ContactInfoItemData {
+    title: string;
+    description: string;
+    linkText: string;
+    linkHref: string;
+    isExternal?: boolean;
+    isBlueLink?: boolean;
+    descriptionClass?: string;
+}
+
+export const ContactInfoData: ContactInfoItemData[] = [
+    {
+        title: 'Driver Support',
+        description: 'Questions about charging, locations, or usage.',
+        linkText: 'support@wattup.com',
+        linkHref: 'mailto:support@wattup.com',
+        descriptionClass: 'max-w-[346px]',
+    },
+    {
+        title: 'Partnerships',
+        description: 'Interested in installing EV charging at your property.',
+        linkText: 'partners@wattup.com',
+        linkHref: 'mailto:partners@wattup.com',
+        descriptionClass: 'max-w-[323px]',
+    },
+    {
+        title: 'Legal Inquiries',
+        description: 'For legal and policy-related questions.',
+        linkText: 'View Legal Pages',
+        linkHref: '/policy#legal',
+        descriptionClass: 'max-w-[293px]',
+        isBlueLink: true,
+    },
+];
+
+export interface GroupedFAQ {
+    category: string;
+    items: FAQ[];
+}
+
+export const GroupedFAQData: GroupedFAQ[] = [
+    {
+        category: 'Order',
+        items: [
+            {
+                question: 'How do I start charging?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'Do I need an app?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How long does charging take?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Incentives',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Preparing for Delivery',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
+    },
+    {
+        category: 'Charging Solutions',
+        items: [
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'How can I contact you?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+            {
+                question: 'What vehicles are compatible?',
+                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+            },
+        ],
     },
 ];
 
