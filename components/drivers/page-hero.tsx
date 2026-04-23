@@ -48,7 +48,7 @@ export async function PageHero({
     return (
         <section
             className={cn(
-                'relative overflow-x-hidden mx-auto w-full h-[754px] md:aspect-1440/951 md:h-[951px] xl:h-[1080px] flex flex-col items-center justify-start overflow-hidden',
+                'relative overflow-x-hidden mx-auto w-full max-md:h-auto md:aspect-1440/951 md:h-[951px] xl:h-[1080px] flex flex-col items-center justify-start overflow-hidden',
                 sectionClass
             )}>
             {/* Background Image Setup */}
@@ -100,7 +100,7 @@ export async function PageHero({
             {/* Content Container */}
             <div
                 className={cn(
-                    'pt-8 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent',
+                    'pt-8 pb-8 md:pb-0 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent',
                     contentContainerClass
                 )}>
                 <div className={cn('relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white', textContainerClass)}>

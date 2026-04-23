@@ -24,7 +24,7 @@ export function FadedImageCrossSection({
 }: FadedImageCrossSectionProps) {
     return (
         <section
-            className={`relative w-full overflow-hidden flex flex-col items-center bg-white ${sectionClass}`}>
+            className={`relative w-full overflow-x-hidden flex flex-col items-center bg-white ${sectionClass}`}>
             {/* Top Section: Content (e.g. Marquee, Text, etc) */}
             <div className='relative z-10 w-full flex flex-col items-center justify-start '>
                 {children}

@@ -1,11 +1,10 @@
-import { faqImageUrls } from '@/lib/images/faq';
 import { PageHero } from '@/components/drivers/page-hero';
+import { faqImageUrls } from '@/lib/images/faq';
 
 import { FAQSection } from '@/components/drivers/faq';
 import { CTAReady } from '@/components/home/cta-ready';
 import { faqPageFaqData } from '@/data';
 import type { Metadata } from 'next';
-import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'FAQ | WattUp EV Charging',

@@ -1,41 +1,42 @@
-import { aboutImageUrls } from '@/lib/images/about';
 import { PageHero } from '@/components/drivers/page-hero';
+import { aboutImageUrls } from '@/lib/images/about';
 
-import { CorePrinciples } from '@/components/about/core-principles';
+import { ExpandingWithoutCrossfade } from '@/components/about/expanding-without-crossfade';
 import { CTAReady } from '@/components/home/cta-ready';
+import { HowItWorks } from '@/components/home/how-it-works';
+import { AboutPageCorePrinciplesData } from '@/data';
 import type { Metadata } from 'next';
-import { baseUrl } from '../page';
 
 export const metadata: Metadata = {
     title: 'About Us | Powering the Future of EV Charging',
     description:
         'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
-        openGraph: {
-            title: 'About Us | Powering the Future of EV Charging',
-            description:
-                'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
-            images: [
-                {
-                    url: aboutImageUrls.ogImage,
-                    width: 1200,
-                    height: 630,
-                    alt: 'WattUp USA EV Charging',
-                },
-            ],
-        },
-        twitter: {
-            title: 'About Us | Powering the Future of EV Charging',
-            description:
-                'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
-            images: [
-                {
-                    url: aboutImageUrls.ogImage,
-                    width: 1200,
-                    height: 630,
-                    alt: 'WattUp USA EV Charging',
-                },
-            ],
-        },
+    openGraph: {
+        title: 'About Us | Powering the Future of EV Charging',
+        description:
+            'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+        images: [
+            {
+                url: aboutImageUrls.ogImage,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
+    twitter: {
+        title: 'About Us | Powering the Future of EV Charging',
+        description:
+            'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+        images: [
+            {
+                url: aboutImageUrls.ogImage,
+                width: 1200,
+                height: 630,
+                alt: 'WattUp USA EV Charging',
+            },
+        ],
+    },
 };
 
 export default function AboutPage() {
@@ -64,15 +65,24 @@ export default function AboutPage() {
                     </>
                 }
                 buttonText='Find a Charger'
-                buttonLink='#'
+                buttonLink='/locations#locations'
                 buttonLight={true}
                 buttonClass='max-md:bg-primary max-md:hover:bg-primary-hover max-md:text-white'
             />
 
             {/* 2. Core Principals */}
-            <CorePrinciples />
+            {/*  <CorePrinciples /> */}
+            <HowItWorks
+                heading='Our Core Principles'
+                stepData={AboutPageCorePrinciplesData}
+                gridClass='grid-cols-4'
+                descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
+            />
 
-            {/* 3. CTA Section */}
+            {/*  3.  Expanding Us */}
+            <ExpandingWithoutCrossfade />
+
+            {/* 4. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'
                 image={aboutImageUrls.partnerImage}

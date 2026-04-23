@@ -1,7 +1,7 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { getBlurDataUrl } from '@/lib/image-utils';
+import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
-import { homeImages, homeImageUrls } from '@/lib/images/home';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -33,8 +33,8 @@ export async function CTAReady({
     buttonLink?: string;
     buttonText2?: string;
     buttonLink2?: string;
-        image?: string;
-    mobileImage?:string
+    image?: string;
+    mobileImage?: string;
     overlay?: boolean;
     overlayClass?: string;
 }) {
@@ -57,10 +57,7 @@ export async function CTAReady({
                     )}>
                     {mobileImage && (
                         <Image
-                            src={
-                                mobileImage ||
-                                homeImageUrls.footerSectionBg
-                            }
+                            src={mobileImage || homeImageUrls.footerSectionBg}
                             alt='WattUp Sunset Background'
                             fill
                             className={cn(
@@ -74,9 +71,7 @@ export async function CTAReady({
                         />
                     )}
                     <Image
-                        src={
-                            image || homeImageUrls.footerSectionBg
-                        }
+                        src={image || homeImageUrls.footerSectionBg}
                         alt='WattUp Sunset Background'
                         fill
                         className={cn(
@@ -157,5 +152,4 @@ export async function CTAReady({
         </section>
     );
 }
-
 

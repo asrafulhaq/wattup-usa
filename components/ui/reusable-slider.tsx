@@ -121,7 +121,7 @@ export function ReusableSlider({
             )}
 
             {showDots && (
-                <div className='absolute hidden md:flex bottom-8 left-1/2 -translate-x-1/2 z-20 gap-[10px] items-center'>
+                <div className='absolute flex bottom-82 md:bottom-8 left-1/2 -translate-x-1/2 z-20 gap-[10px] items-center'>
                     {slides.map((_, index) => (
                         <button
                             key={index}

@@ -4,6 +4,7 @@ import { hostsImageUrls } from '@/lib/images/hosts';
 import { policyImageUrls } from '@/lib/images/policy';
 import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import { sharedImageUrls } from '@/lib/images/shared';
+import { aboutImageUrls } from './lib/images/about';
 
 export interface SlidesCardData {
     id: string;
@@ -69,7 +70,10 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[14%_top]',
     },
     {
@@ -87,7 +91,10 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
         title: 'For Drivers',
         description:
             'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[14%_top]',
     },
     {
@@ -199,7 +206,10 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Fast Charging',
         description:
             'High-performance charging stations designed for speed and reliability.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[70%_top]',
     },
     {
@@ -208,7 +218,10 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Premium Locations',
         description:
             'Charge where you already spend your time — shopping centers, hotels, and workplaces.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[70%_top]',
     },
     {
@@ -216,7 +229,10 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         image: homeImageUrls.whyImage3,
         title: 'Seamless Experience',
         description: 'Simple access, easy payments, and reliable performance.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[90%_top]',
     },
     {
@@ -225,7 +241,10 @@ export const HomePageWhyChooseSlideCardData: SlidesCardData[] = [
         title: 'Smart Infrastructure',
         description:
             'Built with advanced technology and monitored for maximum uptime.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[35%_top]',
     },
 ];
@@ -257,7 +276,10 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
         mobileImage: driversImageUrls.driverWhyChooseMobile1,
         title: 'Fast Charging',
         description: 'Reliable high-performance stations.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[40%_top]',
     },
     {
@@ -269,7 +291,10 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
                 Charge where you <br className='md:hidden' /> already go.
             </>
         ),
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[25%_top]',
     },
     {
@@ -277,7 +302,10 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
         image: driversImageUrls.driverWhyChoose3,
         title: 'Reliable Network',
         description: 'Stations monitored for consistent performance.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[14%_top]',
     },
     {
@@ -286,11 +314,39 @@ export const DriverPageWhyChooseSlideCardData: SlidesCardData[] = [
         mobileImage: driversImageUrls.driverWhyChooseMobile4,
         title: 'Simple Experience',
         description: 'Easy access and seamless payments.',
-        cta: { label: 'Find Charging Locations', href: '#' },
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
         imageClass: 'max-md:object-[60%_top]',
     },
 ];
-
+export const AboutPageCorePrinciplesData: HowItWorksStepData[] = [
+    {
+        title: 'Mission',
+        description:
+            'Our mission is to make EV charging accessible and reliable everywhere.',
+        image: aboutImageUrls.mission,
+    },
+    {
+        title: 'Vision',
+        description:
+            'We believe the future of mobility depends on scalable charging infrastructure.',
+        image: aboutImageUrls.vision,
+    },
+    {
+        title: 'Future',
+        description:
+            'EV adoption is growing rapidly, and charging networks will play a critical role.',
+        image: aboutImageUrls.future,
+    },
+    {
+        title: 'Sustainability',
+        description:
+            'Supporting the transition to clean transportation and sustainable infrastructure.',
+        image: aboutImageUrls.sustainability,
+    },
+];
 export const cities: Cities[] = [
     {
         name: 'Los Angeles',
@@ -316,6 +372,56 @@ export const cities: Cities[] = [
         stationName: 'Station name',
         contact: '(000)-000-0000',
     },
+    {
+        name: 'Fresno',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Sacramento',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Long Beach',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Oakland',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+
+    {
+        name: 'Fresno',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Sacramento',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Long Beach',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Oakland',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+
     {
         name: 'Fresno',
         capacity: '150kW',
@@ -543,29 +649,6 @@ export const HostPageTechnologyFeaturesData = [
     {
         number: '03.',
         title: 'High-performance\nhardware',
-    },
-];
-
-export const AboutPageCorePrinciplesData = [
-    {
-        title: 'Mission',
-        description:
-            'Our mission is to make EV charging accessible and reliable everywhere.',
-    },
-    {
-        title: 'Vision',
-        description:
-            'We believe the future of mobility depends on scalable charging infrastructure.',
-    },
-    {
-        title: 'Future',
-        description:
-            'EV adoption is growing rapidly, and charging networks will play a critical role.',
-    },
-    {
-        title: 'Sustainability',
-        description:
-            'Supporting the transition to clean transportation and sustainable infrastructure.',
     },
 ];
 

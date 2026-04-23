@@ -12,11 +12,18 @@ export const driversImages = {
     forDriverPageHero: 'hero-image_x2y7j3',
     map: 'map_dtyac1',
     ogImage: 'og-image_xxtfwu',
+    og_image_layered: 'og-image_layered_itwvlh',
+    hero_image_layered: 'hero_image_layered_bfph4k',
+    hero_image_mobile: 'hero_image_layered_mobile_zvnlai',
 };
 
 export const driversImageUrls = Object.fromEntries(
     Object.entries(driversImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof driversImages, string>;
+
+
+
+
 
 
 

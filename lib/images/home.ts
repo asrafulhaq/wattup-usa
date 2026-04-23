@@ -21,6 +21,28 @@ export const homeImages = {
     homepageHero4: 'homepage-hero-4_redtht',
     homepageHero5: 'homepage-hero-5_icjktz',
 
+    slide_1_full: 'slide-1_yq5l8a',
+    slide_1_layered: 'slide_1_layered_gxcgdw',
+    slide_1_layered_mobile: 'slide_1_mobile_fuoet7',
+    slide_1_full_mobile: 'slide-1-layered_yq5l8a',
+
+    slide_2_full: 'slide-2_yq5l8a',
+    slide_2_layered: 'slide-2-layered_yq5l8a',
+    slide_3_full: 'slide-3_yq5l8a',
+    slide_3_layered: 'slide_3_layered_lluugc',
+    slide_4_full: 'slide_4_full_wqgda6',
+    slide_4_layered: 'slide_4_layered_ymntn5',
+    slide_5_full: 'slide_5_full_w0tis9',
+    slide_5_layered: 'slide_5_layered_xqppdr',
+    slide_6_full: 'slide_6_full_opx9qp',
+    slide_6_layered: 'slide_6_layered_ewlr3k',
+    slide_7_full: 'slide_7_full_wcbgyu',
+    slide_7_layered: 'slide_7_layered_lcuyb4',
+    slide_8_full: 'slide_8_full_xvdpvq',
+    slide_8_layered: 'slide_8_layered_ypdtjp',
+    slide_9_full: 'slide_9_full_tqrarb',
+    slide_9_layered: 'slide_9_layered_am91co',
+
     // Technology Backed images
     technologyBacked1: 'technology-backed-1_mqtdbs',
     technologyBacked1Mobile: 'technology-backed-1-mobile_xt6vea',
@@ -46,4 +68,5 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
+
 
