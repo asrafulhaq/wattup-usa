@@ -1,5 +1,4 @@
 'use client';
-import { sharedImageUrls } from '@/lib/images/shared';
 
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -64,6 +63,8 @@ export function Navbar() {
                                     'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
                                     isPressReleaseDetails &&
                                         'text-dark hover:text-dark/80'
+                                    isPressReleaseDetails &&
+                                        'text-dark hover:text-dark/80'
                                 )}>
                                 {link.label}
                             </Link>
@@ -78,6 +79,8 @@ export function Navbar() {
                                 'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
                                 isPressReleaseDetails &&
                                     'text-dark hover:text-dark/80'
+                                isPressReleaseDetails &&
+                                    'text-dark hover:text-dark/80'
                             )}>
                             Contact Us
                         </Link>
@@ -87,6 +90,8 @@ export function Navbar() {
                     <button
                         className={cn(
                             'lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation',
+                            isPressReleaseDetails &&
+                                'text-dark hover:text-dark/80'
                             isPressReleaseDetails &&
                                 'text-dark hover:text-dark/80'
                         )}
@@ -104,7 +109,7 @@ export function Navbar() {
                     <div className='flex items-center justify-between mb-12'>
                         <div className='relative h-6 w-36'>
                             <Image
-                                src={sharedImageUrls.logoDark}
+                                src='/assets/images/shared/logo_dark.svg'
                                 alt='WattUp Logo'
                                 fill
                                 className='object-left object-contain'

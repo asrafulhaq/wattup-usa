@@ -1,4 +1,3 @@
-import { sharedImageUrls } from '@/lib/images/shared';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FacebookIcon, InstagramIcon, XIcon } from '../icons/icons';
@@ -32,7 +31,7 @@ const Footer = () => {
                 {/* 1. Logo (Order 1 Mobile, Hidden Desktop) */}
                 <div className='lg:hidden max-w-[150px] relative h-6 w-[150px] shrink-0 mb-8 order-1'>
                     <Image
-                        src={sharedImageUrls.logo}
+                        src='/assets/images/shared/logo.svg'
                         alt='WattUp Logo'
                         fill
                         className='object-contain object-left'
