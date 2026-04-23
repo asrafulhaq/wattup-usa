@@ -1,5 +1,6 @@
 'use client';
 
+import { sharedImageUrls } from '@/lib/images/shared';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -63,8 +64,6 @@ export function Navbar() {
                                     'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
                                     isPressReleaseDetails &&
                                         'text-dark hover:text-dark/80'
-                                    isPressReleaseDetails &&
-                                        'text-dark hover:text-dark/80'
                                 )}>
                                 {link.label}
                             </Link>
@@ -79,8 +78,6 @@ export function Navbar() {
                                 'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
                                 isPressReleaseDetails &&
                                     'text-dark hover:text-dark/80'
-                                isPressReleaseDetails &&
-                                    'text-dark hover:text-dark/80'
                             )}>
                             Contact Us
                         </Link>
@@ -90,8 +87,6 @@ export function Navbar() {
                     <button
                         className={cn(
                             'lg:hidden text-white text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation',
-                            isPressReleaseDetails &&
-                                'text-dark hover:text-dark/80'
                             isPressReleaseDetails &&
                                 'text-dark hover:text-dark/80'
                         )}
