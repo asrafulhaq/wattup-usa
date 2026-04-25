@@ -80,11 +80,11 @@ export const FAQGrouped = () => {
             ...prev,
             [category]: showAll ? catData.items.map((_, i) => i) : [],
         }));
-    };
+    }; 
 
     return (
         <section className='w-full bg-white py-[82px]'>
-            <div className='container max-w-[1440px] mx-auto px-4 md:px-10 flex flex-col md:flex-row items-start gap-10 md:gap-[130px]'>
+            <div className='container max-w-[1440px] mx-auto flex flex-col md:flex-row items-start gap-10 md:gap-[130px]'>
                 {/* Sidebar - In this article (Desktop) */}
                 <aside className='hidden md:block w-[297px] shrink-0 sticky top-[50px] h-fit'>
                     <h3 className='text-[24px] font-semibold leading-none text-dark tracking-[-0.03em] mt-0'>
@@ -129,7 +129,7 @@ export const FAQGrouped = () => {
 
                 <div className='flex flex-col flex-none w-full md:w-[670px] md:min-w-[670px]'>
                     <FadeUp className='w-full'>
-                        <h2 className='headline-3 text-dark mb-4 md:mb-6 leading-none mt-0'>
+                        <h2 className=' text-[32px] font-semibold md:text-[40px] md:font-medium text-dark mb-4 md:mb-6 leading-none mt-0'>
                             Frequently Asked Questions
                         </h2>
                         <p className='text-description text-dark md:text-dark/70 mb-10 md:mb-[82px] font-normal! mt-4'>
@@ -251,7 +251,7 @@ export const FAQGrouped = () => {
                                         .toLowerCase()}
                                     className='flex flex-col'>
                                     <div className='flex items-center justify-start gap-4 mb-8'>
-                                        <h3 className='headline-5 text-dark'>
+                                        <h3 className='headline-5 max-md:font-semibold!  text-dark'>
                                             {categoryGroup.category}
                                         </h3>
                                         <button
@@ -261,7 +261,7 @@ export const FAQGrouped = () => {
                                                     !isAllOpen
                                                 )
                                             }
-                                            className='text-[14px] md:text-[16px] font-semibold text-primary hover:text-primary-hover transition-colors'>
+                                            className='text-[16px] font-semibold text-primary hover:text-primary-hover transition-colors'>
                                             {isAllOpen
                                                 ? 'Hide All'
                                                 : 'Show All'}

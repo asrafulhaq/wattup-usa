@@ -6,20 +6,18 @@ const ContactFormCentered = () => {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
 
     return (
-        <section
-            id='contact-form'
-            className='bg-white pt-12 md:pt-20 pb-12 md:pb-20'>
-            <div className='container mx-auto px-4 text-center'>
-                <h2 className='headline-dark mb-6'>
+        <section id='contact-form' className='bg-white pb-23.75 md:py-20.5'>
+            <div className='container mx-auto md:text-center'>
+                <h2 className='max-md:headline-5 headline-dark mb-6'>
                     Still need help?
-                    <br />
-                    Contact us directly
+                    <br className='hidden md:block' /> Contact{' '}
+                    <br className='md:hidden block' /> us directly
                 </h2>
             </div>
 
-            <div className='flex mx-auto flex-col w-full max-w-[555px] lg:mx-auto'>
+            <div className='flex  flex-col w-full  lg:mx-auto'>
                 {/* Tab Switcher */}
-                <div className='relative mx-auto flex bg-gray/30 rounded-[8px] p-1 w-fit mb-10'>
+                <div className='relative mx-auto flex bg-gray/30 rounded-[8px] p-1 mb-10'>
                     {/* Sliding Background Indicator */}
                     <div
                         className='absolute top-1 bottom-1 left-1 z-0 bg-black rounded-[8px] transition-all duration-500 ease-in-out shadow-sm'
@@ -34,7 +32,7 @@ const ContactFormCentered = () => {
 
                     <button
                         onClick={() => setActiveTab('driver')}
-                        className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
+                        className={`relative z-10 w-[170px] px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
                             activeTab === 'driver'
                                 ? 'text-white font-bold'
                                 : 'text-dark/50 font-medium hover:text-dark'
@@ -43,7 +41,7 @@ const ContactFormCentered = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab('host')}
-                        className={`relative z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
+                        className={`relative w-[170px] z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
                             activeTab === 'host'
                                 ? 'text-white font-bold'
                                 : 'text-dark/50 font-medium hover:text-dark'
@@ -53,7 +51,7 @@ const ContactFormCentered = () => {
                 </div>
 
                 {/* Forms rendered based on state with a simple transition wrapper */}
-                <div className='relative overflow-hidden'>
+                <div className='relative container max-w-[555px] mx-auto overflow-hidden'>
                     <div
                         key={activeTab}
                         className='transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-bottom-4'>
