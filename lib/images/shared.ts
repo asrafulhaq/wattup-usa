@@ -1,17 +1,17 @@
 import { cloudinaryUrl } from './home';
 
 export const sharedImages = {
-    car2: 'car-2_gvxq2h',
-    car1: 'car1_haqefw',
-    cardImage1: 'card-image-1_in2uvd',
-    cardImage2: 'card-image-2_dmtrtw',
-    cardImage4: 'card-image-4_djoelt',
-    cardImage5: 'card-image-5_fa2lzk',
+    car2: 'car-2_b32pww',
+    car1: 'car1_qupfhr',
+    cardImage1: 'card-image-1_swqhxv',
+    cardImage2: 'card-image-2_issnnu',
+    cardImage4: 'card-image-3_cgilny',
+    cardImage5: 'card-image-4_t4ibeu',
     faviconDarkSq: 'favicon-Dark-sq_smwilz',
     faviconLightSq: 'favicon-light-sq_jjl3ib',
-    howItWorks1: 'how-it-works-1_s7csxg',
-    howItWorks2: 'how-it-works-2_ojqbwq',
-    howItWorks3: 'how-it-works-3_jw3izw',
+    howItWorks1: 'how-it-works-1_rrkbrn',
+    howItWorks2: 'how-it-works-2_ygplq3',
+    howItWorks3: 'how-it-works-3_xkxjzt',
     howItWorks4: 'how-it-works-4_yhkt7i',
     howItWorks5: 'how-it-works-5_yencir',
     logo: 'logo_pwgloc',
@@ -22,4 +22,14 @@ export const sharedImages = {
 export const sharedImageUrls = Object.fromEntries(
     Object.entries(sharedImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof sharedImages, string>;
+
+
+
+
+
+
+
+
+
+
 

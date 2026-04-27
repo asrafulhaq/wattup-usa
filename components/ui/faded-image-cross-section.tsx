@@ -45,7 +45,7 @@ export function FadedImageCrossSection({
                         fill
                         className={cn(
                             'object-cover',
-                            imageSrcMobile && 'md:block hidden'
+                            imageSrcMobile && 'sm:block hidden'
                         )}
                         sizes='1440px'
                         priority
@@ -55,7 +55,8 @@ export function FadedImageCrossSection({
                             src={imageSrcMobile}
                             alt={imageAlt}
                             fill
-                            className='object-contain md:hidden block'
+                            className='object-contain sm:hidden block'
+                            sizes='380px'
                         />
                     )}
                 </div>
@@ -70,7 +71,7 @@ export function FadedImageCrossSection({
                 {/* 3. Bottom-up White Gradient (180deg White 0% to White 87% to White)
                      Based on Figma: Linear Gradient fading out the bottom */}
 
-                {/*                 {bottomGradient && (
+                {/*          {bottomGradient && (
                     <div
                         className='absolute bottom-0 left-0 right-0 pointer-events-none'
                         style={{

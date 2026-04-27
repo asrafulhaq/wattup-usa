@@ -70,7 +70,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_1_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -103,7 +103,7 @@ export async function Hero() {
                             src={homeImageUrls.hero2Md}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-bottom'
+                            className='object-cover hidden md:block object-bottom xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -135,7 +135,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_3_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                             /*    placeholder={slide1Desktop ? 'blur' : 'empty'}
@@ -170,7 +170,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_4_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -203,7 +203,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_5_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -236,7 +236,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_6_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -269,7 +269,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_9_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-top'
                             priority
                             draggable={false}
                         />
@@ -302,7 +302,7 @@ export async function Hero() {
                             src={homeImageUrls.homepageHero4}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -335,7 +335,7 @@ export async function Hero() {
                             src={homeImageUrls.homepageHero5}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-center'
+                            className='object-cover hidden md:block object-center xl:object-[67%]'
                             priority
                             draggable={false}
                         />
@@ -399,4 +399,14 @@ export async function Hero() {
         </section>
     );
 }
+
+
+
+
+
+
+
+
+
+
 

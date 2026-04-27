@@ -53,7 +53,7 @@ export default function ForDriversPage() {
             <PageHero
                 image={driversImageUrls.hero_image_layered}
                 mobileImage={driversImageUrls.hero_image_layered}
-                imageClass='max-md:object-[67%] max-md:object-left'
+                imageClass='max-md:object-[67%] max-md:object-left xl:object-left'
                 overlay={true}
                 overlayClass='absolute top-0 w-full h-[400px] md:h-[951px] bg-linear-to-b from-[#54A6FF]/84 to-transparent mix-blend-multiply after:content-[""] after:absolute after:inset-0 after:bg-linear-to-b after:from-black/37 after:to-transparent'
                 contentContainerClass='mb-0'

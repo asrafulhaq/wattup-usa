@@ -43,10 +43,10 @@ export default function PolicyPage() {
             {/* 01. Hero Section */}
             <PageHero
                 image={policyImageUrls.policyPageHero}
+                mobileImage={policyImageUrls.policyPageHeroMobile}
                 alt='Policy Page Hero Background'
                 heading='Privacy and legal'
-                imageClass='max-md:object-[-13%_bottom] max-md:scale-150'
-                sectionClass='max-md:h-[554px] md:h-[810px]! '
+                sectionClass='md:h-[810px]!'
                 contentContainerClass='md:items-start w-full md:text-left'
                 headingClass='md:text-left max-md:text-nowrap'
                 overlay

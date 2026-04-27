@@ -126,7 +126,7 @@ export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
         title: 'Charge & Go',
         description:
             'Fast, reliable charging so you can get back on the road quickly.',
-        image: sharedImageUrls.howItWorks4,
+        image: sharedImageUrls.howItWorks3,
     },
 ];
 
@@ -643,11 +643,11 @@ export const CarginglocationsForDrivers = [
     },
     {
         title: 'Office Buildings',
-        image: sharedImageUrls.cardImage5,
+        image: sharedImageUrls.cardImage4,
     },
     {
         title: 'Residential Communities',
-        image: sharedImageUrls.cardImage4,
+        image: sharedImageUrls.cardImage5,
     },
 ];
 

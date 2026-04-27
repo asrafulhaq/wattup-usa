@@ -55,7 +55,7 @@ export const TechnologyBackedSlide = forwardRef<
 
             {/* Vignette — dark edges that blend corners into black background */}
             <div
-                className='absolute inset-0 z-1 pointer-events-none'
+                className='absolute max-md:hidden inset-0 z-1 pointer-events-none'
                 style={{
                     boxShadow: 'inset 0 0 150px 60px rgba(0, 0, 0, 0.95)',
                 }}

@@ -44,10 +44,10 @@ export const homeImages = {
     slide_9_layered: 'slide_9_layered_am91co',
 
     // Technology Backed images
-    technologyBacked1: 'technology-backed-1_mqtdbs',
-    technologyBacked1Mobile: 'technology-backed-1-mobile_xt6vea',
-    technologyBacked2: 'technology-backed-2_jrdtnd',
-    technologyBacked2Mobile: 'technology-backed-2-mobile_cmc8lg',
+    technologyBacked1: 'technology-backed-1_gxb6dy',
+    technologyBacked1Mobile: 'technology-backed-1-mobile_uidepv',
+    technologyBacked2: 'technology-backed-2_vzxhfg',
+    technologyBacked2Mobile: 'technology-backed-2-mobile_doncwb',
     technologyBacked3: 'technology-backed-3_uvyuzh',
     technologyBacked3Mobile: 'technology-backed-3-mobile_axzpwq',
 
@@ -58,7 +58,7 @@ export const homeImages = {
     whyImage4: 'why-image-4_tburag',
 
     // Other
-    footerSectionBg: 'footer-section-bg_cf3tkx',
+    footerSectionBg: 'footer-section-bg_folbzx',
     locationMarqueBg: 'location-marque-bg_orjnex',
     locationMarqueBgMobile: 'location-marque-bg-mobile_zqbhh5',
 };
@@ -69,6 +69,4 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
-
-
 

@@ -50,7 +50,8 @@ export default function ContactUsPage() {
                 overlay={true}
                 overlayClass=''
                 image={contactImageUrls.contactPageHero}
-                imageClass='object-cover object-[65%_bottom] max-md:scale-125  md:object-center'
+                mobileImage={contactImageUrls.contactPageHeroMobile}
+                imageClass='object-cover  md:object-center'
                 heading='Get in Touch'
                 subHeading={
                     <>
@@ -97,4 +98,5 @@ export default function ContactUsPage() {
         </main>
     );
 }
+
 

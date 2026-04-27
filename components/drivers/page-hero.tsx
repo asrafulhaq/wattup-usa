@@ -1,5 +1,5 @@
-import { driversImageUrls } from '@/lib/images/drivers';
 import { FadeUp } from '@/components/ui/fade-up';
+import { driversImageUrls } from '@/lib/images/drivers';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,8 +43,6 @@ export async function PageHero({
     overlayClass?: string;
     overlay?: boolean;
 }) {
-
-
     return (
         <section
             className={cn(
@@ -59,14 +57,11 @@ export async function PageHero({
                 )}>
                 {mobileImage && (
                     <Image
-                        src={
-                            mobileImage ||
-                            driversImageUrls.forDriverPageHero
-                        }
+                        src={mobileImage || driversImageUrls.forDriverPageHero}
                         alt={alt || 'Page Hero Background'}
                         fill
                         className={cn(
-                            'object-cover md:hidden md:object-center',
+                            'object-cover md:hidden md:object-center ',
                             imageClass
                         )}
                         priority
@@ -78,7 +73,7 @@ export async function PageHero({
                     alt={alt || 'Page Hero Background'}
                     fill
                     className={cn(
-                        'object-cover md:object-top',
+                        'object-cover md:object-top xl:object-[67%]',
                         imageClass,
                         mobileImage && 'hidden md:block'
                     )}
@@ -103,7 +98,11 @@ export async function PageHero({
                     'pt-8 pb-8 md:pb-0 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent',
                     contentContainerClass
                 )}>
-                <div className={cn('relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white', textContainerClass)}>
+                <div
+                    className={cn(
+                        'relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white',
+                        textContainerClass
+                    )}>
                     <FadeUp yOffset={30}>
                         <h1
                             className={cn(

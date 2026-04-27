@@ -9,7 +9,6 @@ export function BringEvToProperty() {
             {' '}
             <FadedImageCrossSection
                 imageSrc={hostsImageUrls.hostCrossfade}
-                imageSrcMobile={hostsImageUrls.hostCrossfadeMobile}
                 imageAlt='Charging Stations By Water'
                 sectionClass='max-md:pt-[82px] max-md:mb-[0px]'
                 topFaddingStyle={{

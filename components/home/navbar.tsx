@@ -1,6 +1,5 @@
 'use client';
 
-import { sharedImageUrls } from '@/lib/images/shared';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
