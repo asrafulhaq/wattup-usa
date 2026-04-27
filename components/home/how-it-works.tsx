@@ -33,7 +33,11 @@ function StepCard({
             {/* Text Container: Gap 8px between Title and Description */}
             <div className='flex flex-col gap-2'>
                 <h3 className='headline-4 text-dark'>{step.title}</h3>
-                <p className={cn('text-description text-dark/70', descClass)}>
+                <p
+                    className={cn(
+                        'text-[16px] font-medium md:text-[20px] md:font-semibold text-dark/70',
+                        descClass
+                    )}>
                     {step.description}
                 </p>
             </div>

@@ -80,20 +80,14 @@ const Footer = () => {
                 {/* 4. Descriptive Text (Order 4 Mobile, Top Left Desktop) */}
                 <div className='order-4 lg:col-start-1 lg:row-start-1 max-w-[320px] md:max-w-[596px] mb-4  lg:mb-0 text-[14px] text-white/60 leading-[129%] tracking-[-3%]'>
                     <p className='text-[14px] text-white/60 leading-[130%] tracking-[-3%] mb-0 md:mb-4'>
-                        Lorem ipsum dolor sit amet consectetur. Blandit enim
-                        integer cras id pellentesque dui. Vel duis massa nec
-                        consequat. Cursus non hendrerit ut venenatis nunc ut
-                        pellentesque magna. Accumsan purus enim est in morbi
-                        pellentesque amet ipsum. Cras felis quis enim risus
-                        suspendisse interdum. Suspendisse at in nunc nulla
-                        quisque ac mattis.
+                        WattUp USA operates a growing EV charging network.
+                        Availability, performance, and access to charging
+                        services may vary by location and are subject to change
+                        without notice. Certain features, pricing, and
+                        availability may differ based on region and site
+                        conditions. Please review our Terms of Use and Privacy
+                        Policy for additional information.
                     </p>{' '}
-                    <p className='text-[14px] hidden md:block text-white/70 leading-[130%] tracking-[-1%]'>
-                        Lorem ipsum dolor sit amet consectetur. Blandit sem est
-                        eget ut sed pellentesque dui. Vel duis massa ac nec
-                        consequat. Cursus non hendrerit ut vitae donec ut
-                        ullamcorper magna.
-                    </p>
                 </div>
 
                 {/* 5. Copyright (Order 5 Mobile, Bottom Left Desktop) */}

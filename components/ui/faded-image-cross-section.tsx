@@ -5,8 +5,8 @@ import React from 'react';
 export interface FadedImageCrossSectionProps {
     children: React.ReactNode;
     imageSrc: string;
+    imageSrcMobile?: string;
     imageAlt?: string;
-    bottomGradient?: boolean;
     topFaddingStyle?: React.CSSProperties;
     sectionClass?: string;
 }
@@ -14,8 +14,8 @@ export interface FadedImageCrossSectionProps {
 export function FadedImageCrossSection({
     children,
     imageSrc,
+    imageSrcMobile,
     imageAlt = 'Section background',
-    bottomGradient = true,
     topFaddingStyle = {
         background:
             'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 50%)',
@@ -24,7 +24,7 @@ export function FadedImageCrossSection({
 }: FadedImageCrossSectionProps) {
     return (
         <section
-            className={`relative w-full overflow-x-hidden flex flex-col items-center bg-white ${sectionClass}`}>
+            className={`relative w-full overflow-hidden flex flex-col items-center bg-white `}>
             {/* Top Section: Content (e.g. Marquee, Text, etc) */}
             <div className='relative z-10 w-full flex flex-col items-center justify-start '>
                 {children}
@@ -33,20 +33,31 @@ export function FadedImageCrossSection({
             {/* Bottom Section: Image exactly as Figma */}
             <div
                 className={cn(
-                    'relative w-full max-md:h-[744px] h-[995px] xl:h-[1080px] z-0 -mt-[238px] shrink-0 overflow-hidden',
+                    'relative w-full max-md:h-[744px] h-[895px] xl:h-[1080px] z-0 -mt-[300px] max-md:-mb-[100px] md:-mt-[365px] shrink-0',
                     sectionClass
                 )}>
                 {/* 1. Base Image */}
-                <div className='image'>
+                <div className='image '>
                     {' '}
                     <Image
                         src={imageSrc}
                         alt={imageAlt}
                         fill
-                        className='object-cover '
+                        className={cn(
+                            'object-cover',
+                            imageSrcMobile && 'md:block hidden'
+                        )}
                         sizes='1440px'
                         priority
                     />
+                    {imageSrcMobile && (
+                        <Image
+                            src={imageSrcMobile}
+                            alt={imageAlt}
+                            fill
+                            className='object-contain md:hidden block'
+                        />
+                    )}
                 </div>
 
                 {/* 2. Top-down White Gradient (180deg from White 0% to White 0% -> translates to a fade from white down) 
@@ -59,25 +70,19 @@ export function FadedImageCrossSection({
                 {/* 3. Bottom-up White Gradient (180deg White 0% to White 87% to White)
                      Based on Figma: Linear Gradient fading out the bottom */}
 
-                {bottomGradient && (
+                {/*                 {bottomGradient && (
                     <div
-                        className='absolute inset-0 pointer-events-none bg-linear-to-t from-white via-white/80 to-transparent'
+                        className='absolute bottom-0 left-0 right-0 pointer-events-none'
                         style={{
-                            // Keep md-specific height constraints for the gradient
+                            // Height covers the visible fade zone. Pure white extends to 35%
+                            // (~172px at 895px height) which exceeds the -mb-40 (160px) overlap,
+                            // ensuring the next section always lands on fully-opaque white.
+                            height: '35%',
                             backgroundImage:
-                                'linear-gradient(0deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%)',
-                        }}>
-                        {/* We use a max-md specific override to blend the bottom 50% correctly 
-                            since the image is 486px and container is 686px */}
-                        <div
-                            className='absolute md:hidden inset-0 bg-linear-to-t from-white via-white/90 to-transparent pointer-events-none'
-                            style={{
-                                backgroundImage:
-                                    'linear-gradient(to top, #FFFFFF 25%, rgba(255, 255, 255, 0) 35%)',
-                            }}
-                        />
-                    </div>
-                )}
+                                'linear-gradient(to top, #FFFFFF 0%, #FFFFFF 45%, rgba(255,255,255,0.6) 70%, rgba(255,255,255,0) 100%)',
+                        }}
+                    />
+                )} */}
             </div>
         </section>
     );

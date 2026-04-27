@@ -3,6 +3,7 @@ import { cloudinaryUrl } from './home';
 export const hostsImages = {
     forHostPageHero: 'for-host-page-hero_gtxdgb',
     hostCrossfade: 'host-crossfade_qg8esb',
+    hostCrossfadeMobile: 'host-crossfade-mobile_lxor4j',
     hostPageBenifitImage1: 'host-page-benifit-image-1_ttxgl2',
     hostPageBenifitImage2: 'host-page-benifit-image-2_qu3gna',
     hostPageBenifitImage3: 'host-page-benifit-image-3_o9pfx3',
@@ -28,6 +29,7 @@ export const hostsImages = {
 export const hostsImageUrls = Object.fromEntries(
     Object.entries(hostsImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof hostsImages, string>;
+
 
 
 

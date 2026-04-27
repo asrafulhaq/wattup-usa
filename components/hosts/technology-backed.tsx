@@ -64,14 +64,14 @@ export function TechnologyBacked() {
                 </div>
 
                 {/* Left side: Features List with Full Width Borders */}
-                <div className='relative z-10 flex flex-col w-full max-md:-mt-[37px] md:mt-0'>
+                <div className='relative  flex flex-col w-full max-md:-mt-[37px] md:mt-0'>
                     {HostPageTechnologyFeaturesData.map((feature, index) => (
                         <div
                             key={index}
                             className={`flex flex-col gap-[8px] py-[20px] md:py-[40px] max-lg:mx-4 pl-5 lg:pl-0 ${
                                 index === 0 ? '' : 'border-t border-white/40'
                             }`}>
-                            <h3 className='max-lg:w-[348px] text-[24px] max-lg:-mx-4  md:text-[36px] max-lg:text-nowrap font-medium tracking-[-3%] leading-[110%] text-white lg:whitespace-pre-line flex flex-col gap-[12px]'>
+                            <h3 className='max-lg:w-[348px] z-30 text-[24px] max-lg:-mx-4  md:text-[36px] max-lg:text-nowrap font-medium tracking-[-3%] leading-[110%] text-white lg:whitespace-pre-line flex flex-col gap-[12px]'>
                                 <span className='md:text-white/70'>
                                     {feature.number}
                                 </span>

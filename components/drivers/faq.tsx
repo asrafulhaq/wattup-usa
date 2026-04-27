@@ -54,7 +54,7 @@ export function FAQSection({faqs, description,sectionClass,image}: {faqs: FAQ[],
                                             <button
                                                 onClick={() => toggleFaq(index)}
                                                 className='flex items-center justify-between w-full py-6 group text-left'>
-                                                <span className='text-[20px] md:text-[24px] leading-[100%] tracking-[-0.03em] font-semibold md:font-medium text-dark pr-4'>
+                                                <span className=' text-[24px] leading-[100%] tracking-[-0.03em] font-bold md:font-medium text-dark pr-4'>
                                                     {faq.question}
                                                 </span>
                                                 <div className='relative shrink-0 w-6 h-6 rounded-full bg-dark flex items-center justify-center transition-colors hover:bg-dark/80'>

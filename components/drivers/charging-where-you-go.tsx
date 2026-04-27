@@ -42,9 +42,11 @@ function LocationCard({
 export function ChargingWhereYouGo({
     heading,
     locations = CarginglocationsForDrivers,
+    sectionClass,
 }: {
     heading?: React.ReactNode;
     locations: LocationData[];
+    sectionClass?: string;
 }) {
     const mobileSlides = locations.map((location, index) => ({
         id: index,
@@ -52,7 +54,7 @@ export function ChargingWhereYouGo({
     }));
 
     return (
-        <section className='w-full max-w-[1444px] mx-auto common-section-padding overflow-hidden'>
+        <section className={cn('w-full max-w-[1444px] mx-auto common-section-padding overflow-hidden',sectionClass)}>
             <div className='container mx-auto flex flex-col'>
                 {/* Header */}
                 <FadeUp>

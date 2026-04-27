@@ -72,6 +72,7 @@ export default function ForHostPage() {
 
             {/* 2. Why Choose WATTUP Cards */}
             <WhyChoose
+                headingClass='max-md:max-w-[205px]'
                 heading='Why Install EV charging'
                 slides={HostPageWhyChooseSlideCardData}
             />

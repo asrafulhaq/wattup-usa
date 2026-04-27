@@ -20,7 +20,7 @@ export function WhyChoose({
                 <FadeUp>
                     <h2
                         className={cn(
-                            'headline-dark max-md:w-[205px] mb-5 md:mb-10',
+                            'headline-dark max-md:w-[348px] mb-5 md:mb-10',
                             headingClass
                         )}>
                         {heading || 'Why Choose WattUp'}

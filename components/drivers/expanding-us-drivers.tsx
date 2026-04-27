@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 
 import { cities } from '@/data';
+import { cn } from '@/lib/utils';
 
 export function ExpandingUsDrivers({
     isLocationsPage = false,
@@ -47,11 +48,12 @@ export function ExpandingUsDrivers({
         <div id='locations' className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
                 imageSrc={homeImageUrls.locationMarqueBg}
+                imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
                 imageAlt='Charging Stations By Water'
-                sectionClass='max-md:-mb-22'>
+                >
                 <div className='flex flex-col space-y-[32px] md:space-y-20 w-full max-w-[1440px] px-4 md:px-10 mx-auto justify-start'>
                     <FadeUp>
-                        <h2 className='headline-dark text-left w-full'>
+                        <h2 className='headline-dark max-md:w-[305px] text-left w-full'>
                             Expanding Across the U.S.
                         </h2>
                     </FadeUp>

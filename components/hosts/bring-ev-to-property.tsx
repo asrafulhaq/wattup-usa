@@ -1,17 +1,17 @@
-import { hostsImageUrls } from '@/lib/images/hosts';
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import { hostsImageUrls } from '@/lib/images/hosts';
 import Link from 'next/link';
 
 export function BringEvToProperty() {
     return (
-        <div className='md:pt-[82px]'>
+        <div className='pt-[82px]'>
             {' '}
             <FadedImageCrossSection
                 imageSrc={hostsImageUrls.hostCrossfade}
+                imageSrcMobile={hostsImageUrls.hostCrossfadeMobile}
                 imageAlt='Charging Stations By Water'
-                bottomGradient={false}
-                sectionClass='max-md:pt-[82px]'
+                sectionClass='max-md:pt-[82px] max-md:mb-[0px]'
                 topFaddingStyle={{
                     background:
                         'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 30%)',

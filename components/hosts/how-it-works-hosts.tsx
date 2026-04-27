@@ -22,12 +22,11 @@ function HostStepCard({
                 {step?.mobileImage && (
                     <Image
                         src={step.mobileImage}
-                        alt="How it Works - Wattup"
+                        alt='How it Works - Wattup'
                         fill
                         className={cn(
                             'max-md:block hidden object-cover transition-transform w-full duration-500',
-                            step?.imageClass,
-                            
+                            step?.imageClass
                         )}
                         sizes={
                             isMobileSlider
@@ -39,7 +38,7 @@ function HostStepCard({
 
                 <Image
                     src={step.image}
-                    alt="How it Works - Wattup"
+                    alt='How it Works - Wattup'
                     fill
                     className={cn(
                         'object-cover transition-transform w-full duration-500',
@@ -58,7 +57,7 @@ function HostStepCard({
                 <h3 className='headline-4 text-nowrap text-dark mb-3'>
                     {step.title}
                 </h3>
-                <p className='text-[16px] md:text-[20px] font-normal max-w-[670px] leading-[130%] md:leading-[120%] text-dark/70'>
+                <p className='text-[16px] md:text-[20px] font-medium md:font-semibold max-w-[670px] leading-[130%] md:leading-[120%] text-dark/70'>
                     {step.description}
                 </p>
             </div>
@@ -108,7 +107,4 @@ export function HowItWorksForHosts() {
         </section>
     );
 }
-
-
-
 

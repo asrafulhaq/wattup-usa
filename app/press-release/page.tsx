@@ -43,7 +43,7 @@ export default function PressReleasePage() {
             <PageHero
                 image={pressReleaseImageUrls.heroImage}
                 alt='Press Release Page Hero Background'
-                heading='Blog'
+                heading='Media'
                 imageClass='max-md:object-[15%_bottom]'
                 sectionClass='max-md:h-[530px] md:h-[810px]! items-start! text-left!'
                 contentContainerClass='items-start! w-full text-left!'

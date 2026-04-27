@@ -348,6 +348,38 @@ export const AboutPageCorePrinciplesData: HowItWorksStepData[] = [
         image: aboutImageUrls.sustainability,
     },
 ];
+export const marqueeCities: Cities[] = [
+    {
+        name: 'Los Angeles',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'San Diego',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Austin',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Miami',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+    {
+        name: 'Phoenix',
+        capacity: '150kW',
+        stationName: 'Station name',
+        contact: '(000)-000-0000',
+    },
+];
 export const cities: Cities[] = [
     {
         name: 'Los Angeles',

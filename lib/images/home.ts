@@ -59,7 +59,8 @@ export const homeImages = {
 
     // Other
     footerSectionBg: 'footer-section-bg_cf3tkx',
-    locationMarqueBg: 'location-marque-bg_nibwtw',
+    locationMarqueBg: 'location-marque-bg_uk7z3b',
+    locationMarqueBgMobile: 'location-marque-bg-mobile_zqbhh5',
 };
 
 /**
@@ -68,5 +69,4 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
-
 
