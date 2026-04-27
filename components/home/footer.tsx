@@ -29,7 +29,7 @@ const Footer = () => {
         <footer className='bg-black w-full py-10 px-6'>
             <div className='relative z-10 max-w-[1444px] mx-auto flex flex-col lg:grid lg:grid-cols-[1fr_auto] lg:gap-x-12'>
                 {/* 1. Logo (Order 1 Mobile, Hidden Desktop) */}
-                <div className='lg:hidden max-w-[150px] relative h-6 w-[150px] shrink-0 mb-8 order-1'>
+                <div className='hidden max-w-[150px] relative h-6 w-[150px] shrink-0 mb-8 order-1'>
                     <Image
                         src='/assets/images/shared/logo.svg'
                         alt='WattUp Logo'
