@@ -44,8 +44,8 @@ export function Navbar() {
                         <Image
                             src={
                                 isPressReleaseDetails
-                                    ? sharedImageUrls.logoDark
-                                    : sharedImageUrls.logoSvg
+                                    ? '/assets/images/shared/logo_dark.svg'
+                                    : '/assets/images/shared/logo.svg'
                             }
                             alt='WattUp Logo'
                             fill
