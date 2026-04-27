@@ -21,7 +21,7 @@ export function ExpandingUs() {
                     <FadeUp
                         delay={0.1}
                         className='w-full overflow-x-hidden relative'>
-                        <div className='flex w-full whitespace-nowrap group relative'>
+                        <div className='flex w-full whitespace-nowrap group relative pb-2'>
                             <div className='flex w-max animate-marquee  group-hover:paused'>
                                 {/* Duplicate array for seamless infinite scrolling */}
                                 {[...cities, ...cities].map((city, idx) => (
