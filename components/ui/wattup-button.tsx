@@ -8,9 +8,9 @@ const BASE =
 // ─── Variant styles ───────────────────────────────────────────────────────────
 const VARIANTS = {
     /** Blue fill — primary CTA on light backgrounds */
-    primary: 'bg-primary hover:bg-primary-hover text-white shadow-btn',
+    primary: 'bg-primary hover:bg-primary-hover text-white',
     /** White fill — CTA on dark/image backgrounds (e.g. CTA section) */
-    white: 'bg-white hover:bg-gray-light text-dark shadow-btn',
+    white: 'bg-white hover:bg-gray-light text-dark',
     /** Outlined — subtle secondary action */
     outline:
         'border-2 border-primary text-primary hover:bg-primary hover:text-white',

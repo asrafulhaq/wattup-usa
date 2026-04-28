@@ -1,5 +1,3 @@
-import Footer from '@/components/home/footer';
-import { Navbar } from '@/components/home/navbar';
 import { homeImages } from '@/lib/images/home';
 import { sharedImageUrls } from '@/lib/images/shared';
 import { videoUrls } from '@/lib/images/videos';
@@ -7,6 +5,7 @@ import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -101,7 +100,11 @@ export default function RootLayout({
         <html
             scroll-behavior='smooth'
             lang='en'
-            className={cn('font-sans', plusJakartaSans.variable)}>
+            className={cn(
+                'font-sans',
+                plusJakartaSans.variable,
+                plusJakartaSans.variable
+            )}>
             <head>
                 {/* Theme-aware favicons — browser picks based on system color scheme */}
                 <link
@@ -120,7 +123,11 @@ export default function RootLayout({
             </head>
             <body
                 suppressHydrationWarning
-                className={`${plusJakartaSans.variable} antialiased  mx-auto `}>
+                className={cn(
+                    'font-sans antialiased mx-auto',
+                    plusJakartaSans.variable,
+                    plusJakartaSans.variable
+                )}>
                 <noscript>
                     <iframe
                         src={`https://www.googletagmanager.com/ns.html?id=${`seo.googleTagManagerId`}`}
@@ -156,12 +163,14 @@ export default function RootLayout({
                 </Script>
 
                 {/*  <SmoothScroll /> */}
-                <div className='flex min-h-screen w-full flex-col bg-background selection:bg-primary/20 mx-auto'>
-                    {/* The Navbar floats absolutely over the entire Hero */}
-                    <Navbar />
-                    {children}
-                    <Footer />
-                </div>
+                {children}
+                <Toaster
+                    richColors
+                    position='top-right'
+                    expand={false}
+                    closeButton
+                    duration={4000}
+                />
             </body>
         </html>
     );

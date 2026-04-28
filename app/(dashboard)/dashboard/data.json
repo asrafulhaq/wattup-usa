@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "What AI Can't Do (Yet)",
+    "slug": "what-ai-cant-do-yet",
+    "content": "Lorem ipsum dolor sit amet consectetur. Egestas sit commodo at venenatis. Suspendisse sit elementum sed ac enim at nibh dolor ac. Po...",
+    "date": "March 22, 2025",
+    "pinned": true,
+    "image": "/images/img1.jpg",
+    "status": "Published"
+  },
+  {
+    "id": 2,
+    "title": "Lorem ipsum pretium nulla sit turpis consequat feugiat.",
+    "slug": "lorem-ipsum-pretium-nulla-sit-turpis-consequat-feugiat",
+    "content": "Lorem ipsum dolor sit amet consectetur. Egestas sit commodo at venenatis. Suspendisse sit elementum sed ac enim at nibh dolor ac. Po...",
+    "date": "March 22, 2025",
+    "pinned": true,
+    "image": "/images/img2.jpg",
+    "status": "Published"
+  },
+  {
+    "id": 3,
+    "title": "What AI Can't Do (Yet)",
+    "slug": "what-ai-cant-do-yet1",
+    "content": "Lorem ipsum dolor sit amet consectetur. Egestas sit commodo at venenatis. Suspendisse sit elementum sed ac enim at nibh dolor ac. Po...",
+    "date": "March 22, 2025",
+    "pinned": true,
+    "image": "/images/img3.jpg",
+    "status": "Draft"
+  },
+  {
+    "id": 4,
+    "title": "What AI Can't Do (Yet)",
+    "slug": "what-ai-cant-do-yet2",
+    "content": "Lorem ipsum dolor sit amet consectetur. Egestas sit commodo at venenatis. Suspendisse sit elementum sed ac enim at nibh dolor ac. Po...",
+    "date": "March 22, 2025",
+    "pinned": false,
+    "image": "/images/img4.jpg",
+    "status": "Draft"
+  }
+]

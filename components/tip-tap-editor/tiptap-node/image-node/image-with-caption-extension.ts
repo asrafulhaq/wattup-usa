@@ -1,0 +1,30 @@
+import { Image as TiptapImage } from '@tiptap/extension-image';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { ImageWithCaptionNodeView } from './image-with-caption-node';
+
+/**
+ * Extends Tiptap's built-in Image extension to use a custom React node view
+ * that renders an editable alt text / caption field below every image.
+ */
+export const ImageWithCaption = TiptapImage.extend({
+    // Allow the alt attribute to be stored and updated
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            alt: {
+                default: '',
+                parseHTML: (element: HTMLElement) => element.getAttribute('alt') || '',
+                renderHTML: (attributes: Record<string, any>) => {
+                    if (!attributes.alt) return {};
+                    return { alt: attributes.alt };
+                },
+            },
+        };
+    },
+
+    addNodeView() {
+        return ReactNodeViewRenderer(ImageWithCaptionNodeView);
+    },
+});
+
+export default ImageWithCaption;

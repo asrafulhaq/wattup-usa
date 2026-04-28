@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { baseUrl } from './page';
+import { baseUrl } from './(frontend)/page';
 
 export const metadata: Metadata = {
     title: '404 | WattUp USA',
