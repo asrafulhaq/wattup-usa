@@ -38,7 +38,7 @@ const PolicyLeagals = () => {
                     <Link
                         href={'#'}
                         className='text-primary text-[16px] font-semibold'>
-                        Read Terms of User
+                        Read Terms of Use
                     </Link>
                 </FadeUp>
             </div>

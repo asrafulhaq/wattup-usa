@@ -79,14 +79,24 @@ const Footer = () => {
 
                 {/* 4. Descriptive Text (Order 4 Mobile, Top Left Desktop) */}
                 <div className='order-4 lg:col-start-1 lg:row-start-1 max-w-[320px] md:max-w-[596px] mb-4  lg:mb-0 text-[14px] text-white/60 leading-[129%] tracking-[-3%]'>
-                    <p className='text-[14px] text-white/60 leading-[130%] tracking-[-3%] mb-0 md:mb-4'>
+                    <p className='text-[14px] text-white/60 font-normal leading-[130%] tracking-[-3%] mb-0 md:mb-4'>
                         WattUp USA operates a growing EV charging network.
                         Availability, performance, and access to charging
                         services may vary by location and are subject to change
                         without notice. Certain features, pricing, and
                         availability may differ based on region and site
-                        conditions. Please review our Terms of Use and Privacy
-                        Policy for additional information.
+                        conditions.
+                    </p>{' '}
+                    <p className='text-[14px] text-white/60 font-normal leading-[130%] tracking-[-3%] my-4 md:mb-5'>
+                        Please review our{' '}
+                        <Link href='/policy#legal' className=''>
+                            Terms of Use
+                        </Link>{' '}
+                        and{' '}
+                        <Link href='/policy' className=''>
+                            Privacy Policy
+                        </Link>{' '}
+                        for additional information.
                     </p>{' '}
                 </div>
 

@@ -4,6 +4,7 @@ export const sharedImages = {
     car2: 'car-2_b32pww',
     car1: 'car1_qupfhr',
     cardImage1: 'card-image-1_swqhxv',
+    cardImage1Mobile: 'card-image-1-mobile_p6w9o2',
     cardImage2: 'card-image-2_issnnu',
     cardImage4: 'card-image-3_cgilny',
     cardImage5: 'card-image-4_t4ibeu',
@@ -22,4 +23,5 @@ export const sharedImages = {
 export const sharedImageUrls = Object.fromEntries(
     Object.entries(sharedImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof sharedImages, string>;
+
 

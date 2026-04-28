@@ -679,6 +679,7 @@ export const CarginglocationsForDrivers = [
     {
         title: 'Retail Centers',
         image: sharedImageUrls.cardImage1,
+        mobileImage: sharedImageUrls.cardImage1Mobile,
     },
     {
         title: 'Hotels',
