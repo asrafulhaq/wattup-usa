@@ -50,17 +50,17 @@ export default function NotFound() {
                         src={notFoundImageUrls.heroImage}
                         alt={'Page Hero Background'}
                         fill
-                        className={cn('object-cover md:object-top')}
+                        className={cn('hidden md:block object-cover md:object-top')}
                         priority
                         draggable={false}
                     />
-
-                    {/* Subtle Gradient Overlay for Text Readability */}
-
-                    <div
-                        className={cn(
-                            'absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent'
-                        )}
+                    <Image
+                        src={notFoundImageUrls.heroImageMobile}
+                        alt={'Page Hero Background'}
+                        fill
+                        className={cn('md:hidden object-cover object-center')}
+                        priority
+                        draggable={false}
                     />
                 </div>
 
@@ -71,7 +71,10 @@ export default function NotFound() {
                     )}>
                     <div className='relative z-10 container mx-auto flex flex-col items-center text-center text-white'>
                         <FadeUp yOffset={30}>
-                            <h1 className={cn('text-[100px] md:text-[250px] font-semibold leading-[130%] tracking-[-3%] mb-4 md:mb-6')}>
+                            <h1
+                                className={cn(
+                                    'text-[100px] md:text-[250px] font-semibold leading-[130%] tracking-[-3%] mb-4 md:mb-6'
+                                )}>
                                 404
                             </h1>
                         </FadeUp>
@@ -84,11 +87,11 @@ export default function NotFound() {
                                 Page not found
                             </p>
                         </FadeUp>
-
                     </div>
                 </div>
             </section>
         </main>
     );
 }
+
 
