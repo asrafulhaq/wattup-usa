@@ -46,52 +46,52 @@ export function PrivacyOptions() {
     }));
 
     return (
-        <section className='w-full common-section-padding bg-white overflow-hidden'>
-            <div className='container'>
-               
+        <FadeUp>
+            <section className='w-full common-section-padding bg-white overflow-hidden'>
+                <div className='container'>
                     <h2 className='headline-dark mb-6'>Policy:</h2>
-               
-                <FadeUp>
-                    <p className='text-description max-w-[842px] mb-4 font-normal! '>
-                        This website is operated by WattUp USA. By accessing and
-                        using this website, you agree to comply with and be
-                        bound by the following legal terms and privacy
-                        practices.
-                    </p>
-                </FadeUp>
-                <FadeUp delay={0.4}>
-                    <Link
-                        href={'#'}
-                        className='text-primary text-[16px] font-semibold py-[10px] mb-10! block'>
-                        Read Privacy Notice
-                    </Link>
-                </FadeUp>
 
-                {/* Desktop Grid View */}
-                <div className='hidden md:grid grid-cols-3 gap-5'>
-                    {PolicyOptionsData.map((step, index) => (
-                        <FadeUp key={index} delay={index * 0.2}>
-                            <StepCard step={step} isMobileSlider={false} />
-                        </FadeUp>
-                    ))}
-                </div>
-
-                {/* Mobile Slider View */}
-                <div className='block md:hidden'>
-                    <FadeUp>
-                        <CardSlider
-                            slides={mobileSlides}
-                            mobilePerView={1} // ~90% width to show a peek of the next card
-                            gap={20}
-                            showArrows={false}
-                            showDots={true}
-                            loop={false}
-                        />
+                    <FadeUp delay={0.2}>
+                        <p className='text-description max-w-[842px] mb-4 font-normal! '>
+                            This website is operated by WattUp USA. By accessing
+                            and using this website, you agree to comply with and
+                            be bound by the following legal terms and privacy
+                            practices.
+                        </p>
                     </FadeUp>
+                    <FadeUp delay={0.4}>
+                        <Link
+                            href={'#'}
+                            className='text-primary text-[16px] font-semibold py-[10px] mb-10! block'>
+                            Read Privacy Notice
+                        </Link>
+                    </FadeUp>
+
+                    {/* Desktop Grid View */}
+                    <div className='hidden md:grid grid-cols-3 gap-5'>
+                        {PolicyOptionsData.map((step, index) => (
+                            <FadeUp key={index} delay={index * 0.2}>
+                                <StepCard step={step} isMobileSlider={false} />
+                            </FadeUp>
+                        ))}
+                    </div>
+
+                    {/* Mobile Slider View */}
+                    <div className='block md:hidden'>
+                        <FadeUp>
+                            <CardSlider
+                                slides={mobileSlides}
+                                mobilePerView={1} // ~90% width to show a peek of the next card
+                                gap={20}
+                                showArrows={false}
+                                showDots={true}
+                                loop={false}
+                            />
+                        </FadeUp>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </FadeUp>
     );
 }
-
 
