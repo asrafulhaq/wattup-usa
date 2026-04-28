@@ -43,8 +43,7 @@ export function CTAReady({
     overlay?: boolean;
     overlayClass?: string;
     enabledButtons?: boolean;
-        mobileButtonText?: string;
-    
+    mobileButtonText?: string;
 }) {
     return (
         <FadeUp>

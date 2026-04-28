@@ -1,0 +1,87 @@
+.tiptap.ProseMirror {
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  p > img {
+    display: inline-block;
+  }
+
+  > img:not([data-type="emoji"] img) {
+    margin: 2rem 0;
+    outline: 0.125rem solid transparent;
+    border-radius: var(--tt-radius-xs, 0.25rem);
+  }
+
+  img:not([data-type="emoji"] img).ProseMirror-selectednode {
+    outline-color: var(--tt-brand-color-500);
+  }
+
+  // Thread image handling
+  .tiptap-thread:has(> img) {
+    margin: 2rem 0;
+
+    img {
+      outline: 0.125rem solid transparent;
+      border-radius: var(--tt-radius-xs, 0.25rem);
+    }
+  }
+
+  .tiptap-thread img {
+    margin: 0;
+  }
+}
+
+/* ── Image with Caption Node ─────────────────────────────────── */
+.image-with-caption-wrapper {
+  display: block;
+  margin: 1.5rem 0;
+  user-select: none;
+}
+
+.image-with-caption-img-container {
+  display: block;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  outline: 2px solid transparent;
+  transition: outline-color 0.15s ease;
+
+  &.image-selected {
+    outline-color: var(--tt-brand-color-500, hsl(var(--primary)));
+  }
+}
+
+.image-with-caption-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  width: 100%;
+  object-fit: cover;
+}
+
+.image-with-caption-input-wrapper {
+  margin-top: 0;
+  border: 1px solid hsl(var(--border));
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: hsl(var(--background));
+}
+
+.image-with-caption-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-family: inherit;
+
+  &::placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+}

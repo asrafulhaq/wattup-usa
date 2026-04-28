@@ -1,0 +1,126 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Better Auth Enums ─────────────────────────────────────────────────────────
+
+enum Role {
+  admin
+  user
+}
+
+// ─── Better Auth Core Models ──────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Better Auth admin plugin — "admin" | "user"
+  role          Role?     @default(user)
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+
+  // admin plugin
+  impersonatedBy String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  name      String   @default("")
+  bio       String   @default("")
+  image     Json?
+  about     String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([id])
+}
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  name      String   @default("")
+  url       String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([id])
+}
+
+model Posts {
+  id         String    @id @default(uuid())
+  title      String
+  slug       String?   @unique @default("")
+  content    String?   @default("")
+  image      String?   @default("")
+  imageAlt  String?   @default("")
+  featured   Boolean   @default(false)
+  featuredImage Json?
+  status     String    @default("Draft")
+  publishedAt DateTime?
+  pinned      Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+  @@index([id])
+  @@index([slug])
+  @@index([status])
+  @@index([pinned])
+  @@index([publishedAt])
+}
