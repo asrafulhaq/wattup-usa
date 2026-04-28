@@ -1,10 +1,9 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { ReusableSlider } from '@/components/ui/reusable-slider';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-
-import Link from 'next/link';
 function HeroContent({ dark }: { dark: boolean }) {
     return (
         <div className='pt-8 md:pt-[116px] flex flex-col items-center justify-start grow w-full z-10 bg-white md:bg-transparent'>
@@ -41,16 +40,17 @@ function HeroContent({ dark }: { dark: boolean }) {
                     yOffset={20}
                     className='w-full flex-col font-sans'>
                     <div className='flex flex-row items-center justify-center gap-[16px]'>
-                        <Link
+                        <WattupButton
                             href='/locations#locations'
-                            className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap'>
+                            className='w-full md:w-[210px]'>
                             Find a Charger
-                        </Link>
-                        <Link
+                        </WattupButton>
+                        <WattupButton
                             href='/contact#contact-us'
-                            className='w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-[0px_4px_14px_rgba(0,0,0,0.05)] md:shadow-btn border border-[#E2E8F0] md:border-transparent whitespace-nowrap'>
+                            variant='white'
+                            className='w-full md:w-[210px] max-md:shadow-[0px_4px_14px_rgba(0,0,0,0.05)] max-md:border max-md:border-[#E2E8F0]'>
                             Partner With Us
-                        </Link>
+                        </WattupButton>
                     </div>
                 </FadeUp>
             </div>

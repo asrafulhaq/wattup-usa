@@ -2,7 +2,7 @@ import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
 import { marqueeCities } from '@/data';
 import { homeImageUrls } from '@/lib/images/home';
-import Link from 'next/link';
+import { WattupButton } from '@/components/ui/wattup-button';
 
 export function ExpandingUs() {
     return (
@@ -45,11 +45,11 @@ export function ExpandingUs() {
                     </FadeUp>
 
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
-                        <Link
+                        <WattupButton
                             href='#'
-                            className='inline-flex justify-center max-md:w-87 max-md:mx-auto px-7 py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
+                            className='max-md:w-87 max-md:mx-auto mb-8'>
                             View All Locations
-                        </Link>
+                        </WattupButton>
                     </FadeUp>
                 </div>
             </FadedImageCrossSection>

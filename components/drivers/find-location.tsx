@@ -8,6 +8,7 @@ import {
     SettingsIcon,
 } from '@/components/icons/icons';
 import { FadeUp } from '@/components/ui/fade-up';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -240,9 +241,11 @@ export function FindLocation() {
 
                         {/* Directions Button */}
                         <div className='mt-4 md:mt-8'>
-                            <button className='h-[48px] md:h-[45px] px-[24px] inline-flex bg-primary hover:bg-primary-hover duration-500 text-white rounded-[8px] font-bold text-[16px] transition-colors tracking-[-3%] leading-[130%] items-center justify-center shadow-btn'>
+                            <WattupButton
+                                size='sm'
+                                className='h-[48px] md:h-[45px]'>
                                 Directions
-                            </button>
+                            </WattupButton>
                         </div>
                     </div>
                 </div>

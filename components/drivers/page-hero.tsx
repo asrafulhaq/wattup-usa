@@ -1,8 +1,8 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { driversImageUrls } from '@/lib/images/drivers';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export async function PageHero({
     image,
@@ -27,7 +27,7 @@ export async function PageHero({
     image?: string;
     mobileImage?: string;
     alt?: string;
-    heading: React.ReactNode;
+    heading?: React.ReactNode;
     subHeading?: React.ReactNode;
     buttonText?: string;
     buttonLink?: string;
@@ -103,15 +103,17 @@ export async function PageHero({
                         'relative z-10 container mx-auto flex flex-col items-center text-center max-md:text-dark text-white',
                         textContainerClass
                     )}>
-                    <FadeUp yOffset={30}>
-                        <h1
-                            className={cn(
-                                'headline mb-4 md:mb-5',
-                                headingClass
-                            )}>
-                            {heading || 'EV Charging Made Simple'}
-                        </h1>
-                    </FadeUp>
+                    {heading && (
+                        <FadeUp yOffset={30}>
+                            <h1
+                                className={cn(
+                                    'headline mb-4 md:mb-5',
+                                    headingClass
+                                )}>
+                                {heading || 'EV Charging Made Simple'}
+                            </h1>
+                        </FadeUp>
+                    )}
 
                     {subHeading && (
                         <FadeUp delay={0.2} yOffset={20}>
@@ -136,17 +138,15 @@ export async function PageHero({
                             yOffset={20}
                             className='w-full flex-col font-sans'>
                             <div className='flex items-center justify-center'>
-                                <Link
+                                <WattupButton
                                     href={buttonLink || '/find-charger'}
+                                    variant={buttonLight ? 'white' : 'primary'}
                                     className={cn(
-                                        'w-full md:w-[210px] flex items-center justify-center px-[28px] py-[16px] rounded-[8px] font-bold text-[16px] leading-[130%] tracking-[-0.03em] transition-colors duration-500 shadow-btn whitespace-nowrap',
-                                        buttonLight
-                                            ? 'bg-white hover:bg-white/90 text-dark'
-                                            : 'bg-primary hover:bg-primary-hover text-white',
+                                        'w-full md:w-[210px]',
                                         buttonClass
                                     )}>
                                     {buttonText || 'Find a Charger'}
-                                </Link>
+                                </WattupButton>
                             </div>
                         </FadeUp>
                     )}

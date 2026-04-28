@@ -29,7 +29,7 @@ export function FutureMobility() {
                                 delay={index * 0.1}
                                 className={[
                                     'flex flex-col items-start border-b pb-4 md:py-3',
-                                    'pl-0 border-gray',
+                                    'pl-0 border-dark/25',
                                     isEvenIndex
                                         ? 'md:pl-0 md:pr-[53px]'
                                         : 'md:pl-[53px] md:pr-[53px]',

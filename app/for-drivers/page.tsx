@@ -1,10 +1,10 @@
-import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { ExpandingUsDrivers } from '@/components/drivers/expanding-us-drivers';
 import { FAQSection } from '@/components/drivers/faq';
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
-import { HowItWorks } from '@/components/home/how-it-works';
-import { WhyChoose } from '@/components/home/why-choose';
+import { ImageSliderSection } from '@/components/ui/image-slider-section';
+import { ImageTitleGrid } from '@/components/ui/image-title-grid';
+import { StepGrid } from '@/components/ui/step-grid';
 import {
     CarginglocationsForDrivers,
     DriverFAQData,
@@ -71,18 +71,18 @@ export default function ForDriversPage() {
             />
 
             {/* 2. How It Works */}
-            <HowItWorks stepData={DriverPageHowItWorksStepData} />
+            <StepGrid stepData={DriverPageHowItWorksStepData} />
 
             {/* 3. Why Choose WATTUP Cards */}
-            <WhyChoose slides={DriverPageWhyChooseSlideCardData} />
+            <ImageSliderSection slides={DriverPageWhyChooseSlideCardData} />
 
             {/* 4. Expanding Us */}
             <ExpandingUsDrivers />
 
             {/* 5. Charging Where You Go */}
-            <ChargingWhereYouGo
+            <ImageTitleGrid
                 heading='Charging where you go'
-                locations={CarginglocationsForDrivers}
+                items={CarginglocationsForDrivers}
             />
 
             {/* 6. Driver FAQ */}

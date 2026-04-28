@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckboxIcon } from '@/components/icons/icons';
+import { FormSubmitButton } from '@/components/ui/wattup-button';
 import { useState } from 'react';
 const ContactFormCentered = () => {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
@@ -124,11 +125,7 @@ function DriverForm() {
                 </span>
             </label>
 
-            <button
-                type='submit'
-                className='mt-3 px-[28px] mx-auto py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
-                Submit Inquiry
-            </button>
+            <FormSubmitButton className='mt-3 mx-auto'>Submit Inquiry</FormSubmitButton>
         </form>
     );
 }
@@ -203,11 +200,7 @@ function HostForm() {
                 </span>
             </label>
 
-            <button
-                type='submit'
-                className='mt-3 mx-auto px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
-                Submit Inquiry
-            </button>
+            <FormSubmitButton className='mt-3 mx-auto'>Submit Inquiry</FormSubmitButton>
         </form>
     );
 }

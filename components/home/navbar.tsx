@@ -1,5 +1,6 @@
 'use client';
 
+import { WattupButton } from '@/components/ui/wattup-button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -133,12 +134,12 @@ export function Navbar() {
                     </div>
 
                     <div className='mt-auto pb-8'>
-                        <Link
+                        <WattupButton
                             href='/contact'
-                            className='w-full flex items-center justify-center py-4 px-[28px] h-[53px] bg-primary text-white rounded-lg font-bold text-[16px] leading-[130%] hover:bg-primary-hover transition-colors duration-500 shadow-btn'
+                            className='w-full'
                             onClick={() => setMobileMenuOpen(false)}>
                             Contact Us
-                        </Link>
+                        </WattupButton>
                     </div>
                 </div>
             )}

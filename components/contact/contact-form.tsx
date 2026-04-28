@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckboxIcon } from '@/components/icons/icons';
+import { FormSubmitButton } from '@/components/ui/wattup-button';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -158,11 +159,7 @@ function DriverForm() {
                 </span>
             </label>
 
-            <button
-                type='submit'
-                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
-                Submit Inquiry
-            </button>
+            <FormSubmitButton className='mt-3'>Submit Inquiry</FormSubmitButton>
         </form>
     );
 }
@@ -237,11 +234,7 @@ function HostForm() {
                 </span>
             </label>
 
-            <button
-                type='submit'
-                className='mt-3 px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] self-start leading-[130%] transition-all duration-500'>
-                Submit Inquiry
-            </button>
+            <FormSubmitButton className='mt-3'>Submit Inquiry</FormSubmitButton>
         </form>
     );
 }

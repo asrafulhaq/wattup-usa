@@ -1,11 +1,12 @@
-import { ChargingWhereYouGo } from '@/components/drivers/charging-where-you-go';
 import { PageHero } from '@/components/drivers/page-hero';
-import { WhyChoose } from '@/components/home/why-choose';
 import { BringEvToProperty } from '@/components/hosts/bring-ev-to-property';
-import { HowItWorksForHosts } from '@/components/hosts/how-it-works-hosts';
 import { TechnologyBacked } from '@/components/hosts/technology-backed';
+import { ImageSliderSection } from '@/components/ui/image-slider-section';
+import { ImageTitleGrid } from '@/components/ui/image-title-grid';
+import { StepGrid } from '@/components/ui/step-grid';
 import {
     HostPageBenifitsCardsData,
+    HostPageHowItWorksStepsData,
     HostPageWhyChooseSlideCardData,
     IdealLocationsForHosts,
 } from '@/data';
@@ -71,29 +72,35 @@ export default function ForHostPage() {
             />
 
             {/* 2. Why Choose WATTUP Cards */}
-            <WhyChoose
+            <ImageSliderSection
                 headingClass='max-md:max-w-[205px]'
                 heading='Why Install EV charging'
                 slides={HostPageWhyChooseSlideCardData}
             />
 
             {/* 3. How It Works */}
-            <HowItWorksForHosts />
+            <StepGrid 
+                heading='How It Works'
+                stepData={HostPageHowItWorksStepsData}
+                gridClass='grid-cols-2'
+                cardImageHeight='h-[370px]'
+                sectionClass='max-w-[1444px] mx-auto !bg-transparent'
+            />
 
             {/* 4. Technology Backed */}
             <TechnologyBacked />
 
             {/* 5. Benifits Cards */}
-            <WhyChoose
+            <ImageSliderSection
                 heading='Generate Revenue From Charging'
                 slides={HostPageBenifitsCardsData}
                 headingClass='max-md:w-[348px]'
             />
 
             {/* 6. Charging Where You Go */}
-            <ChargingWhereYouGo
+            <ImageTitleGrid
                 heading='Ideal locations'
-                locations={IdealLocationsForHosts}
+                items={IdealLocationsForHosts}
             />
             {/* 7. Bring EV to property */}
             <BringEvToProperty />

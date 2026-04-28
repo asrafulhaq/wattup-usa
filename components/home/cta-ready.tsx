@@ -1,8 +1,8 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
+import { WattupButton } from '@/components/ui/wattup-button';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export function CTAReady({
     heading,
@@ -130,17 +130,19 @@ export function CTAReady({
                             <FadeUp
                                 delay={0.4}
                                 className='flex flex-row items-center justify-center gap-[12px] w-full'>
-                                <Link
+                                <WattupButton
                                     href={buttonLink || '/contact'}
-                                    className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
+                                    variant='white'
+                                    className='w-full sm:w-[210px]'>
                                     {buttonText || 'Find a Charger'}
-                                </Link>
+                                </WattupButton>
                                 {buttonText2 && buttonLink2 && (
-                                    <Link
+                                    <WattupButton
                                         href={buttonLink2 || '/contact'}
-                                        className='w-full sm:w-[210px] h-[53px] flex items-center justify-center bg-white text-dark hover:bg-gray-light rounded-[8px] font-bold text-[16px] shadow-btn transition-transform whitespace-nowrap'>
+                                        variant='white'
+                                        className='w-full sm:w-[210px]'>
                                         {buttonText2 || 'Partner With Us'}
-                                    </Link>
+                                    </WattupButton>
                                 )}
                             </FadeUp>
                         )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { FadeUp } from '@/components/ui/fade-up';
+import { WattupButton } from '@/components/ui/wattup-button';
 import Link from 'next/link';
 import { useRef } from 'react';
 
@@ -46,11 +47,11 @@ export function ExpandingWithoutCrossfade() {
                 </FadeUp>
 
                 <FadeUp delay={0.2} className='relative z-20 w-full md:mb-30'>
-                    <Link
+                    <WattupButton
                         href='/locations#locations'
-                        className='inline-flex justify-center w-full md:w-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
+                        className='w-full md:w-auto mb-8'>
                         View All Locations
-                    </Link>
+                    </WattupButton>
                 </FadeUp>
             </div>
         </div>

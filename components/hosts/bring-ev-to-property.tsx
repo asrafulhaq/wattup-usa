@@ -1,7 +1,7 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { hostsImageUrls } from '@/lib/images/hosts';
-import Link from 'next/link';
 
 export function BringEvToProperty() {
     return (
@@ -29,11 +29,11 @@ export function BringEvToProperty() {
                         </p>
                     </FadeUp>
                     <FadeUp delay={0.2} className='relative z-20'>
-                        <Link
+                        <WattupButton
                             href='/contact#contact-us'
-                            className='inline-flex max-md:w-[348px] justify-center h-[53px] px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
+                            className='max-md:w-[348px] mb-8'>
                             Request Partnership
-                        </Link>
+                        </WattupButton>
                     </FadeUp>
                 </div>
             </FadedImageCrossSection>

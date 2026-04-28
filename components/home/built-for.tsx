@@ -1,6 +1,6 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { ImageCardSlider } from '@/components/ui/image-card-slider';
 import { HomePageBuiltForSlidesCardData } from '@/data';
-import { CardSliderWrapper } from './built-for-slider';
 
 export function BuiltFor({
     cardHeadingClass,
@@ -19,7 +19,7 @@ export function BuiltFor({
                 </FadeUp>
 
                 <FadeUp delay={0.1}>
-                    <CardSliderWrapper
+                    <ImageCardSlider
                         cardHeadingClass={cardHeadingClass}
                         cardDescriptionClass={cardDescriptionClass}
                         cards={HomePageBuiltForSlidesCardData}

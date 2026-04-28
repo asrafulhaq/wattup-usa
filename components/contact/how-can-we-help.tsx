@@ -1,6 +1,5 @@
 import { FadeUp } from '@/components/ui/fade-up';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import { WattupButton } from '@/components/ui/wattup-button';
 
 export const HowCanWeHelp = () => {
     return (
@@ -19,13 +18,11 @@ export const HowCanWeHelp = () => {
                         </p>
                     </FadeUp>
                     <FadeUp delay={0.2} className='w-full md:w-auto'>
-                        <Link
+                        <WattupButton
                             href='/faq'
-                            className={cn(
-                                'inline-flex w-full items-center justify-center px-[28px] py-[16px] bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] leading-[130%] transition-colors duration-500 shadow-btn whitespace-nowrap min-w-[132px]'
-                            )}>
+                            className='w-full min-w-[132px]'>
                             View FAQ
-                        </Link>
+                        </WattupButton>
                     </FadeUp>
                 </div>
             </div>

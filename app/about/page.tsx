@@ -3,7 +3,7 @@ import { aboutImageUrls } from '@/lib/images/about';
 
 import { ExpandingWithoutCrossfade } from '@/components/about/expanding-without-crossfade';
 import { CTAReady } from '@/components/home/cta-ready';
-import { HowItWorks } from '@/components/home/how-it-works';
+import { StepGrid } from '@/components/ui/step-grid';
 import { AboutPageCorePrinciplesData } from '@/data';
 import type { Metadata } from 'next';
 
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
             {/* 2. Core Principals */}
             {/*  <CorePrinciples /> */}
-            <HowItWorks
+            <StepGrid
                 heading='Our Core Principles'
                 stepData={AboutPageCorePrinciplesData}
                 gridClass='grid-cols-4'

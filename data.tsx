@@ -5,6 +5,7 @@ import { policyImageUrls } from '@/lib/images/policy';
 import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import { sharedImageUrls } from '@/lib/images/shared';
 import { aboutImageUrls } from './lib/images/about';
+import { capitalPartnersImageUrls } from './lib/images/capital-partners';
 
 export interface SlidesCardData {
     id: string;
@@ -964,5 +965,59 @@ export const GroupedFAQData: GroupedFAQ[] = [
             },
         ],
     },
+];
+
+export const CapitalPartnersWhyData: HowItWorksStepData[] = [
+    {
+        title: (
+            <>
+                Battery-Backed DC Fast <br /> Charging
+            </>
+        ),
+        description:
+            'Designed for high utilization and performance consistency.',
+        image: capitalPartnersImageUrls.why1,
+    },
+    {
+        title: (
+            <>
+                Host-Site <br /> Model
+            </>
+        ),
+        description:
+            'Strategic partnerships with property owners enable rapid deployment in high-demand locations.',
+        image: capitalPartnersImageUrls.why2,
+    },
+    {
+        title: (
+            <>
+                Infrastructure-Led <br /> Approach
+            </>
+        ),
+        description:
+            'Positioned to benefit from long-term EV adoption and network effects.',
+        image: capitalPartnersImageUrls.why3,
+    },
+    {
+        title: (
+            <>
+                Execution <br /> Focus
+            </>
+        ),
+        description:
+            'Disciplined rollout with a focus on operational efficiency and long-term asset performance.',
+        image: capitalPartnersImageUrls.why4,
+    },
+];
+
+export interface TractionSnapshotData {
+    value: string;
+    label: string;
+}
+
+export const CapitalPartnersTractionData: TractionSnapshotData[] = [
+    { value: '150+', label: 'Sites Contracted' },
+    { value: '500+', label: 'Markets Targeted' },
+    { value: '20+', label: 'Partners Engaged' },
 ];
 

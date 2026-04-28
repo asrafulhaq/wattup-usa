@@ -3,6 +3,7 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
 import { homeImageUrls } from '@/lib/images/home';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -87,18 +88,18 @@ export function ExpandingUsDrivers({
                         {isLocationsPage ? (
                             cities.length > 8 &&
                             !showAll && (
-                                <button
+                                <WattupButton
                                     onClick={() => setShowAll(true)}
-                                    className='inline-flex justify-center w-full md:w-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8 cursor-pointer'>
+                                    className='w-full md:w-auto mb-8'>
                                     See More Locations
-                                </button>
+                                </WattupButton>
                             )
                         ) : (
-                            <Link
+                            <WattupButton
                                 href='/locations#locations'
-                                className='inline-flex justify-center w-full md:w-auto px-[28px] py-4 bg-primary hover:bg-primary-hover text-white rounded-[8px] font-bold text-[16px] transition-colors duration-500 mb-8'>
+                                className='w-full md:w-auto mb-8'>
                                 View All Locations
-                            </Link>
+                            </WattupButton>
                         )}
                     </FadeUp>
                 </div>

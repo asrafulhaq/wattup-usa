@@ -3,10 +3,10 @@ import { CTAReady } from '@/components/home/cta-ready';
 import { ExpandingUs } from '@/components/home/expanding-us';
 import { FutureMobility } from '@/components/home/future-mobility';
 import { Hero } from '@/components/home/hero';
-import { HowItWorks } from '@/components/home/how-it-works';
 import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
-import { WhyChoose } from '@/components/home/why-choose';
+import { ImageSliderSection } from '@/components/ui/image-slider-section';
+import { StepGrid } from '@/components/ui/step-grid';
 import { HomePageWhyChooseSlideCardData } from '@/data';
 import { homeImageUrls } from '@/lib/images/home';
 import type { Metadata } from 'next';
@@ -60,7 +60,7 @@ export default function Home() {
             <VideoPresentation />
 
             {/* 5. How It Works */}
-            <HowItWorks />
+            <StepGrid />
 
             {/* 6. Technology Backed */}
             {/*    <TechnologyBackedXPercent /> */}
@@ -70,7 +70,7 @@ export default function Home() {
             <ExpandingUs />
 
             {/* 7. Why Choose WATTUP Cards */}
-            <WhyChoose
+            <ImageSliderSection
                 slides={HomePageWhyChooseSlideCardData}
                 heading='Why Choose WattUp'
                 headingClass='max-md:max-w-[348px] max-md:text-nowrap'

@@ -1,0 +1,103 @@
+import { FadeUp } from '@/components/ui/fade-up';
+import { CardSlider } from '@/components/ui/card-slider';
+import { CarginglocationsForDrivers, LocationData } from '@/data';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+
+/**
+ * ImageTitleCard — internal card: image + title (no description).
+ */
+function ImageTitleCard({
+    item,
+    isMobileSlider = false,
+}: {
+    item: LocationData;
+    isMobileSlider?: boolean;
+}) {
+    return (
+        <div className='flex flex-col gap-6 group cursor-pointer w-full'>
+            <div
+                className={cn(
+                    'relative w-full rounded-[8px] overflow-hidden',
+                    isMobileSlider ? 'h-[373px]' : 'h-[370px]'
+                )}>
+                <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className='object-cover transition-transform w-full duration-500 group-hover:scale-105'
+                    sizes='(max-width: 768px) 100vw, 50vw'
+                />
+            </div>
+            <h3 className='headline-4 text-nowrap text-dark'>{item.title}</h3>
+        </div>
+    );
+}
+
+/**
+ * ImageTitleGrid — 2-column image+title card grid on desktop, Embla slider on mobile.
+ *
+ * ### Usage
+ * ```tsx
+ * // Drivers — "Charging where you go"
+ * <ImageTitleGrid heading='Charging where you go' items={CarginglocationsForDrivers} />
+ *
+ * // Hosts — same section, different heading
+ * <ImageTitleGrid heading='Charging Wherever You Host' items={HostLocationsData} />
+ * ```
+ *
+ * Replaces: `ChargingWhereYouGo` in drivers/charging-where-you-go.tsx
+ */
+export function ImageTitleGrid({
+    heading,
+    items = CarginglocationsForDrivers,
+    sectionClass,
+}: {
+    heading?: React.ReactNode;
+    items: LocationData[];
+    sectionClass?: string;
+}) {
+    const mobileSlides = items.map((item, index) => ({
+        id: index,
+        content: <ImageTitleCard item={item} isMobileSlider={true} />,
+    }));
+
+    return (
+        <section
+            className={cn(
+                'w-full max-w-[1444px] mx-auto common-section-padding overflow-hidden',
+                sectionClass
+            )}>
+            <div className='container mx-auto flex flex-col'>
+                <FadeUp>
+                    <h2 className='headline-dark text-nowrap mb-[40px]'>
+                        {heading || 'Charging where you go'}
+                    </h2>
+                </FadeUp>
+
+                {/* Desktop: 2-col grid */}
+                <div className='hidden md:grid grid-cols-2 gap-10'>
+                    {items.map((item, index) => (
+                        <FadeUp key={index} delay={index * 0.1}>
+                            <ImageTitleCard item={item} isMobileSlider={false} />
+                        </FadeUp>
+                    ))}
+                </div>
+
+                {/* Mobile: Embla slider */}
+                <div className='block md:hidden'>
+                    <FadeUp>
+                        <CardSlider
+                            slides={mobileSlides}
+                            mobilePerView={1}
+                            gap={20}
+                            showArrows={false}
+                            showDots={true}
+                            loop={false}
+                        />
+                    </FadeUp>
+                </div>
+            </div>
+        </section>
+    );
+}
