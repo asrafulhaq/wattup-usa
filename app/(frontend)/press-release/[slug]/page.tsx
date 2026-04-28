@@ -3,6 +3,7 @@ import PressReleaseDetails from '@/components/press-release/press-release-detail
 import PressReleaseDetailsHeader from '@/components/press-release/press-release-details-header';
 import { pressReleaseArchiveData } from '@/data';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -49,14 +50,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function PressReleaseDetailsPage({ params }: Props) {
+// Extract the async content into a separate async component
+async function PressReleaseContent({ params }: Props) {
     const { slug } = await params;
     const pressRelease = pressReleaseArchiveData.find(p => p.slug === slug);
 
     if (!pressRelease) {
         return (
-            <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
-                {/* 01. Header Section */}
+            <>
                 <PressReleaseDetailsHeader
                     title='Press Release Not Found'
                     date='March 25, 2026'
@@ -64,19 +65,33 @@ export default async function PressReleaseDetailsPage({ params }: Props) {
                 <article className='common-section-padding container mx-auto'>
                     <p>Press Release Not Found</p>
                 </article>
-            </main>
+            </>
         );
     }
+
+    return (
+        <>
+            <PressReleaseDetailsHeader
+                title={pressRelease.title}
+                date={pressRelease.date}
+            />
+            <PressReleaseDetails pressRelease={pressRelease} />
+        </>
+    );
+}
+
+// Page component stays synchronous — no await at top level
+export default function PressReleaseDetailsPage({ params }: Props) {
     return (
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
-            {/* 01. Header Section */}
-            <PressReleaseDetailsHeader
-                title={pressRelease?.title || ''}
-                date={pressRelease?.date || ''}
-            />
-
-            {/* 02. Press Release Details Section */}
-            <PressReleaseDetails pressRelease={pressRelease} />
+            <Suspense
+                fallback={
+                    <div className='common-section-padding container mx-auto'>
+                        Loading...
+                    </div>
+                }>
+                <PressReleaseContent params={params} />
+            </Suspense>
         </main>
     );
 }

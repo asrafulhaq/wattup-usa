@@ -3,6 +3,7 @@ import { CopyrightYear } from '@/components/common/copyright-year';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Sign In | WattUp',
@@ -104,8 +105,11 @@ export default function SignInPage() {
                 </div>
 
                 <p className='mt-10 text-xs text-muted-foreground text-center'>
-                    &copy; <CopyrightYear /> WattUp USA. All rights
-                    reserved.{' '}
+                    &copy;{' '}
+                    <Suspense fallback={'2026'}>
+                        <CopyrightYear />
+                    </Suspense>{' '}
+                    WattUp USA. All rights reserved.{' '}
                     <Link
                         href='/policy'
                         className='underline underline-offset-2 hover:text-foreground transition-colors'>

@@ -1,10 +1,10 @@
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 import { CopyrightYear } from '@/components/common/copyright-year';
-import { sharedImageUrls } from '@/lib/images/shared';
 import { ChevronLeft } from 'lucide-react';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Forgot Password | WattUp',
@@ -46,16 +46,18 @@ export default function ForgotPasswordPage() {
                         Forgot password?
                     </h1>
                     <p className='text-[15px] text-dark/70 mb-8 leading-relaxed'>
-                        No worries. Enter your email to get password
-                        reset link.
+                        No worries. Enter your email to get password reset link.
                     </p>
 
                     <ForgotPasswordForm />
                 </div>
 
                 <p className='mt-8 text-xs text-dark/40 text-center'>
-                    &copy; <CopyrightYear /> WattUp USA. All rights
-                    reserved.
+                    &copy;{' '}
+                    <Suspense fallback={'2026'}>
+                        <CopyrightYear />
+                    </Suspense>{' '}
+                    WattUp USA. All rights reserved.
                 </p>
             </div>
         </div>
