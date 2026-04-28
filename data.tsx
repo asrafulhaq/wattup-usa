@@ -822,7 +822,7 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     {
         id: '1',
         image: pressReleaseImageUrls.pressRelease1,
-        secondImage: pressReleaseImageUrls.pressRelease1Second,
+        secondImage: pressReleaseImageUrls.pressRelease2,
         mobileImage: pressReleaseImageUrls.pressRelease1Mobile,
         date: 'March 23, 2026',
         title: 'Expansion of EV Charging Infrastructure in Urban Areas',
@@ -849,7 +849,7 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     {
         id: '4',
         image: pressReleaseImageUrls.pressRelease4,
-        secondImage: pressReleaseImageUrls.pressRelease4,
+        secondImage: pressReleaseImageUrls.pressRelease2,
         mobileImage: pressReleaseImageUrls.pressRelease4Mobile,
         date: 'March 05, 2026',
         title: 'Introduction of Fast-Charging Solutions',
@@ -862,7 +862,7 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     {
         id: '3',
         image: pressReleaseImageUrls.pressRelease6,
-        secondImage: pressReleaseImageUrls.pressRelease3,
+        secondImage: pressReleaseImageUrls.pressRelease2,
         mobileImage: pressReleaseImageUrls.pressRelease3Mobile,
         date: 'February 9, 2026',
         title: 'Commitment to Sustainability',
@@ -875,7 +875,7 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
     {
         id: '5',
         image: pressReleaseImageUrls.pressRelease5,
-        secondImage: pressReleaseImageUrls.pressRelease5,
+        secondImage: pressReleaseImageUrls.pressRelease2,
         mobileImage: pressReleaseImageUrls.pressRelease5Mobile,
         date: 'April 23, 2026',
         title: 'Launch of Smart Charging Management System',
@@ -884,19 +884,6 @@ export const pressReleaseArchiveData: PressReleaseArchiveData[] = [
             'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
         imageClass: '',
         readTime: '5 min read',
-    },
-    {
-        id: '6',
-        image: pressReleaseImageUrls.pressRelease4,
-        secondImage: pressReleaseImageUrls.pressRelease4,
-        mobileImage: pressReleaseImageUrls.pressRelease4Mobile,
-        date: 'March 01, 2026',
-        title: 'Entry into New Regional Markets',
-        slug: 'entry-into-new-regional-markets',
-        description:
-            'We have introduced a new range of fast-charging stations designed to significantly reduce charging time. Our company has partnered with a number of local businesses to install EV charging solutions at commercial properties.',
-        imageClass: '',
-        readTime: '7 min read',
     },
 ];
 
@@ -1236,5 +1223,8 @@ export const FleetSolutionReliabilityData: HowItWorksStepData[] = [
         image: fleetSolutionImageUrls.reliability3,
     },
 ];
+
+
+
 
 

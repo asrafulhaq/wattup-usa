@@ -1,14 +1,29 @@
+import { CardSlider } from '@/components/ui/card-slider';
 import { FadeUp } from '@/components/ui/fade-up';
 import { PressReleaseArchiveData, pressReleaseArchiveData } from '@/data';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-function PressReleaseCard({ item }: { item: PressReleaseArchiveData }) {
+function PressReleaseCard({
+    item,
+    isMobileSlider = false,
+}: {
+    item: PressReleaseArchiveData;
+    isMobileSlider?: boolean;
+}) {
     return (
-        <div className='flex flex-col md:flex-row gap-6 md:gap-8 group cursor-pointer w-full items-start'>
+        <div
+            className={cn(
+                'flex gap-6 group cursor-pointer w-full items-start',
+                isMobileSlider ? 'flex-col' : 'flex-col md:flex-row md:gap-8'
+            )}>
             {/* Image Container */}
-            <div className='relative w-full md:w-[440px] h-[240px] shrink-0 rounded-[8px] overflow-hidden'>
+            <div
+                className={cn(
+                    'relative w-full shrink-0 rounded-[8px] overflow-hidden',
+                    isMobileSlider ? 'h-[400px]' : 'h-[240px] md:w-[440px]'
+                )}>
                 {item?.mobileImage && (
                     <Image
                         src={item.mobileImage}
@@ -42,20 +57,15 @@ function PressReleaseCard({ item }: { item: PressReleaseArchiveData }) {
                 {/* Title & Description */}
                 <div className='flex flex-col gap-3'>
                     <h3 className='headline-5 text-dark'>{item.title}</h3>
-                    <p className='text-[16px] md:text-[20px] font-normal leading-[130%] text-dark/70 max-md:line-clamp-3 max-md:text-ellipsis'>
+                    <p className='text-[16px] md:text-[20px] font-normal leading-[130%] text-dark/70 line-clamp-3'>
                         {item.description}
                     </p>
                 </div>
 
                 <Link
                     href={`/press-release/${item.slug}`}
-                    className='text-primary max-md:hidden hover:text-primary-hover py-[10px] text-[16px] font-semibold flex items-center gap-2'>
+                    className='text-primary hover:text-primary-hover py-[10px] text-[16px] font-semibold flex items-center gap-2'>
                     Keep Reading
-                </Link>
-                <Link
-                    href={`/press-release/${item.slug}`}
-                    className='text-primary md:hidden hover:text-primary-hover py-[10px] text-[16px] font-semibold flex items-center gap-2'>
-                    Read More
                 </Link>
             </div>
         </div>
@@ -63,12 +73,16 @@ function PressReleaseCard({ item }: { item: PressReleaseArchiveData }) {
 }
 
 export function PressReleaseArchive() {
+    const mobileSlides = pressReleaseArchiveData.map((item, index) => ({
+        id: index,
+        content: <PressReleaseCard item={item} isMobileSlider={true} />,
+    }));
+
     return (
         <section className='w-full max-w-[1444px] mx-auto common-section-padding max-md:pt-0! overflow-hidden'>
             <div className='container mx-auto flex flex-col'>
                 {/* Header */}
-
-                <h2 className='headline-dark max-md:[w-348px] mb-6'>
+                <h2 className='headline-dark max-md:w-[348px] mb-6'>
                     Our main news
                 </h2>
                 <FadeUp>
@@ -78,12 +92,27 @@ export function PressReleaseArchive() {
                     </p>
                 </FadeUp>
 
-                <div className='flex flex-col gap-8 md:gap-12'>
+                {/* Desktop List View */}
+                <div className='hidden md:flex flex-col gap-12'>
                     {pressReleaseArchiveData.map((item, index) => (
                         <FadeUp key={index} delay={index * 0.1}>
                             <PressReleaseCard item={item} />
                         </FadeUp>
                     ))}
+                </div>
+
+                {/* Mobile Slider View */}
+                <div className='block md:hidden'>
+                    <FadeUp>
+                        <CardSlider
+                            slides={mobileSlides}
+                            mobilePerView={1}
+                            gap={16}
+                            showArrows={false}
+                            showDots={true}
+                            loop={false}
+                        />
+                    </FadeUp>
                 </div>
             </div>
         </section>
