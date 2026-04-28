@@ -9,11 +9,11 @@ export const hostsImages = {
     hostPageBenifitImage3: 'host-page-benifit-image-3_c7ci06',
     hostPageBenifitImage4: 'host-page-benifit-image-4_zx5cje',
     hostPageBenifitImageMobile1: 'host-page-benifit-image-mobile-1_wr1qkq',
-    hostsHowItWorks1: 'hosts-how-it-works-1_qfimvy',
+    hostsHowItWorks1: 'hosts-how-it-works-1_yyp013',
     hostsHowItWorks2: 'hosts-how-it-works-2_vacae1',
     hostsHowItWorks3: 'hosts-how-it-works-3_co9ghq',
     hostsHowItWorks4: 'hosts-how-it-works-4_jskejg',
-    hostsHowItWorksMobile1: 'hosts-how-it-works-mobile-1_laokpi',
+    hostsHowItWorksMobile1: 'hosts-how-it-works-mobile-1_djsfcg',
     hostsHowItWorksMobile2: 'hosts-how-it-works-mobile-2_znjxyl',
     hostsHowItWorksMobile3: 'hosts-how-it-works-mobile-3_ogmpfr',
     hostsHowItWorksMobile4: 'hosts-how-it-works-mobile-4_q5yij2',
@@ -30,6 +30,8 @@ export const hostsImages = {
 export const hostsImageUrls = Object.fromEntries(
     Object.entries(hostsImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof hostsImages, string>;
+
+
 
 
 

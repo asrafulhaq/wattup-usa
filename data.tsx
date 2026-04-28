@@ -703,13 +703,14 @@ export const IdealLocationsForHosts = [
     {
         title: 'Retail Centers',
         image: sharedImageUrls.cardImage1,
+        mobileImage: sharedImageUrls.cardImage1Mobile,
     },
     {
         title: 'Office Buildings',
         image: sharedImageUrls.cardImage5,
     },
     {
-        title: 'Residential Communities',
+        title: 'Apartment Communities',
         image: sharedImageUrls.cardImage4,
     },
 ];
@@ -1235,4 +1236,5 @@ export const FleetSolutionReliabilityData: HowItWorksStepData[] = [
         image: fleetSolutionImageUrls.reliability3,
     },
 ];
+
 
