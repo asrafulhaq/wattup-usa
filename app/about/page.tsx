@@ -77,6 +77,7 @@ export default function AboutPage() {
                 stepData={AboutPageCorePrinciplesData}
                 gridClass='grid-cols-4'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
+                cardImageHeight='h-[373px]'
             />
 
             {/*  3.  Expanding Us */}

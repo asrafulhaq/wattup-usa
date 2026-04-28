@@ -28,7 +28,7 @@ export function ExpandingWithoutCrossfade() {
                         {visibleCities.map((city, idx) => (
                             <div
                                 key={`${city.name}-${idx}`}
-                                className='city-item flex flex-col gap-2 md:gap-4'>
+                                className={`city-item flex flex-col gap-2 md:gap-4 ${idx >= 6 ? 'hidden md:flex' : 'flex'}`}>
                                 <h3 className='text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark'>
                                     {city.name}
                                 </h3>

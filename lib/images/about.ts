@@ -1,20 +1,25 @@
 import { cloudinaryUrl } from './home';
 
 export const aboutImages = {
-    aboutPageHeroImageMobile: 'about-page-hero-image-mobile_vhbvxb',
-    aboutPageHeroImage: 'about-page-hero-image_f9zvbc',
+    aboutPageHeroImageMobile: 'about-page-hero-image-mobile_ezjbxw',
+    aboutPageHeroImage: 'about-page-hero-image_lf6wym',
     corePrincipals: 'core-principals_ghtsrs',
-    ogImage: 'og-image_dcy0ou',
+    ogImage: 'og-image_fqf3zy',
     partnerImage: 'partner-image_frpitt',
-    mission: 'mission_mzy6nm',
+    mission: 'mission_maqyk6',
     vision: 'vision_nwjxxw',
-    future: 'future_l6nkt7',
-    sustainability: 'sustainability_kq0ch0',
+    future: 'future_sgopfw',
+    sustainability: 'sustainability_jz3ffp',
 };
 
 export const aboutImageUrls = Object.fromEntries(
     Object.entries(aboutImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof aboutImages, string>;
+
+
+
+
+
 
 
 
