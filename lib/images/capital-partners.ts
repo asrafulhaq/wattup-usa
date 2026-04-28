@@ -39,3 +39,4 @@ export const capitalPartnersImageUrls = Object.fromEntries(
 
 
 
+
