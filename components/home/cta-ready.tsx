@@ -1,11 +1,10 @@
 import { FadeUp } from '@/components/ui/fade-up';
-import { getBlurDataUrl } from '@/lib/image-utils';
 import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export async function CTAReady({
+export function CTAReady({
     heading,
     subHeading,
     buttonText,
@@ -40,9 +39,6 @@ export async function CTAReady({
     overlayClass?: string;
     enabledButtons?: boolean;
 }) {
-    const blurDataUrl = await getBlurDataUrl(
-        image || homeImageUrls.footerSectionBg
-    );
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
             {/* Top CTA Banner - 1440x960px Figma Specs */}
@@ -66,8 +62,7 @@ export async function CTAReady({
                                 'object-cover md:object-center md:hidden',
                                 imageClass
                             )}
-                            placeholder={blurDataUrl ? 'blur' : 'empty'}
-                            blurDataURL={blurDataUrl}
+                            placeholder='empty'
                             priority
                             draggable={false}
                         />
@@ -81,8 +76,7 @@ export async function CTAReady({
                             imageClass,
                             mobileImage && 'max-md:hidden'
                         )}
-                        placeholder={blurDataUrl ? 'blur' : 'empty'}
-                        blurDataURL={blurDataUrl}
+                        placeholder='empty'
                         priority
                         draggable={false}
                     />
