@@ -93,7 +93,8 @@ export default function ContactUsPage() {
                         to your property.
                     </>
                 }
-                enabledButtons={false}
+                buttonText='Become a Host'
+                buttonLink='/contact#contact-form'
             />
         </main>
     );

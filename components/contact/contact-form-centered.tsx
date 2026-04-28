@@ -3,63 +3,72 @@
 import { CheckboxIcon } from '@/components/icons/icons';
 import { FormSubmitButton } from '@/components/ui/wattup-button';
 import { useState } from 'react';
+import { FadeUp } from '../ui/fade-up';
 const ContactFormCentered = () => {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
 
     return (
         <section id='contact-form' className='bg-white pb-23.75 md:py-20.5'>
             <div className='container mx-auto md:text-center'>
-                <h2 className='max-md:headline-5 headline-dark mb-6'>
-                    Still need help?
-                    <br className='hidden md:block' /> Contact{' '}
-                    <br className='md:hidden block' /> us directly
-                </h2>
+                <FadeUp>
+                    <h2 className='max-md:headline-5 text-nowrap headline-dark mb-6'>
+                        Still need help?
+                        <br className='hidden md:block' /> Contact{' '}
+                        <br className='block md:hidden' /> us directly
+                    </h2>
+                </FadeUp>
             </div>
 
-            <div className='flex  flex-col w-full  lg:mx-auto'>
-                {/* Tab Switcher */}
-                <div className='relative mx-auto flex bg-gray/30 rounded-[8px] p-1 mb-10'>
-                    {/* Sliding Background Indicator */}
-                    <div
-                        className='absolute top-1 bottom-1 left-1 z-0 bg-black rounded-[8px] transition-all duration-500 ease-in-out shadow-sm'
-                        style={{
-                            width: 'calc(50% - 4px)',
-                            transform:
+            <FadeUp delay={0.2}>
+                <div className='flex  flex-col w-full  lg:mx-auto'>
+                    {/* Tab Switcher */}
+                    <div className='relative mx-auto flex bg-gray/30 rounded-[8px] p-1 mb-10'>
+                        {/* Sliding Background Indicator */}
+                        <div
+                            className='absolute top-1 bottom-1 left-1 z-0 bg-black rounded-[8px] transition-all duration-500 ease-in-out shadow-sm'
+                            style={{
+                                width: 'calc(50% - 4px)',
+                                transform:
+                                    activeTab === 'driver'
+                                        ? 'translateX(0)'
+                                        : 'translateX(calc(100% + 0px))',
+                            }}
+                        />
+
+                        <button
+                            onClick={() => setActiveTab('driver')}
+                            className={`relative z-10 w-[170px] px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
                                 activeTab === 'driver'
-                                    ? 'translateX(0)'
-                                    : 'translateX(calc(100% + 0px))',
-                        }}
-                    />
+                                    ? 'text-white font-bold'
+                                    : 'text-dark/50 font-medium hover:text-dark'
+                            }`}>
+                            Driver Support
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('host')}
+                            className={`relative w-[170px] z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
+                                activeTab === 'host'
+                                    ? 'text-white font-bold'
+                                    : 'text-dark/50 font-medium hover:text-dark'
+                            }`}>
+                            Host Partnership
+                        </button>
+                    </div>
 
-                    <button
-                        onClick={() => setActiveTab('driver')}
-                        className={`relative z-10 w-[170px] px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
-                            activeTab === 'driver'
-                                ? 'text-white font-bold'
-                                : 'text-dark/50 font-medium hover:text-dark'
-                        }`}>
-                        Driver Support
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('host')}
-                        className={`relative w-[170px] z-10 px-[20px] py-[12px] rounded-[8px] text-[16px]  transition-colors duration-500 ${
-                            activeTab === 'host'
-                                ? 'text-white font-bold'
-                                : 'text-dark/50 font-medium hover:text-dark'
-                        }`}>
-                        Host Partnership
-                    </button>
-                </div>
-
-                {/* Forms rendered based on state with a simple transition wrapper */}
-                <div className='relative container max-w-[555px] mx-auto overflow-hidden'>
-                    <div
-                        key={activeTab}
-                        className='transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-bottom-4'>
-                        {activeTab === 'driver' ? <DriverForm /> : <HostForm />}
+                    {/* Forms rendered based on state with a simple transition wrapper */}
+                    <div className='relative container max-w-[555px] mx-auto overflow-hidden'>
+                        <div
+                            key={activeTab}
+                            className='transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-bottom-4'>
+                            {activeTab === 'driver' ? (
+                                <DriverForm />
+                            ) : (
+                                <HostForm />
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </FadeUp>
         </section>
     );
 };
@@ -125,7 +134,9 @@ function DriverForm() {
                 </span>
             </label>
 
-            <FormSubmitButton className='mt-3 mx-auto'>Submit Inquiry</FormSubmitButton>
+            <FormSubmitButton className='mt-3 mx-auto'>
+                Submit Inquiry
+            </FormSubmitButton>
         </form>
     );
 }
@@ -200,7 +211,9 @@ function HostForm() {
                 </span>
             </label>
 
-            <FormSubmitButton className='mt-3 mx-auto'>Submit Inquiry</FormSubmitButton>
+            <FormSubmitButton className='mt-3 mx-auto'>
+                Submit Inquiry
+            </FormSubmitButton>
         </form>
     );
 }
