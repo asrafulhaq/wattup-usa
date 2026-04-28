@@ -2,15 +2,14 @@
 
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
-import { homeImageUrls } from '@/lib/images/home';
 import { WattupButton } from '@/components/ui/wattup-button';
+import { homeImageUrls } from '@/lib/images/home';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
 import { cities } from '@/data';
-import { cn } from '@/lib/utils';
 
 export function ExpandingUsDrivers({
     isLocationsPage = false,
@@ -50,8 +49,7 @@ export function ExpandingUsDrivers({
             <FadedImageCrossSection
                 imageSrc={homeImageUrls.locationMarqueBg}
                 imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
-                imageAlt='Charging Stations By Water'
-                >
+                imageAlt='Charging Stations By Water'>
                 <div className='flex flex-col space-y-[32px] md:space-y-20 w-full max-w-[1440px] px-4 md:px-10 mx-auto justify-start'>
                     <FadeUp>
                         <h2 className='headline-dark max-md:w-[305px] text-left w-full'>
@@ -66,7 +64,7 @@ export function ExpandingUsDrivers({
                             {visibleCities.map((city, idx) => (
                                 <div
                                     key={`${city.name}-${idx}`}
-                                    className='city-item flex flex-col gap-2 md:gap-4'>
+                                    className={`city-item flex-col gap-2 md:gap-4 ${!showAll && idx >= 6 ? 'hidden md:flex' : 'flex'}`}>
                                     <h3 className='text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark'>
                                         {city.name}
                                     </h3>
