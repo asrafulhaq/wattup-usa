@@ -1,56 +1,74 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { HomePageMobilityData, TextGridData } from '@/data';
+import { cn } from '@/lib/utils';
 
-const items = [
-    { title: 'Fast Charging', id: 1 },
-    { title: 'Premium Locations', id: 2 },
-    { title: 'Smart Infrastructure', id: 3 },
-    { title: 'Reliable Network', id: 4 },
-];
-
-export function FutureMobility() {
+export function TextGridSection({
+    data = HomePageMobilityData,
+    heading = 'Powering the Future of Mobility',
+    titleClass = '',
+}: {
+    data?: TextGridData[];
+    heading?: string;
+    titleClass?: string;
+}) {
     return (
-        <section className='w-full max-w-[1444px] mx-auto overflow-x-hidden common-section-padding bg-background '>
+        <section className='w-full max-w-[1444px] mx-auto overflow-x-hidden common-section-padding bg-background'>
             <div className='container'>
                 <FadeUp>
                     <h2 className='headline-dark max-sm:w-[322px] mb-10'>
-                        Powering the Future of Mobility
+                        {heading}
                     </h2>
                 </FadeUp>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 md:gap-y-8 w-fit text-left'>
-                    {items.map((item, index) => {
-                        const isEvenIndex = index % 2 === 0; // 0,2 → left column at md
-                        const isOddIndex = index % 2 === 1; // 1,3 → right column at md (no border)
-                        const isSecondRowStart = index === 2; // first of second row at md → pl-0
+                {/*
+                 * Border strategy (all same specificity → lg always wins over md):
+                 *  Mobile  (1-col): divide-y on parent
+                 *  Tablet  (2-col): right border on left col, bottom border on row-1
+                 *  Desktop (4-col): right border on all except last
+                 */}
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full divide-y divide-dark/25 md:divide-y-0'>
+                    {data.map((item, index) => {
+                        const isLeftCol = index % 2 === 0;
+                        const isFirstRow = index < 2;
+                        const isLastItem = index === data.length - 1;
 
                         return (
                             <FadeUp
                                 key={item.id}
                                 delay={index * 0.1}
-                                className={[
-                                    'flex flex-col items-start border-b pb-4 md:py-3',
-                                    'pl-0 border-dark/25',
-                                    isEvenIndex
-                                        ? 'md:pl-0 md:pr-[53px]'
-                                        : 'md:pl-[53px] md:pr-[53px]',
-                                    isEvenIndex
-                                        ? 'md:border-r'
-                                        : 'md:border-r-0',
-                                    'lg:pl-[53px] first:lg:pl-0',
-                                    index === items.length - 1
-                                        ? 'lg:border-r-0 max-md:border-b-0'
-                                        : 'lg:border-r',
-                                    'md:border-b-0',
-                                    isSecondRowStart ? 'md:border-b-0' : '',
-                                    isOddIndex && index === items.length - 1
-                                        ? 'max-md:border-b-0'
-                                        : '',
-                                ].join(' ')}>
-                                <h3 className='headline-5 text-dark w-[217px] md:w-[258px]'>
-                                    {item.title.split(' ')[0]}
-                                    <br className='hidden md:block' />
-                                    {item.title.split(' ')[1]}
+                                className={cn(
+                                    'py-6 border-dark/25',
+
+                                    // ── Tablet (md) 2×2 ──────────────────────────────
+                                    // Left column → right border + right padding
+                                    isLeftCol
+                                        ? 'md:border-r md:pr-[53px]'
+                                        : 'md:pl-[53px]',
+                                    // First row → bottom border
+                                    isFirstRow
+                                        ? 'md:border-b md:pb-6'
+                                        : 'md:pt-6',
+
+                                    // ── Desktop (lg) 4-col ───────────────────────────
+                                    // Reset tablet borders
+                                    'lg:border-b-0 lg:pb-0 lg:pt-0 lg:border-r-0',
+                                    // Right border on all except last
+                                    !isLastItem && 'lg:border-r',
+                                    // Padding: auto equal spacing (~27px each side = 54px total gap)
+                                    'lg:px-[27px] first:lg:pl-0 last:lg:pr-0'
+                                )}>
+                                <h3
+                                    className={cn(
+                                        'headline-5 text-dark',
+                                        titleClass
+                                    )}>
+                                    {item.title}
                                 </h3>
+                                {item.description && (
+                                    <p className='mt-2 w-full text-dark md:text-dark/70 text-[16px] font-normal md:font-medium leading-[140%]'>
+                                        {item.description}
+                                    </p>
+                                )}
                             </FadeUp>
                         );
                     })}

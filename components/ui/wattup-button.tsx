@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import type { ComponentPropsWithoutRef } from 'react';
 
 // ─── Shared base styles ───────────────────────────────────────────────────────
 const BASE =
@@ -9,11 +8,9 @@ const BASE =
 // ─── Variant styles ───────────────────────────────────────────────────────────
 const VARIANTS = {
     /** Blue fill — primary CTA on light backgrounds */
-    primary:
-        'bg-primary hover:bg-primary-hover text-white shadow-btn',
+    primary: 'bg-primary hover:bg-primary-hover text-white shadow-btn',
     /** White fill — CTA on dark/image backgrounds (e.g. CTA section) */
-    white:
-        'bg-white hover:bg-gray-light text-dark shadow-btn',
+    white: 'bg-white hover:bg-gray-light text-dark shadow-btn',
     /** Outlined — subtle secondary action */
     outline:
         'border-2 border-primary text-primary hover:bg-primary hover:text-white',
@@ -160,3 +157,4 @@ export function FormSubmitButton({
         </button>
     );
 }
+

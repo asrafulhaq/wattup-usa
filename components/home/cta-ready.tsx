@@ -1,12 +1,14 @@
 import { FadeUp } from '@/components/ui/fade-up';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { homeImageUrls } from '@/lib/images/home';
 import { cn } from '@/lib/utils';
-import { WattupButton } from '@/components/ui/wattup-button';
 import Image from 'next/image';
 
 export function CTAReady({
     heading,
     subHeading,
+    mobileHeading,
+    mobileSubHeading,
     buttonText,
     buttonLink,
     buttonText2,
@@ -19,6 +21,7 @@ export function CTAReady({
     overlayClass,
     sectionClass,
     imageWrapperClass,
+    mobileButtonText,
     imageClass,
     enabledButtons = true,
 }: {
@@ -29,6 +32,8 @@ export function CTAReady({
     imageWrapperClass?: string;
     imageClass?: string;
     subHeading?: React.ReactNode;
+    mobileHeading?: React.ReactNode;
+    mobileSubHeading?: React.ReactNode;
     buttonText?: string;
     buttonLink?: string;
     buttonText2?: string;
@@ -38,6 +43,7 @@ export function CTAReady({
     overlay?: boolean;
     overlayClass?: string;
     enabledButtons?: boolean;
+    mobileButtonText?: string;
 }) {
     return (
         <section className='relative w-full overflow-hidden text-white  mx-auto'>
@@ -93,10 +99,20 @@ export function CTAReady({
                 <div className='container mx-auto'>
                     <div className='relative z-10 w-full flex flex-col items-center text-center text-white pt-[99px] md:pt-[218px]'>
                         <FadeUp className='w-full'>
+                            {mobileHeading && (
+                                <h2
+                                    className={cn(
+                                        'headline-white pb-4 md:pb-6 md:hidden block',
+                                        headingClass
+                                    )}>
+                                    {mobileHeading}
+                                </h2>
+                            )}
                             <h2
                                 className={cn(
                                     'headline-white pb-4 md:pb-6',
-                                    headingClass
+                                    headingClass,
+                                    mobileHeading && 'hidden md:block'
                                 )}>
                                 {heading || (
                                     <>
@@ -109,9 +125,19 @@ export function CTAReady({
                         </FadeUp>
 
                         <FadeUp delay={0.2} className='w-full'>
+                            {mobileSubHeading && (
+                                <p
+                                    className={cn(
+                                        'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-6 md:mb-8 leading-[120%] text-white md:hidden block',
+                                        subHeadingClass
+                                    )}>
+                                    {mobileSubHeading}
+                                </p>
+                            )}
                             <p
                                 className={cn(
                                     'text-[16px] md:text-[20px] font-normal max-w-[424px] mx-auto mb-6 md:mb-8 leading-[120%] text-white',
+                                    mobileSubHeading && 'hidden md:block',
                                     subHeadingClass
                                 )}>
                                 {subHeading || (
@@ -130,12 +156,24 @@ export function CTAReady({
                             <FadeUp
                                 delay={0.4}
                                 className='flex flex-row items-center justify-center gap-[12px] w-full'>
+                                {mobileButtonText && (
+                                    <WattupButton
+                                        href={buttonLink || '/contact'}
+                                        variant='white'
+                                        className='inline-flex md:hidden w-full sm:w-[210px]'>
+                                        {mobileButtonText}
+                                    </WattupButton>
+                                )}
                                 <WattupButton
                                     href={buttonLink || '/contact'}
                                     variant='white'
-                                    className='w-full sm:w-[210px]'>
+                                    className={cn(
+                                        'w-full sm:w-[210px]',
+                                        mobileButtonText && 'hidden md:flex'
+                                    )}>
                                     {buttonText || 'Find a Charger'}
                                 </WattupButton>
+
                                 {buttonText2 && buttonLink2 && (
                                     <WattupButton
                                         href={buttonLink2 || '/contact'}

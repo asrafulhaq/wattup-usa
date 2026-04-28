@@ -1,18 +1,20 @@
-import { FadeUp } from '@/components/ui/fade-up';
 import { CardSlider } from '@/components/ui/card-slider';
+import { FadeUp } from '@/components/ui/fade-up';
 import { CarginglocationsForDrivers, LocationData } from '@/data';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 /**
- * ImageTitleCard — internal card: image + title (no description).
+ * ImageTitleCard — internal card: image + title + description.
  */
 function ImageTitleCard({
     item,
     isMobileSlider = false,
+    descClass,
 }: {
     item: LocationData;
     isMobileSlider?: boolean;
+    descClass?: string;
 }) {
     return (
         <div className='flex flex-col gap-6 group cursor-pointer w-full'>
@@ -21,15 +23,41 @@ function ImageTitleCard({
                     'relative w-full rounded-[8px] overflow-hidden',
                     isMobileSlider ? 'h-[373px]' : 'h-[370px]'
                 )}>
+                {}
                 <Image
                     src={item.image}
                     alt={item.title}
                     fill
-                    className='object-cover transition-transform w-full duration-500 group-hover:scale-105'
+                    className={cn(
+                        'object-cover transition-transform w-full duration-500 group-hover:scale-105',
+                        item?.mobileImage && 'hidden md:block'
+                    )}
                     sizes='(max-width: 768px) 100vw, 50vw'
                 />
+                {item?.mobileImage && (
+                    <Image
+                        src={item.mobileImage}
+                        alt={item.title}
+                        fill
+                        className='object-cover transition-transform w-full duration-500 group-hover:scale-105 block md:hidden'
+                        sizes='(max-width: 768px) 100vw, 50vw'
+                    />
+                )}
             </div>
-            <h3 className='headline-4 text-nowrap text-dark'>{item.title}</h3>
+            <div className='content flex flex-col gap-3!'>
+                <h3 className='headline-4 text-nowrap text-dark'>
+                    {item.title}
+                </h3>
+                {item?.description && (
+                    <p
+                        className={cn(
+                            'text-[16px] font-medium md:text-[20px] md:font-semibold text-dark/70',
+                            descClass
+                        )}>
+                        {item.description}
+                    </p>
+                )}
+            </div>
         </div>
     );
 }
@@ -52,10 +80,12 @@ export function ImageTitleGrid({
     heading,
     items = CarginglocationsForDrivers,
     sectionClass,
+    headingClass,
 }: {
     heading?: React.ReactNode;
     items: LocationData[];
     sectionClass?: string;
+    headingClass?: string;
 }) {
     const mobileSlides = items.map((item, index) => ({
         id: index,
@@ -70,7 +100,11 @@ export function ImageTitleGrid({
             )}>
             <div className='container mx-auto flex flex-col'>
                 <FadeUp>
-                    <h2 className='headline-dark text-nowrap mb-[40px]'>
+                    <h2
+                        className={cn(
+                            'headline-dark text-nowrap mb-[40px]',
+                            headingClass
+                        )}>
                         {heading || 'Charging where you go'}
                     </h2>
                 </FadeUp>
@@ -79,7 +113,10 @@ export function ImageTitleGrid({
                 <div className='hidden md:grid grid-cols-2 gap-10'>
                     {items.map((item, index) => (
                         <FadeUp key={index} delay={index * 0.1}>
-                            <ImageTitleCard item={item} isMobileSlider={false} />
+                            <ImageTitleCard
+                                item={item}
+                                isMobileSlider={false}
+                            />
                         </FadeUp>
                     ))}
                 </div>
@@ -101,3 +138,4 @@ export function ImageTitleGrid({
         </section>
     );
 }
+

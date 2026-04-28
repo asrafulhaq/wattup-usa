@@ -1,7 +1,7 @@
 import { BuiltFor } from '@/components/home/built-for';
 import { CTAReady } from '@/components/home/cta-ready';
 import { ExpandingUs } from '@/components/home/expanding-us';
-import { FutureMobility } from '@/components/home/future-mobility';
+import { TextGridSection } from '@/components/home/future-mobility';
 import { Hero } from '@/components/home/hero';
 import { TechnologyBacked } from '@/components/home/technology-backed';
 import { VideoPresentation } from '@/components/home/video-presentation';
@@ -54,7 +54,7 @@ export default function Home() {
             <BuiltFor cardDescriptionClass='max-md:text-[16px]!' />
 
             {/* 3. Future of Mobility Features */}
-            <FutureMobility />
+            <TextGridSection />
 
             {/* 4. Video Presentation */}
             <VideoPresentation />

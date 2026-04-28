@@ -30,7 +30,9 @@ function StepCard({
             {/* Image container */}
             <div
                 className={`relative w-full rounded-[8px] overflow-hidden bg-gray-light shrink-0 ${
-                    isMobileSlider ? 'h-[373px] mb-4' : `${cardImageHeight} mb-6`
+                    isMobileSlider
+                        ? 'h-[373px] mb-4'
+                        : `${cardImageHeight} mb-6`
                 }`}>
                 {/* Mobile-specific image (hidden on md+) */}
                 {step?.mobileImage && (
@@ -64,13 +66,15 @@ function StepCard({
                 <h3 className={cn('headline-4 text-dark', titleClass)}>
                     {step.title}
                 </h3>
-                <p
-                    className={cn(
-                        'text-[16px] font-medium md:text-[20px] md:font-semibold text-dark/70',
-                        descClass
-                    )}>
-                    {step.description}
-                </p>
+                {step.description && (
+                    <p
+                        className={cn(
+                            'text-[16px] font-medium md:text-[20px] md:font-semibold text-dark/70',
+                            descClass
+                        )}>
+                        {step.description}
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -135,7 +139,11 @@ export function StepGrid({
     }));
 
     return (
-        <section className={cn('w-full common-section-padding bg-white overflow-hidden', sectionClass)}>
+        <section
+            className={cn(
+                'w-full common-section-padding bg-white overflow-hidden',
+                sectionClass
+            )}>
             <div className='container'>
                 <FadeUp>
                     <h2 className='headline-dark mb-10'>
@@ -175,3 +183,4 @@ export function StepGrid({
         </section>
     );
 }
+

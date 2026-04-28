@@ -6,6 +6,7 @@ import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import { sharedImageUrls } from '@/lib/images/shared';
 import { aboutImageUrls } from './lib/images/about';
 import { capitalPartnersImageUrls } from './lib/images/capital-partners';
+import { fleetSolutionImageUrls } from './lib/images/fleet-solution';
 
 export interface SlidesCardData {
     id: string;
@@ -19,7 +20,9 @@ export interface SlidesCardData {
 
 export interface LocationData {
     image: string;
+    mobileImage?: string;
     title: string;
+    description?: React.ReactNode;
 }
 
 export interface TechnologySlideData {
@@ -37,7 +40,7 @@ export interface TechnologySlideData {
 }
 export interface HowItWorksStepData {
     title: React.ReactNode;
-    description: React.ReactNode;
+    description?: React.ReactNode;
     image: string;
     mobileImage?: string;
     imageClass?: string;
@@ -64,6 +67,11 @@ export interface Cities {
     capacity: string;
     stationName: string;
     contact: string;
+}
+export interface TextGridData {
+    id: string | number;
+    title: React.ReactNode;
+    description?: React.ReactNode;
 }
 export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     {
@@ -110,6 +118,40 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
     },
 ];
 
+export const HomePageMobilityData: TextGridData[] = [
+    {
+        id: 1,
+        title: (
+            <>
+                Fast <br className='hidden md:block' /> Charging
+            </>
+        ),
+    },
+    {
+        id: 2,
+        title: (
+            <>
+                Premium <br className='hidden md:block' /> Locations
+            </>
+        ),
+    },
+    {
+        id: 3,
+        title: (
+            <>
+                Smart <br className='hidden md:block' /> Infrastructure
+            </>
+        ),
+    },
+    {
+        id: 4,
+        title: (
+            <>
+                Reliable <br className='hidden md:block' /> Network
+            </>
+        ),
+    },
+];
 export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
     {
         title: 'Find a Station',
@@ -1019,5 +1061,177 @@ export const CapitalPartnersTractionData: TractionSnapshotData[] = [
     { value: '150+', label: 'Sites Contracted' },
     { value: '500+', label: 'Markets Targeted' },
     { value: '20+', label: 'Partners Engaged' },
+];
+
+export const FleetSectionWhyData: HowItWorksStepData[] = [
+    {
+        title: 'Scalable Infrastructure',
+        description: 'Grow your charging capacity as your fleet expands.',
+        image: fleetSolutionImageUrls.why1,
+    },
+    {
+        title: 'Reliable Charging',
+        description: 'High-performance stations designed for daily operations.',
+        image: fleetSolutionImageUrls.why2,
+    },
+    {
+        title: 'Operational Efficiency',
+        description: 'Minimize downtime with smart charging management.',
+        image: fleetSolutionImageUrls.why3,
+    },
+    {
+        title: 'Cost Optimization',
+        description: 'Reduce operational costs with efficient energy',
+        image: fleetSolutionImageUrls.why4,
+    },
+];
+
+export const FleetSolutionPageWhyChooseSlideCardData: SlidesCardData[] = [
+    {
+        id: 'scalable-infrastructure',
+        image: fleetSolutionImageUrls.why5,
+        mobileImage: fleetSolutionImageUrls.why5Mobile,
+        title: 'Scalable Infrastructure',
+        description: 'Grow your charging capacity as your fleet expands.',
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
+        imageClass: '',
+    },
+    {
+        id: 'reliable-charging',
+        image: fleetSolutionImageUrls.why6,
+        title: 'Reliable Charging',
+        description: 'High-performance stations designed for daily operations.',
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
+        imageClass: '',
+    },
+    {
+        id: 'operational-efficiency',
+        image: fleetSolutionImageUrls.why7,
+        title: 'Operational Efficiency',
+        description: 'Minimize downtime with smart charging management.',
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
+        imageClass: 'max-md:object-[15%_top]',
+    },
+    {
+        id: 'cost-optimization',
+        image: fleetSolutionImageUrls.why8,
+        mobileImage: fleetSolutionImageUrls.why8Mobile,
+        title: 'Cost Optimization',
+        description: 'Reduce operational costs with efficient energy',
+        cta: {
+            label: 'Find Charging Locations',
+            href: '/locations#locations',
+        },
+        imageClass: '',
+    },
+];
+
+export const FleetDeploymentProcessData: LocationData[] = [
+    {
+        title: 'Site Assessment',
+        description: 'We evaluate your fleet needs and location.',
+        image: fleetSolutionImageUrls.process1,
+        mobileImage: fleetSolutionImageUrls.process1Mobile,
+    },
+    {
+        title: 'Installation',
+        description: 'Professional deployment of charging infrastructure.',
+        image: fleetSolutionImageUrls.process2,
+        mobileImage: fleetSolutionImageUrls.process2Mobile,
+    },
+    {
+        title: 'Integration',
+        description: 'Connect your fleet to the WattUp network.',
+        image: fleetSolutionImageUrls.process3,
+        mobileImage: fleetSolutionImageUrls.process3Mobile,
+    },
+    {
+        title: 'Ongoing Support',
+        description: 'Monitoring, maintenance, and optimization.',
+        image: fleetSolutionImageUrls.process4,
+        mobileImage: fleetSolutionImageUrls.process4Mobile,
+    },
+];
+
+export const FleetPageSolutionsData: TextGridData[] = [
+    {
+        id: 1,
+        title: 'Delivery & Logistics',
+        description: 'Last-mile delivery fleets',
+    },
+    {
+        id: 2,
+        title: 'Corporate Fleets',
+        description: 'Company vehicles and employee fleets',
+    },
+    {
+        id: 3,
+        title: 'Ride Sharing',
+        description: 'Ride Sharing',
+    },
+    {
+        id: 4,
+        title: 'Utilities & Services',
+        description: 'Service and maintenance fleets',
+    },
+];
+
+export const FleetSolutionStepData: HowItWorksStepData[] = [
+    {
+        title: 'Delivery & Logistics',
+        description: 'Last-mile delivery fleets',
+        image: fleetSolutionImageUrls.solution1,
+    },
+    {
+        title: 'Corporate Fleets',
+        description: 'Company vehicles and employee fleets',
+        image: fleetSolutionImageUrls.solution2,
+    },
+    {
+        title: 'Ride Sharing',
+        description: 'Ride Sharing',
+        image: fleetSolutionImageUrls.solution3,
+    },
+    {
+        title: 'Utilities & Services',
+        description: 'Service and maintenance fleets',
+        image: fleetSolutionImageUrls.solution4,
+    },
+];
+
+export const FleetSolutionReliabilityData: HowItWorksStepData[] = [
+    {
+        title: (
+            <>
+                High uptime <br /> performance
+            </>
+        ),
+        image: fleetSolutionImageUrls.reliability1,
+    },
+    {
+        title: (
+            <>
+                Consistent charging <br /> availability
+            </>
+        ),
+        image: fleetSolutionImageUrls.reliability2,
+    },
+    {
+        title: (
+            <>
+                Enterprise-level <br /> infrastructure
+            </>
+        ),
+        image: fleetSolutionImageUrls.reliability3,
+    },
 ];
 
