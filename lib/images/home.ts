@@ -23,7 +23,7 @@ export const homeImages = {
 
     slide_1_full: 'slide-1_yq5l8a',
     slide_1_layered: 'slide_1_layered_gxcgdw',
-    slide_1_layered_mobile: 'slide_1_mobile_sp1oi4',
+    slide_1_layered_mobile: 'slide_1_mobile_thg9t0',
     slide_1_full_mobile: 'slide-1-layered_yq5l8a',
 
     slide_2_full: 'slide-2_yq5l8a',
@@ -59,8 +59,8 @@ export const homeImages = {
 
     // Other
     footerSectionBg: 'footer-section-bg_folbzx',
-    locationMarqueBg: 'location-marque-bg_orjnex',
-    locationMarqueBgMobile: 'location-marque-bg-mobile_zqbhh5',
+    locationMarqueBg: 'location-marque-bg_jvj3y4',
+    locationMarqueBgMobile: 'location-marque-bg-mobile_inq3ca',
 };
 
 /**
@@ -69,4 +69,7 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
+
+
+
 
