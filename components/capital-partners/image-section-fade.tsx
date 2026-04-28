@@ -7,7 +7,7 @@ export default function ImageSectionFade({
     mobileImage,
     heading,
     subHeading,
-    imageHeight = 'h-[266px] sm:h-[400px] md:h-[650px] lg:h-[850px] xl:h-[995px]',
+    imageHeight = 'h-[290px] sm:h-[400px] md:h-[650px] lg:h-[850px] xl:h-[995px]',
     sectionClass,
     headingClass,
     subHeadingClass,
@@ -65,7 +65,7 @@ export default function ImageSectionFade({
                             src={mobileImage}
                             alt={alt}
                             fill
-                            className='object-cover object-top md:hidden'
+                            className='object-cover md:hidden'
                             sizes='100vw'
                             priority
                             draggable={false}
