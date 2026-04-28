@@ -59,8 +59,11 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <p className='mt-8 text-xs text-dark/40 text-center'>
-                    &copy; <CopyrightYear /> WattUp USA. All rights
-                    reserved.
+                    &copy;{' '}
+                    <Suspense fallback={'2026'}>
+                        <CopyrightYear />
+                    </Suspense>{' '}
+                    WattUp USA. All rights reserved.
                 </p>
             </div>
         </div>

@@ -5,9 +5,17 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 export function Navbar() {
+    return (
+        <Suspense fallback={null}>
+            <NavbarContent />
+        </Suspense>
+    );
+}
+
+function NavbarContent() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const params = useParams();
     const pathname = usePathname();
