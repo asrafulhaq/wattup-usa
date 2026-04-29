@@ -1,8 +1,8 @@
 import { getArticles } from '@/app/_actions/postActions';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Suspense } from 'react';
-import PageTitle from '../components/page-title';
-import { ArticlesDataTable } from './articles-data-table';
+import PageTitle from '../../../../components/dashboard/page-title';
+import { ArticlesDataTable } from '../../../../components/dashboard/articles/articles-data-table';
 
 export async function ArticlesTable() {
     const articles = await getArticles();

@@ -1,7 +1,7 @@
 import { ProfileSkeleton } from '@/components/skeletons/profile-skeleton';
 import { Suspense } from 'react';
-import PageTitle from '../components/page-title';
-import PageContent from './components/page-content';
+import PageTitle from '../../../../components/dashboard/page-title';
+import PageContent from '../../../../components/dashboard/profile/page-content';
 
 export default async function ProfilePage() {
     return (

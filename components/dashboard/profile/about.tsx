@@ -1,6 +1,7 @@
 'use client';
 import { updateUserInformationById } from '@/app/_actions/userActions';
-import { RichTextEditor } from '@/components/tip-tap-editor/rich-text-editor';
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
+
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -65,7 +66,7 @@ const About = ({ profile }: AboutProps) => {
                         About Content
                     </Label>
                     <Suspense fallback={null}>
-                        <RichTextEditor
+                        <SimpleEditor
                             value={about}
                             onChange={setAbout}
                             placeholder='Write your detailed about section here...'
@@ -78,3 +79,4 @@ const About = ({ profile }: AboutProps) => {
 };
 
 export default About;
+
