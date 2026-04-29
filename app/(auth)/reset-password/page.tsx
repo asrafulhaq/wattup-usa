@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
                 {/* Back link */}
                 <div className='w-full mb-6'>
                     <Link
-                        href='/sign-in'
+                        href='/admin'
                         className='inline-flex items-center gap-1.5 text-sm text-dark/60 hover:text-dark transition-colors group font-medium'>
                         <ChevronLeft
                             size={16}

@@ -12,6 +12,7 @@ export async function ArticlesTable() {
         date: article.createdAt.toLocaleDateString(),
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return <ArticlesDataTable data={formattedArticles as any} />;
 }
 

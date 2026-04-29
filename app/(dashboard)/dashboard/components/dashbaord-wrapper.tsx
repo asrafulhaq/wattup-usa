@@ -20,7 +20,9 @@ async function SidebarWrapper() {
 
     // profile.image is stored as Json: { url, public_id } or a plain string or null
     const profileImageUrl =
-        profile?.image && typeof profile.image === 'object' && 'url' in profile.image
+        profile?.image &&
+        typeof profile.image === 'object' &&
+        'url' in profile.image
             ? (profile.image as { url: string }).url
             : typeof profile?.image === 'string'
               ? profile.image
