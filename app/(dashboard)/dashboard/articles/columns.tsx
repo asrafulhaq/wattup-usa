@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
@@ -119,9 +120,7 @@ function ActionCell({ row }: { row: any }) {
                         <span className='sr-only'>Open menu</span>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    align='end'
-                    className='w-36 '>
+                <DropdownMenuContent align='end' className='w-36 '>
                     <DropdownMenuItem asChild>
                         <Link target='_blank' href={`/posts/${article.slug}`}>
                             View

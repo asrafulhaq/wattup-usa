@@ -31,7 +31,7 @@ export function FadedImageCrossSection({
             <FadeUp delay={0.3} className='w-full'>
                 <div
                     className={cn(
-                        'relative -mt-30 sm:-mt-80 w-full h-[480px] xs:h-[850px] sm:h-[990px] md:h-[1080px] 3xl:h-[1450px]! ultra:h-[1750px]!'
+                        'relative -mt-30 sm:-mt-96 w-full h-[600px] xs:h-[790px] sm:h-[990px] md:h-[1080px] 3xl:h-[1450px]! ultra:h-[1750px]!'
                     )}>
                     {/* Mobile image — shown only below md */}
                     {imageSrcMobile && (
@@ -39,7 +39,7 @@ export function FadedImageCrossSection({
                             src={imageSrcMobile}
                             alt={imageAlt}
                             fill
-                            className='object-cover md:hidden'
+                            className='object-cover sm:hidden'
                             sizes='100vw'
                             priority
                             draggable={false}
@@ -52,7 +52,7 @@ export function FadedImageCrossSection({
                         fill
                         className={cn(
                             'object-cover',
-                            imageSrcMobile ? 'hidden md:block' : 'block'
+                            imageSrcMobile ? 'hidden sm:block' : 'block'
                         )}
                         sizes='100vw'
                         priority
