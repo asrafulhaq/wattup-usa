@@ -1,6 +1,5 @@
 'use client';
 import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Article, ArticleBatchActions, columns } from './columns';
@@ -18,12 +17,10 @@ export function ArticlesDataTable({ data }: ArticlesDataTableProps) {
             searchPlaceholder='Filter articles...'
             actionButton={
                 <Link href='/dashboard/articles/create'>
-                    <Button
-                        variant='outline'
-                        className='flex  justify-center items-center border-border/50 text-dark/70 hover:text-white gap-2 h-8 py-6'>
+                    <button className='flex border rounded   justify-center items-center border-border text-dark/70 hover:bg-primary transition-colors duration-300 hover:text-white gap-2 py-2 px-6'>
                         <IconPlus className='size-5' />
                         <span className='  font-medium'>Write Article</span>
-                    </Button>
+                    </button>
                 </Link>
             }
             batchActions={(selectedRows, clearSelection) => (

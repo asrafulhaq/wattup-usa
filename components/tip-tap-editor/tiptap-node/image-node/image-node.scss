@@ -37,20 +37,142 @@
 /* ── Image with Caption Node ─────────────────────────────────── */
 .image-with-caption-wrapper {
   display: block;
-  margin: 1.5rem 0;
+  width: 70%;
+  max-width: 100%;
+  margin: 1.5rem auto;
   user-select: none;
+  cursor: grab;
+  clear: both;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &[data-align="left"] {
+    float: left;
+    margin: 1.5rem 1.25rem 1rem 0;
+  }
+
+  &[data-align="center"],
+  &[data-align="justify"] {
+    float: none;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  &[data-align="right"] {
+    float: right;
+    margin: 1.5rem 0 1rem 1.25rem;
+  }
 }
 
 .image-with-caption-img-container {
   display: block;
+  position: relative;
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible;
   outline: 2px solid transparent;
-  transition: outline-color 0.15s ease;
+  transition:
+    outline-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &.image-selected {
-    outline-color: var(--tt-brand-color-500, hsl(var(--primary)));
+    outline-color: var(--tt-brand-color-500, var(--primary));
+    box-shadow: 0 0 0 4px rgba(25, 125, 255, 0.12);
   }
+
+  &:hover .image-with-caption-drag-handle,
+  &.image-selected .image-with-caption-drag-handle {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.image-with-caption-drag-handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.375rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  cursor: grab;
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    background-color 0.15s ease;
+  backdrop-filter: blur(6px);
+}
+
+.image-with-caption-drag-handle:active {
+  cursor: grabbing;
+  background: rgba(15, 23, 42, 0.86);
+}
+
+.image-with-caption-align-toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.375rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.image-with-caption-align-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.image-with-caption-align-button:hover,
+.image-with-caption-align-button[data-active="true"] {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.image-with-caption-resize-handle {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 0.75rem;
+  height: 3rem;
+  padding: 0;
+  background: #ffffff;
+  border: 2px solid var(--primary);
+  border-radius: 9999px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+  cursor: ew-resize;
+  transform: translateY(-50%);
+}
+
+.image-with-caption-resize-handle-left {
+  left: -0.5rem;
+}
+
+.image-with-caption-resize-handle-right {
+  right: -0.5rem;
 }
 
 .image-with-caption-img {
@@ -58,7 +180,8 @@
   max-width: 100%;
   height: auto;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .image-with-caption-input-wrapper {

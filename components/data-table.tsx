@@ -187,7 +187,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                 <div className='flex flex-1 items-center space-x-2'>
                     {searchColumn && (
                         <div className='relative w-full max-w-sm'>
-                            <IconSearch className='absolute left-2.5 top-3.5 h-6 w-5 text-muted-foreground mr-2' />
+                            <IconSearch className='absolute left-2.5 top-2.5 h-6 w-5 text-muted-foreground mr-2' />
                             <Input
                                 placeholder={searchPlaceholder}
                                 value={
@@ -200,7 +200,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                                         .getColumn(searchColumn)
                                         ?.setFilterValue(event.target.value)
                                 }
-                                className='pl-9 bg-background/50 border-border/50 h-8 py-6'
+                                className='border h-auto rounded bg-white justify-center items-center pl-9! border-border text-dark/70 gap-2 py-2.5 px-6'
                             />
                         </div>
                     )}
@@ -229,7 +229,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
             )}
 
             {/* Table */}
-            <div className='overflow-hidden rounded-xl border border-border/50 bg-background/30 backdrop-blur-sm shadow-sm'>
+            <div className='overflow-hidden rounded-md border border-border/50 bg-background/30 backdrop-blur-sm shadow-sm'>
                 <DndContext
                     collisionDetection={closestCenter}
                     modifiers={[restrictToVerticalAxis]}
@@ -378,5 +378,4 @@ export function DataTable<TData extends { id: string | number }, TValue>({
         </div>
     );
 }
-
 

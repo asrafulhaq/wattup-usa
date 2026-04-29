@@ -2,6 +2,7 @@
 
 import type { ChainedCommands } from '@tiptap/react';
 import { type Editor } from '@tiptap/react';
+import { NodeSelection } from '@tiptap/pm/state';
 import { useCallback, useEffect, useState } from 'react';
 
 // --- Hooks ---
@@ -62,6 +63,16 @@ export const textAlignLabels: Record<TextAlign, string> = {
     justify: 'Align justify',
 };
 
+function getSelectedImageAlign(editor: Editor | null): TextAlign | null {
+    if (!editor) return null;
+
+    const { selection } = editor.state;
+    if (!(selection instanceof NodeSelection)) return null;
+    if (selection.node.type.name !== 'image') return null;
+
+    return (selection.node.attrs.textAlign || 'center') as TextAlign;
+}
+
 /**
  * Checks if text alignment can be performed in the current editor state
  */
@@ -72,9 +83,13 @@ export function canSetTextAlign(
     if (!editor || !editor.isEditable) return false;
     if (
         !isExtensionAvailable(editor, 'textAlign') ||
-        isNodeTypeSelected(editor, ['image', 'horizontalRule'])
+        isNodeTypeSelected(editor, ['horizontalRule'])
     )
         return false;
+
+    if (isNodeTypeSelected(editor, ['image'])) {
+        return align !== 'justify';
+    }
 
     return editor.can().setTextAlign(align);
 }
@@ -95,6 +110,10 @@ export function isTextAlignActive(
     align: TextAlign
 ): boolean {
     if (!editor || !editor.isEditable) return false;
+    if (isNodeTypeSelected(editor, ['image'])) {
+        return getSelectedImageAlign(editor) === align;
+    }
+
     return editor.isActive({ textAlign: align });
 }
 
@@ -104,6 +123,21 @@ export function isTextAlignActive(
 export function setTextAlign(editor: Editor | null, align: TextAlign): boolean {
     if (!editor || !editor.isEditable) return false;
     if (!canSetTextAlign(editor, align)) return false;
+
+    if (isNodeTypeSelected(editor, ['image'])) {
+        const { selection } = editor.state;
+        const width =
+            selection instanceof NodeSelection ? selection.node.attrs.width : null;
+
+        return editor
+            .chain()
+            .focus()
+            .updateAttributes('image', {
+                textAlign: align,
+                ...(!width || width === '100%' ? { width: '70%' } : {}),
+            })
+            .run();
+    }
 
     const chain = editor.chain().focus();
     if (hasSetTextAlign(chain)) {
@@ -185,24 +219,32 @@ export function useTextAlign(config: UseTextAlignConfig) {
 
     const { editor } = useTiptapEditor(providedEditor);
     const [isVisible, setIsVisible] = useState<boolean>(true);
-    const canAlign = canSetTextAlign(editor, align);
-    const isActive = isTextAlignActive(editor, align);
+    const [canAlign, setCanAlign] = useState<boolean>(() =>
+        canSetTextAlign(editor, align)
+    );
+    const [isActive, setIsActive] = useState<boolean>(() =>
+        isTextAlignActive(editor, align)
+    );
 
     useEffect(() => {
         if (!editor) return;
 
-        const handleSelectionUpdate = () => {
+        const updateTextAlignState = () => {
             setIsVisible(
                 shouldShowButton({ editor, align, hideWhenUnavailable })
             );
+            setCanAlign(canSetTextAlign(editor, align));
+            setIsActive(isTextAlignActive(editor, align));
         };
 
-        handleSelectionUpdate();
+        updateTextAlignState();
 
-        editor.on('selectionUpdate', handleSelectionUpdate);
+        editor.on('selectionUpdate', updateTextAlignState);
+        editor.on('transaction', updateTextAlignState);
 
         return () => {
-            editor.off('selectionUpdate', handleSelectionUpdate);
+            editor.off('selectionUpdate', updateTextAlignState);
+            editor.off('transaction', updateTextAlignState);
         };
     }, [editor, hideWhenUnavailable, align]);
 
@@ -226,4 +268,3 @@ export function useTextAlign(config: UseTextAlignConfig) {
         Icon: textAlignIcons[align],
     };
 }
-

@@ -7,6 +7,7 @@ import {
     togglePinArticle,
     updateArticleStatus,
 } from '@/app/_actions/postActions';
+import RichTextContent from '@/components/rich-text-content';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -37,8 +38,9 @@ import {
     IconTrash,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
+import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BsFileEarmarkMedical } from 'react-icons/bs';
 import { toast } from 'sonner';
 
@@ -62,6 +64,7 @@ function DragHandle({ id }: { id: string }) {
 export type Article = {
     id: string;
     title: string;
+    content: string;
     slug: string;
     date: string;
     pinned: boolean;
@@ -169,10 +172,12 @@ function ActionCell({ row }: { row: any }) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel variant='ghost'>
+                            Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
+                            variant='destructive'>
                             Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -291,7 +296,7 @@ export function ArticleBatchActions({
             <AlertDialog
                 open={showDeleteDialog}
                 onOpenChange={setShowDeleteDialog}>
-                <AlertDialogContent className=''>
+                <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             Delete {count} article{count > 1 ? 's' : ''}?
@@ -308,7 +313,7 @@ export function ArticleBatchActions({
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleBatchDelete}
-                            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
+                            variant='destructive'>
                             Delete {count}
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -364,11 +369,12 @@ export const columns: ColumnDef<Article>[] = [
                 <div className='flex items-center gap-3'>
                     {/* Featured image thumbnail */}
                     {image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
+                            height={500}
+                            width={500}
                             src={image}
                             alt={imageAlt || title}
-                            className='h-10 w-16 rounded object-cover object-top shrink-0 border border-border/50'
+                            className='h-16 w-16 rounded object-cover shrink-0 border border-border/50'
                         />
                     ) : (
                         <div className='h-10 w-16 rounded bg-muted/50 border border-border/50 shrink-0 flex items-center justify-center'>
@@ -387,6 +393,17 @@ export const columns: ColumnDef<Article>[] = [
             );
         },
         enableHiding: false,
+    },
+    {
+        accessorKey: 'content',
+        header: 'Content',
+        cell: ({ row }) => (
+            <div className=' text-sm text-muted-foreground truncate max-w-[260px]'>
+                <Suspense fallback={<div>Loading...</div>}>
+                    <RichTextContent content={row.original.content.slice(0, 200)} />
+                </Suspense>
+            </div>
+        ),
     },
     {
         accessorKey: 'date',

@@ -84,7 +84,9 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
             upload: undefined,
             onError: undefined,
             onSuccess: undefined,
-            HTMLAttributes: {},
+            HTMLAttributes: {
+                style: 'max-width: 100%; width: 70%; height: auto; object-fit: contain;',
+            },
         };
     },
 
@@ -98,6 +100,18 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
             },
             maxSize: {
                 default: this.options.maxSize,
+            },
+            width: {
+                default: '70%',
+                renderHTML: attrs => ({
+                    style: `max-width: 100%; width: ${attrs.width};`,
+                }),
+            },
+            height: {
+                default: 'auto',
+                renderHTML: attrs => ({
+                    style: `height: ${attrs.height};`,
+                }),
             },
         };
     },
@@ -161,4 +175,3 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
 });
 
 export default ImageUploadNode;
-

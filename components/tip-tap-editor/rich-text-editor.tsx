@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
@@ -233,7 +234,7 @@ function TipTapSurface({ value, onChange, placeholder }: RichTextEditorProps) {
                 },
             }),
             HorizontalRule,
-            TextAlign.configure({ types: ['heading', 'paragraph'] }),
+            TextAlign.configure({ types: ['heading', 'paragraph', 'image'] }),
             TaskList,
             TaskItem.configure({ nested: true }),
             Highlight.configure({ multicolor: true }),
@@ -382,6 +383,76 @@ function TipTapSurface({ value, onChange, placeholder }: RichTextEditorProps) {
                     font-weight: bold;
                     text-align: left;
                 }
+                /* Image styles */
+                .rich-text-editor-container .tiptap img:not(.image-with-caption-img) {
+                    max-width: 100% !important;
+                    width: 100% !important;
+                    height: auto;
+                    object-fit: contain !important;
+                    border-radius: 0.5rem;
+                    display: block;
+                    margin: 0 auto;
+                }
+
+                .rich-text-editor-container .tiptap figure {
+                    max-width: 100% !important;
+                    margin: 1rem auto !important;
+                }
+
+                .rich-text-editor-container .tiptap figure img:not(.image-with-caption-img) {
+                    width: 100% !important;
+                    height: auto;
+                    object-fit: contain !important;
+                }
+
+                .rich-text-editor-container .tiptap figcaption {
+                    font-size: 12px;
+                    color: var(--muted-foreground);
+                    text-align: center;
+                    margin-top: 0.5rem;
+                }
+                /* Selection highlight */
+                .rich-text-editor-container .tiptap {
+                    --editor-selection-bg: rgba(25, 125, 255, 0.28);
+                    --editor-node-selection-bg: rgba(25, 125, 255, 0.16);
+                    --editor-selection-ring: rgba(25, 125, 255, 0.65);
+                }
+
+                @supports (background-color: color-mix(in srgb, red, transparent)) {
+                    .rich-text-editor-container .tiptap {
+                        --editor-selection-bg: color-mix(
+                            in srgb,
+                            var(--primary) 30%,
+                            transparent
+                        );
+                        --editor-node-selection-bg: color-mix(
+                            in srgb,
+                            var(--primary) 16%,
+                            transparent
+                        );
+                        --editor-selection-ring: color-mix(
+                            in srgb,
+                            var(--primary) 65%,
+                            transparent
+                        );
+                    }
+                }
+
+                .rich-text-editor-container .tiptap::selection,
+                .rich-text-editor-container .tiptap *::selection {
+                    background-color: var(--editor-selection-bg) !important;
+                    color: inherit !important;
+                }
+
+                .rich-text-editor-container .tiptap .selection {
+                    background-color: var(--editor-selection-bg) !important;
+                }
+
+                .rich-text-editor-container .tiptap .ProseMirror-selectednode {
+                    background-color: var(--editor-node-selection-bg) !important;
+                    outline: 2px solid var(--editor-selection-ring) !important;
+                    outline-offset: 2px;
+                }
             `}</style>
         </div>
     );
@@ -407,4 +478,3 @@ export function RichTextEditor({
         </div>
     );
 }
-
