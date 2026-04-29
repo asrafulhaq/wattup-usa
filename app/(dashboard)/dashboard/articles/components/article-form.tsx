@@ -2,7 +2,7 @@
 
 import { uploadSingleImage } from '@/app/_actions/image-actions';
 import { upsertArticle } from '@/app/_actions/postActions';
-import { RichTextEditor } from '@/components/tip-tap-editor/rich-text-editor';
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -386,7 +386,8 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
                                 Content{' '}
                                 <span className='text-destructive'>*</span>
                             </Label>
-                            <RichTextEditor
+
+                            <SimpleEditor
                                 value={content}
                                 onChange={set('content')}
                                 placeholder='Start writing your story…'

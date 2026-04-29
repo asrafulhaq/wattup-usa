@@ -1,0 +1,132 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+:root {
+  // Override shadcn/ui variables for light mode
+  --background: #ffffff;
+  --foreground: #111827;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #2563eb;
+  --accent: #f3f4f6;
+  --destructive: #ef4444;
+}
+
+:root {
+  --tt-toolbar-height: 44px;
+  --tt-theme-text: #111827;
+  --tt-bg-color: #ffffff;
+  --tt-scrollbar-color: #d1d5db;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  color: var(--tt-theme-text);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  padding: 0;
+  overscroll-behavior-y: none;
+  background-color: var(--tt-bg-color);
+}
+
+html,
+body {
+  overscroll-behavior-x: none;
+  height: 100%;
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tt-scrollbar-color) transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--tt-scrollbar-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tiptap.ProseMirror {
+  font-family: "DM Sans", sans-serif;
+}
+
+.simple-editor-wrapper {
+  width: 100%;
+  min-height: 400px;
+  max-height: 600px;
+  overflow: auto;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.simple-editor-content {
+  max-width: 648px;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+  padding: 1.5rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  min-height: 350px;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor p {
+  color: #1f2937;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor h1,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h2,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h3,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h4 {
+  color: #111827;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor a {
+  color: #2563eb;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-wrapper {
+    min-height: 300px;
+    max-height: 500px;
+  }
+  
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 1rem;
+    min-height: 250px;
+  }
+}

@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-
+@import '../styles/_variables.scss';
+@import '../styles/_keyframe-animations.scss';
 @custom-variant dark (&:is(.dark *));
 
 :root {
-
     /* --- WATTUP SPECIFIC TOKENS START --- */
     /* Brand Colors — preserved, NOT overridden by shadcn preset */
     --primary: #197dff;
@@ -128,7 +128,6 @@
 
     /* Container */
     --container-max: 1366px;
-
 
     --color-text-description: var(--text-description);
     --color-text-muted: var(--text-muted);

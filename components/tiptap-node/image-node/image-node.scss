@@ -1,0 +1,134 @@
+.image-with-caption-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem auto;
+  user-select: none;
+
+  &[data-align="left"] {
+    align-items: flex-start;
+  }
+
+  &[data-align="right"] {
+    align-items: flex-end;
+  }
+
+  &[data-align="center"] {
+    align-items: center;
+  }
+}
+
+.image-with-caption-img-container {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  border-radius: 0.5rem;
+  overflow: visible;
+
+  &.image-selected {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.image-with-caption-drag-handle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 4px;
+  background: var(--background);
+  border-radius: 4px;
+  cursor: grab;
+  z-index: 10;
+
+  &:hover {
+    background: var(--muted);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .image-with-caption-img-container:hover &,
+  .image-with-caption-img-container.image-selected & {
+    opacity: 1;
+  }
+}
+
+.image-with-caption-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  background: var(--primary);
+  opacity: 0;
+  cursor: ew-resize;
+  border: none;
+  padding: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+
+  &:hover,
+  &:active {
+    opacity: 0.8 !important;
+  }
+
+  &.image-with-caption-resize-handle-left {
+    left: -6px;
+    border-radius: 4px 0 0 4px;
+  }
+
+  &.image-with-caption-resize-handle-right {
+    right: -6px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .image-with-caption-img-container.image-selected & {
+    opacity: 0.6;
+  }
+}
+
+.image-with-caption-img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  display: block;
+}
+
+.image-with-caption-input-wrapper {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.image-with-caption-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--border);
+  }
+
+  &:focus {
+    border-color: var(--primary);
+    background: var(--background);
+  }
+
+  &::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.6;
+  }
+}
