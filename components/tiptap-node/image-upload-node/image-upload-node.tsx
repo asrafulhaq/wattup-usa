@@ -37,6 +37,11 @@ export interface FileItem {
    * @optional
    */
   abortController?: AbortController
+  /**
+   * Error message if the upload fails
+   * @optional
+   */
+  errorMessage?: string
 }
 
 export interface UploadOptions {
@@ -87,9 +92,19 @@ function useFileUpload(options: UploadOptions) {
 
   const uploadFile = async (file: File): Promise<string | null> => {
     if (file.size > options.maxSize) {
-      const error = new Error(
-        `File size exceeds maximum allowed (${options.maxSize / 1024 / 1024}MB)`
-      )
+      const errorMessage = `File size exceeds maximum allowed (${options.maxSize / 1024 / 1024}MB)`
+      const error = new Error(errorMessage)
+      
+      const fileId = crypto.randomUUID()
+      const newFileItem: FileItem = {
+        id: fileId,
+        file,
+        progress: 0,
+        status: "error",
+        errorMessage,
+      }
+      setFileItems((prev) => [...prev, newFileItem])
+      
       options.onError?.(error)
       return null
     }
@@ -141,15 +156,16 @@ function useFileUpload(options: UploadOptions) {
       return null
     } catch (error) {
       if (!abortController.signal.aborted) {
+        const errorMessage = error instanceof Error ? error.message : "Upload failed"
         setFileItems((prev) =>
           prev.map((item) =>
             item.id === fileId
-              ? { ...item, status: "error", progress: 0 }
+              ? { ...item, status: "error", progress: 0, errorMessage }
               : item
           )
         )
         options.onError?.(
-          error instanceof Error ? error : new Error("Upload failed")
+          error instanceof Error ? error : new Error(errorMessage)
         )
       }
       return null
@@ -364,7 +380,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   }
 
   return (
-    <div className="tiptap-image-upload-preview">
+    <div className={`tiptap-image-upload-preview ${fileItem.status === "error" ? "is-error" : ""}`}>
       {fileItem.status === "uploading" && (
         <div
           className="tiptap-image-upload-progress"
@@ -382,7 +398,9 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
               {fileItem.file.name}
             </span>
             <span className="tiptap-image-upload-subtext">
-              {formatFileSize(fileItem.file.size)}
+              {fileItem.status === "error"
+                ? fileItem.errorMessage || "Upload failed"
+                : formatFileSize(fileItem.file.size)}
             </span>
           </div>
         </div>
@@ -426,8 +444,7 @@ const DropZoneContent: React.FC<{ maxSize: number; limit: number }> = ({
         <em>Click to upload</em> or drag and drop
       </span>
       <span className="tiptap-image-upload-subtext">
-        Maximum {limit} file{limit === 1 ? "" : "s"}, {maxSize / 1024 / 1024}MB
-        each.
+        Maximum {limit} file{limit === 1 ? "" : "s"}, 5MB each.
       </span>
     </div>
   </>

@@ -74,6 +74,10 @@ interface DataTableProps<TData, TValue> {
         selectedRows: TData[],
         clearSelection: () => void
     ) => React.ReactNode;
+    pageCount?: number;
+    paginationState?: { pageIndex: number; pageSize: number };
+    onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void;
+    manualPagination?: boolean;
 }
 
 function DraggableRow<TData>({ row }: { row: Row<TData> }) {
@@ -108,6 +112,10 @@ export function DataTable<TData extends { id: string | number }, TValue>({
     onReorder,
     actionButton,
     batchActions,
+    pageCount,
+    paginationState: externalPaginationState,
+    onPaginationChange: onExternalPaginationChange,
+    manualPagination = false,
 }: DataTableProps<TData, TValue>) {
     const [data, setData] = React.useState(() => initialData);
     const [rowSelection, setRowSelection] = React.useState({});
@@ -116,10 +124,28 @@ export function DataTable<TData extends { id: string | number }, TValue>({
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [pagination, setPagination] = React.useState({
+    const [internalPagination, setInternalPagination] = React.useState({
         pageIndex: 0,
         pageSize: 10,
     });
+
+    const pagination = externalPaginationState || internalPagination;
+    const onPaginationChange = (updater: any) => {
+        if (typeof updater === 'function') {
+            const nextValue = updater(pagination);
+            if (onExternalPaginationChange) {
+                onExternalPaginationChange(nextValue);
+            } else {
+                setInternalPagination(nextValue);
+            }
+        } else {
+            if (onExternalPaginationChange) {
+                onExternalPaginationChange(updater);
+            } else {
+                setInternalPagination(updater);
+            }
+        }
+    };
 
     React.useEffect(() => {
         setData(initialData);
@@ -154,7 +180,9 @@ export function DataTable<TData extends { id: string | number }, TValue>({
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
-        onPaginationChange: setPagination,
+        onPaginationChange,
+        manualPagination,
+        pageCount,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

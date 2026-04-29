@@ -4,7 +4,7 @@ import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react"
 import { GripVertical } from "lucide-react"
 import { useCallback, useRef } from "react"
 
-const DEFAULT_IMAGE_WIDTH = "70%"
+const DEFAULT_IMAGE_WIDTH = "100%"
 type ImageAlign = "left" | "center" | "right"
 
 export function ImageWithCaptionNodeView(props: NodeViewProps) {

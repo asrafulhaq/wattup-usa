@@ -7,7 +7,6 @@ import {
     togglePinArticle,
     updateArticleStatus,
 } from '@/app/_actions/postActions';
-import RichTextContent from '@/components/rich-text-content';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -40,7 +39,7 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { BsFileEarmarkMedical } from 'react-icons/bs';
 import { toast } from 'sonner';
 
@@ -382,10 +381,10 @@ export const columns: ColumnDef<Article>[] = [
                         </div>
                     )}
                     <div className='flex flex-col min-w-0'>
-                        <span className=' font-medium text-foreground truncate max-w-[260px]'>
+                        <span className='text-sm text-dark line-clamp-3 max-w-[350px] leading-relaxed whitespace-normal'>
                             {title}
                         </span>
-                        <span className=' text-xs text-muted-foreground truncate max-w-[260px]'>
+                        <span className='text-xs text-dark/50 line-clamp-3 max-w-[350px] leading-relaxed whitespace-normal'>
                             {slug}
                         </span>
                     </div>
@@ -397,15 +396,17 @@ export const columns: ColumnDef<Article>[] = [
     {
         accessorKey: 'content',
         header: 'Content',
-        cell: ({ row }) => (
-            <div className=' text-sm text-muted-foreground line-clamp-2 max-w-[350px] '>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <RichTextContent
-                        content={row.original.content.slice(0, 700)}
-                    />
-                </Suspense>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const plainText = (row.original.content || '')
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            return (
+                <div className='text-sm text-muted-foreground line-clamp-3 max-w-[350px] leading-relaxed whitespace-normal'>
+                    {plainText}
+                </div>
+            );
+        },
     },
     {
         accessorKey: 'date',
@@ -454,4 +455,6 @@ export const columns: ColumnDef<Article>[] = [
         cell: ({ row }) => <ActionCell row={row} />,
     },
 ];
+
+
 

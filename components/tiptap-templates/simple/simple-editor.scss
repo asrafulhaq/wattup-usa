@@ -1,23 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 
 :root {
   // Override shadcn/ui variables for light mode
   --background: #ffffff;
-  --foreground: #111827;
-  --primary: #2563eb;
+  --foreground: #2d2d2d;
+  --primary: #197dff;
   --primary-foreground: #ffffff;
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #2563eb;
+  --ring: #197dff;
   --accent: #f3f4f6;
   --destructive: #ef4444;
 }
 
 :root {
   --tt-toolbar-height: 44px;
-  --tt-theme-text: #111827;
+  --tt-theme-text: #2d2d2d;
   --tt-bg-color: #ffffff;
   --tt-scrollbar-color: #d1d5db;
 }
@@ -27,7 +27,7 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   color: var(--tt-theme-text);
   font-optical-sizing: auto;
   font-weight: 400;
@@ -63,13 +63,13 @@ body {
 }
 
 .tiptap.ProseMirror {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 .simple-editor-wrapper {
   width: 100%;
   min-height: 400px;
-  max-height: 600px;
+  max-height: 800px;
   overflow: auto;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
@@ -77,7 +77,7 @@ body {
 }
 
 .simple-editor-content {
-  max-width: 648px;
+  max-width: 700px;
   width: 100%;
   margin: 0 auto;
   min-height: 400px;
@@ -88,24 +88,24 @@ body {
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
   flex: 1;
   padding: 1.5rem;
-  color: #1f2937;
+  color: #2d2d2d;
   background-color: #ffffff;
   min-height: 350px;
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor p {
-  color: #1f2937;
+  color: #2d2d2d;
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor h1,
 .simple-editor-content .tiptap.ProseMirror.simple-editor h2,
 .simple-editor-content .tiptap.ProseMirror.simple-editor h3,
 .simple-editor-content .tiptap.ProseMirror.simple-editor h4 {
-  color: #111827;
+  color: #2d2d2d;
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor a {
-  color: #2563eb;
+  color: #197dff;
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor code {

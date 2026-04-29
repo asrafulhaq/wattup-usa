@@ -1,7 +1,6 @@
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
 import { BlogPostList } from '@/components/press-release/blog-post-list';
-import { PressReleaseArchive } from '@/components/press-release/press-release-archive';
 import { BlogPostListSkeleton } from '@/components/skeletons/blog-post-list-skeleton';
 import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import type { Metadata } from 'next';
@@ -56,7 +55,6 @@ export default function PressReleasePage() {
             />
 
             {/* 2. Press Release */}
-            <PressReleaseArchive />
             <Suspense fallback={<BlogPostListSkeleton />}>
                 <BlogPostList />
             </Suspense>

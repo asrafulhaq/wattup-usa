@@ -5,18 +5,65 @@ import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
 import { getAdminSession } from './auth-actions';
 
-export async function getArticles() {
+export async function getArticles(page = 1, pageSize = 10, status?: string) {
     'use cache';
     cacheLife('minutes');
     cacheTag('posts');
     try {
+        const skip = (page - 1) * pageSize;
+        const where: any = {};
+        if (status) {
+            where.status = status;
+        }
+
         const articles = await prisma.posts.findMany({
+            skip,
+            take: pageSize,
             orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+            where,
         });
         return articles;
     } catch (error) {
         console.error('Get Articles Error:', error);
         return [];
+    }
+}
+
+export async function getPaginatedArticles(
+    page = 1,
+    pageSize = 10,
+    status?: string
+) {
+    'use cache';
+    cacheLife('minutes');
+    cacheTag('posts');
+    try {
+        const skip = (page - 1) * pageSize;
+        const where: any = {};
+        if (status) {
+            where.status = status;
+        }
+
+        const [articles, totalCount] = await Promise.all([
+            prisma.posts.findMany({
+                skip,
+                take: pageSize,
+                orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+                where,
+            }),
+            prisma.posts.count({
+                where,
+            }),
+        ]);
+
+        return {
+            articles,
+            hasNextPage: skip + articles.length < totalCount,
+            totalCount,
+        };
+    } catch (error) {
+        console.error('Get Paginated Articles Error:', error);
+        return { articles: [], hasNextPage: false, totalCount: 0 };
     }
 }
 
