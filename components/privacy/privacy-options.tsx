@@ -31,7 +31,7 @@ function StepCard({
             {/* Text Container: Gap 8px between Title and Description */}
             <div className='flex flex-col gap-2'>
                 <h3 className='headline-4 text-dark'>{step.title}</h3>
-                <p className='text-description text-dark/70'>
+                <p className='text-description  max-lg:font-normal! text-dark/70'>
                     {step.description}
                 </p>
             </div>
@@ -68,7 +68,7 @@ export function PrivacyOptions() {
                     </FadeUp>
 
                     {/* Desktop Grid View */}
-                    <div className='hidden md:grid grid-cols-3 gap-5'>
+                    <div className='hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-5'>
                         {PolicyOptionsData.map((step, index) => (
                             <FadeUp key={index} delay={index * 0.2}>
                                 <StepCard step={step} isMobileSlider={false} />
@@ -77,7 +77,7 @@ export function PrivacyOptions() {
                     </div>
 
                     {/* Mobile Slider View */}
-                    <div className='block md:hidden'>
+                    <div className='block sm:hidden'>
                         <FadeUp>
                             <CardSlider
                                 slides={mobileSlides}

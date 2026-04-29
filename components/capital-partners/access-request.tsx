@@ -8,11 +8,11 @@ export function AccessRequest() {
     return (
         <section
             id='access-request'
-            className='relative w-full bg-white common-section-padding'>
+            className='relative  max-md:px-4 w-full bg-white  common-section-padding'>
             <div className='relative w-full container mx-auto'>
-                <div className='flex flex-col justify-center  w-full max-w-[555px] lg:mx-auto'>
+                <div className='flex flex-col justify-center  w-full max-w-[555px] mx-auto'>
                     <FadeUp>
-                        <h2 className='headline-dark text-center mb-10'>
+                        <h2 className='headline-dark md:text-center mb-10'>
                             Access Request
                         </h2>
                     </FadeUp>
@@ -20,7 +20,7 @@ export function AccessRequest() {
                     {/* Forms rendered based on state with a simple transition wrapper */}
                     <FadeUp delay={0.2} className='relative overflow-hidden'>
                         <div className='relative overflow-hidden'>
-                            <div className='transition-all duration-500 ease-in-out animate-in fade-in max-md:px-4 slide-in-from-bottom-4'>
+                            <div className='transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-bottom-4'>
                                 <AccessForm />
                             </div>
                         </div>
@@ -99,4 +99,5 @@ function AccessForm() {
         </form>
     );
 }
+
 

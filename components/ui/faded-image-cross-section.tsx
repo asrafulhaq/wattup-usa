@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import React from 'react';
+import { FadeUp } from './fade-up';
 
 export interface FadedImageCrossSectionProps {
     children: React.ReactNode;
@@ -16,11 +17,6 @@ export function FadedImageCrossSection({
     imageSrc,
     imageSrcMobile,
     imageAlt = 'Section background',
-    topFaddingStyle = {
-        background:
-            'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 50%)',
-    },
-    sectionClass,
 }: FadedImageCrossSectionProps) {
     return (
         <section
@@ -31,61 +27,41 @@ export function FadedImageCrossSection({
             </div>
 
             {/* Bottom Section: Image exactly as Figma */}
-            <div
-                className={cn(
-                    'relative w-full max-md:h-[744px] h-[895px] xl:h-[1080px] z-0 -mt-[300px] max-md:-mb-[100px] md:-mt-[365px] shrink-0',
-                    sectionClass
-                )}>
-                {/* 1. Base Image */}
-                <div className='image '>
-                    {' '}
+
+            <FadeUp delay={0.3} className='w-full'>
+                <div
+                    className={cn(
+                        'relative -mt-30 sm:-mt-80 w-full h-[480px] xs:h-[850px] sm:h-[990px] md:h-[1080px] 3xl:h-[1450px]! ultra:h-[1750px]!'
+                    )}>
+                    {/* Mobile image — shown only below md */}
+                    {imageSrcMobile && (
+                        <Image
+                            src={imageSrcMobile}
+                            alt={imageAlt}
+                            fill
+                            className='object-cover md:hidden'
+                            sizes='100vw'
+                            priority
+                            draggable={false}
+                        />
+                    )}
+                    {/* Desktop image — full bleed at all sizes, contain only at xl */}
                     <Image
                         src={imageSrc}
                         alt={imageAlt}
                         fill
                         className={cn(
                             'object-cover',
-                            imageSrcMobile && 'sm:block hidden'
+                            imageSrcMobile ? 'hidden md:block' : 'block'
                         )}
-                        sizes='1440px'
+                        sizes='100vw'
                         priority
+                        draggable={false}
                     />
-                    {imageSrcMobile && (
-                        <Image
-                            src={imageSrcMobile}
-                            alt={imageAlt}
-                            fill
-                            className='object-contain sm:hidden block'
-                            sizes='380px'
-                        />
-                    )}
                 </div>
-
-                {/* 2. Top-down White Gradient (180deg from White 0% to White 0% -> translates to a fade from white down) 
-                     Based on Figma: Linear Gradient White -> White/0 */}
-                <div
-                    className='absolute inset-0 pointer-events-none'
-                    style={topFaddingStyle}
-                />
-
-                {/* 3. Bottom-up White Gradient (180deg White 0% to White 87% to White)
-                     Based on Figma: Linear Gradient fading out the bottom */}
-
-                {/*          {bottomGradient && (
-                    <div
-                        className='absolute bottom-0 left-0 right-0 pointer-events-none'
-                        style={{
-                            // Height covers the visible fade zone. Pure white extends to 35%
-                            // (~172px at 895px height) which exceeds the -mb-40 (160px) overlap,
-                            // ensuring the next section always lands on fully-opaque white.
-                            height: '35%',
-                            backgroundImage:
-                                'linear-gradient(to top, #FFFFFF 0%, #FFFFFF 45%, rgba(255,255,255,0.6) 70%, rgba(255,255,255,0) 100%)',
-                        }}
-                    />
-                )} */}
-            </div>
+            </FadeUp>
         </section>
     );
 }
+
 

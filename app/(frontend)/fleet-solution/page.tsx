@@ -92,14 +92,14 @@ export default function FleetSolutionPage() {
                 }
                 sectionClass='pb-0!'
                 subHeadingClass='md:mb-[60px]'
-                imageHeight='h-[486px] md:h-[650px] lg:h-[850px] xl:h-[995px]'
+                imageHeight='h-[480px] xs:h-[790px] sm:h-[500px] md:h-[750px] lg:h-[900px] xl:h-[995px] 2xl:h-[1050px]! 3xl:h-[1650px]! ultra:h-[1790px]!'
             />
 
             {/* 04. Why Choose WattUp for Your Fleet */}
             <StepGrid
                 heading='Why Choose WattUp for Your Fleet'
                 stepData={FleetSectionWhyData}
-                gridClass='grid-cols-4'
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-4!'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
                 titleClass='text-[28px]! font-bold!'
                 cardImageHeight='h-[373px]'
@@ -130,7 +130,7 @@ export default function FleetSolutionPage() {
             <StepGrid
                 heading='Solutions for Every Fleet'
                 stepData={FleetSolutionStepData}
-                gridClass='grid-cols-4'
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-4!'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
                 titleClass='text-[28px]! font-bold!'
                 cardImageHeight='h-[373px]'
@@ -144,7 +144,9 @@ export default function FleetSolutionPage() {
                 heading='Built for Reliability'
                 stepData={FleetSolutionReliabilityData}
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-3!'
                 titleClass='text-[28px]! font-bold!'
+                cardImageHeight='h-[373px]'
             />
             {/* 10.CTA Section */}
             <CTAReady

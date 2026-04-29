@@ -1,8 +1,8 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { FadedImageCrossSection } from '@/components/ui/faded-image-cross-section';
+import { WattupButton } from '@/components/ui/wattup-button';
 import { marqueeCities } from '@/data';
 import { homeImageUrls } from '@/lib/images/home';
-import { WattupButton } from '@/components/ui/wattup-button';
 
 export function ExpandingUs() {
     return (
@@ -10,8 +10,7 @@ export function ExpandingUs() {
             <FadedImageCrossSection
                 imageSrc={homeImageUrls.locationMarqueBg}
                 imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
-                imageAlt='Charging Stations By Water'
-                sectionClass=''>
+                imageAlt='Charging Stations By Water'>
                 <div className='flex flex-col space-y-8 md:space-y-20  items-center text-center w-full'>
                     <FadeUp>
                         <h2 className='headline-dark max-sm:w-87'>

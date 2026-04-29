@@ -152,7 +152,7 @@ export function StepGrid({
                 </FadeUp>
 
                 {/* Desktop Grid */}
-                <div className={cn('hidden md:grid gap-5', gridClass)}>
+                <div className={cn('hidden sm:grid gap-5', gridClass)}>
                     {stepData.map((step, index) => (
                         <FadeUp key={index} delay={index * 0.2}>
                             <StepCard
@@ -167,7 +167,7 @@ export function StepGrid({
                 </div>
 
                 {/* Mobile Slider */}
-                <div className='block md:hidden'>
+                <div className='block sm:hidden'>
                     <FadeUp>
                         <CardSlider
                             slides={mobileSlides}

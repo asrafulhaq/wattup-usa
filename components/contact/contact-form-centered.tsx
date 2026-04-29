@@ -9,7 +9,7 @@ const ContactFormCentered = () => {
 
     return (
         <section id='contact-form' className='bg-white pb-23.75 md:py-20.5'>
-            <div className='container mx-auto md:text-center'>
+            <div className='container mx-auto max-xs:text-left text-center'>
                 <FadeUp>
                     <h2 className='max-md:headline-5 text-nowrap headline-dark mb-6'>
                         Still need help?
@@ -20,7 +20,7 @@ const ContactFormCentered = () => {
             </div>
 
             <FadeUp delay={0.2}>
-                <div className='flex  flex-col w-full  lg:mx-auto'>
+                <div className='flex  flex-col w-full  mx-auto'>
                     {/* Tab Switcher */}
                     <div className='relative mx-auto flex bg-gray/30 rounded-[8px] p-1 mb-10'>
                         {/* Sliding Background Indicator */}

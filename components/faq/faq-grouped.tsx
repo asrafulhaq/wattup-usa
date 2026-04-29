@@ -80,13 +80,13 @@ export const FAQGrouped = () => {
             ...prev,
             [category]: showAll ? catData.items.map((_, i) => i) : [],
         }));
-    }; 
+    };
 
     return (
         <section className='w-full bg-white py-[82px]'>
             <div className='container max-w-[1440px] mx-auto flex flex-col md:flex-row items-start gap-10 md:gap-[130px]'>
                 {/* Sidebar - In this article (Desktop) */}
-                <aside className='hidden md:block w-[297px] shrink-0 sticky top-[50px] h-fit'>
+                <aside className='hidden md:block w-[20%] shrink-0 sticky top-[50px] h-fit'>
                     <h3 className='text-[24px] font-semibold leading-none text-dark tracking-[-0.03em] mt-0'>
                         In this article:
                     </h3>
@@ -127,7 +127,7 @@ export const FAQGrouped = () => {
                     </ul>
                 </aside>
 
-                <div className='flex flex-col flex-none w-full md:w-[670px] md:min-w-[670px]'>
+                <div className='flex flex-col flex-1 w-full shrink-0 md:w-[670px]'>
                     <FadeUp className='w-full'>
                         <h2 className=' text-[32px] font-semibold md:text-[40px] md:font-medium text-dark mb-4 md:mb-6 leading-none mt-0'>
                             Frequently Asked Questions

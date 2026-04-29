@@ -71,7 +71,10 @@ export default function ForDriversPage() {
             />
 
             {/* 2. How It Works */}
-            <StepGrid stepData={DriverPageHowItWorksStepData} />
+            <StepGrid
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-3'
+                stepData={DriverPageHowItWorksStepData}
+            />
 
             {/* 3. Why Choose WATTUP Cards */}
             <ImageSliderSection slides={DriverPageWhyChooseSlideCardData} />
