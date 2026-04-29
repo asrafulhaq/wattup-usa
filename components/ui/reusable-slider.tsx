@@ -41,6 +41,8 @@ export function ReusableSlider({
     const autoplayRef = React.useRef<ReturnType<typeof setInterval> | null>(
         null
     );
+    const touchStartX = React.useRef<number | null>(null);
+    const touchStartY = React.useRef<number | null>(null);
 
     const totalSlides = slides.length;
 
@@ -77,9 +79,36 @@ export function ReusableSlider({
         },
         [resetAutoplay]
     );
+    const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    }, []);
+
+    const handleTouchEnd = React.useCallback(
+        (e: React.TouchEvent) => {
+            if (touchStartX.current === null || touchStartY.current === null)
+                return;
+
+            const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+            const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+            // Only trigger if horizontal swipe is dominant (avoids fighting scroll)
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
+                if (deltaX < 0) scrollNext();
+                else scrollPrev();
+            }
+
+            touchStartX.current = null;
+            touchStartY.current = null;
+        },
+        [scrollNext, scrollPrev]
+    );
 
     return (
-        <div className={cn('relative', className)}>
+        <div
+            className={cn('relative', className)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}>
             {/* Slide stack — all slides are layered on top of each other */}
             <div className='relative h-full w-full'>
                 {slides.map((slide, index) => (
