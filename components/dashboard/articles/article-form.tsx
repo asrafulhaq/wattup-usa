@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { uploadSingleImage } from '@/app/_actions/image-actions';

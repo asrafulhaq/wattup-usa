@@ -24,6 +24,10 @@ export interface CloudinaryImageResponse {
     created_at: string;
 }
 
+function getOptimizedUrl(url: string): string {
+    return url.replace('/upload/', '/upload/f_auto,q_auto/');
+}
+
 export async function uploadImageToCloudinary(
     file: File,
     options: UploadOptions = {}
@@ -44,6 +48,7 @@ export async function uploadImageToCloudinary(
             resource_type: 'auto' as const,
             tags: tags,
             context: { userId: userId },
+            transformation: [{ fetch_format: 'auto', quality: 'auto' }],
             ...(publicId && { public_id: publicId, overwrite: true }),
         };
 
@@ -58,8 +63,8 @@ export async function uploadImageToCloudinary(
                 } else {
                     resolve({
                         id: result.public_id,
-                        url: result.secure_url,
-                        thumbnail: result.secure_url,
+                        url: getOptimizedUrl(result.secure_url),
+                        thumbnail: getOptimizedUrl(result.secure_url),
                         originalName: file.name,
                         size: result.bytes,
                         format: result.format,

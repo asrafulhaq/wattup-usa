@@ -398,9 +398,11 @@ export const columns: ColumnDef<Article>[] = [
         accessorKey: 'content',
         header: 'Content',
         cell: ({ row }) => (
-            <div className=' text-sm text-muted-foreground truncate max-w-[260px]'>
+            <div className=' text-sm text-muted-foreground line-clamp-2 max-w-[350px] '>
                 <Suspense fallback={<div>Loading...</div>}>
-                    <RichTextContent content={row.original.content.slice(0, 200)} />
+                    <RichTextContent
+                        content={row.original.content.slice(0, 700)}
+                    />
                 </Suspense>
             </div>
         ),
