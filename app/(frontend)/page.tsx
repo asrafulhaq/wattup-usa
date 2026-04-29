@@ -60,7 +60,7 @@ export default function Home() {
             <VideoPresentation />
 
             {/* 5. How It Works */}
-            <StepGrid />
+            <StepGrid gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-3'/>
 
             {/* 6. Technology Backed */}
             {/*    <TechnologyBackedXPercent /> */}

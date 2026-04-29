@@ -110,7 +110,7 @@ export function ImageTitleGrid({
                 </FadeUp>
 
                 {/* Desktop: 2-col grid */}
-                <div className='hidden md:grid grid-cols-2 gap-10'>
+                <div className='hidden sm:grid grid-cols-2 gap-10'>
                     {items.map((item, index) => (
                         <FadeUp key={index} delay={index * 0.1}>
                             <ImageTitleCard
@@ -122,7 +122,7 @@ export function ImageTitleGrid({
                 </div>
 
                 {/* Mobile: Embla slider */}
-                <div className='block md:hidden'>
+                <div className='block sm:hidden'>
                     <FadeUp>
                         <CardSlider
                             slides={mobileSlides}

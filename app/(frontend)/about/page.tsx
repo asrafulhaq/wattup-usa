@@ -48,7 +48,7 @@ export default function AboutPage() {
                 mobileImage={aboutImageUrls.aboutPageHeroImageMobile}
                 alt='About Page Hero Background'
                 sectionClass=''
-                imageClass='max-md:object-[45%_top]'
+                imageClass=''
                 overlay={false}
                 heading={
                     <>
@@ -75,7 +75,7 @@ export default function AboutPage() {
             <StepGrid
                 heading='Our Core Principles'
                 stepData={AboutPageCorePrinciplesData}
-                gridClass='grid-cols-4'
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-4!'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
                 cardImageHeight='h-[373px]'
             />
@@ -97,4 +97,5 @@ export default function AboutPage() {
         </main>
     );
 }
+
 

@@ -58,7 +58,7 @@ export default function CapitalPartnersPage() {
             <StepGrid
                 heading='Why WattUp USA'
                 stepData={CapitalPartnersWhyData}
-                gridClass='grid-cols-4'
+                gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-4'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
                 titleClass='text-[28px]! font-bold!'
                 cardImageHeight='h-[373px]'
@@ -75,11 +75,12 @@ export default function CapitalPartnersPage() {
                 subHeading={
                     'WattUp USA is led by a team with experience across infrastructure development, operations, and capital management. The company maintains a disciplined approach to deployment, prioritizing long-term asset performance and sustainable growth.'
                 }
-            />  
+            />
 
             {/* 06. Access Form */}
             <AccessRequest />
         </main>
     );
 }
+
 

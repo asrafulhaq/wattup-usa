@@ -43,7 +43,7 @@ export default function FAQPage() {
             <PageHero
                 sectionClass='max-md:h-[710px] md:h-[810px]! '
                 overlay={true}
-                imageClass='object-cover object-[25%_bottom]'
+
                 image={faqImageUrls.heroImage}
                 mobileImage={faqImageUrls.heroImageMobile}
                 heading={
