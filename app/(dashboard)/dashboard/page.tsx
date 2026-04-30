@@ -58,7 +58,7 @@ export default async function DashboardPage() {
                                 <p className='font-bold text-dark text-base truncate'>
                                     {user.name || 'Admin'}
                                 </p>
-                                <p className='text-sm text-dark/50 truncate font-medium'>
+                                <p className='text-sm text-dark/50 truncate font-normal'>
                                     {user.email}
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
                                 Active
                             </span>
                         </div>
-                        <p className='text-xs text-dark/50 mt-3 font-medium'>
+                        <p className='text-xs text-dark/50 mt-3 font-normal'>
                             Session expires in 7 days
                         </p>
                     </div>
@@ -129,11 +129,11 @@ function InfoRow({
         <div className='flex items-center justify-between gap-4'>
             <span className='text-xs text-muted-foreground'>{label}</span>
             {status === 'success' ? (
-                <span className='text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5'>
+                <span className='text-xs font-normal text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5'>
                     {value}
                 </span>
             ) : status === 'warning' ? (
-                <span className='text-xs font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5'>
+                <span className='text-xs font-normal text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5'>
                     {value}
                 </span>
             ) : highlight ? (
@@ -141,7 +141,7 @@ function InfoRow({
                     {value}
                 </span>
             ) : (
-                <span className='text-xs font-medium text-foreground'>
+                <span className='text-xs font-normal text-foreground'>
                     {value}
                 </span>
             )}
@@ -151,7 +151,7 @@ function InfoRow({
 
 function QuickActionPill({ icon, label }: { icon: string; label: string }) {
     return (
-        <button className='inline-flex items-center gap-2 rounded-xl border border-border bg-[oklch(0.96_0.002_17.2)] px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-[#197dff]/40 hover:bg-[#197dff]/5 hover:text-[#197dff] active:scale-[0.97]'>
+        <button className='inline-flex items-center gap-2 rounded-xl border border-border bg-[oklch(0.96_0.002_17.2)] px-4 py-2.5 text-sm font-normal text-foreground transition-all hover:border-[#197dff]/40 hover:bg-[#197dff]/5 hover:text-[#197dff] active:scale-[0.97]'>
             <span>{icon}</span>
             {label}
         </button>

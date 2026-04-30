@@ -220,7 +220,7 @@ const ProfilePhotoSection = ({ user }: ProfilePhotoSectionProps) => {
                     {/* Controls */}
                     <div className='flex flex-col gap-3 flex-1'>
                         <div className='space-y-1'>
-                            <h4 className='text-sm font-semibold text-foreground'>
+                            <h4 className='text-sm font-medium text-foreground'>
                                 Avatar Image
                             </h4>
                             <p className='text-xs text-muted-foreground'>
@@ -242,7 +242,7 @@ const ProfilePhotoSection = ({ user }: ProfilePhotoSectionProps) => {
                                 variant='outline'
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={uploading}
-                                className='gap-2 h-9 border-border hover:bg-muted font-medium'>
+                                className='gap-2 h-9 border-border hover:bg-muted font-normal'>
                                 <Upload className='w-3.5 h-3.5' />
                                 Change Photo
                             </Button>
@@ -254,7 +254,7 @@ const ProfilePhotoSection = ({ user }: ProfilePhotoSectionProps) => {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
-                                    className='text-[11px] font-semibold text-destructive mt-1 bg-destructive/5 py-1 px-2 rounded-md border border-destructive/10 inline-block'>
+                                    className='text-[11px] font-medium text-destructive mt-1 bg-destructive/5 py-1 px-2 rounded-md border border-destructive/10 inline-block'>
                                     {error}
                                 </motion.div>
                             )}

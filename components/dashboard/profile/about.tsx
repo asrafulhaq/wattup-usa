@@ -44,7 +44,7 @@ const About = ({ profile }: AboutProps) => {
         <Card className='md:col-span-2 shadow-none border-border'>
             <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
                 <div>
-                    <CardTitle className='text-lg font-semibold'>
+                    <CardTitle className='text-lg font-medium'>
                         About Section
                     </CardTitle>
                     <CardDescription>

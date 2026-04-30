@@ -24,7 +24,7 @@ export function StatusBadge({ status }: { status: string }) {
     return (
         <Badge
             variant='outline'
-            className={`text-[11px] font-medium px-2 py-0.5 ${map[status] ?? map['Draft']}`}>
+            className={`text-[11px] font-normal px-2 py-0.5 ${map[status] ?? map['Draft']}`}>
             <span className='mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current' />
             {status}
         </Badge>

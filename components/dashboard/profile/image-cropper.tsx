@@ -97,7 +97,7 @@ const ImageCropper = ({
 
                     <div className='bg-muted/30 p-4 rounded-xl border border-border/50 space-y-4'>
                         <div className='flex items-center justify-between'>
-                            <label className='text-sm font-semibold text-foreground flex items-center gap-2'>
+                            <label className='text-sm font-medium text-foreground flex items-center gap-2'>
                                 Zoom Level
                             </label>
                             <span className='text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded'>
@@ -119,7 +119,7 @@ const ImageCropper = ({
                     <Button
                         onClick={handleClose}
                         variant='outline'
-                        className='border-border hover:bg-muted font-medium px-8'>
+                        className='border-border hover:bg-muted font-normal px-8'>
                         Cancel
                     </Button>
                     <Button

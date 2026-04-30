@@ -57,9 +57,7 @@ export default function FormMetadata({
                             className='text-xs text-muted-foreground whitespace-nowrap'>
                             Status
                         </Label>
-                        <Select
-                            value={status}
-                            onValueChange={onStatusChange}>
+                        <Select value={status} onValueChange={onStatusChange}>
                             <SelectTrigger
                                 id='status'
                                 className='h-8 w-32 text-xs'>
@@ -101,10 +99,10 @@ export default function FormMetadata({
                         <Pin
                             className={`h-3.5 w-3.5 ${pinned ? 'text-primary' : 'text-muted-foreground'}`}
                         />
-                        <span className='text-xs font-medium text-muted-foreground'>
+                        <span className='text-xs font-normal text-muted-foreground'>
                             Pin to Home
                         </span>
-                        <span className="sr-only">Pin to Home</span>
+                        <span className='sr-only'>Pin to Home</span>
                         <Switch
                             checked={pinned}
                             onCheckedChange={onPinnedChange}
@@ -116,3 +114,4 @@ export default function FormMetadata({
         </Card>
     );
 }
+

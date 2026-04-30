@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { UploadIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -172,7 +173,7 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
     return (
         <Card className='shadow-none border-border'>
             <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-                <CardTitle className=' text-lg font-semibold'>
+                <CardTitle className=' text-lg font-medium'>
                     Personal Information
                 </CardTitle>
                 <Button
@@ -186,7 +187,7 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
             </CardHeader>
             <CardContent className='space-y-6'>
                 <div className='flex flex-wrap items-center gap-4'>
-                <div className='relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted'>
+                    <div className='relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted'>
                         {currentPhoto ? (
                             <Image
                                 src={currentPhoto}
@@ -241,13 +242,14 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
                         variant='outline'
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className='h-9'>
+                        className='h-9 font-normal border border-dashed bg-primary/5 text-sm w-fit px-5 hover:border-solid hover:bg-primary'>
+                        <UploadIcon size={12} />
                         Change Photo
                     </Button>
                 </div>
 
                 <div className='space-y-2'>
-                    <Label htmlFor='name' className='text-sm font-medium'>
+                    <Label htmlFor='name' className='text-sm font-normal'>
                         Name
                     </Label>
                     <Input
@@ -258,7 +260,7 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
                     />
                 </div>
                 <div className='space-y-2'>
-                    <Label htmlFor='bio' className='text-sm font-medium'>
+                    <Label htmlFor='bio' className='text-sm font-normal'>
                         Bio (Short)
                     </Label>
                     <Textarea

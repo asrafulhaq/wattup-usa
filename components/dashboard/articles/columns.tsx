@@ -124,7 +124,9 @@ function ActionCell({ row }: { row: any }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-36 '>
                     <DropdownMenuItem asChild>
-                        <Link target='_blank' href={`/posts/${article.slug}`}>
+                        <Link
+                            target='_blank'
+                            href={`/press-release/${article.slug}`}>
                             View
                         </Link>
                     </DropdownMenuItem>
@@ -163,7 +165,7 @@ function ActionCell({ row }: { row: any }) {
                             Delete this article?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            <span className='font-medium text-foreground'>
+                            <span className='font-normal text-foreground'>
                                 &ldquo;{article.title}&rdquo;
                             </span>{' '}
                             will be permanently deleted. This action cannot be
@@ -302,7 +304,7 @@ export function ArticleBatchActions({
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             This will permanently delete{' '}
-                            <span className='font-medium text-foreground'>
+                            <span className='font-normal text-foreground'>
                                 {count} article{count > 1 ? 's' : ''}
                             </span>
                             . This action cannot be undone.
@@ -429,7 +431,7 @@ export const columns: ColumnDef<Article>[] = [
                 ) : (
                     <BsFileEarmarkMedical className='mr-1 size-3' />
                 )}
-                <span className='text-[10px] mt-1 font-medium'>
+                <span className='text-[10px] mt-1 font-normal'>
                     {row.original.status}
                 </span>
             </Badge>
@@ -455,6 +457,4 @@ export const columns: ColumnDef<Article>[] = [
         cell: ({ row }) => <ActionCell row={row} />,
     },
 ];
-
-
 

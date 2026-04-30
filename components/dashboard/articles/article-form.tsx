@@ -207,7 +207,7 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
 
             {state.error && (
                 <div className='bg-destructive/10 border border-destructive/20 text-destructive text-sm px-4 py-3 rounded-md flex items-center gap-2 animate-in fade-in slide-in-from-top-1'>
-                    <span className='font-semibold'>Error:</span>
+                    <span className='font-medium'>Error:</span>
                     {state.error}
                 </div>
             )}

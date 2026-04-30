@@ -57,7 +57,7 @@ const SocialLinks = ({ initialLinks }: SocialLinksProps) => {
     return (
         <Card className='shadow-none border-border'>
             <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-                <CardTitle className='text-lg font-semibold'>
+                <CardTitle className='text-lg font-medium'>
                     Social Links
                 </CardTitle>
                 <Button
@@ -94,7 +94,9 @@ const SocialLinks = ({ initialLinks }: SocialLinksProps) => {
                         id='instagram'
                         placeholder='https://instagram.com/...'
                         value={links['Instagram']}
-                        onChange={e => handleChange('Instagram', e.target.value)}
+                        onChange={e =>
+                            handleChange('Instagram', e.target.value)
+                        }
                     />
                 </div>
             </CardContent>

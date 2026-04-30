@@ -34,7 +34,7 @@ export default function FormImage({
     return (
         <Card className='shadow-none border-border rounded-md'>
             <CardHeader className='px-4 pt-4 pb-2'>
-                <CardTitle className='text-sm font-semibold text-foreground uppercase tracking-wider'>
+                <CardTitle className='text-sm font-medium text-foreground uppercase tracking-wider'>
                     Featured Image
                 </CardTitle>
             </CardHeader>
@@ -67,22 +67,21 @@ export default function FormImage({
                                     className='object-cover'
                                     unoptimized
                                 />
-                                <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-sm font-medium'>
-                                    <Upload className='h-4 w-4' />{' '}
-                                    Change Image
+                                <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-sm font-normal'>
+                                    <Upload className='h-4 w-4' /> Change Image
                                 </div>
                             </>
                         ) : isUploading ? (
                             <div className='flex flex-col items-center gap-2'>
                                 <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                                <span className='text-xs font-medium text-muted-foreground'>
+                                <span className='text-xs font-normal text-muted-foreground'>
                                     Uploading…
                                 </span>
                             </div>
                         ) : (
                             <div className='flex flex-col items-center gap-2 text-muted-foreground/60 group-hover:text-primary/70 transition-colors'>
                                 <ImageIcon className='h-8 w-8' />
-                                <span className='text-sm font-medium'>
+                                <span className='text-sm font-normal'>
                                     Click to upload cover image
                                 </span>
                                 <span className='text-[10px] uppercase tracking-tighter'>
@@ -97,7 +96,7 @@ export default function FormImage({
                         <div className='space-y-1.5'>
                             <Label
                                 htmlFor='image-url'
-                                className='text-xs font-medium text-muted-foreground uppercase tracking-wide'>
+                                className='text-xs font-normal text-muted-foreground uppercase tracking-wide'>
                                 Image URL
                             </Label>
                             <Input
@@ -111,7 +110,7 @@ export default function FormImage({
                         <div className='space-y-1.5'>
                             <Label
                                 htmlFor='image-alt'
-                                className='text-xs font-medium text-muted-foreground uppercase tracking-wide'>
+                                className='text-xs font-normal text-muted-foreground uppercase tracking-wide'>
                                 Alt Text (SEO)
                             </Label>
                             <Input
@@ -138,3 +137,4 @@ export default function FormImage({
         </Card>
     );
 }
+

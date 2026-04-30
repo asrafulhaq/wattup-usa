@@ -95,7 +95,7 @@ export default function CredentialsUpdate() {
                 <CardHeader>
                     <div className='flex items-center gap-2 text-primary mb-1'>
                         <IconLock size={20} />
-                        <CardTitle className='text-lg font-semibold'>
+                        <CardTitle className='text-lg font-medium'>
                             Change Password
                         </CardTitle>
                     </div>
