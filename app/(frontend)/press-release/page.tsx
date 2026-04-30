@@ -1,8 +1,10 @@
 import { PageHero } from '@/components/drivers/page-hero';
 import { CTAReady } from '@/components/home/cta-ready';
-import { PressReleaseArchive } from '@/components/press-release/press-release-archive';
+import { BlogPostList } from '@/components/press-release/blog-post-list';
+import { BlogPostListSkeleton } from '@/components/skeletons/blog-post-list-skeleton';
 import { pressReleaseImageUrls } from '@/lib/images/press-release';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Press Release | WattUp EV Charging',
@@ -53,8 +55,9 @@ export default function PressReleasePage() {
             />
 
             {/* 2. Press Release */}
-            <PressReleaseArchive />
-
+            <Suspense fallback={<BlogPostListSkeleton />}>
+                <BlogPostList />
+            </Suspense>
             {/* 3. CTA Section */}
             <CTAReady
                 sectionClass='xl:h-[1080px]'

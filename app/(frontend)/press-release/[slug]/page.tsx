@@ -1,7 +1,9 @@
-import { baseUrl } from '@/app/(frontend)/page';
+import { getArticleBySlug } from '@/app/_actions/postActions';
 import PressReleaseDetails from '@/components/press-release/press-release-details';
 import PressReleaseDetailsHeader from '@/components/press-release/press-release-details-header';
-import { pressReleaseArchiveData } from '@/data';
+import { PressReleaseDetailsSkeleton } from '@/components/skeletons/press-release-details-skeleton';
+import { pressReleaseImageUrls } from '@/lib/images/press-release';
+import { formatDate } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -11,39 +13,55 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const pressRelease = pressReleaseArchiveData.find(p => p.slug === slug);
+    const article = await getArticleBySlug(slug);
 
-    if (!pressRelease) {
+    if (!article) {
         return {
             title: 'Press Release Not Found | WattUp EV Charging',
             description: 'The requested press release could not be found.',
         };
     }
 
+    const description = article.content
+        ? article.content
+              .replace(/<[^>]*>/g, ' ')
+              .slice(0, 160)
+              .trim() + '...'
+        : 'Read the latest press release from WattUp EV Charging.';
+
+    const imageUrl = article.image
+        ? article.image
+        : pressReleaseImageUrls.ogImage; // Fallback image
+
     return {
-        title: `${pressRelease.title} | WattUp EV Charging`,
-        description: pressRelease.description.slice(0, 160) + '...',
+        title: `${article.title} | WattUp EV Charging`,
+        description,
         openGraph: {
-            title: `${pressRelease.title} | WattUp EV Charging`,
-            description: pressRelease.description.slice(0, 160) + '...',
+            title: `${article.title} | WattUp EV Charging`,
+            description,
+            type: 'article',
+            publishedTime:
+                article.publishedAt?.toISOString() ||
+                article.createdAt.toISOString(),
             images: [
                 {
-                    url: `${baseUrl}${pressRelease.image}`,
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
-                    alt: pressRelease.title,
+                    alt: article.imageAlt || article.title,
                 },
             ],
         },
         twitter: {
-            title: `${pressRelease.title} | WattUp EV Charging`,
-            description: pressRelease.description,
+            card: 'summary_large_image',
+            title: `${article.title} | WattUp EV Charging`,
+            description,
             images: [
                 {
-                    url: `${baseUrl}${pressRelease.image}`,
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
-                    alt: pressRelease.title,
+                    alt: article.imageAlt || article.title,
                 },
             ],
         },
@@ -53,14 +71,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // Extract the async content into a separate async component
 async function PressReleaseContent({ params }: Props) {
     const { slug } = await params;
-    const pressRelease = pressReleaseArchiveData.find(p => p.slug === slug);
+    const article = await getArticleBySlug(slug);
 
-    if (!pressRelease) {
+    if (!article) {
         return (
             <>
                 <PressReleaseDetailsHeader
                     title='Press Release Not Found'
-                    date='March 25, 2026'
+                    date={formatDate(new Date())}
                 />
                 <article className='common-section-padding container mx-auto'>
                     <p>Press Release Not Found</p>
@@ -72,10 +90,10 @@ async function PressReleaseContent({ params }: Props) {
     return (
         <>
             <PressReleaseDetailsHeader
-                title={pressRelease.title}
-                date={pressRelease.date}
+                title={article.title}
+                date={formatDate(article.publishedAt || article.createdAt)}
             />
-            <PressReleaseDetails pressRelease={pressRelease} />
+            <PressReleaseDetails article={article} />
         </>
     );
 }
@@ -84,12 +102,7 @@ async function PressReleaseContent({ params }: Props) {
 export default function PressReleaseDetailsPage({ params }: Props) {
     return (
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
-            <Suspense
-                fallback={
-                    <div className='common-section-padding container mx-auto'>
-                        Loading...
-                    </div>
-                }>
+            <Suspense fallback={<PressReleaseDetailsSkeleton />}>
                 <PressReleaseContent params={params} />
             </Suspense>
         </main>

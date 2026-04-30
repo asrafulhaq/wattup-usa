@@ -1,19 +1,24 @@
-import { getArticles } from '@/app/_actions/postActions';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getPaginatedArticles } from '@/app/_actions/postActions';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Suspense } from 'react';
-import PageTitle from '../components/page-title';
-import { ArticlesDataTable } from './articles-data-table';
+import PageTitle from '../../../../components/dashboard/page-title';
+import { ArticlesDataTable } from '../../../../components/dashboard/articles/articles-data-table';
 
 export async function ArticlesTable() {
-    const articles = await getArticles();
+    const { articles, totalCount } = await getPaginatedArticles(1, 10);
 
     const formattedArticles = articles.map(article => ({
         ...article,
         date: article.createdAt.toLocaleDateString(),
     }));
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return <ArticlesDataTable data={formattedArticles as any} />;
+    return (
+        <ArticlesDataTable
+            initialData={formattedArticles as any}
+            initialTotalCount={totalCount}
+        />
+    );
 }
 
 export default async function ArticlesPage() {

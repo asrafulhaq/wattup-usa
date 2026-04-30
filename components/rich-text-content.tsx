@@ -5,18 +5,48 @@ import { marked } from 'marked';
 import React, { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
 
+// --- Tiptap Node Styles ---
+import '@/components/tiptap-node/blockquote-node/blockquote-node.scss';
+import '@/components/tiptap-node/code-block-node/code-block-node.scss';
+import '@/components/tiptap-node/heading-node/heading-node.scss';
+import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss';
+import '@/components/tiptap-node/image-node/image-node.scss';
+import '@/components/tiptap-node/list-node/list-node.scss';
+import '@/components/tiptap-node/paragraph-node/paragraph-node.scss';
+import '@/components/tiptap-templates/simple/simple-editor.scss';
+
 interface RichTextContentProps {
-    content: string;
+    content: string | null;
     className?: string;
     short?: boolean;
 }
 
 function wrapImagesWithCaptions(html: string): string {
-    return html.replace(
-        /<img\s([^>]*?)alt="([^"]+)"([^>]*?)\/?>/gi,
-        (_, before, alt, after) =>
-            `<figure><img ${before}alt="${alt}"${after}/><figcaption style="font-size: 12px; color: rgba(17, 24, 39, 0.7); margin-top: -20px;">${alt}</figcaption></figure>`
-    );
+    return html.replace(/<img\s([^>]*?)\/?>/gi, (match) => {
+        const altMatch = match.match(/alt="([^"]*)"/i);
+        const alt = altMatch ? altMatch[1] : '';
+        const srcMatch = match.match(/src="([^"]*)"/i);
+        const src = srcMatch ? srcMatch[1] : '';
+
+        // Extract other attributes
+        const otherAttrs = match
+            .replace(/alt="[^"]*"/gi, '')
+            .replace(/src="[^"]*"/gi, '')
+            .replace(/<img\s/i, '')
+            .replace(/\/?>/i, '')
+            .trim();
+
+        return `<figure class="image-with-caption-wrapper" style="width: 100%; max-width: 700px; margin: 2rem auto;">
+                <div class="image-with-caption-img-container" style="width: 100%; height: 400px; overflow: hidden; border-radius: 0.5rem;">
+                    <img src="${src}" alt="${alt}" ${otherAttrs} style="width: 100%; height: 100%; object-fit: cover;" class="image-with-caption-img"/>
+                </div>
+                ${
+                    alt
+                        ? `<figcaption style="font-size: 14px; color: rgba(17, 24, 39, 0.7); margin-top: 0.75rem; text-align: center;">${alt}</figcaption>`
+                        : ''
+                }
+            </figure>`;
+    });
 }
 
 export default function RichTextContent({
@@ -57,9 +87,11 @@ export default function RichTextContent({
     }, [content]);
 
     return (
-        <div
-            className={`prose prose-stone dark:prose-invert text-foreground max-w-none ${className}`}
-            dangerouslySetInnerHTML={{ __html: processedContent }}
-        />
+        <div className='simple-editor-content' style={{ maxWidth: '700px', margin: '0 auto', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
+            <div
+                className={`tiptap ProseMirror simple-editor !min-h-0 !p-0 ${className}`}
+                dangerouslySetInnerHTML={{ __html: processedContent }}
+            />
+        </div>
     );
 }

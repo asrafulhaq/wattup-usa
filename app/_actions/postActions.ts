@@ -5,18 +5,65 @@ import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
 import { getAdminSession } from './auth-actions';
 
-export async function getArticles() {
+export async function getArticles(page = 1, pageSize = 10, status?: string) {
     'use cache';
     cacheLife('minutes');
     cacheTag('posts');
     try {
+        const skip = (page - 1) * pageSize;
+        const where: any = {};
+        if (status) {
+            where.status = status;
+        }
+
         const articles = await prisma.posts.findMany({
+            skip,
+            take: pageSize,
             orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+            where,
         });
         return articles;
     } catch (error) {
         console.error('Get Articles Error:', error);
         return [];
+    }
+}
+
+export async function getPaginatedArticles(
+    page = 1,
+    pageSize = 10,
+    status?: string
+) {
+    'use cache';
+    cacheLife('minutes');
+    cacheTag('posts');
+    try {
+        const skip = (page - 1) * pageSize;
+        const where: any = {};
+        if (status) {
+            where.status = status;
+        }
+
+        const [articles, totalCount] = await Promise.all([
+            prisma.posts.findMany({
+                skip,
+                take: pageSize,
+                orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+                where,
+            }),
+            prisma.posts.count({
+                where,
+            }),
+        ]);
+
+        return {
+            articles,
+            hasNextPage: skip + articles.length < totalCount,
+            totalCount,
+        };
+    } catch (error) {
+        console.error('Get Paginated Articles Error:', error);
+        return { articles: [], hasNextPage: false, totalCount: 0 };
     }
 }
 
@@ -50,7 +97,7 @@ export async function getArticleBySlug(slug: string) {
     }
 }
 
-export async function upsertArticle(id: string | undefined, data: any) {
+export async function createArticle(data: any) {
     const session = await getAdminSession();
     if (!session) return { success: false, error: 'Unauthorized' };
     try {
@@ -61,25 +108,83 @@ export async function upsertArticle(id: string | undefined, data: any) {
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/(^-|-$)/g, '');
 
-        const article = await prisma.posts.upsert({
-            where: { id: id || 'new-article' },
-            update: {
-                ...data,
-                slug,
-                updatedAt: new Date(),
-            },
-            create: {
+        const article = await prisma.posts.create({
+            data: {
                 ...data,
                 slug,
                 publishedAt: data.status === 'Published' ? new Date() : null,
             },
         });
-        updateTag('posts');
 
+        updateTag('posts');
         return { success: true, data: article };
-    } catch (error) {
-        console.error('Upsert Article Error:', error);
-        return { success: false, error: 'Failed to save article' };
+    } catch (error: any) {
+        console.error('Create Article Error:', error);
+        if (
+            error.code === 'P2002' ||
+            error.message?.includes('Unique constraint failed')
+        ) {
+            if (error.message?.includes('slug')) {
+                return {
+                    success: false,
+                    error: 'Article with this slug already exists. Please choose a different slug.',
+                };
+            }
+            return {
+                success: false,
+                error: 'A unique constraint failed. Please check your data.',
+            };
+        }
+        return {
+            success: false,
+            error: 'Failed to create article. Please try again.',
+        };
+    }
+}
+
+export async function updateArticle(id: string, data: any) {
+    const session = await getAdminSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+    try {
+        const slug =
+            data.slug ||
+            data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+
+        const article = await prisma.posts.update({
+            where: { id },
+            data: {
+                ...data,
+                slug,
+                updatedAt: new Date(),
+            },
+        });
+
+        updateTag('posts');
+        return { success: true, data: article };
+    } catch (error: any) {
+        console.error('Update Article Error:', error);
+        if (
+            error.code === 'P2002' ||
+            error.message?.includes('Unique constraint failed')
+        ) {
+            if (error.message?.includes('slug')) {
+                return {
+                    success: false,
+                    error: 'Article with this slug already exists. Please choose a different slug.',
+                };
+            }
+            return {
+                success: false,
+                error: 'A unique constraint failed. Please check your data.',
+            };
+        }
+        return {
+            success: false,
+            error: 'Failed to update article. Please try again.',
+        };
     }
 }
 

@@ -1,6 +1,6 @@
+import ArticleForm from '@/components/dashboard/articles/article-form';
 import { EditorPageSkeleton } from '@/components/skeletons/editor-page-skeleton';
 import { Suspense } from 'react';
-import ArticleForm from '../components/article-form';
 
 export default function CreateArticlePage() {
     return (
