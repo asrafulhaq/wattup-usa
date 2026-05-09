@@ -1,19 +1,23 @@
 'use client';
 
-import { HomePagetechnologySlidesData, TechnologySlideData } from '@/data';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
-import { TechnologyBackedSlide } from './technology-backed-slide';
 import { FadeUp } from '../ui/fade-up';
+import {
+    TechnologySlide1,
+    TechnologySlide2,
+    TechnologySlide3,
+} from './technology-slides';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function TechnologyBacked({
-    slides = HomePagetechnologySlidesData,
-}: {
-    slides?: TechnologySlideData[];
-}) {
+const SLIDE_COUNT = 3;
+const STAY_TIME = 5;
+const TRANSITION_TIME = 5;
+const SCROLL_SPEED_MULTIPLIER = 25;
+
+export function TechnologyBacked() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const slidesContainerRef = useRef<HTMLDivElement>(null);
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -21,62 +25,27 @@ export function TechnologyBacked({
 
     useEffect(() => {
         const section = sectionRef.current;
-        if (!section || slides.length === 0) return;
+        if (!section) return;
 
         const ctx = gsap.context(() => {
-            // Set initial state: all slides stacked, only first visible
             slideRefs.current.forEach((slide, i) => {
                 if (!slide) return;
-                if (i === 0) {
-                    gsap.set(slide, {
-                        opacity: 1,
-                        scale: 1,
-                    });
-                } else {
-                    gsap.set(slide, {
-                        opacity: 0,
-                        scale: 0.95,
-                    });
-                }
+                gsap.set(
+                    slide,
+                    i === 0
+                        ? { opacity: 1, scale: 1 }
+                        : { opacity: 0, scale: 0.95 }
+                );
             });
 
             textRefs.current.forEach((text, i) => {
                 if (!text) return;
-                if (i === 0) {
-                    gsap.set(text, { opacity: 1 });
-                } else {
-                    gsap.set(text, { opacity: 0 });
-                }
+                gsap.set(text, { opacity: i === 0 ? 1 : 0 });
             });
 
-            // --- TIMING CONFIGURATION ---
-            /**
-             * STAY_TIME: How long each slide remains static (in timeline units).
-             * Increase this to make slides "stick" longer.
-             */
-            const STAY_TIME = 5;
-
-            /**
-             * TRANSITION_TIME: How long the animation between slides takes.
-             * Increase this for slower transitions, decrease for faster ones.
-             */
-            const TRANSITION_TIME = 5;
-
-            /**
-             * SCROLL_SPEED_MULTIPLIER: Controls the total scroll distance.
-             * A value of 50 means each timeline unit (1 durations) equals 50% of viewport height.
-             * Higher values = slower overall scroll speed (more scrolling needed).
-             */
-            const SCROLL_SPEED_MULTIPLIER = 25;
-
-            // --- CALCULATIONS ---
-            // Total units spent staying still
-            const totalStayUnits = slides.length * STAY_TIME;
-            // Total units spent transitioning (one less than slides)
-            const totalTransitionUnits = (slides.length - 1) * TRANSITION_TIME;
-            // Calculate total scroll distance in % of viewport height
             const totalScrollPercentage =
-                (totalStayUnits + totalTransitionUnits) *
+                (SLIDE_COUNT * STAY_TIME +
+                    (SLIDE_COUNT - 1) * TRANSITION_TIME) *
                 SCROLL_SPEED_MULTIPLIER;
 
             const tl = gsap.timeline({
@@ -86,34 +55,27 @@ export function TechnologyBacked({
                     end: `+=${totalScrollPercentage}%`,
                     pin: true,
                     pinSpacing: true,
-                    scrub: 2, // Smooth damping (buttery feel)
+                    scrub: 2,
                     anticipatePin: 1,
                 },
             });
 
-            slides.forEach((_, i) => {
-                // 1. Hold: Stay on the current slide
+            for (let i = 0; i < SLIDE_COUNT; i++) {
                 tl.to({}, { duration: STAY_TIME });
-
-                // 2. Transition: Move to next slide if it exists
-                if (i < slides.length - 1) {
+                if (i < SLIDE_COUNT - 1) {
                     tl.to(
                         slideRefs.current[i],
                         {
                             opacity: 0,
                             scale: 0.95,
                             duration: TRANSITION_TIME,
-                            ease: 'none', // 'none' is best for scrub timelines to keep speed linear with scroll
+                            ease: 'none',
                         },
                         '>'
                     )
                         .to(
                             textRefs.current[i],
-                            {
-                                opacity: 0,
-                                duration: TRANSITION_TIME,
-                                ease: 'none',
-                            },
+                            { opacity: 0, duration: TRANSITION_TIME, ease: 'none' },
                             '<'
                         )
                         .to(
@@ -128,69 +90,73 @@ export function TechnologyBacked({
                         )
                         .to(
                             textRefs.current[i + 1],
-                            {
-                                opacity: 1,
-                                duration: TRANSITION_TIME,
-                                ease: 'none',
-                            },
+                            { opacity: 1, duration: TRANSITION_TIME, ease: 'none' },
                             '<'
                         );
                 }
-            });
+            }
         }, section);
 
         return () => ctx.revert();
-    }, [slides]);
+    }, []);
 
     return (
-        <section id='technology' className='relative common-section-padding z-10 h-auto  bg-black overflow-hidden'>
-            {/* Inner container capped at 1440px */}
-            <div className='relative w-screen h-full flex flex-col'>
-                {/* Header — stays on top */}
-
+        <section
+            id='technology'
+            className='relative common-section-padding z-10 h-auto bg-black overflow-hidden'>
+            <div className='relative w-screen h-full  flex flex-col'>
+                {/* Section header */}
                 <div className='relative z-30 flex flex-col items-center text-center shrink-0'>
                     <FadeUp>
-                        
                         <h2 className='headline-white mb-4'>
                             Technology Backed
                             <br />
                             by Global Innovation
                         </h2>
                     </FadeUp>
-                     <FadeUp delay={0.1}>
-                    <p className='text-description text-white/60 max-md:max-w-[348px] max-w-[534px] mb-[40px] md:mb-[54px]'>
-                        Our charging infrastructure combines advanced hardware
-                        with intelligent network management to deliver reliable,
-                        high-performance EV charging.
-                    </p>
+                    <FadeUp delay={0.1}>
+                        <p className='text-description text-white/60 max-md:max-w-87 max-w-133.5 mb-10 md:mb-13.5'>
+                            Our charging infrastructure combines advanced
+                            hardware with intelligent network management to
+                            deliver reliable, high-performance EV charging.
+                        </p>
                     </FadeUp>
                 </div>
 
-                {/* Slides Area */}
+                {/* Pinned slides area */}
                 <div ref={sectionRef} className='scroll-section'>
                     <div
                         ref={slidesContainerRef}
                         className='relative w-full grow h-dvh overflow-hidden'>
-                        {slides.map((slide, index) => (
-                            <TechnologyBackedSlide
-                                key={index}
-                                slide={slide}
-                                style={index > 0 ? { opacity: 0 } : undefined}
-                                ref={el => {
-                                    slideRefs.current[index] = el;
-                                }}
-                                textRef={el => {
-                                    textRefs.current[index] = el;
-                                }}
-                            />
-                        ))}
+                        <TechnologySlide1
+                            slideRef={el => {
+                                slideRefs.current[0] = el;
+                            }}
+                            textRef={el => {
+                                textRefs.current[0] = el;
+                            }}
+                        />
+                        <TechnologySlide2
+                            slideRef={el => {
+                                slideRefs.current[1] = el;
+                            }}
+                            textRef={el => {
+                                textRefs.current[1] = el;
+                            }}
+                            style={{ opacity: 0 }}
+                        />
+                        <TechnologySlide3
+                            slideRef={el => {
+                                slideRefs.current[2] = el;
+                            }}
+                            textRef={el => {
+                                textRefs.current[2] = el;
+                            }}
+                            style={{ opacity: 0 }}
+                        />
                     </div>
                 </div>
             </div>
         </section>
     );
 }
-
-
-
-
