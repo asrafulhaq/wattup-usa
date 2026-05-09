@@ -23,8 +23,8 @@ export const homeImages = {
 
     slide_1_full: 'slide-1_yq5l8a',
     slide_1_layered: 'slide_1_layered_unuk3w',
-    slide_1_layered_mobile: 'slide_1_mobile_thg9t0',
-    slide_1_full_mobile: 'slide-1-layered_yq5l8a',
+    slide_1_layered_mobile: 'slide_1_mobile_pyp6mm',
+    slide_1_full_mobile: 'slide_1_mobile_pyp6mm',
 
     slide_2_full: 'slide-2_yq5l8a',
     slide_2_layered: 'slide_2_layered_e7thux',
@@ -70,6 +70,8 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
+
+
 
 
 
