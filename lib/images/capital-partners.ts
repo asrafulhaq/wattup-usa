@@ -6,21 +6,21 @@ import { cloudinaryUrl } from './home';
  */
 export const capitalPartnersImages = {
     // Hero
-    heroImage: 'hero-image_sptojh',
-    heroImageMobile: 'hero-image-mobile_tgjqce',
+    heroImage: 'hero-image_wsi87s',
+    heroImageMobile: 'hero-image-mobile_prnhus',
 
     // OG / Social
-    ogImage: 'og-image_ntkkbu',
+    ogImage: 'og-image_ejumuv',
 
     // Leadership section
     leadership: 'leadership_noqurf',
     leadershipMobile: 'leadership-mobile_ooff6h',
 
     // Why Choose section
-    why1: 'why-1_zoua7e',
+    why1: 'why-1_jgfvrk',
     why2: 'why-2_imp5z6',
-    why3: 'why-3_mdz9sz',
-    why4: 'why-4_sffnuw',
+    why3: 'why-3_uqd65t',
+    why4: 'why-4_lnqeuf',
 };
 
 /**
@@ -30,6 +30,12 @@ export const capitalPartnersImages = {
 export const capitalPartnersImageUrls = Object.fromEntries(
     Object.entries(capitalPartnersImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof capitalPartnersImages, string>;
+
+
+
+
+
+
 
 
 

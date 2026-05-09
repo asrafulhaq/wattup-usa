@@ -3,8 +3,9 @@ import { cloudinaryUrl } from './home';
 export const pressReleaseImages = {
     ctaImageMobile: 'cta-image-mobile_ju33cl',
     ctaImage: 'cta-image_m0wsws',
-    heroImage: 'hero-image_p2oc2j',
-    ogImage: 'og-image_zlo0cc',
+    heroImage: 'hero-image_lt5jem',
+    heroImageMobile: 'hero-image-mobile_wz94ts',
+    ogImage: 'og-image_dvxvml',
     pressRelease1Mobile: 'press-release-1-mobile_qxwl7t',
     pressRelease1Second: 'press-release-1-second_k9gvxs',
     pressRelease1: 'press-release-1_jlxiwh',
@@ -26,6 +27,9 @@ export const pressReleaseImageUrls = Object.fromEntries(
         cloudinaryUrl(id),
     ])
 ) as Record<keyof typeof pressReleaseImages, string>;
+
+
+
 
 
 

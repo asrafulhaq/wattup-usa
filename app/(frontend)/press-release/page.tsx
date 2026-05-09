@@ -44,6 +44,7 @@ export default function PressReleasePage() {
             {/* 01. Hero Section */}
             <PageHero
                 image={pressReleaseImageUrls.heroImage}
+                mobileImage={pressReleaseImageUrls.heroImageMobile}
                 alt='Press Release Page Hero Background'
                 heading='Media'
                 imageClass='max-md:object-[15%_bottom]'

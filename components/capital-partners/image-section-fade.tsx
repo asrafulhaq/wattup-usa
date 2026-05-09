@@ -56,8 +56,8 @@ export default function ImageSectionFade({
             <FadeUp delay={0.3}>
                 <div
                     className={cn(
-                        'relative w-full z-0 -mt-8 md:-mt-40',
-                        imageHeight
+                        'relative w-full z-0 -mt-8 md:-mt-40 ',
+                        imageHeight 
                     )}>
                     {/* Mobile image — shown only below md */}
                     {mobileImage && (

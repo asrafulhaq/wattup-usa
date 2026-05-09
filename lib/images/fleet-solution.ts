@@ -9,8 +9,8 @@ export const fleetSolutionImages = {
     heroImage: 'hero-image_mpawrl',
     heroImageMobile: 'hero-image-mobile_mnqaah',
 
-    commercial: 'commercial_gq93hj',
-    commercialMobile: 'commercial-mobile_nymmvr',
+    commercial: 'commercial_mxzfno',
+    commercialMobile: 'commercial-mobile_fm3tig',
 
     // OG / Social
     ogImage: 'og-image_jervr4',
@@ -20,36 +20,36 @@ export const fleetSolutionImages = {
     ctaImageMobile: 'cta-image-mobile_s6ml87',
 
     // Process steps
-    process1: 'process-1_a52dus',
+    process1: 'process-1_nbqd3x',
     process2: 'process-2_n92qlv',
-    process3: 'process-3_sretjh',
+    process3: 'process-3_np16df',
     process4: 'process-4_l8o6cq',
-    process1Mobile: 'process-1-mobile_iiho0d',
-    process2Mobile: 'process-2-mobile_yziyc0',
-    process3Mobile: 'process-3-mobile_ea8qxy',
-    process4Mobile: 'process-4-mobile_ztztxj',
+    process1Mobile: 'process-1_nbqd3x',
+    process2Mobile: 'process-2_n92qlv',
+    process3Mobile: 'process-3_np16df',
+    process4Mobile: 'process-4_l8o6cq',
 
     // Reliability section
     reliability1: 'reliability-1_fbkibv',
-    reliability2: 'reliability-2_w7nsve',
-    reliability3: 'reliability-3_yw1hmj',
+    reliability2: 'reliability-2_cruoat',
+    reliability3: 'reliability-3_y5h6yv',
 
     // Solutions grid
     solution1: 'solution-1_cgnqy3',
     solution2: 'solution-2_cxhsdf',
     solution3: 'solution-3_svnse9',
-    solution4: 'solution-4_bbq92k',
+    solution4: 'solution-4_qmtkvr',
 
     // Why Choose section
-    why1: 'why-1_xlxo3w',
-    why2: 'why-2_u4aozj',
+    why1: 'why-1_cpffqy',
+    why2: 'why-2_x6ei5w',
     why3: 'why-3_e4twji',
-    why4: 'why-4_jlhzdy',
-    why5: 'why-5_fflfon',
+    why4: 'why-4_vuwfec',
+    why5: 'why-5_rnicvo',
     why6: 'why-6_zoaal6',
-    why7: 'why-7_s2hjnm',
-    why8: 'why-8_gvihoo',
-    why5Mobile: 'why-5-mobile_v2tnro',
+    why7: 'why-7_jgvfs2',
+    why8: 'why-8_mftoet',
+    why5Mobile: 'why-5_rnicvo',
     why8Mobile: 'why-8-mobile_fbehvq',
 };
 
@@ -63,6 +63,21 @@ export const fleetSolutionImageUrls = Object.fromEntries(
         cloudinaryUrl(id),
     ])
 ) as Record<keyof typeof fleetSolutionImages, string>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

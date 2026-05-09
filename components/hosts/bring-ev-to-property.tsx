@@ -10,12 +10,8 @@ export function BringEvToProperty() {
             <FadedImageCrossSection
                 imageSrc={hostsImageUrls.hostCrossfade}
                 imageAlt='Charging Stations By Water'
-                sectionClass='max-md:pt-[82px] max-md:mb-[0px]'
-                topFaddingStyle={{
-                    background:
-                        'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 30%)',
-                }}>
-                <div className='flex flex-col items-center text-center w-full'>
+                sectionClass='max-md:pt-[82px] max-md:mb-[0px]'>
+                <div className='flex flex-col py-14 items-center text-center w-full'>
                     <FadeUp>
                         <h2 className='headline-dark mb-[16px] md:mb-[24px] max-md:w-[290px]'>
                             {' '}
