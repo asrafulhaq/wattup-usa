@@ -27,7 +27,8 @@ export const homeImages = {
     slide_1_full_mobile: 'slide-1-layered_yq5l8a',
 
     slide_2_full: 'slide-2_yq5l8a',
-    slide_2_layered: 'slide-2-layered_yq5l8a',
+    slide_2_layered: 'slide_2_layered_e7thux',
+    slide_2_layered_mobile: 'slide_2_mobile_hppycs',
     slide_3_full: 'slide-3_yq5l8a',
     slide_3_layered: 'slide_3_layered_lluugc',
     slide_4_full: 'slide_4_full_wqgda6',
@@ -44,12 +45,12 @@ export const homeImages = {
     slide_9_layered: 'slide_9_layered_am91co',
 
     // Technology Backed images
-    technologyBacked1: 'technology-backed-1_gxb6dy',
-    technologyBacked1Mobile: 'technology-backed-1-mobile_uidepv',
-    technologyBacked2: 'technology-backed-2_vzxhfg',
-    technologyBacked2Mobile: 'technology-backed-2-mobile_doncwb',
-    technologyBacked3: 'technology-backed-3_uvyuzh',
-    technologyBacked3Mobile: 'technology-backed-3-mobile_axzpwq',
+    technologyBacked1: 'technology-backed-1_r2uavn',
+    technologyBacked1Mobile: 'technology-backed-1-mobile_xfzize',
+    technologyBacked2: 'technology-backed-2_erxp4b',
+    technologyBacked2Mobile: 'technology-backed-2-mobile_m3olql',
+    technologyBacked3: 'technology-backed-3_yavhl2',
+    technologyBacked3Mobile: 'technology-backed-3-mobile_b2hjeq',
 
     // Why Choose images
     whyImage1: 'why-image-1_oowjvg',
@@ -69,6 +70,14 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
+
+
+
+
+
+
+
+
 
 
 

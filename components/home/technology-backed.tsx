@@ -145,7 +145,7 @@ export function TechnologyBacked({
     return (
         <section id='technology' className='relative common-section-padding z-10 h-auto  bg-black overflow-hidden'>
             {/* Inner container capped at 1440px */}
-            <div className='relative w-full max-w-[1444px] mx-auto h-full flex flex-col'>
+            <div className='relative w-screen h-full flex flex-col'>
                 {/* Header — stays on top */}
 
                 <div className='relative z-30 flex flex-col items-center text-center shrink-0'>

@@ -36,6 +36,7 @@ export interface TechnologySlideData {
     textStyle?: React.CSSProperties; // Allow exact absolute positioning
     gradientClass?: string;
     gradientStyle?: React.CSSProperties; // Detailed background styling
+    mobileGradientStyle?: React.CSSProperties;
     imageClassName?: string; // Custom image object-position per slide
 }
 export interface HowItWorksStepData {
@@ -187,13 +188,22 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
             maxWidth: '449px',
         },
         gradientStyle: {
-            left: '252px',
-            top: '300px', // Right below the title, like the red box
-            width: '800px',
-            height: '456px',
+            left: 0,
+            top: 0,
+            width: '844px',
+            height: '100%',
             background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
+                'linear-gradient(270deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.85) 100%)',
+            mixBlendMode: 'multiply',
+        },
+        mobileGradientStyle: {
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '427px',
+            background:
+                'linear-gradient(270deg, rgba(0, 0, 0, 0.00) 77.67%, rgba(0, 0, 0, 0.85) 89.56%, #000 100%)',
+            mixBlendMode: 'multiply',
         },
     },
     {
@@ -209,15 +219,6 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
             top: '250px',
             maxWidth: '497px',
         },
-        gradientStyle: {
-            left: '700px',
-            top: '100px',
-            width: '800px',
-            height: '600px',
-            background:
-                'radial-gradient(50% 50% at 50% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)',
-            filter: 'blur(150px)',
-        },
     },
     {
         number: '03.',
@@ -232,13 +233,22 @@ export const HomePagetechnologySlidesData: TechnologySlideData[] = [
             maxWidth: '449px',
         },
         gradientStyle: {
-            left: '252px',
-            top: '200px',
-            width: '800px',
-            height: '556px',
+            left: 0,
+            top: 0,
+            width: '699px',
+            height: '100%',
             background:
-                'radial-gradient(50% 50% at 30% 50%, rgba(55, 48, 32, 0.85) 0%, rgba(55, 48, 32, 0) 100%)', // slightly varied color logic
-            filter: 'blur(150px)',
+                'linear-gradient(270deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.9486) 100%)',
+            mixBlendMode: 'multiply',
+        },
+        mobileGradientStyle: {
+            left: 0,
+            top: 0,
+            width: '300px',
+            height: '337px',
+            background:
+                'linear-gradient(270deg, rgba(0, 0, 0, 0.00) 0%, #000 94.86%)',
+            mixBlendMode: 'multiply',
         },
     },
 ];
