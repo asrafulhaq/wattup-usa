@@ -1,6 +1,8 @@
 import { FadeUp } from '@/components/ui/fade-up';
 import { CapitalPartnersTractionData } from '@/data';
 
+
+
 export function TractionSnapshot() {
     return (
         <section className='w-full common-section-padding bg-white!'>
