@@ -22,17 +22,17 @@ export const homeImages = {
     homepageHero5: 'homepage-hero-5_icjktz',
 
     slide_1_full: 'slide-1_yq5l8a',
-    slide_1_layered: 'slide_1_layered_unuk3w',
+    slide_1_layered: 'tex7-8_ik0ahw',
     slide_1_layered_mobile: 'slide_1_mobile_pyp6mm',
     slide_1_full_mobile: 'slide_1_mobile_pyp6mm',
 
     slide_2_full: 'slide-2_yq5l8a',
-    slide_2_layered: 'slide_2_layered_e7thux',
+    slide_2_layered: 'tex10_2_i0at7t',
     slide_2_layered_mobile: 'slide_2_mobile_hppycs',
     slide_3_full: 'slide-3_yq5l8a',
-    slide_3_layered: 'slide_3_layered_lluugc',
+    slide_3_layered: 'tex13_1_pinuft',
     slide_4_full: 'slide_4_full_wqgda6',
-    slide_4_layered: 'slide_4_layered_iuqx8l',
+    slide_4_layered: 'tex5-2_bwcmkw',
     slide_5_full: 'slide_5_full_w0tis9',
     slide_5_layered: 'slide_5_layered_xqppdr',
     slide_6_full: 'slide_6_full_opx9qp',
@@ -70,6 +70,10 @@ export const homeImages = {
 export const homeImageUrls = Object.fromEntries(
     Object.entries(homeImages).map(([key, id]) => [key, cloudinaryUrl(id)])
 ) as Record<keyof typeof homeImages, string>;
+
+
+
+
 
 
 

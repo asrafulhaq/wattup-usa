@@ -389,7 +389,71 @@ export async function Hero() {
                     </div>
 
                     {/* Content Container */}
-                    <HeroContent dark={true} />
+                    <HeroContent dark={false} />
+                </div>
+            ),
+        },
+        {
+            id: 3,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#cfd8e3]'>
+                        <Image
+                            src={homeImageUrls.slide_3_layered}
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-bottom xl:object-[67%]'
+                            priority
+                            draggable={false}
+                        />
+                        <Image
+                            src={homeImageUrls.slide_3_layered}
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-bottom'
+                            priority
+                            draggable={false}
+                        />
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
+                </div>
+            ),
+        },
+        {
+            id: 4,
+            content: (
+                <div className='relative w-full h-full flex flex-col items-center justify-start'>
+                    {/* Background Image Setup */}
+                    <div className='relative h-[448px] shrink-0 w-full md:absolute md:h-auto md:inset-0 z-0 select-none bg-[#cfd8e3]'>
+                        <Image
+                            src={homeImageUrls.slide_4_layered}
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover hidden md:block object-bottom xl:object-[67%]'
+                            priority
+                            draggable={false}
+                        />
+                        <Image
+                            src={homeImageUrls.slide_4_layered}
+                            alt='WattUp Hero Station'
+                            fill
+                            className='object-cover md:hidden object-bottom'
+                            priority
+                            draggable={false}
+                        />
+
+                        {/* Subtle Gradient Overlay for Text Readability */}
+                        <div className='absolute inset-0 bg-linear-to-b from-black/40 via-black/10 to-transparent' />
+                    </div>
+
+                    {/* Content Container */}
+                    <HeroContent dark={false} />
                 </div>
             ),
         },
@@ -401,5 +465,7 @@ export async function Hero() {
         </section>
     );
 }
+
+
 
 

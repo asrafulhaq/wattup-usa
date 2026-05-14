@@ -4,22 +4,26 @@ import { FacebookIcon, InstagramIcon, XIcon } from '../icons/icons';
 
 const COLUMN_1_LINKS = [
     { label: 'Home', href: '/' },
-    { label: 'For Drivers', href: '/for-drivers' },
-    { label: 'For Hosts', href: '/for-hosts' },
-    { label: 'Locations', href: '#' },
+    { label: 'For  Drivers', href: '/for-drivers' },
+    { label: 'For  Hosts', href: '/for-hosts' },
+    { label: 'Locations', href: '/locations' },
     { label: 'About', href: '/about' },
 ];
 
 const COLUMN_2_LINKS = [
     { label: 'Privacy Policy', href: '/policy' },
     { label: 'Terms of Use', href: '/policy#legal' },
-    { label: 'Why WattUp USA', href: '/#why-wattup' },
-    { label: 'Technology', href: '/#technology' },
-    { label: 'Who we serve', href: '/locations#locations' },
+    { label: 'Press Releases', href: '/press-release' },
+    { label: 'Capital Partners', href: '/capital-partners' },
+    { label: 'FAQs', href: '/faq' },
 ];
 
 const SOCIAL_LINKS = [
-    { icon: InstagramIcon, href: '/#', label: 'Instagram' },
+    {
+        icon: InstagramIcon,
+        href: 'https://www.instagram.com/wattupusa/',
+        label: 'Instagram',
+    },
     { icon: FacebookIcon, href: '/#', label: 'Facebook' },
     { icon: XIcon, href: '/#', label: 'X' },
 ];
@@ -46,7 +50,7 @@ const Footer = () => {
                                 <Link
                                     key={link.label}
                                     href={link.href}
-                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[130%] text-nowrap tracking-[-3%] transition-colors'>
+                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[130%] text-nowrap tracking-[2%] transition-colors'>
                                     {link.label}
                                 </Link>
                             ))}
@@ -56,7 +60,7 @@ const Footer = () => {
                                 <Link
                                     key={link.label}
                                     href={link.href}
-                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[130%] text-nowrap tracking-[-3%] transition-colors'>
+                                    className='text-[16px] py-[10px] font-semibold text-white hover:text-primary leading-[130%] text-nowrap tracking-[2%] transition-colors'>
                                     {link.label}
                                 </Link>
                             ))}
@@ -112,4 +116,5 @@ const Footer = () => {
 };
 
 export default Footer;
+
 
