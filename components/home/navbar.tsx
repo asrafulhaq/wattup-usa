@@ -37,7 +37,7 @@ function NavbarContent() {
         { label: 'Home', href: '/' },
         { label: 'For Drivers', href: '/for-drivers' },
         { label: 'For Hosts', href: '/for-hosts' },
-        { label: 'Fleet Solutions', href: '/fleet-solutions' },
+        { label: 'Fleet Solutions', href: '/fleet-solution' },
         { label: 'About', href: '/about' },
     ];
 
