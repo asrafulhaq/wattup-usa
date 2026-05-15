@@ -1,5 +1,5 @@
 export const videos = {
-    video1: 'video-1_x0kh1c',
+    video1: 'wattup_v4_k0s3wd',
 };
 
 export function cloudinaryVideoUrl(publicId: string) {
@@ -14,4 +14,5 @@ export function cloudinaryVideoUrl(publicId: string) {
 export const videoUrls = Object.fromEntries(
     Object.entries(videos).map(([key, id]) => [key, cloudinaryVideoUrl(id)])
 ) as Record<keyof typeof videos, string>;
+
 
