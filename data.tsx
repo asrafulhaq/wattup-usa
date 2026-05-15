@@ -85,31 +85,10 @@ export const HomePageBuiltForSlidesCardData: SlidesCardData[] = [
             label: 'Find Charging Locations',
             href: '/locations#locations',
         },
-        imageClass: 'max-md:object-[14%_top]',
+        imageClass: 'max-md:object-[54%_top]',
     },
     {
         id: 'hosts',
-        image: sharedImageUrls.car2,
-        title: 'For Hosts',
-        description:
-            'Install EV charging and attract high-value customers, tenants, and visitors.',
-        cta: { label: 'Become a Host', href: '/contact#contact-us' },
-        imageClass: 'max-md:object-[14%_top]',
-    },
-    {
-        id: 'drivers-1',
-        image: sharedImageUrls.car1,
-        title: 'For Drivers',
-        description:
-            'Find nearby charging stations, plug in, and get back on the road faster.',
-        cta: {
-            label: 'Find Charging Locations',
-            href: '/locations#locations',
-        },
-        imageClass: 'max-md:object-[14%_top]',
-    },
-    {
-        id: 'hosts-1',
         image: sharedImageUrls.car2,
         title: 'For Hosts',
         description:
@@ -1233,8 +1212,4 @@ export const FleetSolutionReliabilityData: HowItWorksStepData[] = [
         image: fleetSolutionImageUrls.reliability3,
     },
 ];
-
-
-
-
 
