@@ -108,8 +108,9 @@ function NavbarContent() {
 
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
-                <div className='fixed h-dvh px-4 pt-7 inset-0 z-100 bg-white text-dark  flex flex-col md:hidden'>
-                    <div className='flex items-center justify-between mb-12'>
+                <div className='fixed h-dvh inset-0 z-100 bg-white text-dark flex flex-col items-center justify-center md:hidden'>
+                    {/* Header */}
+                    <div className='absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-7'>
                         <div className='relative h-6 w-36'>
                             <Image
                                 src='/assets/images/shared/logo_dark.svg'
@@ -127,7 +128,7 @@ function NavbarContent() {
                         </button>
                     </div>
 
-                    <div className='flex mt-[177px] flex-col justify-center items-center gap-3 text-2xl font-semibold tracking-tight'>
+                    <div className='flex flex-col justify-center items-center gap-3 text-2xl font-semibold tracking-tight'>
                         {navLinks.map(link => (
                             <Link
                                 key={link.label}
@@ -141,7 +142,8 @@ function NavbarContent() {
                         ))}
                     </div>
 
-                    <div className='mt-auto pb-8'>
+                    {/* Footer */}
+                    <div className='absolute bottom-0 left-0 right-0 px-4 pb-8'>
                         <WattupButton
                             href='/contact'
                             className='w-full'

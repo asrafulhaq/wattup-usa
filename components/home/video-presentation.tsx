@@ -5,7 +5,7 @@ import { homeImages } from '@/lib/images/home';
 
 export function VideoPresentation() {
     return (
-        <section className='relative common-section-padding mx-auto w-full aspect-video bg-black overflow-hidden flex items-center justify-center'>
+        <section className='relative common-section-padding mx-auto w-full h-[809px] max-md:hidden bg-black overflow-hidden flex items-center justify-center'>
             {/* Background Video */}
             <div className='absolute inset-0 z-0'>
                 <video
