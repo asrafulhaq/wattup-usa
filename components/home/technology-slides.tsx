@@ -7,14 +7,47 @@ export interface TechnologySlideProps {
     style?: React.CSSProperties;
 }
 
-const vignetteStyle: React.CSSProperties = {
+/* ─────────────────────────────────────────────────────────
+   Slide 1 Styles
+───────────────────────────────────────────────────────── */
+const vignetteStyle1: React.CSSProperties = {
+    // Parameters: inset, x-offset, y-offset, blur-radius (150px), spread-radius (60px), color
+    // Tweak: Increase 'blur' for softer edges, increase 'spread' for a thicker dark frame
     boxShadow: 'inset 0 0 150px 60px rgba(0, 0, 0, 0.95)',
 };
 
-const mobileEdgeGradient: React.CSSProperties = {
+const mobileEdgeGradient1: React.CSSProperties = {
+    background:
+        // Top & Bottom blending: #000 0% is solid black depth, transparent 28% is where the fade ends
+        // Tweak: Increase % values to make the dark fade reach further into the image
+        'linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 72%, #000 100%)',
+};
+
+/* ─────────────────────────────────────────────────────────
+   Slide 2 Styles
+───────────────────────────────────────────────────────── */
+const vignetteStyle2: React.CSSProperties = {
+    boxShadow: 'inset 0 0 150px 60px rgba(0, 0, 0, 0.95)',
+};
+
+const mobileEdgeGradient2: React.CSSProperties = {
     background:
         'linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 72%, #000 100%)',
 };
+
+/* ─────────────────────────────────────────────────────────
+   Slide 3 Styles
+───────────────────────────────────────────────────────── */
+const vignetteStyle3: React.CSSProperties = {
+    boxShadow: 'inset 0 0 100px 20px rgba(0, 0, 0, 0.95)',
+};
+
+const mobileEdgeGradient3: React.CSSProperties = {
+    background:
+        'linear-gradient(180deg, #000 0%, #000 10%, transparent 40%, transparent 60%, #000 90%, #000 100%), ' +
+        'linear-gradient(60deg, #000 0%, transparent 20%, transparent 80%, #000 100%)',
+};
+
 
 /* ─────────────────────────────────────────────────────────
    Slide 1 — Smart charging infrastructure
@@ -40,14 +73,16 @@ export function TechnologySlide1({
                             Smart charging infrastructure
                         </h3>
                         <p className='text-[16px] text-white/50 leading-[140%]'>
-                            Lorem ipsum dolor sit amet consectetur
+                            Future-proof your property with a fully managed
+                            charging ecosystem that stays ahead of local demand
+                            and technology shifts.
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* Image area */}
-            <div className='md:absolute md:inset-0 max-md:relative max-md:h-100.75 max-md:w-95 max-md:overflow-hidden z-0'>
+            <div className='md:absolute md:inset-0 max-md:relative max-md:flex-1 max-md:w-full z-0'>
                 <Image
                     src={homeImageUrls.technologyBacked1}
                     alt='Smart charging infrastructure'
@@ -61,13 +96,13 @@ export function TechnologySlide1({
                     alt='Smart charging infrastructure'
                     fill
                     sizes='(max-width: 768px) 100vw, 0vw'
-                    className='object-cover  object-center md:hidden'
+                    className='object-contain scale-[1.3]  object-center md:hidden'
                     priority
                 />
 
                 <div
-                    className='absolute max-md:hidden inset-0 z-1 pointer-events-none'
-                    style={vignetteStyle}
+                    className='absolute  inset-0 z-1 pointer-events-none'
+                    style={vignetteStyle1}
                 />
                 {/* Desktop left-edge gradient */}
                 <div
@@ -83,7 +118,7 @@ export function TechnologySlide1({
                 {/* Mobile top+bottom edge gradient */}
                 <div
                     className='absolute inset-0 z-5 pointer-events-none md:hidden'
-                    style={mobileEdgeGradient}
+                    style={mobileEdgeGradient1}
                 />
 
                 {/* Desktop text */}
@@ -102,8 +137,10 @@ export function TechnologySlide1({
                                     <br />
                                     infrastructure
                                 </h3>
-                                <p className='text-description text-white/50 max-w-71'>
-                                    Lorem ipsum dolor sit amet consectetur
+                                <p className='text-description text-white/50 max-w-xl'>
+                                    Future-proof your property with a fully
+                                    managed charging ecosystem that stays ahead
+                                    of local demand and technology shifts.
                                 </p>
                             </div>
                         </div>
@@ -138,14 +175,20 @@ export function TechnologySlide2({
                             High-performance hardware
                         </h3>
                         <p className='text-[16px] text-white/50 leading-[140%]'>
-                            Lorem ipsum dolor sit amet consectetur
+                            Industrial-grade components engineered for extreme
+                            durability and ultra-fast power delivery in any
+                            environment.
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* Image area */}
-            <div className='md:absolute md:inset-0 max-md:relative  max-md:w-[380px] max-md:h-[366px] max-md:overflow-hidden z-0'>
+            <div
+                className='md:absolute md:inset-0 max-md:relative max-md:flex-1
+                max-md:w-full z-0'>
+                {/*  md:absolute md:inset-0 max-md:relative max-md:flex-1
+                max-md:w-full z-0 */}
                 <Image
                     src={homeImageUrls.technologyBacked2}
                     alt='High-performance hardware'
@@ -158,19 +201,17 @@ export function TechnologySlide2({
                     alt='High-performance hardware'
                     fill
                     sizes='(max-width: 768px) 100vw, 0vw'
-                    className='object-scale-down scale-110 md:hidden'
+                    className='object-contain md:hidden'
                 />
-
                 <div
                     className='absolute max-md:hidden inset-0 z-1 pointer-events-none'
-                    style={vignetteStyle}
+                    style={vignetteStyle2}
                 />
                 {/* Mobile top+bottom edge gradient */}
                 <div
                     className='absolute inset-0 z-5 pointer-events-none md:hidden'
-                    style={mobileEdgeGradient}
+                    style={mobileEdgeGradient2}
                 />
-
                 {/* Desktop text */}
                 <div className='hidden md:block absolute inset-0 z-10 pointer-events-none'>
                     <div
@@ -186,8 +227,10 @@ export function TechnologySlide2({
                                     <br />
                                     hardware
                                 </h3>
-                                <p className='text-description text-white/50 max-w-71'>
-                                    Lorem ipsum dolor sit amet consectetur
+                                <p className='text-description text-white/50 max-w-xl'>
+                                    Industrial-grade components engineered for
+                                    extreme durability and ultra-fast power
+                                    delivery in any environment.
                                 </p>
                             </div>
                         </div>
@@ -222,14 +265,16 @@ export function TechnologySlide3({
                             Seamless payment integration
                         </h3>
                         <p className='text-[16px] text-white/50 leading-[140%]'>
-                            Lorem ipsum dolor sit amet consectetur
+                            Frictionless transaction processing supporting RFID,
+                            mobile wallets, and all major credit cards for a
+                            premium user experience
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* Image area */}
-            <div className='md:absolute md:inset-0 max-md:relative  max-md:h-114.25 max-md:w-[380px] max-md:overflow-hidden z-0'>
+            <div className='md:absolute md:inset-0 max-md:relative  max-md:flex-1 max-md:w-full max-md:overflow-hidden z-0'>
                 <Image
                     src={homeImageUrls.technologyBacked3}
                     alt='Seamless payment integration'
@@ -242,12 +287,12 @@ export function TechnologySlide3({
                     alt='Seamless payment integration'
                     fill
                     sizes='(max-width: 768px) 100vw, 0vw'
-                    className='object-cover object-center md:hidden'
+                    className='object-contain scale-[1.3] object-center md:hidden'
                 />
 
                 <div
-                    className='absolute max-md:hidden inset-0 z-1 pointer-events-none'
-                    style={vignetteStyle}
+                    className='absolute  inset-0 z-1 pointer-events-none'
+                    style={vignetteStyle3}
                 />
                 {/* Desktop left-edge gradient */}
                 <div
@@ -255,7 +300,7 @@ export function TechnologySlide3({
                     style={{
                         inset: 0,
                         right: 'auto',
-                        width: '699px',
+                        width: '1000px',
                         background:
                             'linear-gradient(270deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 58%, #000 94.86%)',
                     }}
@@ -263,7 +308,7 @@ export function TechnologySlide3({
                 {/* Mobile top+bottom edge gradient */}
                 <div
                     className='absolute inset-0 z-5 pointer-events-none md:hidden'
-                    style={mobileEdgeGradient}
+                    style={mobileEdgeGradient3}
                 />
 
                 {/* Desktop text */}
@@ -281,8 +326,11 @@ export function TechnologySlide3({
                                     <br />
                                     integration
                                 </h3>
-                                <p className='text-description text-white/50 max-w-71'>
-                                    Lorem ipsum dolor sit amet consectetur
+                                <p className='text-description text-white/50 max-w-lg'>
+                                    Frictionless transaction processing
+                                    supporting RFID, mobile wallets, and all
+                                    major credit cards for a premium user
+                                    experience
                                 </p>
                             </div>
                         </div>
@@ -292,6 +340,15 @@ export function TechnologySlide3({
         </div>
     );
 }
+
+
+
+
+
+
+
+
+
 
 
 

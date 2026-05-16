@@ -7,6 +7,7 @@ export interface FadedImageCrossSectionProps {
     children: React.ReactNode;
     imageSrc: string;
     imageSrcMobile?: string;
+    imageClass?: string;
     imageAlt?: string;
     topFaddingStyle?: React.CSSProperties;
     sectionClass?: string;
@@ -16,6 +17,7 @@ export function FadedImageCrossSection({
     children,
     imageSrc,
     imageSrcMobile,
+    imageClass,
     imageAlt = 'Section background',
 }: FadedImageCrossSectionProps) {
     return (
@@ -31,7 +33,7 @@ export function FadedImageCrossSection({
             <FadeUp delay={0.3} className='w-full'>
                 <div
                     className={cn(
-                        'relative -mt-30 sm:-mt-96 w-full h-[600px] xs:h-[790px] sm:h-[990px] md:h-[1080px] 3xl:h-[1450px]! ultra:h-[1750px]!'
+                        'relative -mt-30 sm:-mt-96 w-full h-[600px] xs:h-[790px] sm:h-[990px] md:h-[1280px] 3xl:h-[1450px]! ultra:h-[1750px]!'
                     )}>
                     {/* Mobile image — shown only below md */}
                     {imageSrcMobile && (
@@ -63,5 +65,4 @@ export function FadedImageCrossSection({
         </section>
     );
 }
-
 
