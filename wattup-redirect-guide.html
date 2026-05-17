@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wattup USA — URL Redirect Setup Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9f9f8;
+      color: #1a1a1a;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 48px 24px 80px;
+    }
+
+    .page {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .header {
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 28px;
+      margin-bottom: 40px;
+    }
+
+    .brand {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #555;
+      font-weight: 400;
+    }
+
+    .overview {
+      background: #1a1a1a;
+      color: #f9f9f8;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 48px;
+      font-size: 14.5px;
+      line-height: 1.75;
+    }
+
+    .overview strong {
+      color: #fff;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    .step-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    p {
+      color: #444;
+      margin-bottom: 14px;
+      font-size: 14.5px;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      color: #444;
+      font-size: 14.5px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    li strong {
+      color: #1a1a1a;
+    }
+
+    .method-block {
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      background: #fff;
+    }
+
+    .method-block .method-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .method-block ol, .method-block ul {
+      margin: 0;
+    }
+
+    pre {
+      background: #1a1a1a;
+      color: #e8e8e8;
+      border-radius: 8px;
+      padding: 20px 22px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.65;
+      margin: 16px 0;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12.5px;
+      background: #efefed;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #1a1a1a;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .comment { color: #6e8a6e; }
+    .string  { color: #ce9b6e; }
+    .key     { color: #7eb5d6; }
+    .kw      { color: #c792ea; }
+
+    .callout {
+      border-left: 3px solid #1a1a1a;
+      padding: 14px 18px;
+      background: #fff;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .callout.warn {
+      border-left-color: #e07a30;
+      background: #fff8f3;
+    }
+
+    .callout strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: #1a1a1a;
+    }
+
+    .callout.warn strong {
+      color: #e07a30;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    thead tr {
+      background: #1a1a1a;
+      color: #f9f9f8;
+    }
+
+    thead th {
+      padding: 11px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12.5px;
+      letter-spacing: 0.03em;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e8e8e8;
+      background: #fff;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody td {
+      padding: 11px 16px;
+      color: #444;
+      vertical-align: top;
+    }
+
+    tbody td code {
+      font-size: 12px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14.5px;
+      color: #333;
+    }
+
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .check-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 13px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="brand">Wattup USA</div>
+    <h1>URL Redirect Setup Guide</h1>
+    <p class="subtitle">Fixing 404 errors after the Webflow to Next.js migration</p>
+  </div>
+
+  <div class="overview">
+    After the migration from Webflow to Next.js, a number of page URLs changed. Any links pointing to old Webflow URLs from Google, external platforms, or other sites now return 404 errors. This guide covers how to set up <strong>301 permanent redirects</strong> so those old URLs forward correctly to the right pages, and Google updates its index accordingly.
+  </div>
+
+  <!-- STEP 1 -->
+  <section>
+    <div class="step-label">Step 01</div>
+    <h2>Audit All Broken URLs</h2>
+    <p>Before writing any redirects, collect every URL that is currently returning a 404. There are three ways to do this:</p>
+
+    <div class="method-block">
+      <div class="method-title">Google Search Console (Recommended)</div>
+      <ol>
+        <li>Open <strong>search.google.com/search-console</strong></li>
+        <li>Go to <strong>Indexing &rarr; Pages</strong></li>
+        <li>Filter by <strong>Not found (404)</strong></li>
+        <li>Export the full list</li>
+      </ol>
+    </div>
+
+    <div class="method-block">
+      <div class="method-title">Vercel Logs</div>
+      <ol>
+        <li>Open the Wattup USA project on <strong>vercel.com</strong></li>
+        <li>Go to the <strong>Logs</strong> tab</li>
+        <li>Filter by status code <strong>404</strong></li>
+        <li>Note all failing request paths</li>
+      </ol>
+    </div>
+
+    <div class="method-block">
+      <div class="method-title">Old Webflow Sitemap</div>
+      <ol>
+        <li>Visit the old sitemap at <code>https://your-webflow-domain.com/sitemap.xml</code></li>
+        <li>Or look it up on the Wayback Machine: <code>web.archive.org</code></li>
+        <li>Use that as the source of truth for old URLs</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section>
+    <div class="step-label">Step 02</div>
+    <h2>Create the Redirects File</h2>
+    <p>Create a file called <code>redirects.json</code> in the root of the Next.js project. Each entry maps an old Webflow path to the new Next.js path.</p>
+
+<pre><code><span class="comment">// redirects.json</span>
+[
+  { <span class="key">"source"</span>: <span class="string">"/about-us"</span>,      <span class="key">"destination"</span>: <span class="string">"/about"</span> },
+  { <span class="key">"source"</span>: <span class="string">"/our-work"</span>,     <span class="key">"destination"</span>: <span class="string">"/portfolio"</span> },
+  { <span class="key">"source"</span>: <span class="string">"/blog/:slug"</span>,   <span class="key">"destination"</span>: <span class="string">"/articles/:slug"</span> },
+  { <span class="key">"source"</span>: <span class="string">"/contact-us"</span>,  <span class="key">"destination"</span>: <span class="string">"/contact"</span> }
+]</code></pre>
+
+    <div class="callout">
+      <strong>Note</strong>
+      <code>source</code> is the old Webflow path. <code>destination</code> is the new Next.js path. Use <code>:slug</code> syntax for dynamic segments where the URL pattern is the same but the folder changed.
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section>
+    <div class="step-label">Step 03</div>
+    <h2>Update next.config.js</h2>
+    <p>Load the redirects file and wire it into the Next.js config. Every redirect is set to <code>permanent: true</code> which sends a 301 status, telling Google to transfer SEO authority to the new URL.</p>
+
+<pre><code><span class="comment">// next.config.js</span>
+
+<span class="kw">const</span> redirectsList = require(<span class="string">'./redirects.json'</span>);
+
+<span class="kw">const</span> nextConfig = {
+  <span class="kw">async</span> redirects() {
+    <span class="kw">return</span> redirectsList.map(({ source, destination }) => ({
+      source,
+      destination,
+      permanent: <span class="kw">true</span>,
+    }));
+  },
+
+  <span class="comment">// ... rest of your config</span>
+};
+
+module.exports = nextConfig;</code></pre>
+  </section>
+
+  <!-- STEP 4 -->
+  <section>
+    <div class="step-label">Step 04</div>
+    <h2>Test Locally</h2>
+    <p>Start the dev server and verify each redirect works before deploying.</p>
+
+<pre><code>npm run dev</code></pre>
+
+    <p>Then test with curl or open the old URL in the browser. It should forward to the new page:</p>
+
+<pre><code><span class="comment"># Should return HTTP 301 and redirect to the new URL</span>
+curl -I http://localhost:3000/old-webflow-slug</code></pre>
+
+    <p>You can also install the <strong>Redirect Path</strong> Chrome extension to see the redirect chain visually in the browser.</p>
+  </section>
+
+  <!-- STEP 5 -->
+  <section>
+    <div class="step-label">Step 05</div>
+    <h2>Deploy to Vercel</h2>
+    <p>Commit both files and push. Vercel picks up <code>next.config.js</code> redirects automatically and serves them at the CDN edge, so no additional configuration is needed.</p>
+
+<pre><code>git add redirects.json next.config.js
+git commit -m "fix: add 301 redirects for Webflow to Next.js URL changes"
+git push</code></pre>
+  </section>
+
+  <!-- STEP 6 -->
+  <section>
+    <div class="step-label">Step 06</div>
+    <h2>Post-Deploy Checklist</h2>
+    <p>After the deploy goes live, complete these steps to restore SEO fully.</p>
+    <ul class="checklist">
+      <li><span class="check-box"></span>Test a few old URLs live and confirm they redirect to the correct new pages</li>
+      <li><span class="check-box"></span>Submit the new sitemap in Google Search Console under Sitemaps: <code>https://wattupusa.com/sitemap.xml</code></li>
+      <li><span class="check-box"></span>Use the URL Inspection tool in Search Console to request re-indexing for the most important pages</li>
+      <li><span class="check-box"></span>Monitor the Coverage report over the next 1 to 2 weeks. The 404 count should drop as Google recrawls.</li>
+    </ul>
+  </section>
+
+  <!-- REFERENCE -->
+  <section>
+    <div class="step-label">Reference</div>
+    <h2>Common Redirect Patterns</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Source</th>
+          <th>Destination</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Simple slug rename</td>
+          <td><code>/about-us</code></td>
+          <td><code>/about</code></td>
+        </tr>
+        <tr>
+          <td>Section renamed</td>
+          <td><code>/blog/:slug</code></td>
+          <td><code>/articles/:slug</code></td>
+        </tr>
+        <tr>
+          <td>Removing a path prefix</td>
+          <td><code>/pages/contact</code></td>
+          <td><code>/contact</code></td>
+        </tr>
+        <tr>
+          <td>Home page variant</td>
+          <td><code>/home</code></td>
+          <td><code>/</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- WARNINGS -->
+  <section>
+    <div class="step-label">Important</div>
+    <h2>Things to Watch Out For</h2>
+    <div class="callout warn">
+      <strong>Do not mix redirect configs</strong>
+      Do not add redirects to both <code>next.config.js</code> and <code>vercel.json</code>. This causes conflicts. Stick to <code>next.config.js</code> only.
+    </div>
+    <div class="callout warn">
+      <strong>Always use permanent: true</strong>
+      Setting <code>permanent: false</code> sends a 302 (temporary) redirect. Google will not update its index and SEO authority will not transfer. Always use <code>permanent: true</code> for this migration.
+    </div>
+    <div class="callout warn">
+      <strong>Paths are case-sensitive</strong>
+      Make sure the <code>source</code> path in <code>redirects.json</code> matches the old URL exactly, including casing.
+    </div>
+    <div class="callout">
+      <strong>500+ redirects</strong>
+      If the number of redirects grows beyond 500, consider switching to Vercel Edge Config with Middleware for better performance. For most sites, the <code>next.config.js</code> approach handles this volume well.
+    </div>
+  </section>
+
+  <div class="footer">
+    Wattup USA | Internal Developer Guide | Webflow to Next.js Migration
+  </div>
+
+</div>
+</body>
+</html>
