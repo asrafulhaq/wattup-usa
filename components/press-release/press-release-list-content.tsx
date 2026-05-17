@@ -131,7 +131,7 @@ export function PressReleaseListContent({
             <FadeUp>
                 <p className='text-[16px] md:text-[20px] font-normal max-w-[670px] leading-[130%] md:leading-[120%] text-dark md:text-dark/70 mb-5 md:mb-[56px]'>
                     All the most important news about{' '}
-                    <br className='md:hidden' /> WhattUp USA
+                    <br className='md:hidden' /> WattupUSA
                 </p>
             </FadeUp>
 
