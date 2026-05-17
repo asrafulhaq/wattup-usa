@@ -1,7 +1,12 @@
 import { getSiteSettings } from '@/app/_actions/settingsActions';
+import { cacheLife, cacheTag } from 'next/cache';
 import Script from 'next/script';
 
 export async function TrackingScripts() {
+    'use cache';
+    cacheLife({ stale: 300, revalidate: 3600, expire: 86400 });
+    cacheTag('siteSettings');
+
     const settings = await getSiteSettings();
 
     const gaId =
@@ -71,6 +76,10 @@ export async function TrackingScripts() {
 }
 
 export async function BodyStartScripts() {
+    'use cache';
+    cacheLife({ stale: 300, revalidate: 3600, expire: 86400 });
+    cacheTag('siteSettings');
+
     const settings = await getSiteSettings();
     if (!settings?.bodyStartScripts) return null;
     return (
@@ -82,6 +91,10 @@ export async function BodyStartScripts() {
 }
 
 export async function BodyEndScripts() {
+    'use cache';
+    cacheLife({ stale: 300, revalidate: 3600, expire: 86400 });
+    cacheTag('siteSettings');
+
     const settings = await getSiteSettings();
     if (!settings?.bodyEndScripts) return null;
     return (

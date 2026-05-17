@@ -2,7 +2,7 @@
 import { getAdminSession } from '@/app/_actions/auth-actions';
 import { getProfile } from '@/app/_actions/userActions';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Reveal } from '@/components/reveal-animation';
+import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
 import { SiteHeader } from '@/components/site-header';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -79,7 +79,7 @@ const DashboardWrapper = async ({
                         <div className='@container/main flex flex-1 flex-col gap-2 w-full'>
                             <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6 w-full max-w-full'>
                                 <Suspense fallback={null}>
-                                    <Reveal width='100%'>{children}</Reveal>
+                                    <DashboardFadeIn>{children}</DashboardFadeIn>
                                 </Suspense>
                             </div>
                         </div>

@@ -29,7 +29,8 @@ export type SiteSettingsData = {
 
 export async function getSiteSettings() {
     'use cache';
-    cacheLife('hours');
+    // stale: serve cached for 5 min, revalidate in bg every hour, hard expire after 1 day
+    cacheLife({ stale: 300, revalidate: 3600, expire: 86400 });
     cacheTag('siteSettings');
     try {
         const settings = await prisma.siteSettings.findUnique({

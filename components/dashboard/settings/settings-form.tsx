@@ -124,8 +124,9 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                 <TabsList className='flex-wrap h-auto gap-1'>
                     <TabsTrigger value='google'>Google</TabsTrigger>
                     <TabsTrigger value='meta'>Meta / Facebook</TabsTrigger>
-                    <TabsTrigger value='scripts'>Custom Scripts</TabsTrigger>
+
                     <TabsTrigger value='aeo'>AEO &amp; Schema</TabsTrigger>
+                    <TabsTrigger value='scripts'>Custom Scripts</TabsTrigger>
                 </TabsList>
 
                 {/* ── Google ──────────────────────────────────── */}
@@ -257,9 +258,9 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                                     application/ld+json
                                 </code>{' '}
                                 structured data into every page. It helps AI
-                                search engines (ChatGPT, Perplexity, Gemini)
-                                and Google understand who WattUp is, what it
-                                does, and how to contact you.
+                                search engines (ChatGPT, Perplexity, Gemini) and
+                                Google understand who WattUp is, what it does,
+                                and how to contact you.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className='space-y-5'>
@@ -454,3 +455,4 @@ function ScriptField({
         </div>
     );
 }
+
