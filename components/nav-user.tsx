@@ -1,9 +1,8 @@
 'use client';
 
-import { IconLogout } from '@tabler/icons-react';
-import { ChevronsUp, ChevronsUpDown, ChevronUp, LogOut, LucideHome, User2 } from 'lucide-react';
-
 import { logout } from '@/app/_actions/auth-actions';
+import { ChevronUp, Loader2, LogOut, LucideHome, User2 } from 'lucide-react';
+import { useState, useTransition } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -43,11 +42,24 @@ export function NavUser({
 }) {
     const { isMobile, setOpenMobile } = useSidebar();
     const initials = getInitials(user.name);
+    const [isPending, startTransition] = useTransition();
+    const [open, setOpen] = useState(false);
+
+    const handleLogout = () => {
+        startTransition(async () => {
+            await logout();
+        });
+    };
+
+    const handleOpenChange = (next: boolean) => {
+        if (isPending) return; // keep open while signing out
+        setOpen(next);
+    };
 
     return (
         <SidebarMenu>
             <SidebarMenuItem>
-                <DropdownMenu>
+                <DropdownMenu open={open} onOpenChange={handleOpenChange}>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size='lg'
@@ -147,10 +159,14 @@ export function NavUser({
                         <DropdownMenuSeparator className='my-1' />
 
                         <DropdownMenuItem
-                            onClick={async () => await logout()}
-                            className='rounded-lg cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive gap-2.5 px-2 py-2'>
-                            <LogOut size={16} />
-                            Sign Out
+                            onClick={handleLogout}
+                            disabled={isPending}
+                            className='rounded-lg cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive gap-2.5 px-2 py-2 disabled:opacity-60 disabled:cursor-not-allowed'>
+                            {isPending
+                                ? <Loader2 size={16} className='animate-spin' />
+                                : <LogOut size={16} />
+                            }
+                            {isPending ? 'Signing out…' : 'Sign Out'}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
