@@ -124,3 +124,38 @@ model Posts {
   @@index([pinned])
   @@index([publishedAt])
 }
+
+model SiteSettings {
+  id                     String   @id @default("singleton")
+
+  // Google Tracking
+  googleAnalyticsId      String?
+  googleTagManagerId     String?
+  googleSiteVerification String?
+
+  // Meta / Facebook
+  metaPixelId            String?
+
+  // Custom Script Injection (raw HTML)
+  headScripts            String?
+  bodyStartScripts       String?
+  bodyEndScripts         String?
+
+  // AEO / Organization Schema
+  orgName                String?
+  orgDescription         String?
+  orgUrl                 String?
+  orgPhone               String?
+  orgEmail               String?
+  orgAddress             String?
+  orgLogoUrl             String?
+  orgTwitter             String?
+  orgLinkedin            String?
+  orgFacebook            String?
+  orgInstagram           String?
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("site_settings")
+}

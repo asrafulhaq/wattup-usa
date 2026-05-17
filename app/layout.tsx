@@ -1,10 +1,23 @@
+import { getSiteSettings } from '@/app/_actions/settingsActions';
+import {
+    JsonLd,
+    buildOrganizationSchema,
+    buildServiceSchema,
+    buildWebSiteSchema,
+} from '@/components/json-ld';
+import { InjectHeadScripts } from '@/components/inject-head-scripts';
+import {
+    BodyEndScripts,
+    BodyStartScripts,
+    TrackingScripts,
+} from '@/components/tracking-scripts';
 import { homeImages } from '@/lib/images/home';
 import { sharedImageUrls } from '@/lib/images/shared';
 import { videoUrls } from '@/lib/images/videos';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import Script from 'next/script';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -16,8 +29,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export async function generateMetadata(): Promise<Metadata> {
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
+    const settings = await getSiteSettings();
     const ogImageUrl = homeImages.hero1Md;
-    const twitterImageUrl = ogImageUrl;
 
     return {
         metadataBase: new URL(baseUrl),
@@ -28,7 +41,6 @@ export async function generateMetadata(): Promise<Metadata> {
         },
         description:
             'Partner with WattUp USA to bring seamless EV charging to your property, or find a reliable charger near you. The future of mobility starts here.',
-
         keywords: [
             'EV Charging',
             'Electric Vehicle',
@@ -61,24 +73,11 @@ export async function generateMetadata(): Promise<Metadata> {
             title: 'WattUp USA | EV Charging Solutions',
             description:
                 'The future of mobility starts with WattUp. Partner with us to install EV chargers or find a station near you.',
-            images: [twitterImageUrl],
+            images: [ogImageUrl],
             creator: '@wattupusa',
         },
         icons: {
-            icon: [
-                // Only PWA/manifest-sized icons here — tab favicon is handled
-                // by theme-aware <link> tags in the <head> below
-                /*        {
-                    url: '/assets/icons/android-chrome-192x192.png',
-                    sizes: '192x192',
-                    type: 'image/png',
-                },
-                {
-                    url: '/assets/icons/android-chrome-512x512.png',
-                    sizes: '512x512',
-                    type: 'image/png',
-                }, */
-            ],
+            icon: [],
             apple: {
                 url: '/assets/icons/apple-touch-icon.png',
                 sizes: '180x180',
@@ -86,16 +85,51 @@ export async function generateMetadata(): Promise<Metadata> {
             },
         },
         verification: {
-            google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+            google:
+                settings?.googleSiteVerification ||
+                process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+                '',
         },
     };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app';
+    const settings = await getSiteSettings();
+
+    const orgName = settings?.orgName || 'WattUp USA';
+    const orgUrl = settings?.orgUrl || baseUrl;
+    const orgDescription =
+        settings?.orgDescription ||
+        'WattUp USA provides turnkey EV charging solutions for property owners, fleet operators, and drivers — delivering seamless charging infrastructure across the United States.';
+
+    const organizationSchema = buildOrganizationSchema({
+        name: orgName,
+        url: orgUrl,
+        description: orgDescription,
+        phone: settings?.orgPhone ?? undefined,
+        email: settings?.orgEmail ?? undefined,
+        address: settings?.orgAddress ?? undefined,
+        logoUrl: settings?.orgLogoUrl ?? undefined,
+        twitter: settings?.orgTwitter ?? undefined,
+        linkedin: settings?.orgLinkedin ?? undefined,
+        facebook: settings?.orgFacebook ?? undefined,
+        instagram: settings?.orgInstagram ?? undefined,
+    });
+
+    const webSiteSchema = buildWebSiteSchema({
+        name: orgName,
+        url: orgUrl,
+        description: orgDescription,
+    });
+
+    const serviceSchema = buildServiceSchema({ orgUrl, orgName });
+
     return (
         <html
             scroll-behavior='smooth'
@@ -106,13 +140,11 @@ export default function RootLayout({
                 plusJakartaSans.variable
             )}>
             <head>
-                {/* Theme-aware favicons — browser picks based on system color scheme */}
                 <link
                     rel='icon'
                     href={sharedImageUrls.faviconLightSq}
                     media='(prefers-color-scheme: dark)'
                 />
-
                 <link
                     rel='icon'
                     href={sharedImageUrls.faviconDarkSq}
@@ -120,57 +152,42 @@ export default function RootLayout({
                 />
                 <link rel='preconnect' href='https://res.cloudinary.com' />
                 <link rel='preload' as='image' href={videoUrls.video1} />
+
+                {/* AEO: JSON-LD Structured Data */}
+                <JsonLd schema={organizationSchema} />
+                <JsonLd schema={webSiteSchema} />
+                <JsonLd schema={serviceSchema} />
+
+                {/* Custom head scripts from admin — client-injected into document.head */}
+                {settings?.headScripts && (
+                    <InjectHeadScripts html={settings.headScripts} />
+                )}
             </head>
             <body
                 suppressHydrationWarning
                 className={cn(
                     'font-sans antialiased mx-auto',
-                    plusJakartaSans.variable,
                     plusJakartaSans.variable
                 )}>
-                <noscript>
-                    <iframe
-                        src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID}`}
-                        height='0'
-                        width='0'
-                        style={{ display: 'none', visibility: 'hidden' }}
-                    />
-                </noscript>
-                <>
-                    <Script
-                        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
-                        strategy='afterInteractive'
-                    />
-                    <Script id='google-analytics' strategy='afterInteractive'>
-                        {`
-                                window.dataLayer = window.dataLayer || [];
-                                function gtag(){dataLayer.push(arguments);}
-                                gtag('js', new Date());
+                {/* Custom body-start scripts from admin */}
+                <Suspense fallback={null}>
+                    <BodyStartScripts />
+                </Suspense>
 
-                                gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
-                            `}
-                    </Script>
-                </>
-
-                <Script id='google-tag-manager' strategy='afterInteractive'>
-                    {`
-                        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                        })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID}');
-                        `}
-                </Script>
-
-                {/*  <SmoothScroll /> */}
                 {children}
-                <Toaster
-                    richColors
-                    position='top-right'
-                    duration={4000}
-                />
+
+                <Toaster richColors position='top-right' duration={4000} />
+
+                {/* Custom body-end scripts from admin */}
+                <Suspense fallback={null}>
+                    <BodyEndScripts />
+                </Suspense>
+
+                {/* All tracking scripts (GA, GTM, Meta Pixel) */}
+                <Suspense fallback={null}>
+                    <TrackingScripts />
+                </Suspense>
             </body>
         </html>
     );
 }
-

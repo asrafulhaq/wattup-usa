@@ -15,7 +15,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { FileText, LayoutGrid, User2 } from 'lucide-react';
+import { FileText, LayoutGrid, Settings2, User2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -35,6 +35,11 @@ const data = {
             title: 'Profile',
             url: '/dashboard/profile',
             icon: User2,
+        },
+        {
+            title: 'Settings',
+            url: '/dashboard/settings',
+            icon: Settings2,
         },
     ],
 };
