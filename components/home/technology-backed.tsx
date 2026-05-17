@@ -13,9 +13,9 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 const SLIDE_COUNT = 3;
-const STAY_TIME = 5;
-const TRANSITION_TIME = 5;
-const SCROLL_SPEED_MULTIPLIER = 25;
+const STAY_TIME = 2; // Time each slide stays fully visible in seconds
+const TRANSITION_TIME = 2; // Time for each transition in seconds
+const SCROLL_SPEED_MULTIPLIER = 50; // Adjust this to make the scroll faster or slower
 
 export function TechnologyBacked() {
     const sectionRef = useRef<HTMLDivElement>(null);

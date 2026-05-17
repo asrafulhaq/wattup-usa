@@ -94,9 +94,9 @@ function StepCard({
  * // About — "Core Principles" (4 cols)
  * <StepGrid heading='Our Core Principles' stepData={AboutPageCorePrinciplesData} gridClass='grid-cols-4' />
  *
- * // Capital Partners — "Why WattUp USA" (4 cols, custom type sizes)
+ * // Capital Partners — "Why WattupUSA" (4 cols, custom type sizes)
  * <StepGrid
- *     heading='Why WattUp USA'
+ *     heading='Why WattupUSA'
  *     stepData={CapitalPartnersWhyData}
  *     gridClass='grid-cols-4'
  *     titleClass='text-[28px]! font-bold!'

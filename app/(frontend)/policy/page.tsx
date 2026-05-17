@@ -5,32 +5,32 @@ import { policyImageUrls } from '@/lib/images/policy';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | WattUp USA',
+    title: 'Privacy Policy | WattupUSA',
     description:
-        'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+        'Read WattupUSA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
     openGraph: {
-        title: 'Privacy Policy | WattUp USA',
+        title: 'Privacy Policy | WattupUSA',
         description:
-            'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+            'Read WattupUSA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
         images: [
             {
                 url: policyImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattUp USA EV Charging',
+                alt: 'WattupUSA EV Charging',
             },
         ],
     },
     twitter: {
-        title: 'Privacy Policy | WattUp USA',
+        title: 'Privacy Policy | WattupUSA',
         description:
-            'Read WattUp USA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
+            'Read WattupUSA’s Privacy Policy to understand how we collect, use, and protect your personal information.',
         images: [
             {
                 url: policyImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattUp USA EV Charging',
+                alt: 'WattupUSA EV Charging',
             },
         ],
     },

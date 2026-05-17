@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
                     <Suspense fallback={'2026'}>
                         <CopyrightYear />
                     </Suspense>{' '}
-                    WattUp USA. All rights reserved.
+                    WattupUSA. All rights reserved.
                 </p>
             </div>
         </div>

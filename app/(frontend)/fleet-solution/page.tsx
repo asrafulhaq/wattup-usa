@@ -19,32 +19,32 @@ import { fleetSolutionImageUrls } from '@/lib/images/fleet-solution';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Fleet Solutions | WattUp USA',
+    title: 'Fleet Solutions | WattupUSA',
     description:
-        'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattUp USA’s end-to-end infrastructure solutions.',
+        'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattupUSA’s end-to-end infrastructure solutions.',
     openGraph: {
-        title: 'Fleet Solutions | WattUp USA',
+        title: 'Fleet Solutions | WattupUSA',
         description:
-            'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattUp USA’s end-to-end infrastructure solutions.',
+            'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattupUSA’s end-to-end infrastructure solutions.',
         images: [
             {
                 url: fleetSolutionImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattUp USA EV Charging',
+                alt: 'WattupUSA EV Charging',
             },
         ],
     },
     twitter: {
-        title: 'Fleet Solutions | WattUp USA',
+        title: 'Fleet Solutions | WattupUSA',
         description:
-            'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattUp USA’s end-to-end infrastructure solutions.',
+            'Fleet Electrification Made Simple. Turn any parking lot, depot, or facility into a reliable EV charging hub with WattupUSA’s end-to-end infrastructure solutions.',
         images: [
             {
                 url: fleetSolutionImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattUp USA EV Charging',
+                alt: 'WattupUSA EV Charging',
             },
         ],
     },

@@ -723,7 +723,7 @@ export const PolicyOptionsData = [
     {
         title: 'Intellectual Property',
         description:
-            'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA',
+            'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattupUSA',
         image: policyImageUrls.policy1,
     },
     {

@@ -24,7 +24,10 @@ export function PressReleaseDetailsHeader({
                         <h1 className='headline text-dark'>{title}</h1>
 
                         <p className='text-[20px] font-semibold max-w-[670px] leading-[130%] traking-[-03%] text-dark/70'>
-                            {date || 'March 25, 2026'}
+                            {date || 'March 25, 2026'}{' '}
+                            <Link className='font-light ml-1' href='/'>
+                                | <span className='ml-1'>WattUpUSA</span>
+                            </Link>
                         </p>
                     </div>
                 </FadeUp>
@@ -34,4 +37,7 @@ export function PressReleaseDetailsHeader({
 }
 
 export default PressReleaseDetailsHeader;
+
+
+
 
