@@ -35,13 +35,11 @@ export function SignInForm() {
             const { error } = await authClient.signIn.email({
                 email: values.email,
                 password: values.password,
-                callbackURL: '/dashboard',
             });
 
             if (error) {
                 setServerError(error.message || 'Invalid email or password');
             } else {
-                // Hard navigation so the browser sends the fresh session cookie
                 const params = new URLSearchParams(window.location.search);
                 window.location.href =
                     params.get('callbackUrl') || '/dashboard';

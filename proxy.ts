@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getSessionCookie } from 'better-auth/cookies';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Routes that require an authenticated session
 const PROTECTED_PREFIXES = ['/dashboard'];
@@ -13,36 +13,24 @@ const LOGIN_PAGE = '/admin';
 // Where to send authenticated users who try to access auth routes
 const DASHBOARD_PAGE = '/dashboard';
 
-export async function proxy(request: NextRequest) {
+// Sync — reads the session cookie only, no DB call, no async
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-        pathname.startsWith(prefix)
-    );
+    const isProtected = PROTECTED_PREFIXES.some(p => pathname.startsWith(p));
+    const isAuthOnly = AUTH_ONLY_PREFIXES.some(p => pathname.startsWith(p));
 
-    const isAuthOnly = AUTH_ONLY_PREFIXES.some((prefix) =>
-        pathname.startsWith(prefix)
-    );
+    if (!isProtected && !isAuthOnly) return NextResponse.next();
 
-    // Neither protected nor auth-only — let it through
-    if (!isProtected && !isAuthOnly) {
-        return NextResponse.next();
-    }
-
-    // Fetch session from Better Auth
-    const session = await auth.api.getSession({
-        headers: request.headers,
-    });
+    const session = getSessionCookie(request);
 
     if (isProtected && !session) {
-        // Unauthenticated user trying to access a protected route → login
         const loginUrl = new URL(LOGIN_PAGE, request.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
     }
 
     if (isAuthOnly && session) {
-        // Authenticated user trying to access an auth route → dashboard
         return NextResponse.redirect(new URL(DASHBOARD_PAGE, request.url));
     }
 
