@@ -275,7 +275,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                                 <Field
                                     id='org-url'
                                     label='Website URL'
-                                    placeholder='https://wattup-usa.com'
+                                    placeholder='https://wattupusa.com'
                                     value={orgUrl}
                                     onChange={setOrgUrl}
                                 />
@@ -289,7 +289,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                                 <Field
                                     id='org-email'
                                     label='Email'
-                                    placeholder='info@wattup-usa.com'
+                                    placeholder='info@wattupusa.com'
                                     value={orgEmail}
                                     onChange={setOrgEmail}
                                 />
@@ -327,7 +327,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                             <Field
                                 id='org-logo'
                                 label='Logo URL'
-                                placeholder='https://wattup-usa.com/logo.png'
+                                placeholder='https://wattupusa.com/assets/images/shared/logo.svg'
                                 value={orgLogoUrl}
                                 onChange={setOrgLogoUrl}
                                 hint='Full URL to the logo image. Used in search results.'
@@ -455,4 +455,5 @@ function ScriptField({
         </div>
     );
 }
+
 
