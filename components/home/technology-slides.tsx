@@ -82,7 +82,7 @@ export function TechnologySlide1({
             </div>
 
             {/* Image area */}
-            <div className='md:absolute md:inset-0 max-md:relative max-md:flex-1 max-md:w-full z-0'>
+            <div className='md:absolute md:inset-0 max-md:relative max-md:flex-1 max-md:w-full max-md:overflow-hidden z-0'>
                 <Image
                     src={homeImageUrls.technologyBacked1}
                     alt='Smart charging infrastructure'

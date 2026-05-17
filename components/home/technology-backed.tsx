@@ -57,6 +57,7 @@ export function TechnologyBacked() {
                     pinSpacing: true,
                     scrub: 2,
                     anticipatePin: 1,
+                    invalidateOnRefresh: true,
                 },
             });
 
@@ -127,7 +128,7 @@ export function TechnologyBacked() {
                 <div ref={sectionRef} className='scroll-section'>
                     <div
                         ref={slidesContainerRef}
-                        className='relative w-full grow h-dvh overflow-hidden'>
+                        className='relative w-full grow h-screen overflow-hidden'>
                         <TechnologySlide1
                             slideRef={el => {
                                 slideRefs.current[0] = el;
