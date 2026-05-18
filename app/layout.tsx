@@ -9,6 +9,8 @@ import { InjectHeadScripts } from '@/components/inject-head-scripts';
 import {
     BodyEndScripts,
     BodyStartScripts,
+    GtmBodyNoscript,
+    GtmHeadScript,
     TrackingScripts,
 } from '@/components/tracking-scripts';
 import { homeImages } from '@/lib/images/home';
@@ -162,6 +164,11 @@ export default async function RootLayout({
                 {settings?.headScripts && (
                     <InjectHeadScripts html={settings.headScripts} />
                 )}
+
+                {/* GTM loader — as high in <head> as possible */}
+                <Suspense fallback={null}>
+                    <GtmHeadScript />
+                </Suspense>
             </head>
             <body
                 suppressHydrationWarning
@@ -169,6 +176,11 @@ export default async function RootLayout({
                     'font-sans antialiased mx-auto',
                     plusJakartaSans.variable
                 )}>
+                {/* GTM noscript fallback — immediately after <body> */}
+                <Suspense fallback={null}>
+                    <GtmBodyNoscript />
+                </Suspense>
+
                 {/* Custom body-start scripts from admin */}
                 <Suspense fallback={null}>
                     <BodyStartScripts />
