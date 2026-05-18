@@ -6,7 +6,6 @@ import { WattupButton } from '@/components/ui/wattup-button';
 import { homeImageUrls } from '@/lib/images/home';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import Link from 'next/link';
 import { useRef, useState } from 'react';
 
 import { cities } from '@/data';
@@ -71,11 +70,7 @@ export function ExpandingUsDrivers({
                                     <div className='flex flex-col gap-y-2 text-[16px] md:text-[20px] text-dark leading-[120%]'>
                                         <span>{city.capacity}</span>
                                         <span>{city.stationName}</span>
-                                        <Link
-                                            href={`tel:${city.contact.replace(/[^\d+]/g, '')}`}
-                                            className='w-fit underline decoration-1 underline-offset-4 decoration-dark hover:text-dark/70 transition-colors'>
-                                            {city.contact}
-                                        </Link>
+                                        <span>{city.zipcode}</span>
                                     </div>
                                 </div>
                             ))}

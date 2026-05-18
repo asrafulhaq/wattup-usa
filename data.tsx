@@ -67,7 +67,7 @@ export interface Cities {
     name: string;
     capacity: string;
     stationName: string;
-    contact: string;
+    zipcode: string;
 }
 export interface TextGridData {
     id: string | number;
@@ -385,131 +385,153 @@ export const marqueeCities: Cities[] = [
         name: 'Los Angeles',
         capacity: '150kW',
         stationName: 'Station name',
-        contact: '(000)-000-0000',
+        zipcode: '90036',
     },
     {
         name: 'San Diego',
         capacity: '150kW',
         stationName: 'Station name',
-        contact: '(000)-000-0000',
+        zipcode: '92122',
     },
     {
         name: 'Austin',
         capacity: '150kW',
         stationName: 'Station name',
-        contact: '(000)-000-0000',
+        zipcode: '00000',
     },
     {
         name: 'Miami',
         capacity: '150kW',
         stationName: 'Station name',
-        contact: '(000)-000-0000',
+        zipcode: '00000',
     },
     {
         name: 'Phoenix',
         capacity: '150kW',
         stationName: 'Station name',
-        contact: '(000)-000-0000',
+        zipcode: '00000',
     },
 ];
 export const cities: Cities[] = [
     {
-        name: 'Los Angeles',
+        name: 'Redlands',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Shopping plaza',
+        zipcode: '92374',
+    },
+    {
+        name: 'Riverside',
+        capacity: '150kW',
+        stationName: 'Riverside Plaza',
+        zipcode: '92506',
+    },
+    {
+        name: 'Huntington Beach',
+        capacity: '150kW',
+        stationName: 'Pacific City',
+        zipcode: '92648',
+    },
+    {
+        name: 'Cerritos',
+        capacity: '150kW',
+        stationName: 'Los Cerritos Center',
+        zipcode: '90703',
+    },
+    {
+        name: 'Ontario',
+        capacity: '150kW',
+        stationName: 'Ontario Mills',
+        zipcode: '91764',
+    },
+    {
+        name: 'Fontana',
+        capacity: '150kW',
+        stationName: 'Sierra Lakes Shopping Center',
+        zipcode: '92336',
+    },
+    {
+        name: 'Loma Linda',
+        capacity: '150kW',
+        stationName: 'Mountain View Plaza',
+        zipcode: '92354',
+    },
+    {
+        name: 'Gardena',
+        capacity: '150kW',
+        stationName: 'Gardena Valley Shopping Center',
+        zipcode: '90247',
+    },
+    {
+        name: 'Ojai',
+        capacity: '150kW',
+        stationName: 'Ojai Village Center',
+        zipcode: '93023',
+    },
+    {
+        name: 'Hesperia',
+        capacity: '150kW',
+        stationName: 'Jess Ranch Marketplace',
+        zipcode: '92345',
+    },
+    {
+        name: 'Buena Park',
+        capacity: '150kW',
+        stationName: 'Buena Park Downtown',
+        zipcode: '90621',
+    },
+    {
+        name: 'Los Alamitos',
+        capacity: '150kW',
+        stationName: 'Rossmoor Center',
+        zipcode: '90720',
     },
     {
         name: 'San Diego',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Westfield UTC',
+        zipcode: '92122',
     },
     {
-        name: 'San Jose',
+        name: 'Los Angeles',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'The Grove',
+        zipcode: '90036',
     },
     {
-        name: 'San Francisco',
+        name: 'Irvine',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Irvine Spectrum Center',
+        zipcode: '92618',
     },
     {
-        name: 'Fresno',
+        name: 'Oceanside',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Oceanside Marketplace',
+        zipcode: '92054',
     },
     {
-        name: 'Sacramento',
+        name: 'San Bernardino',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'The Shoppes at Northpointe',
+        zipcode: '92408',
     },
     {
-        name: 'Long Beach',
+        name: 'Santa Ana',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'MainPlace Mall',
+        zipcode: '92705',
     },
     {
-        name: 'Oakland',
+        name: 'Anaheim',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-
-    {
-        name: 'Fresno',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Anaheim GardenWalk',
+        zipcode: '92802',
     },
     {
-        name: 'Sacramento',
+        name: 'Lake Forest',
         capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-    {
-        name: 'Long Beach',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-    {
-        name: 'Oakland',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-
-    {
-        name: 'Fresno',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-    {
-        name: 'Sacramento',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-    {
-        name: 'Long Beach',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
-    },
-    {
-        name: 'Oakland',
-        capacity: '150kW',
-        stationName: 'Station name',
-        contact: '(000)-000-0000',
+        stationName: 'Foothill Ranch Towne Centre',
+        zipcode: '92610',
     },
 ];
 export const HostPageWhyChooseSlideCardData: SlidesCardData[] = [
