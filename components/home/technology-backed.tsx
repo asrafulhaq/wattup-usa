@@ -18,14 +18,16 @@ const TRANSITION_TIME = 1; // Time for each transition in seconds
 const SCROLL_SPEED_MULTIPLIER = 80; // Adjust this to make the scroll faster or slower
 
 export function TechnologyBacked() {
-    const sectionRef = useRef<HTMLDivElement>(null);
+    const outerSectionRef = useRef<HTMLElement>(null);
+    const innerDivRef = useRef<HTMLDivElement>(null);
     const slidesContainerRef = useRef<HTMLDivElement>(null);
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const textRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     useEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
+        const outerSection = outerSectionRef.current;
+        const innerDiv = innerDivRef.current;
+        if (!outerSection || !innerDiv) return;
 
         const ctx = gsap.context(() => {
             slideRefs.current.forEach((slide, i) => {
@@ -48,65 +50,73 @@ export function TechnologyBacked() {
                     (SLIDE_COUNT - 1) * TRANSITION_TIME) *
                 SCROLL_SPEED_MULTIPLIER;
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: section,
-                    start: 'top top',
-                    end: `+=${totalScrollPercentage}%`,
-                    pin: true,
-                    pinSpacing: true,
-                    scrub: 2,
-                    anticipatePin: 1,
-                    invalidateOnRefresh: true,
-                },
-            });
+            const buildTimeline = (trigger: Element) => {
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger,
+                        start: 'top top',
+                        end: `+=${totalScrollPercentage}%`,
+                        pin: true,
+                        pinSpacing: true,
+                        scrub: 2,
+                        anticipatePin: 1,
+                        invalidateOnRefresh: true,
+                    },
+                });
 
-            for (let i = 0; i < SLIDE_COUNT; i++) {
-                tl.to({}, { duration: STAY_TIME });
-                if (i < SLIDE_COUNT - 1) {
-                    tl.to(
-                        slideRefs.current[i],
-                        {
-                            opacity: 0,
-                            scale: 0.95,
-                            duration: TRANSITION_TIME,
-                            ease: 'none',
-                        },
-                        '>'
-                    )
-                        .to(
-                            textRefs.current[i],
-                            { opacity: 0, duration: TRANSITION_TIME, ease: 'none' },
-                            '<'
-                        )
-                        .to(
-                            slideRefs.current[i + 1],
+                for (let i = 0; i < SLIDE_COUNT; i++) {
+                    tl.to({}, { duration: STAY_TIME });
+                    if (i < SLIDE_COUNT - 1) {
+                        tl.to(
+                            slideRefs.current[i],
                             {
-                                opacity: 1,
-                                scale: 1,
+                                opacity: 0,
+                                scale: 0.95,
                                 duration: TRANSITION_TIME,
                                 ease: 'none',
                             },
-                            '<'
+                            '>'
                         )
-                        .to(
-                            textRefs.current[i + 1],
-                            { opacity: 1, duration: TRANSITION_TIME, ease: 'none' },
-                            '<'
-                        );
+                            .to(
+                                textRefs.current[i],
+                                { opacity: 0, duration: TRANSITION_TIME, ease: 'none' },
+                                '<'
+                            )
+                            .to(
+                                slideRefs.current[i + 1],
+                                {
+                                    opacity: 1,
+                                    scale: 1,
+                                    duration: TRANSITION_TIME,
+                                    ease: 'none',
+                                },
+                                '<'
+                            )
+                            .to(
+                                textRefs.current[i + 1],
+                                { opacity: 1, duration: TRANSITION_TIME, ease: 'none' },
+                                '<'
+                            );
+                    }
                 }
-            }
-        }, section);
+            };
+
+            const mm = gsap.matchMedia();
+            // Mobile: pin the entire outer section so the title stays visible
+            mm.add('(max-width: 767px)', () => buildTimeline(outerSection));
+            // Desktop: pin only the inner slides div (original behaviour)
+            mm.add('(min-width: 768px)', () => buildTimeline(innerDiv));
+        });
 
         return () => ctx.revert();
     }, []);
 
     return (
         <section
-            ref={sectionRef}
+            ref={outerSectionRef}
             id='technology'
-            className='relative common-section-padding z-10 h-auto bg-black overflow-hidden'>
-            <div className='relative w-screen h-full  flex flex-col'>
+            className='relative common-section-padding z-10 max-md:h-screen h-auto bg-black overflow-hidden'>
+            <div className='relative w-screen h-full flex flex-col'>
                 {/* Section header */}
                 <div className='relative z-30 flex flex-col items-center text-center shrink-0'>
                     <FadeUp>
@@ -126,10 +136,10 @@ export function TechnologyBacked() {
                 </div>
 
                 {/* Pinned slides area */}
-                <div className='scroll-section'>
+                <div ref={innerDivRef} className='scroll-section max-md:flex-1 max-md:min-h-0'>
                     <div
                         ref={slidesContainerRef}
-                        className='relative w-full grow h-screen overflow-hidden'>
+                        className='relative w-full max-md:h-full md:h-screen overflow-hidden'>
                         <TechnologySlide1
                             slideRef={el => {
                                 slideRefs.current[0] = el;
