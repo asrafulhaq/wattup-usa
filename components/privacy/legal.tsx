@@ -1,5 +1,4 @@
 import { PolicyLeagalsData } from '@/data';
-import Link from 'next/link';
 import { FadeUp } from '../ui/fade-up';
 
 const PolicyLeagals = () => {
@@ -34,7 +33,7 @@ const PolicyLeagals = () => {
                         </FadeUp>
                     ))}
                 </div>
-          {/*       <FadeUp delay={0.3}>
+                {/*       <FadeUp delay={0.3}>
                     <Link
                         href={'#'}
                         className='text-primary text-[16px] font-semibold'>

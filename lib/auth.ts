@@ -5,6 +5,29 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { APIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { admin } from 'better-auth/plugins';
+import { createAccessControl } from 'better-auth/plugins/access';
+
+// ─── Admin plugin access control ──────────────────────────────────────────────
+// Maps our custom role names to Better Auth admin plugin permissions.
+// Required because the admin plugin's hasPermission() looks up roles in this map.
+
+const ac = createAccessControl({
+    user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'impersonate-admins', 'delete', 'set-password', 'get', 'update'],
+    session: ['list', 'revoke', 'delete'],
+});
+
+const superAdminAc = ac.newRole({
+    user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'impersonate-admins', 'delete', 'set-password', 'get', 'update'],
+    session: ['list', 'revoke', 'delete'],
+});
+
+const adminAc = ac.newRole({
+    user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
+    session: ['list', 'revoke', 'delete'],
+});
+
+const editorAc = ac.newRole({ user: ['list', 'get'], session: [] });
+const collaboratorAc = ac.newRole({ user: [], session: [] });
 
 export const auth = betterAuth({
     appName: 'WattUp',
@@ -15,8 +38,13 @@ export const auth = betterAuth({
         additionalFields: {
             role: {
                 type: 'string',
-                defaultValue: 'user',
-                input: false, // Prevent role from being set via signup/profile update APIs
+                defaultValue: 'COLLABORATOR',
+                input: false, // role is set only by admin — never by public-facing APIs
+            },
+            bio: {
+                type: 'string',
+                defaultValue: '',
+                input: true, // each user can update their own bio
             },
         },
     },
@@ -65,7 +93,14 @@ export const auth = betterAuth({
     },
     plugins: [
         admin({
-            adminUserIds: [], // populated via seeding — role field is used instead
+            adminRole: ['SUPER_ADMIN', 'ADMIN'],
+            defaultRole: 'COLLABORATOR',
+            roles: {
+                SUPER_ADMIN: superAdminAc,
+                ADMIN: adminAc,
+                EDITOR: editorAc,
+                COLLABORATOR: collaboratorAc,
+            },
         }),
         nextCookies(), // required for Next.js server component cookie support
     ],

@@ -1,6 +1,5 @@
 'use client';
 
-import { IconInnerShadowTop, IconListDetails } from '@tabler/icons-react';
 import * as React from 'react';
 
 import { NavMain } from '@/components/nav-main';
@@ -15,37 +14,20 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { FileText, LayoutGrid, Settings2, User2 } from 'lucide-react';
+import { FileText, LayoutGrid, Settings2, User2, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const data = {
-    navMain: [
-        {
-            title: 'Dashboard',
-            url: '/dashboard',
-            icon: LayoutGrid,
-        },
-        {
-            title: 'Articles',
-            url: '/dashboard/articles',
-            icon: FileText,
-        },
-        {
-            title: 'Profile',
-            url: '/dashboard/profile',
-            icon: User2,
-        },
-        {
-            title: 'Settings',
-            url: '/dashboard/settings',
-            icon: Settings2,
-        },
-    ],
-};
+const baseNav = [
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutGrid },
+    { title: 'Articles', url: '/dashboard/articles', icon: FileText },
+    { title: 'Profile', url: '/dashboard/profile', icon: User2 },
+];
 
 export function AppSidebar({
     user,
+    showUsers,
+    showSettings,
     ...props
 }: React.ComponentProps<typeof Sidebar> & {
     user: {
@@ -54,8 +36,16 @@ export function AppSidebar({
         avatar?: string | null;
         image?: string | null;
     };
+    showUsers?: boolean;
+    showSettings?: boolean;
 }) {
     const { setOpenMobile } = useSidebar();
+
+    const navItems = [
+        ...baseNav,
+        ...(showSettings ? [{ title: 'Settings', url: '/dashboard/settings', icon: Settings2 }] : []),
+        ...(showUsers ? [{ title: 'Users', url: '/dashboard/users', icon: Users, prefetch: true as const }] : []),
+    ];
 
     const userData = {
         name: user.name || 'Admin',
@@ -85,7 +75,7 @@ export function AppSidebar({
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={navItems} />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={userData} />

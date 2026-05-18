@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getSession } from '@/app/_actions/auth-actions';
 import { getPaginatedArticles } from '@/app/_actions/postActions';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 import PageTitle from '../../../../components/dashboard/page-title';
 import { ArticlesDataTable } from '../../../../components/dashboard/articles/articles-data-table';
 
 export async function ArticlesTable() {
-    const { articles, totalCount } = await getPaginatedArticles(1, 10);
+    const [{ articles, totalCount }, session] = await Promise.all([
+        getPaginatedArticles(1, 10),
+        getSession(),
+    ]);
+
+    const canPublish = hasPermission(session?.role, Permission.PUBLISH_POST);
 
     const formattedArticles = articles.map(article => ({
         ...article,
@@ -22,6 +29,7 @@ export async function ArticlesTable() {
         <ArticlesDataTable
             initialData={formattedArticles as any}
             initialTotalCount={totalCount}
+            canPublish={canPublish}
         />
     );
 }

@@ -6,16 +6,18 @@ import { DataTable } from '@/components/data-table';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Article, ArticleBatchActions, columns } from './columns';
+import { Article, ArticleBatchActions, createColumns } from './columns';
 
 interface ArticlesDataTableProps {
     initialData: Article[];
     initialTotalCount: number;
+    canPublish?: boolean;
 }
 
 export function ArticlesDataTable({
     initialData,
     initialTotalCount,
+    canPublish = false,
 }: ArticlesDataTableProps) {
     const [data, setData] = useState<Article[]>(initialData);
     const [pagination, setPagination] = useState({
@@ -59,6 +61,8 @@ export function ArticlesDataTable({
         fetchData();
     }, [pagination, initialData]);
 
+    const columns = createColumns({ canPublish });
+
     return (
         <div className='flex flex-1 flex-col gap-4 relative'>
             {isLoading && (
@@ -87,6 +91,7 @@ export function ArticlesDataTable({
                     <ArticleBatchActions
                         selectedRows={selectedRows}
                         clearSelection={clearSelection}
+                        canPublish={canPublish}
                     />
                 )}
             />

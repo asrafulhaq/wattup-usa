@@ -72,7 +72,7 @@ export type Article = {
 };
 
 // ── Per-row Action Cell ────────────────────────────────────────
-function ActionCell({ row }: { row: any }) {
+function ActionCell({ row, canPublish }: { row: any; canPublish: boolean }) {
     const article: Article = row.original;
     const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
 
@@ -128,11 +128,13 @@ function ActionCell({ row }: { row: any }) {
                             Edit
                         </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleTogglePublish}>
-                        {article.status === 'Published'
-                            ? 'Unpublish'
-                            : 'Publish'}
-                    </DropdownMenuItem>
+                    {canPublish && (
+                        <DropdownMenuItem onClick={handleTogglePublish}>
+                            {article.status === 'Published'
+                                ? 'Unpublish'
+                                : 'Publish'}
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={handleDuplicate}>
                         Duplicate
                     </DropdownMenuItem>
@@ -181,9 +183,11 @@ function ActionCell({ row }: { row: any }) {
 export function ArticleBatchActions({
     selectedRows,
     clearSelection,
+    canPublish,
 }: {
     selectedRows: Article[];
     clearSelection: () => void;
+    canPublish: boolean;
 }) {
     const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
@@ -221,24 +225,28 @@ export function ArticleBatchActions({
 
     return (
         <>
-            <Button
-                size='sm'
-                variant='outline'
-                className='h-7 text-xs gap-1.5'
-                disabled={isLoading}
-                onClick={handleBatchPublish}>
-                <IconCircleCheckFilled className='size-3 fill-green-500' />
-                Publish
-            </Button>
-            <Button
-                size='sm'
-                variant='outline'
-                className='h-7 text-xs gap-1.5'
-                disabled={isLoading}
-                onClick={handleBatchUnpublish}>
-                <BsFileEarmarkMedical className='size-3' />
-                Draft
-            </Button>
+            {canPublish && (
+                <Button
+                    size='sm'
+                    variant='outline'
+                    className='h-7 text-xs gap-1.5'
+                    disabled={isLoading}
+                    onClick={handleBatchPublish}>
+                    <IconCircleCheckFilled className='size-3 fill-green-500' />
+                    Publish
+                </Button>
+            )}
+            {canPublish && (
+                <Button
+                    size='sm'
+                    variant='outline'
+                    className='h-7 text-xs gap-1.5'
+                    disabled={isLoading}
+                    onClick={handleBatchUnpublish}>
+                    <BsFileEarmarkMedical className='size-3' />
+                    Draft
+                </Button>
+            )}
             <Button
                 size='sm'
                 variant='destructive'
@@ -280,7 +288,8 @@ export function ArticleBatchActions({
 }
 
 // ── Column Definitions ─────────────────────────────────────────
-export const columns: ColumnDef<Article>[] = [
+export function createColumns({ canPublish }: { canPublish: boolean }): ColumnDef<Article>[] {
+    return [
     {
         id: 'drag',
         header: () => null,
@@ -421,6 +430,7 @@ export const columns: ColumnDef<Article>[] = [
     },
     {
         id: 'actions',
-        cell: ({ row }) => <ActionCell row={row} />,
+        cell: ({ row }) => <ActionCell row={row} canPublish={canPublish} />,
     },
-];
+    ];
+}

@@ -1,8 +1,8 @@
 /**
- * Seed script — creates the admin user from environment variables.
+ * Seed script — creates the super admin user from environment variables.
  * Run with: pnpm db:seed
  *
- * The admin user is seeded via Better Auth's API so the password is
+ * The super admin user is seeded via Better Auth's API so the password is
  * properly hashed with scrypt and all auth tables are populated correctly.
  */
 
@@ -18,7 +18,7 @@ import { admin } from 'better-auth/plugins';
 // ── Validate required env vars ──────────────────────────────────────────────
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const ADMIN_NAME = process.env.ADMIN_NAME ?? 'Admin';
+const ADMIN_NAME = process.env.ADMIN_NAME ?? 'Super Admin';
 
 if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
     console.error(
@@ -48,28 +48,30 @@ const seedAuth = betterAuth({
 
 // ── Seed ─────────────────────────────────────────────────────────────────────
 async function seed() {
-    console.log('🌱  Seeding admin user…');
+    console.log('🌱  Seeding super admin user…');
 
-    // Check if admin already exists
+    // Check if super admin already exists
     const existing = await prisma.user.findUnique({
         where: { email: ADMIN_EMAIL },
     });
 
     if (existing) {
-        // Ensure the role is set to admin even if user already exists
-        if (existing.role !== 'admin') {
+        // Ensure the role is set to SUPER_ADMIN even if user already exists
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((existing.role as any) !== 'SUPER_ADMIN') {
             await prisma.user.update({
                 where: { email: ADMIN_EMAIL },
-                data: { role: 'admin' },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: { role: 'SUPER_ADMIN' as any },
             });
-            console.log(`✅  Existing user promoted to admin: ${ADMIN_EMAIL}`);
+            console.log(`✅  Existing user promoted to SUPER_ADMIN: ${ADMIN_EMAIL}`);
         } else {
-            console.log(`ℹ️   Admin already exists: ${ADMIN_EMAIL} — skipping.`);
+            console.log(`ℹ️   Super admin already exists: ${ADMIN_EMAIL} — skipping.`);
         }
         return;
     }
 
-    // Create admin via Better Auth API — handles password hashing automatically
+    // Create super admin via Better Auth API — handles password hashing automatically
     const result = await seedAuth.api.signUpEmail({
         body: {
             email: ADMIN_EMAIL!,
@@ -79,17 +81,18 @@ async function seed() {
     });
 
     if (!result?.user?.id) {
-        console.error('❌  Failed to create admin user:', result);
+        console.error('❌  Failed to create super admin user:', result);
         process.exit(1);
     }
 
-    // Elevate role to "admin"
+    // Elevate role to SUPER_ADMIN
     await prisma.user.update({
         where: { id: result.user.id },
-        data: { role: 'admin', emailVerified: true },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: { role: 'SUPER_ADMIN' as any, emailVerified: true },
     });
 
-    console.log(`✅  Admin seeded successfully: ${ADMIN_EMAIL}`);
+    console.log(`✅  Super admin seeded successfully: ${ADMIN_EMAIL}`);
 }
 
 seed()

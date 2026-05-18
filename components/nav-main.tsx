@@ -25,6 +25,7 @@ export function NavMain({
         title: string;
         url: string;
         icon?: React.ElementType;
+        prefetch?: boolean;
         items?: {
             title: string;
             url: string;
@@ -54,6 +55,7 @@ function NavItem({
         title: string;
         url: string;
         icon?: React.ElementType;
+        prefetch?: boolean;
         items?: {
             title: string;
             url: string;
@@ -117,7 +119,7 @@ function NavItem({
                 isActive={isActive}
                 tooltip={item.title}
                 className='font-normal!'>
-                <Link href={item.url} onClick={() => setOpenMobile(false)}>
+                <Link href={item.url} prefetch={item.prefetch} onClick={() => setOpenMobile(false)}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                 </Link>

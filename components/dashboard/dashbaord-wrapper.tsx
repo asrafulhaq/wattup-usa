@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getAdminSession } from '@/app/_actions/auth-actions';
-import { getProfile } from '@/app/_actions/userActions';
+import { getSession } from '@/app/_actions/auth-actions';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { AppSidebar } from '@/components/app-sidebar';
 import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
 import { SiteHeader } from '@/components/site-header';
@@ -13,28 +13,19 @@ import {
 import React, { Suspense } from 'react';
 
 async function SidebarWrapper() {
-    const [profile, admin] = await Promise.all([
-        getProfile(),
-        getAdminSession(),
-    ]);
-
-    // profile.image is stored as Json: { url, public_id } or a plain string or null
-    const profileImageUrl =
-        profile?.image &&
-        typeof profile.image === 'object' &&
-        'url' in profile.image
-            ? (profile.image as { url: string }).url
-            : typeof profile?.image === 'string'
-              ? profile.image
-              : null;
+    const session = await getSession();
+    const showUsers = hasPermission(session?.role, Permission.VIEW_USERS);
+    const showSettings = hasPermission(session?.role, Permission.MANAGE_SITE_SETTINGS);
 
     return (
         <AppSidebar
             variant='inset'
+            showUsers={showUsers}
+            showSettings={showSettings}
             user={{
-                name: profile?.name || admin?.name,
-                email: admin?.email,
-                image: profileImageUrl,
+                name: session?.name,
+                email: session?.email,
+                image: session?.image,
             }}
         />
     );
@@ -91,4 +82,3 @@ const DashboardWrapper = async ({
 };
 
 export default DashboardWrapper;
-

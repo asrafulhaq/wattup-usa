@@ -6,11 +6,37 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Better Auth Enums ─────────────────────────────────────────────────────────
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum Role {
-  admin
-  user
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  COLLABORATOR
+}
+
+// Permission enum is used for type-safe RBAC in application code.
+// Role → Permission mapping is defined in lib/permissions.ts.
+enum Permission {
+  // Post management
+  CREATE_POST
+  EDIT_ANY_POST
+  EDIT_OWN_POST
+  DELETE_ANY_POST
+  DELETE_OWN_POST
+  PUBLISH_POST
+
+  // Site management
+  MANAGE_SITE_SETTINGS
+  MANAGE_SOCIAL_LINKS
+
+  // User management
+  VIEW_USERS
+  INVITE_USERS
+  EDIT_USERS
+  CHANGE_USER_ROLE
+  DELETE_USERS
+  BAN_USERS
 }
 
 // ─── Better Auth Core Models ──────────────────────────────────────────────────
@@ -21,11 +47,14 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  bio           String?   @default("")
+  imagePublicId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // Better Auth admin plugin — "admin" | "user"
-  role          Role?     @default(user)
+  role          Role      @default(COLLABORATOR)
+
+  // Better Auth admin plugin fields
   banned        Boolean?  @default(false)
   banReason     String?
   banExpires    DateTime?
@@ -97,11 +126,12 @@ model Profile {
 
 model SocialLink {
   id        String   @id @default(uuid())
+  userId    String
   name      String   @default("")
   url       String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@index([id])
+  @@index([userId])
 }
 
 model Posts {

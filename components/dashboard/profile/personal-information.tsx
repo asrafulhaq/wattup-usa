@@ -2,7 +2,8 @@
 'use client';
 import {
     removeProfilePhoto,
-    updateUserInformationById,
+    updateCurrentUserPhoto,
+    updateCurrentUserProfile,
     uploadProfilePhoto,
 } from '@/app/_actions/userActions';
 import { AnimatedProgress } from '@/components/common/animate-progress';
@@ -15,26 +16,28 @@ import { IconDeviceFloppy } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { UploadIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import ImageCropper from './image-cropper';
 
 interface PersonalInformationProps {
-    profile: {
-        id: string;
+    user: {
         name: string;
         bio: string;
-        image?: any;
+        image: string | null;
+        imagePublicId: string | null;
     };
 }
 
 const MAX_SIZE_MB = 5;
 
-const PersonalInformation = ({ profile }: PersonalInformationProps) => {
+const PersonalInformation = ({ user }: PersonalInformationProps) => {
+    const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [name, setName] = useState(profile.name);
-    const [bio, setBio] = useState(profile.bio);
-    const [currentPhoto, setCurrentPhoto] = useState<string>('');
+    const [name, setName] = useState(user.name);
+    const [bio, setBio] = useState(user.bio);
+    const [currentPhoto, setCurrentPhoto] = useState<string>(user.image ?? '');
     const [tempPhotoUrl, setTempPhotoUrl] = useState<string>('');
 
     const [isSaving, setIsSaving] = useState(false);
@@ -43,23 +46,10 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
     const [openCropper, setOpenCropper] = useState(false);
 
     useEffect(() => {
-        if (profile) {
-            setName(profile.name);
-            setBio(profile.bio);
-
-            let imageUrl = '';
-            if (typeof profile.image === 'string') {
-                imageUrl = profile.image;
-            } else if (
-                profile.image &&
-                typeof profile.image === 'object' &&
-                profile.image.url
-            ) {
-                imageUrl = profile.image.url;
-            }
-            setCurrentPhoto(imageUrl);
-        }
-    }, [profile]);
+        setName(user.name);
+        setBio(user.bio);
+        setCurrentPhoto(user.image ?? '');
+    }, [user]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -79,87 +69,71 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
         setTempPhotoUrl(url);
         setOpenCropper(true);
 
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleCropComplete = async (file: File, blobUrl: string) => {
         setCurrentPhoto(blobUrl);
         setOpenCropper(false);
+        setUploading(true);
+        setUploadProgress(0);
 
-        if (file && profile.id) {
-            setUploading(true);
-            setUploadProgress(0);
+        try {
+            const progressInterval = setInterval(() => {
+                setUploadProgress(prev => {
+                    if (prev >= 95) { clearInterval(progressInterval); return 95; }
+                    return prev + 5;
+                });
+            }, 100);
 
-            try {
-                const progressInterval = setInterval(() => {
-                    setUploadProgress(prev => {
-                        if (prev >= 95) {
-                            clearInterval(progressInterval);
-                            return 95;
-                        }
-                        return prev + 5;
-                    });
-                }, 100);
+            const formData = new FormData();
+            formData.append('file', file);
+            const uploadRes = await uploadProfilePhoto(formData);
 
-                const formData = new FormData();
-                formData.append('file', file);
+            clearInterval(progressInterval);
+            setUploadProgress(100);
 
-                const uploadRes = await uploadProfilePhoto(formData);
+            if (uploadRes.success && uploadRes.url && uploadRes.publicId) {
+                // Delete old Cloudinary asset if one exists
+                if (user.imagePublicId) {
+                    try { await removeProfilePhoto(user.imagePublicId); } catch {}
+                }
 
-                clearInterval(progressInterval);
-                setUploadProgress(100);
+                const res = await updateCurrentUserPhoto({
+                    url: uploadRes.url,
+                    publicId: uploadRes.publicId,
+                });
 
-                if (uploadRes.success && uploadRes.url && uploadRes.publicId) {
-                    const publicId =
-                        typeof profile?.image === 'object' &&
-                        profile?.image?.public_id
-                            ? profile.image.public_id
-                            : null;
-
-                    if (publicId) {
-                        try {
-                            await removeProfilePhoto(publicId);
-                        } catch (err) {
-                            console.error('Failed to remove old photo:', err);
-                        }
-                    }
-
-                    await updateUserInformationById(profile.id, {
-                        image: {
-                            url: uploadRes.url,
-                            public_id: uploadRes.publicId,
-                        },
-                    });
-
+                if (res.success) {
                     setCurrentPhoto(uploadRes.url);
+                    router.refresh(); // update sidebar avatar
                     toast.success('Profile photo updated');
                 } else {
-                    toast.error(uploadRes.error || 'Upload failed');
+                    toast.error(res.error || 'Failed to save photo');
                 }
-            } catch (err) {
-                console.error('Upload error:', err);
-                toast.error('Something went wrong during upload');
-            } finally {
-                setTimeout(() => {
-                    setUploading(false);
-                    setUploadProgress(0);
-                }, 500);
+            } else {
+                toast.error(uploadRes.error || 'Upload failed');
+                setCurrentPhoto(user.image ?? '');
             }
+        } catch (err) {
+            console.error('Upload error:', err);
+            toast.error('Something went wrong during upload');
+            setCurrentPhoto(user.image ?? '');
+        } finally {
+            setTimeout(() => {
+                setUploading(false);
+                setUploadProgress(0);
+            }, 500);
         }
     };
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const res = await updateUserInformationById(profile.id, {
-                name,
-                bio,
-            });
-
+            const res = await updateCurrentUserProfile({ name, bio });
             if (res.success) {
-                toast.success('Personal information updated');
+                toast.success('Profile updated');
+                router.refresh(); // update sidebar name
             } else {
                 toast.error(res.error || 'Failed to update');
             }
@@ -173,7 +147,7 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
     return (
         <Card className='shadow-none border-border'>
             <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-                <CardTitle className=' text-lg font-medium'>
+                <CardTitle className='text-lg font-medium'>
                     Personal Information
                 </CardTitle>
                 <Button
@@ -261,11 +235,11 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
                 </div>
                 <div className='space-y-2'>
                     <Label htmlFor='bio' className='text-sm font-normal'>
-                        Bio (Short)
+                        Bio
                     </Label>
                     <Textarea
                         id='bio'
-                        placeholder='Short bio for the sidebar...'
+                        placeholder='A short bio about yourself...'
                         value={bio}
                         onChange={e => setBio(e.target.value)}
                         className='min-h-[100px] resize-none'
@@ -284,4 +258,3 @@ const PersonalInformation = ({ profile }: PersonalInformationProps) => {
 };
 
 export default PersonalInformation;
-

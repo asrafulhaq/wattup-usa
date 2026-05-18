@@ -4,6 +4,13 @@
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
+
+// Deduplicates auth.api.getSession calls within the same request render tree.
+const getCachedSession = cache(async () => {
+    const h = await headers();
+    return auth.api.getSession({ headers: h });
+});
 
 /**
  * Logout action — signs out via Better Auth server API and redirects.
@@ -17,22 +24,43 @@ export async function logout() {
 }
 
 /**
- * Retrieves the current logged-in user's information using Better Auth.
+ * Returns session only for ADMIN role users.
+ * Used to protect admin-only server actions and pages.
  */
 export async function getAdminSession() {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers(),
-        });
+        const session = await getCachedSession();
 
-        if (!session || session.user.role !== 'admin') {
+        if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN')) {
             return null;
         }
 
         return {
             id: session.user.id,
             email: session.user.email,
-            role: session.user.role,
+            role: session.user.role as string,
+            name: session.user.name,
+            image: session.user.image,
+        };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Returns session for any authenticated user regardless of role.
+ * Used to protect dashboard pages accessible by all roles.
+ */
+export async function getSession() {
+    try {
+        const session = await getCachedSession();
+
+        if (!session) return null;
+
+        return {
+            id: session.user.id,
+            email: session.user.email,
+            role: session.user.role as string,
             name: session.user.name,
             image: session.user.image,
         };
@@ -107,7 +135,7 @@ export async function updateEmail(formData: FormData) {
     try {
         const h = await headers();
 
-        const session = await auth.api.getSession({ headers: h });
+        const session = await getCachedSession();
         if (!session) return { success: false, error: 'Not authenticated' };
 
         // Verify the current password by checking against the stored credential hash.

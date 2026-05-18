@@ -1,4 +1,4 @@
-import { getProfile, getSocialLinks } from '@/app/_actions/userActions';
+import { getProfile, getPublicAuthorSocialLinks } from '@/app/_actions/userActions';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GoArrowUpRight } from 'react-icons/go';
@@ -6,7 +6,7 @@ import { GoArrowUpRight } from 'react-icons/go';
 const AuthorBio = async () => {
     const [profile, socialLinks] = await Promise.all([
         getProfile(),
-        getSocialLinks(),
+        getPublicAuthorSocialLinks(),
     ]);
     const linkedin = socialLinks.find(link => link.name === 'LinkedIn');
     return (

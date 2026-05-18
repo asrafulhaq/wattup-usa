@@ -1,4 +1,4 @@
-import { getAdminSession } from '@/app/_actions/auth-actions';
+import { getSession } from '@/app/_actions/auth-actions';
 import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 async function DashboardContent() {
-    const session = await getAdminSession();
+    const session = await getSession();
     if (!session) redirect('/admin');
 
     const { name, email, id, role } = session;
@@ -37,7 +37,7 @@ async function DashboardContent() {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
                     {/* Profile card */}
-                    <div className='sm:col-span-2 lg:col-span-1 bg-white rounded-2xl border border-border/40 p-6 shadow-sm flex flex-col gap-6'>
+                    <div className='sm:col-span-2 lg:col-span-1 bg-white rounded-xl border border-border/40 p-6 shadow-sm flex flex-col gap-6'>
                         <div className='flex items-center gap-4'>
                             <div className='w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl font-bold tracking-tight shrink-0'>
                                 {initials}
