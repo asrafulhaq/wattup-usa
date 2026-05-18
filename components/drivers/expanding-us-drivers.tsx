@@ -50,11 +50,22 @@ export function ExpandingUsDrivers({
                 imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
                 imageAlt='Charging Stations By Water'>
                 <div className='flex flex-col space-y-[32px] md:space-y-20 w-full max-w-[1440px] px-4 md:px-10 mx-auto justify-start'>
-                    <FadeUp>
-                        <h2 className='headline-dark max-md:w-[305px] text-left w-full'>
-                            Expanding Across the U.S.
-                        </h2>
-                    </FadeUp>
+                    <div className='flex flex-col gap-10'>
+                        {' '}
+                        <FadeUp>
+                            <h2 className='headline-dark max-md:w-[305px] text-left w-full'>
+                                Explore Our Growing Network
+                            </h2>
+                        </FadeUp>
+                        <FadeUp delay={0.1}>
+                            <p className='text-description text-dark/70 max-md:max-w-87 max-w-3xl'>
+                                WattUpUSA is actively expanding its ultra-fast
+                                charging network across California. Additional
+                                locations will continue to be announced as the
+                                network grows.
+                            </p>
+                        </FadeUp>
+                    </div>
 
                     <FadeUp delay={0.1} className='w-full'>
                         <div
@@ -70,7 +81,7 @@ export function ExpandingUsDrivers({
                                     <div className='flex flex-col gap-y-2 text-[16px] md:text-[20px] text-dark leading-[120%]'>
                                         <span>{city.capacity}</span>
                                         <span>{city.stationName}</span>
-                                        <span>{city.zipcode}</span>
+                                        <span>{city.status}</span>
                                     </div>
                                 </div>
                             ))}
@@ -100,4 +111,8 @@ export function ExpandingUsDrivers({
         </div>
     );
 }
+
+
+
+
 

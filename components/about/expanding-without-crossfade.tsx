@@ -34,7 +34,7 @@ export function ExpandingWithoutCrossfade() {
                                 <div className='flex flex-col gap-y-2 text-[16px] md:text-[20px] text-dark leading-[120%]'>
                                     <span>{city.capacity}</span>
                                     <span>{city.stationName}</span>
-                                    <span>{city.zipcode}</span>
+                                    <span>{city.status}</span>
                                 </div>
                             </div>
                         ))}
