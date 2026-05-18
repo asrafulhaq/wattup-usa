@@ -2,8 +2,9 @@ import { MetadataRoute } from 'next';
 import { getArticles } from '@/app/_actions/postActions';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl =
-        process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app';
+const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app'
+).replace(/\/$/, '');
 
     // Static routes
     const staticRoutes = [
@@ -42,4 +43,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return staticRoutes;
     }
 }
+
 
