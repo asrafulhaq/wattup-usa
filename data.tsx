@@ -428,19 +428,19 @@ export const cities: Cities[] = [
     {
         name: 'Riverside',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Commercial Location',
+        stationName: 'Commercial Hub',
         status: 'Coming Soon',
     },
     {
         name: 'Huntington Beach',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'High Traffic Retail',
+        stationName: 'High-Traffic Retail',
         status: 'Coming Soon',
     },
     {
         name: 'Cerritos',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Mixed Use',
+        stationName: 'Lifestyle & Retail Destination',
         status: 'Coming Soon',
     },
     {
@@ -464,19 +464,19 @@ export const cities: Cities[] = [
     {
         name: 'Gardena',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'High Traffic Retail',
+        stationName: 'High-Traffic Retail',
         status: 'Coming Soon',
     },
     {
         name: 'Ojai',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Mixed Use',
+        stationName: 'Shopping & Dining Destination',
         status: 'Coming Soon',
     },
     {
         name: 'Hesperia',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Commercial Location',
+        stationName: 'Commercial Hub',
         status: 'Coming Soon',
     },
     {
@@ -488,19 +488,19 @@ export const cities: Cities[] = [
     {
         name: 'Los Alamitos',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Retail Destination',
+        stationName: 'Retail Complex',
         status: 'Coming Soon',
     },
     {
         name: 'San Diego',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'High Traffic Retail',
+        stationName: 'High-Traffic Retail',
         status: 'Coming Soon',
     },
     {
         name: 'Los Angeles',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Mixed Use',
+        stationName: 'Urban Retail & Lifestyle Destination',
         status: 'Coming Soon',
     },
     {
@@ -512,7 +512,7 @@ export const cities: Cities[] = [
     {
         name: 'Oceanside',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Commercial Location',
+        stationName: 'Commercial Hub',
         status: 'Coming Soon',
     },
     {
@@ -524,13 +524,13 @@ export const cities: Cities[] = [
     {
         name: 'Santa Ana',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'High Traffic Retail',
+        stationName: 'High-Traffic Retail',
         status: 'Coming Soon',
     },
     {
         name: 'Anaheim',
         capacity: '300kW+ Ultra Fast Charging',
-        stationName: 'Mixed Use',
+        stationName: 'Lifestyle & Retail Destination',
         status: 'Coming Soon',
     },
 ];
