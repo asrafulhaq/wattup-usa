@@ -16,7 +16,7 @@ const PolicyLeagals = () => {
                         We may collect personal information such as your name,
                         email address, and usage data when you interact with our
                         website (e.g., via forms, subscriptions, or analytics
-                        tools.
+                        tools).
                     </p>
                 </FadeUp>
 
