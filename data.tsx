@@ -912,15 +912,15 @@ export const ContactInfoData: ContactInfoItemData[] = [
     {
         title: 'Driver Support',
         description: 'Questions about charging, locations, or usage.',
-        linkText: 'support@wattup.com',
-        linkHref: 'mailto:support@wattup.com',
+        linkText: 'support@wattupusa.com',
+        linkHref: 'mailto:support@wattupusa.com',
         descriptionClass: 'max-w-[346px]',
     },
     {
         title: 'Partnerships',
         description: 'Interested in installing EV charging at your property.',
-        linkText: 'partners@wattup.com',
-        linkHref: 'mailto:partners@wattup.com',
+        linkText: 'partners@wattupusa.com',
+        linkHref: 'mailto:partners@wattupusa.com',
         descriptionClass: 'max-w-[323px]',
     },
     {
