@@ -10,13 +10,13 @@ function HeroContent({ dark }: { dark: boolean }) {
             <div
                 className={cn(
                     'relative z-10 container mx-auto flex flex-col items-center text-center',
-                    dark ? 'text-dark' : 'max-md:text-dark text-white'
+                    dark ? 'text-black' : 'max-md:text-black text-white'
                 )}>
                 <FadeUp yOffset={30}>
                     <h1
                         className={cn(
                             'headline max-sm:h-[105px] w-[348px] md:w-[642px] mb-4 md:mb-5',
-                            dark ? 'text-dark' : 'max-md:text-dark text-white'
+                            dark ? 'text-black' : 'max-md:text-black text-white'
                         )}>
                         Powering the Next <br className='hidden md:block' />
                         Generation of EV Charging
@@ -27,7 +27,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                     <p
                         className={cn(
                             'text-[16px] md:text-[20px] font-normal max-w-[416px] mx-auto mb-6 md:mb-8 leading-[120%]',
-                            dark ? 'text-dark' : 'max-md:text-dark text-white'
+                            dark ? 'text-black' : 'max-md:text-black text-white'
                         )}>
                         Fast, reliable charging stations located
                         <br className='hidden md:block' />
@@ -357,7 +357,7 @@ export async function Hero() {
                     </div>
 
                     {/* Content Container */}
-                    <HeroContent dark={false} />
+                    <HeroContent dark={true} />
                 </div>
             ),
         },
@@ -389,7 +389,7 @@ export async function Hero() {
                     </div>
 
                     {/* Content Container */}
-                    <HeroContent dark={false} />
+                    <HeroContent dark={true} />
                 </div>
             ),
         },
@@ -435,7 +435,7 @@ export async function Hero() {
                             src={homeImageUrls.slide_4_layered}
                             alt='WattUp Hero Station'
                             fill
-                            className='object-cover hidden md:block object-bottom xl:object-[67%]'
+                            className='object-cover object-top hidden md:block xl:object-[67%]'
                             priority
                             draggable={false}
                         />

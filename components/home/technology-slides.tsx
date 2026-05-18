@@ -48,7 +48,6 @@ const mobileEdgeGradient3: React.CSSProperties = {
         'linear-gradient(60deg, #000 0%, transparent 20%, transparent 80%, #000 100%)',
 };
 
-
 /* ─────────────────────────────────────────────────────────
    Slide 1 — Smart charging infrastructure
 ───────────────────────────────────────────────────────── */
@@ -124,8 +123,7 @@ export function TechnologySlide1({
                 {/* Desktop text */}
                 <div className='hidden md:block absolute inset-0 z-10 pointer-events-none'>
                     <div
-                        className='absolute pointer-events-auto'
-                        style={{ left: '252px', top: '155px' }}>
+                        className='absolute pointer-events-auto left-[5.5%] top-[155px]'>
                         <div className='flex items-start text-left'>
                             <h3 className='headline-3 text-white'>
                                 <span className='text-white/70 mr-3'>01.</span>
@@ -214,9 +212,7 @@ export function TechnologySlide2({
                 />
                 {/* Desktop text */}
                 <div className='hidden md:block absolute inset-0 z-10 pointer-events-none'>
-                    <div
-                        className='absolute pointer-events-auto'
-                        style={{ left: '1079px', top: '328px' }}>
+                    <div className='absolute pointer-events-auto right-[5.5%] top-[328px] max-w-[440px]'>
                         <div className='flex items-start text-left'>
                             <h3 className='headline-3 text-white'>
                                 <span className='text-white/70 mr-3'>02.</span>
@@ -267,7 +263,7 @@ export function TechnologySlide3({
                         <p className='text-[16px] text-white/50 leading-[140%]'>
                             Frictionless transaction processing supporting RFID,
                             mobile wallets, and all major credit cards for a
-                            premium user experience
+                            premium user experience.
                         </p>
                     </div>
                 </div>
@@ -314,8 +310,7 @@ export function TechnologySlide3({
                 {/* Desktop text */}
                 <div className='hidden md:block absolute inset-0 z-10 pointer-events-none'>
                     <div
-                        className='absolute pointer-events-auto'
-                        style={{ left: '152px', top: '304px' }}>
+                        className='absolute pointer-events-auto left-[5.5%] top-[304px]'>
                         <div className='flex items-start text-left'>
                             <h3 className='headline-3 text-white'>
                                 <span className='text-white/70 mr-3'>03.</span>
@@ -330,7 +325,7 @@ export function TechnologySlide3({
                                     Frictionless transaction processing
                                     supporting RFID, mobile wallets, and all
                                     major credit cards for a premium user
-                                    experience
+                                    experience.
                                 </p>
                             </div>
                         </div>
@@ -340,19 +335,4 @@ export function TechnologySlide3({
         </div>
     );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

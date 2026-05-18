@@ -142,7 +142,7 @@ export const HomePageHowItWorksStepData: HowItWorksStepData[] = [
     {
         title: 'Plug In',
         description:
-            'Connect your EV and start charging instantly. Wait until the car charges',
+            'Connect your EV and start charging instantly. Wait until the car charges.',
         image: sharedImageUrls.howItWorks2,
     },
     {
@@ -745,19 +745,19 @@ export const PolicyOptionsData = [
     {
         title: 'Intellectual Property',
         description:
-            'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA.',
+            'All content on this website, including but not limited to text, graphics, logos, images, and design elements, is the property of WattUp USA',
         image: policyImageUrls.policy1,
     },
     {
         title: 'Limitation of Liability',
         description:
-            'We strive to ensure that all information on this website is accurate and up to date. However, we make no guarantees regarding completeness.',
+            'We strive to ensure that all information on this website is accurate and up to date. However, we make no guarantees regarding completeness',
         image: policyImageUrls.policy2,
     },
     {
         title: 'External Links',
         description:
-            'This website may contain links to third-party websites. We are not responsible for the content policies.',
+            'This website may contain links to third-party websites. We are not responsible for the content, policies',
         image: policyImageUrls.policy3,
     },
 ];
