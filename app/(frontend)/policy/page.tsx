@@ -49,6 +49,7 @@ export default function PolicyPage() {
                     heading='Privacy and legal'
                     sectionClass='md:h-[810px]!'
                     contentContainerClass='md:items-start w-full md:text-left'
+                    textContainerClass='md:items-start md:text-left'
                     headingClass='md:text-left max-md:text-nowrap'
                     overlay
                 />
