@@ -1,4 +1,5 @@
-import { sendMail } from '@/lib/nodemailer';
+import { sendMail } from '@/lib/email';
+import { resetPasswordTemplate } from '@/lib/mail/reset-password';
 import prisma from '@/lib/prisma';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
@@ -60,26 +61,8 @@ export const auth = betterAuth({
             user: { email: string; name?: string };
             url: string;
         }) {
-            await sendMail({
-                email: user.email,
-                subject: 'Reset your WattUp password',
-                html: `
-                    <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
-                        <h2 style="font-size:22px;font-weight:700;color:#0f1117">Reset your password</h2>
-                        <p style="color:#555;font-size:15px;line-height:1.6">
-                            Hi${user.name ? ` ${user.name}` : ''},<br/>
-                            We received a request to reset the password for your WattUp account.
-                            Click the button below to choose a new password.
-                        </p>
-                        <a href="${url}" style="display:inline-block;margin:24px 0;padding:12px 28px;background:#197dff;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px">
-                            Reset Password
-                        </a>
-                        <p style="color:#999;font-size:13px">
-                            This link expires in 1 hour. If you didn&apos;t request a reset, you can safely ignore this email.
-                        </p>
-                    </div>
-                `,
-            });
+            const { subject, html } = resetPasswordTemplate({ name: user.name, url });
+            await sendMail({ email: user.email, subject, html });
         },
     },
 

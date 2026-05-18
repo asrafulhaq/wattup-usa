@@ -2,7 +2,8 @@
 'use server';
 
 import { auth } from '@/lib/auth';
-import { sendMail } from '@/lib/nodemailer';
+import { sendMail } from '@/lib/email';
+import { inviteUserTemplate } from '@/lib/mail/invite-user';
 import { canManageRole, hasPermission, Permission, Role, ROLE_LABELS } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
@@ -364,40 +365,13 @@ async function sendInviteEmail(params: {
     role: Role;
     invitedBy: string;
 }) {
-    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/admin`;
     const roleLabel = ROLE_LABELS[params.role] ?? params.role;
-
-    await sendMail({
+    const { subject, html } = inviteUserTemplate({
+        name: params.name,
         email: params.email,
-        subject: `You've been invited to WattUp`,
-        html: `
-            <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
-                <h2 style="font-size:22px;font-weight:700;color:#0f1117">Welcome to WattUp</h2>
-                <p style="color:#555;font-size:15px;line-height:1.6">
-                    Hi ${params.name},<br/>
-                    <strong>${params.invitedBy}</strong> has invited you to join WattUp as
-                    <strong>${roleLabel}</strong>.
-                </p>
-                <p style="color:#555;font-size:15px;line-height:1.6">
-                    Your login credentials:
-                </p>
-                <table style="background:#f5f5f5;border-radius:8px;padding:16px;width:100%;margin-bottom:24px">
-                    <tr>
-                        <td style="color:#555;font-size:14px;padding:4px 0"><strong>Email:</strong></td>
-                        <td style="color:#0f1117;font-size:14px;padding:4px 0">${params.email}</td>
-                    </tr>
-                    <tr>
-                        <td style="color:#555;font-size:14px;padding:4px 0"><strong>Password:</strong></td>
-                        <td style="color:#0f1117;font-size:14px;padding:4px 0;font-family:monospace">${params.password}</td>
-                    </tr>
-                </table>
-                <a href="${loginUrl}" style="display:inline-block;padding:12px 28px;background:#197dff;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px">
-                    Sign In to WattUp
-                </a>
-                <p style="color:#999;font-size:13px;margin-top:24px">
-                    Please change your password after your first login.
-                </p>
-            </div>
-        `,
+        password: params.password,
+        role: roleLabel,
+        invitedBy: params.invitedBy,
     });
+    await sendMail({ email: params.email, subject, html });
 }

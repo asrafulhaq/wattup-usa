@@ -53,6 +53,7 @@ import {
     ShieldOff,
     Trash2,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -261,8 +262,18 @@ function UserRow({
             {/* User */}
             <TableCell className='pl-6 py-3'>
                 <div className='flex items-center gap-3'>
-                    <div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0'>
-                        {initials}
+                    <div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0 overflow-hidden'>
+                        {user.image ? (
+                            <Image
+                                src={user.image}
+                                alt={user.name}
+                                width={32}
+                                height={32}
+                                className='w-full h-full object-cover'
+                            />
+                        ) : (
+                            initials
+                        )}
                     </div>
                     <div className='min-w-0'>
                         <p className='text-sm font-medium text-dark truncate'>
