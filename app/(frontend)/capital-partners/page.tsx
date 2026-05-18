@@ -68,14 +68,14 @@ export default function CapitalPartnersPage() {
             <TractionSnapshot />
 
             {/*  05. Ledership */}
-            <ImageSectionFade
+{/*             <ImageSectionFade
                 image={capitalPartnersImageUrls.leadership}
                 mobileImage={capitalPartnersImageUrls.leadershipMobile}
                 heading={'Leadership & Governance'}
                 subHeading={
                     'WattUp USA is led by a team with experience across infrastructure development, operations, and capital management. The company maintains a disciplined approach to deployment, prioritizing long-term asset performance and sustainable growth.'
                 }
-            />
+            /> */}
 
             {/* 06. Access Form */}
             <AccessRequest />
