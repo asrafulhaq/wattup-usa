@@ -2,7 +2,6 @@
 
 import { WattupButton } from '@/components/ui/wattup-button';
 import { cn } from '@/lib/utils';
-import { hi } from 'date-fns/locale';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
@@ -48,7 +47,9 @@ function NavbarContent() {
             <nav
                 className={cn(
                     'absolute inset-x-0 top-0 max-md:-mt-3 z-100 text-white font-sans pointer-events-none',
-                    isPressReleaseDetails || isHomePage ? 'text-dark' : 'text-white'
+                    isPressReleaseDetails || isHomePage
+                        ? 'text-dark'
+                        : 'text-white'
                 )}>
                 <div className='container flex items-center justify-between pt-8 pointer-events-auto'>
                     {/* Logo */}
@@ -57,7 +58,7 @@ function NavbarContent() {
                         className='relative flex items-center h-6 w-36 shrink-0'>
                         <Image
                             src={
-                                isPressReleaseDetails || isHomePage
+                                isPressReleaseDetails
                                     ? '/assets/images/shared/logo_dark.svg'
                                     : '/assets/images/shared/logo.svg'
                             }
@@ -76,7 +77,9 @@ function NavbarContent() {
                                 href={link.href}
                                 className={cn(
                                     'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
-                                    isPressReleaseDetails || isHomePage ? 'text-dark hover:text-dark/80' : 'text-white hover:text-white/90'
+                                    isPressReleaseDetails
+                                        ? 'text-dark hover:text-dark/80'
+                                        : 'text-white hover:text-white/90'
                                 )}>
                                 {link.label}
                             </Link>
@@ -89,7 +92,9 @@ function NavbarContent() {
                             href='/contact'
                             className={cn(
                                 'text-[16px] font-semibold tracking-[-0.03em] leading-[130%] hover:text-white/90 transition-colors',
-                                isPressReleaseDetails || isHomePage ? 'text-dark hover:text-dark/80' : 'text-white hover:text-white/90'
+                                isPressReleaseDetails
+                                    ? 'text-dark hover:text-dark/80'
+                                    : 'text-white hover:text-white/90'
                             )}>
                             Contact Us
                         </Link>
@@ -99,7 +104,9 @@ function NavbarContent() {
                     <button
                         className={cn(
                             'lg:hidden text-white hover:text-white/70 transition-colors duration-500 text-[16px] leading-[130%] tracking-[-3%] py-[10px] font-semibold shrink-0 touch-manipulation',
-                            isPressReleaseDetails || isHomePage ? 'text-dark hover:text-dark/80' : 'text-white hover:text-white/90'
+                            isPressReleaseDetails
+                                ? 'text-dark hover:text-dark/80'
+                                : 'text-white hover:text-white/90'
                         )}
                         onClick={() => setMobileMenuOpen(true)}
                         aria-label='Open mobile menu'>
@@ -159,5 +166,4 @@ function NavbarContent() {
         </>
     );
 }
-
 

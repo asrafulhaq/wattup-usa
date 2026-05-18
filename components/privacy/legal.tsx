@@ -34,13 +34,13 @@ const PolicyLeagals = () => {
                         </FadeUp>
                     ))}
                 </div>
-                <FadeUp delay={0.3}>
+          {/*       <FadeUp delay={0.3}>
                     <Link
                         href={'#'}
                         className='text-primary text-[16px] font-semibold'>
                         Read Terms of Use
                     </Link>
-                </FadeUp>
+                </FadeUp> */}
             </div>
         </section>
     );

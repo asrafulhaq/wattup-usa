@@ -357,7 +357,7 @@ export async function Hero() {
                     </div>
 
                     {/* Content Container */}
-                    <HeroContent dark={true} />
+                    <HeroContent dark={false} />
                 </div>
             ),
         },
@@ -389,7 +389,7 @@ export async function Hero() {
                     </div>
 
                     {/* Content Container */}
-                    <HeroContent dark={true} />
+                    <HeroContent dark={false} />
                 </div>
             ),
         },

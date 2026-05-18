@@ -59,20 +59,20 @@ export function PrivacyOptions() {
                             practices.
                         </p>
                     </FadeUp>
-                    <FadeUp delay={0.4}>
+               {/*      <FadeUp delay={0.4}>
                         <Link
                             href={'#'}
                             className='text-primary text-[16px] font-semibold py-[10px] mb-10! block'>
                             Read Privacy Notice
                         </Link>
-                    </FadeUp>
+                    </FadeUp> */}
 
                     {/* Desktop Grid View */}
                     <div className='hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-5'>
                         {PolicyOptionsData.map((step, index) => (
                             <FadeUp key={index} delay={index * 0.2}>
                                 <StepCard step={step} isMobileSlider={false} />
-                            </FadeUp>
+                            </FadeUp>		
                         ))}
                     </div>
 
