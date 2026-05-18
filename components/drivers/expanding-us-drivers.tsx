@@ -6,7 +6,8 @@ import { WattupButton } from '@/components/ui/wattup-button';
 import { homeImageUrls } from '@/lib/images/home';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useRef } from 'react';
 
 import { cities } from '@/data';
 
@@ -15,13 +16,21 @@ export function ExpandingUsDrivers({
 }: {
     isLocationsPage?: boolean;
 }) {
-    const [showAll, setShowAll] = useState(false);
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const showAll = isLocationsPage && searchParams.get('showAll') === 'true';
+
+    const handleShowAll = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('showAll', 'true');
+        router.replace(`?${params.toString()}`, { scroll: false });
+    };
 
     useGSAP(
         () => {
             if (showAll) {
-                // Target cities from index 9 onwards (8 items visible initially)
                 const newCities = containerRef.current?.querySelectorAll(
                     '.city-item:nth-child(n+9)'
                 );
@@ -40,9 +49,9 @@ export function ExpandingUsDrivers({
         { dependencies: [showAll], scope: containerRef }
     );
 
-    // Always show 8 initially, unless showAll is true on the locations page
     const visibleCities =
         isLocationsPage && showAll ? cities : cities.slice(0, 8);
+
     return (
         <div id='locations' className='pt-[40px] md:pt-[82px]'>
             <FadedImageCrossSection
@@ -59,7 +68,7 @@ export function ExpandingUsDrivers({
                         </FadeUp>
                         <FadeUp delay={0.1}>
                             <p className='text-description text-dark/70 max-md:max-w-87 max-w-3xl'>
-                                WattUpUSA is actively expanding its ultra-fast
+                                WattUp USA is actively expanding its ultra-fast
                                 charging network across California. Additional
                                 locations will continue to be announced as the
                                 network grows.
@@ -93,14 +102,14 @@ export function ExpandingUsDrivers({
                             cities.length > 8 &&
                             !showAll && (
                                 <WattupButton
-                                    onClick={() => setShowAll(true)}
+                                    onClick={handleShowAll}
                                     className='w-full md:w-auto mb-8'>
                                     See More Locations
                                 </WattupButton>
                             )
                         ) : (
                             <WattupButton
-                                href='/locations#locations'
+                                href='/locations?showAll=true#locations'
                                 className='w-full md:w-auto mb-8'>
                                 View All Locations
                             </WattupButton>

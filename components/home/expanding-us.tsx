@@ -45,7 +45,7 @@ export function ExpandingUs() {
 
                     <FadeUp delay={0.2} className='relative z-20 mb-30'>
                         <WattupButton
-                            href='/locations#locations'
+                            href='/locations?showAll=true#locations'
                             className='max-md:w-87 max-md:mx-auto mb-8'>
                             View All Locations
                         </WattupButton>

@@ -41,7 +41,7 @@ function HeroContent({ dark }: { dark: boolean }) {
                     className='w-full flex-col font-sans'>
                     <div className='flex flex-row items-center justify-center gap-[16px]'>
                         <WattupButton
-                            href='/locations#locations'
+                            href='/locations?showAll=true#locations'
                             className='w-full md:w-[210px]'>
                             Find a Charger
                         </WattupButton>
