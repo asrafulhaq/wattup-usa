@@ -7,14 +7,14 @@ import { homeImageUrls } from '@/lib/images/home';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useRef } from 'react';
+import { Suspense, useRef } from 'react';
 
 import { cities } from '@/data';
 
-export function ExpandingUsDrivers({
-    isLocationsPage = false,
+function ExpandingUsDriversInner({
+    isLocationsPage,
 }: {
-    isLocationsPage?: boolean;
+    isLocationsPage: boolean;
 }) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -118,6 +118,18 @@ export function ExpandingUsDrivers({
                 </div>
             </FadedImageCrossSection>
         </div>
+    );
+}
+
+export function ExpandingUsDrivers({
+    isLocationsPage = false,
+}: {
+    isLocationsPage?: boolean;
+}) {
+    return (
+        <Suspense fallback={null}>
+            <ExpandingUsDriversInner isLocationsPage={isLocationsPage} />
+        </Suspense>
     );
 }
 

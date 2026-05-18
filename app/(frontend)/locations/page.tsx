@@ -3,7 +3,6 @@ import { PageHero } from '@/components/drivers/page-hero';
 import { hostsImageUrls } from '@/lib/images/hosts';
 import { locationsImageUrls } from '@/lib/images/locations';
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Charging Locations | Find a WattUp Station',
@@ -62,9 +61,7 @@ export default function LocationsPage() {
             />
 
             {/* 2. Expanding Us */}
-            <Suspense fallback={null}>
-                <ExpandingUsDrivers isLocationsPage={true} />
-            </Suspense>
+            <ExpandingUsDrivers isLocationsPage={true} />
             {/* 2. Find Location */}
             {/* <FindLocation /> */}
         </main>
