@@ -103,6 +103,7 @@ export function TechnologyBacked() {
 
     return (
         <section
+            ref={sectionRef}
             id='technology'
             className='relative common-section-padding z-10 h-auto bg-black overflow-hidden'>
             <div className='relative w-screen h-full  flex flex-col'>
@@ -125,7 +126,7 @@ export function TechnologyBacked() {
                 </div>
 
                 {/* Pinned slides area */}
-                <div ref={sectionRef} className='scroll-section'>
+                <div className='scroll-section'>
                     <div
                         ref={slidesContainerRef}
                         className='relative w-full grow h-screen overflow-hidden'>
