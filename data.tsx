@@ -783,49 +783,19 @@ export const PolicyLeagalsData = [
 export const DriverFAQData: FAQ[] = [
     {
         question: 'How do I start charging?',
-        answer: 'Simply plug the connector into your EV, and the charging session will begin automatically or through the WattUp app.',
+        answer: 'Starting a session is easy. Just park at an available WattUp station, plug the connector into your vehicle, and follow the on-screen prompts or open your WattUp app to initiate charging. Once authorized, the station will safely lock into place and begin charging automatically.',
     },
     {
         question: 'Do I need an app?',
-        answer: 'While our app offers the best experience with real-time tracking, you can also start a session using a credit card or RFID tag.',
+        answer: 'All WattUp stations support direct contactless payments via major credit cards, RFID, and mobile wallets (Apple Pay/Google Pay).',
     },
     {
         question: 'How long does charging take?',
-        answer: "Charging time varies depending on your vehicle's battery size and the charger's speed, typically ranging from 30 minutes to a few hours.",
+        answer: "It depends on your vehicle's acceptance rate and current battery level, but WattUp ultra-fast DC charging stations deliver up to 310 kW of high-speed power. For most compatible EVs, this means you can charge from 10% to 80% capacity in as little as 15 to 30 minutes while you shop or dine.",
     },
     {
         question: 'What vehicles are compatible?',
-        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
-    },
-];
-export const faqPageFaqData: FAQ[] = [
-    {
-        question: 'How do I start charging?',
-        answer: 'Connect your EV and start charging instantly. Wait until the car charges',
-    },
-    {
-        question: 'Do I need an app?',
-        answer: 'While our app offers the best experience with real-time tracking, you can also start a session using a credit card or RFID tag.',
-    },
-    {
-        question: 'How long does charging take?',
-        answer: "Charging time varies depending on your vehicle's battery size and the charger's speed, typically ranging from 30 minutes to a few hours.",
-    },
-    {
-        question: 'What vehicles are compatible?',
-        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
-    },
-    {
-        question: 'How can I contact you?',
-        answer: 'You can reach our 24/7 customer support team via the "Help" section in our app, or by calling our toll-free support line.',
-    },
-    {
-        question: 'What are your payment terms?',
-        answer: 'We offer pay-as-you-go pricing based on energy consumed (kWh) or time spent charging, depending on local regulations.',
-    },
-    {
-        question: 'What vehicles are compatible?',
-        answer: 'Our chargers are compatible with all major EV models equipped with J1772 or CCS connectors. Tesla vehicles may require an adapter.',
+        answer: 'WattUp stations feature universal compatibility. Our infrastructure supports all major EV connector types, including J1772 (Level 2), CCS, and NACS (Tesla standard), ensuring that virtually any electric vehicle on the road today can power up at our locations.',
     },
 ];
 
@@ -944,15 +914,15 @@ export const GroupedFAQData: GroupedFAQ[] = [
         items: [
             {
                 question: 'How do I start charging?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                answer: 'Starting a session is easy. Just park at an available WattUp station, plug the connector into your vehicle, and follow the on-screen prompts or open your WattUp app to initiate charging. Once authorized, the station will safely lock into place and begin charging automatically.',
             },
             {
                 question: 'Do I need an app?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                answer: 'All WattUp stations support direct contactless payments via major credit cards, RFID, and mobile wallets (Apple Pay/Google Pay).',
             },
             {
                 question: 'How long does charging take?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                answer: "It depends on your vehicle's acceptance rate and current battery level, but WattUp ultra-fast DC charging stations deliver up to 310 kW of high-speed power. For most compatible EVs, this means you can charge from 10% to 80% capacity in as little as 15 to 30 minutes while you shop or dine.",
             },
         ],
     },
@@ -961,15 +931,15 @@ export const GroupedFAQData: GroupedFAQ[] = [
         items: [
             {
                 question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                answer: 'WattUp stations feature universal compatibility. Our infrastructure supports all major EV connector types, including J1772 (Level 2), CCS, and NACS (Tesla standard), ensuring that virtually any electric vehicle on the road today can power up at our locations.',
             },
             {
                 question: 'How can I contact you?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                answer: 'We are here to help! For general inquiries, driver support, or partnership opportunities, you can reach out via our contact form below or email us directly at support@wattupusa.com. Our support team is available 24/7 for urgent on-site assistance.',
             },
             {
-                question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'Is WattUp powered by clean energy?',
+                answer: 'Yes! Sustainability is core to our mission. Every WattUp charging station runs on 100% renewable energy, ensuring your drive is completely carbon-free from the grid to the pavement.',
             },
         ],
     },
@@ -977,16 +947,16 @@ export const GroupedFAQData: GroupedFAQ[] = [
         category: 'Preparing for Delivery',
         items: [
             {
-                question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'How do I find a WattUp station near me?',
+                answer: 'You can find our premium locations at high-traffic retail centers, grocery stores, and restaurants using the interactive map on our website or directly through the WattUp mobile app, which features live station availability and status updates.',
             },
             {
-                question: 'How can I contact you?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'Can I charge my EV in the rain or bad weather?',
+                answer: 'Absolutely. Our commercial hardware is industrial-grade and engineered for extreme durability in all weather environments. Both the stations and the connectors are heavily insulated and sealed against rain, snow, and dust, making it perfectly safe to charge in any weather.',
             },
             {
-                question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'How much does it cost to charge?',
+                answer: 'Pricing vary slightly by location and local utility structures, but WattUp offers transparent, pay-as-you-go rates per kWh with no hidden monthly fees. You can view precise, live pricing for your nearest station directly inside the WattUp app before plugging in.',
             },
         ],
     },
@@ -994,16 +964,17 @@ export const GroupedFAQData: GroupedFAQ[] = [
         category: 'Charging Solutions',
         items: [
             {
-                question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question:
+                    'What solutions do you offer commercial property owners?',
+                answer: 'WattUp USA provides a fully managed, turnkey EV charging solution for landowners and commercial real estate assets at no upfront cost. We handle everything from site evaluation, engineering, and utility coordination to hardware procurement, permitting, and long-term operations, creating a durable new revenue stream for your property.',
             },
             {
-                question: 'How can I contact you?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'How does battery-integrated charging help the grid?',
+                answer: 'Our advanced charging platforms integrate ultra-fast DC fast chargers with onsite battery storage. This smart technology buffers the local electrical grid, significantly lowering peak demand costs for property hosts while ensuring consistent, ultra-fast charging speeds for drivers—even during peak usage hours.',
             },
             {
-                question: 'What vehicles are compatible?',
-                answer: 'Connect your EV and start charging instantly. Wait until the car charges',
+                question: 'How can my business apply to host a WattUp station?',
+                answer: 'If you own or manage a high-visibility retail lot, shopping center, or mixed-use destination, we\'d love to connect. Navigate to our "Partner With Us" section or send an inquiry to our deployment team through the contact page to see if your property qualifies for a fully funded phase.',
             },
         ],
     },
