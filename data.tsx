@@ -757,7 +757,7 @@ export const PolicyOptionsData = [
     {
         title: 'External Links',
         description:
-            'This website may contain links to third-party websites. We are not responsible for the content, policies.',
+            'This website may contain links to third-party websites. We are not responsible for the content policies.',
         image: policyImageUrls.policy3,
     },
 ];
