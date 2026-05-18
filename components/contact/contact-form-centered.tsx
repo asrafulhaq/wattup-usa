@@ -1,22 +1,13 @@
 'use client';
 
-import {
-    type DriverFormData,
-    type HostFormData,
-    driverSchema,
-    hostSchema,
-    submitDriverInquiry,
-    submitHostInquiry,
-} from '@/app/_actions/contact-actions';
+import { submitDriverInquiry, submitHostInquiry } from '@/app/_actions/contact-actions';
+import { driverSchema, hostSchema, MESSAGE_MAX, type DriverFormData, type HostFormData } from '@/lib/validations/contact';
 import { CheckboxIcon } from '@/components/icons/icons';
 import { FadeUp } from '@/components/ui/fade-up';
-import { FormSubmitButton } from '@/components/ui/wattup-button';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-
-const MESSAGE_MAX = 500;
 
 const ContactFormCentered = () => {
     const [activeTab, setActiveTab] = useState<'driver' | 'host'>('driver');
@@ -49,7 +40,7 @@ const ContactFormCentered = () => {
                         />
                         <button
                             onClick={() => setActiveTab('driver')}
-                            className={`relative z-10 w-[170px] px-[20px] py-[12px] rounded-[8px] text-[16px] transition-colors duration-500 ${
+                            className={`relative z-10 w-42.5 px-5 py-3 rounded-[8px] text-[16px] transition-colors duration-500 ${
                                 activeTab === 'driver'
                                     ? 'text-white font-bold'
                                     : 'text-dark/50 font-medium hover:text-dark'
@@ -58,7 +49,7 @@ const ContactFormCentered = () => {
                         </button>
                         <button
                             onClick={() => setActiveTab('host')}
-                            className={`relative w-[170px] z-10 px-[20px] py-[12px] rounded-[8px] text-[16px] transition-colors duration-500 ${
+                            className={`relative w-42.5 z-10 px-5 py-3 rounded-[8px] text-[16px] transition-colors duration-500 ${
                                 activeTab === 'host'
                                     ? 'text-white font-bold'
                                     : 'text-dark/50 font-medium hover:text-dark'
@@ -67,7 +58,7 @@ const ContactFormCentered = () => {
                         </button>
                     </div>
 
-                    <div className='relative container max-w-[555px] mx-auto overflow-hidden'>
+                    <div className='relative container max-w-138.75 mx-auto overflow-hidden'>
                         <div
                             key={activeTab}
                             className='transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-bottom-4'>
@@ -84,39 +75,42 @@ const ContactFormCentered = () => {
 
 function DriverForm() {
     const [isPending, startTransition] = useTransition();
-    const [submitted, setSubmitted] = useState(false);
+    const [sent, setSent] = useState(false);
+    const [serverError, setServerError] = useState('');
 
     const {
         register,
         handleSubmit,
         watch,
-        reset,
+        getValues,
         formState: { errors },
     } = useForm<DriverFormData>({
         resolver: zodResolver(driverSchema),
-        defaultValues: { agreedToTerms: undefined },
+        defaultValues: { name: '', email: '', message: '', agreedToTerms: false },
     });
 
     const messageLen = watch('message')?.length ?? 0;
 
-    const onSubmit = (data: DriverFormData) => {
+    const onSubmit = (values: DriverFormData) => {
         startTransition(async () => {
-            const result = await submitDriverInquiry(data);
+            setServerError('');
+            const result = await submitDriverInquiry(values);
             if ('error' in result) {
-                toast.error(result.error);
+                setServerError(result.error);
             } else {
-                setSubmitted(true);
-                reset();
+                setSent(true);
             }
         });
     };
 
-    if (submitted) {
-        return <SuccessBanner onReset={() => setSubmitted(false)} />;
+    if (sent) {
+        return <SuccessBanner email={getValues('email')} onReset={() => setSent(false)} />;
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-[20px] w-full' noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5 w-full' noValidate>
+            {serverError && <ErrorBanner message={serverError} />}
+
             <div className='flex flex-col gap-3'>
                 <label className='input-label'>Name:</label>
                 <input
@@ -126,7 +120,7 @@ function DriverForm() {
                     className='input-field'
                     disabled={isPending}
                 />
-                <FieldError message={errors.name?.message} />
+                {errors.name && <p className='text-xs text-red-600 -mt-1'>{errors.name.message}</p>}
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -138,7 +132,7 @@ function DriverForm() {
                     className='input-field'
                     disabled={isPending}
                 />
-                <FieldError message={errors.email?.message} />
+                {errors.email && <p className='text-xs text-red-600 -mt-1'>{errors.email.message}</p>}
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -149,25 +143,19 @@ function DriverForm() {
                         placeholder='Enter your message'
                         rows={4}
                         maxLength={MESSAGE_MAX}
-                        className='input-field pt-4 min-h-[114px] resize-none'
+                        className='input-field pt-4 min-h-28.5 resize-none'
                         disabled={isPending}
                     />
                     <span className='absolute bottom-4 right-4 text-[16px] font-medium text-dark/50'>
                         {messageLen}/{MESSAGE_MAX}
                     </span>
                 </div>
-                <FieldError message={errors.message?.message} />
+                {errors.message && <p className='text-xs text-red-600 -mt-1'>{errors.message.message}</p>}
             </div>
 
-            <TermsCheckbox
-                {...register('agreedToTerms')}
-                error={errors.agreedToTerms?.message}
-                disabled={isPending}
-            />
+            <TermsField inputProps={register('agreedToTerms')} error={errors.agreedToTerms?.message} disabled={isPending} />
 
-            <FormSubmitButton className='mt-3 mx-auto' disabled={isPending}>
-                {isPending ? 'Sending…' : 'Submit Inquiry'}
-            </FormSubmitButton>
+            <SubmitButton isPending={isPending} label='Submit Inquiry' />
         </form>
     );
 }
@@ -176,39 +164,41 @@ function DriverForm() {
 
 function HostForm() {
     const [isPending, startTransition] = useTransition();
-    const [submitted, setSubmitted] = useState(false);
+    const [sent, setSent] = useState(false);
+    const [serverError, setServerError] = useState('');
 
     const {
         register,
         handleSubmit,
         watch,
-        reset,
         formState: { errors },
     } = useForm<HostFormData>({
         resolver: zodResolver(hostSchema),
-        defaultValues: { agreedToTerms: undefined },
+        defaultValues: { companyName: '', location: '', parkingSpaces: '', contactInfo: '', agreedToTerms: false },
     });
 
     const contactLen = watch('contactInfo')?.length ?? 0;
 
-    const onSubmit = (data: HostFormData) => {
+    const onSubmit = (values: HostFormData) => {
         startTransition(async () => {
-            const result = await submitHostInquiry(data);
+            setServerError('');
+            const result = await submitHostInquiry(values);
             if ('error' in result) {
-                toast.error(result.error);
+                setServerError(result.error);
             } else {
-                setSubmitted(true);
-                reset();
+                setSent(true);
             }
         });
     };
 
-    if (submitted) {
-        return <SuccessBanner onReset={() => setSubmitted(false)} />;
+    if (sent) {
+        return <SuccessBanner onReset={() => setSent(false)} />;
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-[20px] w-full' noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5 w-full' noValidate>
+            {serverError && <ErrorBanner message={serverError} />}
+
             <div className='flex flex-col gap-3'>
                 <label className='input-label'>Company Name:</label>
                 <input
@@ -218,7 +208,7 @@ function HostForm() {
                     className='input-field'
                     disabled={isPending}
                 />
-                <FieldError message={errors.companyName?.message} />
+                {errors.companyName && <p className='text-xs text-red-600 -mt-1'>{errors.companyName.message}</p>}
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -230,7 +220,7 @@ function HostForm() {
                     className='input-field'
                     disabled={isPending}
                 />
-                <FieldError message={errors.location?.message} />
+                {errors.location && <p className='text-xs text-red-600 -mt-1'>{errors.location.message}</p>}
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -242,7 +232,7 @@ function HostForm() {
                     className='input-field'
                     disabled={isPending}
                 />
-                <FieldError message={errors.parkingSpaces?.message} />
+                {errors.parkingSpaces && <p className='text-xs text-red-600 -mt-1'>{errors.parkingSpaces.message}</p>}
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -253,98 +243,107 @@ function HostForm() {
                         placeholder='Enter your contact info'
                         rows={4}
                         maxLength={MESSAGE_MAX}
-                        className='input-field pt-4 min-h-[114px] resize-none'
+                        className='input-field pt-4 min-h-28.5 resize-none'
                         disabled={isPending}
                     />
                     <span className='absolute bottom-4 right-4 text-[16px] font-medium text-dark/50'>
                         {contactLen}/{MESSAGE_MAX}
                     </span>
                 </div>
-                <FieldError message={errors.contactInfo?.message} />
+                {errors.contactInfo && <p className='text-xs text-red-600 -mt-1'>{errors.contactInfo.message}</p>}
             </div>
 
-            <TermsCheckbox
-                {...register('agreedToTerms')}
-                error={errors.agreedToTerms?.message}
-                disabled={isPending}
-            />
+            <TermsField inputProps={register('agreedToTerms')} error={errors.agreedToTerms?.message} disabled={isPending} />
 
-            <FormSubmitButton className='mt-3 mx-auto' disabled={isPending}>
-                {isPending ? 'Sending…' : 'Submit Inquiry'}
-            </FormSubmitButton>
+            <SubmitButton isPending={isPending} label='Submit Inquiry' />
         </form>
     );
 }
 
-// ─── Shared UI pieces ─────────────────────────────────────────────────────────
+// ─── Shared pieces ────────────────────────────────────────────────────────────
 
-function FieldError({ message }: { message?: string }) {
-    if (!message) return null;
-    return <p className='text-[13px] text-error font-medium -mt-1'>{message}</p>;
+function TermsField({
+    inputProps,
+    error,
+    disabled,
+}: {
+    inputProps: React.InputHTMLAttributes<HTMLInputElement>;
+    error?: string;
+    disabled?: boolean;
+}) {
+    return (
+        <div className='flex flex-col gap-1.5'>
+            <label className='flex items-center gap-2 cursor-pointer mt-2 group'>
+                <div className='relative flex items-center justify-center w-4 h-4 shrink-0'>
+                    <input
+                        {...inputProps}
+                        type='checkbox'
+                        disabled={disabled}
+                        className='peer absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full disabled:cursor-not-allowed'
+                    />
+                    <CheckboxIcon className='absolute inset-0 pointer-events-none peer-checked:opacity-0 transition-opacity' />
+                    <div className='absolute inset-0 bg-primary rounded-[3.5px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity flex items-center justify-center'>
+                        <svg
+                            className='w-2.5 h-2.5 text-white'
+                            xmlns='http://www.w3.org/2000/svg'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='4'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'>
+                            <polyline points='20 6 9 17 4 12' />
+                        </svg>
+                    </div>
+                </div>
+                <span className='text-[16px] text-dark group-hover:text-dark/80 font-normal md:font-medium text-nowrap'>
+                    I agree to the processing of my personal data
+                </span>
+            </label>
+            {error && <p className='text-xs text-red-600'>{error}</p>}
+        </div>
+    );
 }
 
-import { forwardRef } from 'react';
+function SubmitButton({ isPending, label }: { isPending: boolean; label: string }) {
+    return (
+        <button
+            type='submit'
+            disabled={isPending}
+            className='mt-3 mx-auto h-14 px-8 rounded-[10px] bg-primary text-white text-[18px] font-bold tracking-tight transition-all hover:bg-primary-hover active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-btn'>
+            {isPending && <Loader2 size={20} className='animate-spin' />}
+            {isPending ? 'Sending…' : label}
+        </button>
+    );
+}
 
-const TermsCheckbox = forwardRef<
-    HTMLInputElement,
-    React.InputHTMLAttributes<HTMLInputElement> & { error?: string }
->(({ error, disabled, ...props }, ref) => (
-    <div className='flex flex-col gap-1.5'>
-        <label className='flex items-center gap-2 cursor-pointer mt-2 group'>
-            <div className='relative flex items-center justify-center w-4 h-4 shrink-0'>
-                <input
-                    {...props}
-                    ref={ref}
-                    type='checkbox'
-                    disabled={disabled}
-                    className='peer absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full disabled:cursor-not-allowed'
-                />
-                <CheckboxIcon className='absolute inset-0 pointer-events-none peer-checked:opacity-0 transition-opacity' />
-                <div className='absolute inset-0 bg-primary rounded-[3.5px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity flex items-center justify-center'>
-                    <svg
-                        className='w-[10px] h-[10px] text-white'
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'>
-                        <polyline points='20 6 9 17 4 12' />
-                    </svg>
-                </div>
-            </div>
-            <span className='text-[16px] text-dark group-hover:text-dark/80 font-normal md:font-medium text-nowrap'>
-                I agree to the processing of my personal data
-            </span>
-        </label>
-        <FieldError message={error} />
-    </div>
-));
-TermsCheckbox.displayName = 'TermsCheckbox';
+function ErrorBanner({ message }: { message: string }) {
+    return (
+        <div className='flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3'>
+            <svg className='mt-0.5 shrink-0' width='16' height='16' viewBox='0 0 24 24' fill='none'>
+                <circle cx='12' cy='12' r='10' stroke='#ef4444' strokeWidth='2' />
+                <path d='M12 8v4M12 16h.01' stroke='#ef4444' strokeWidth='2' strokeLinecap='round' />
+            </svg>
+            <p className='text-sm text-red-700 leading-relaxed'>{message}</p>
+        </div>
+    );
+}
 
-function SuccessBanner({ onReset }: { onReset: () => void }) {
+function SuccessBanner({ email, onReset }: { email?: string; onReset: () => void }) {
     return (
         <div className='flex flex-col items-center gap-6 py-10 text-center animate-in fade-in slide-in-from-bottom-4'>
-            <div className='w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center'>
-                <svg
-                    className='w-7 h-7 text-primary'
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2.5'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'>
-                    <polyline points='20 6 9 17 4 12' />
-                </svg>
-            </div>
+            <CheckCircle2 size={48} className='text-emerald-500' />
             <div>
                 <p className='text-[20px] font-semibold text-dark mb-1'>Inquiry sent!</p>
                 <p className='text-[15px] text-dark/60 leading-relaxed'>
                     We&rsquo;ve received your message and will get back to you shortly.
-                    <br />
-                    Check your inbox for a confirmation email.
+                    {email && (
+                        <>
+                            <br />
+                            A confirmation was sent to{' '}
+                            <span className='font-medium text-dark/80'>{email}</span>.
+                        </>
+                    )}
                 </p>
             </div>
             <button
