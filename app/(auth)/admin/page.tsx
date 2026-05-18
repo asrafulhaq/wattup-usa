@@ -109,7 +109,7 @@ export default function SignInPage() {
                     <Suspense fallback={'2026'}>
                         <CopyrightYear />
                     </Suspense>{' '}
-                    WattupUSA. All rights reserved.{' '}
+                    WattUp USA. All rights reserved.{' '}
                     <Link
                         href='/policy'
                         className='underline underline-offset-2 hover:text-foreground transition-colors'>

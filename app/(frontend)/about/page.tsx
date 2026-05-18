@@ -10,30 +10,30 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'About Us | Powering the Future of EV Charging',
     description:
-        'Learn about WattupUSA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+        'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
     openGraph: {
         title: 'About Us | Powering the Future of EV Charging',
         description:
-            'Learn about WattupUSA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+            'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
         images: [
             {
                 url: aboutImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },
     twitter: {
         title: 'About Us | Powering the Future of EV Charging',
         description:
-            'Learn about WattupUSA and our mission to build reliable charging infrastructure for the next generation of mobility.',
+            'Learn about WattUp USA and our mission to build reliable charging infrastructure for the next generation of mobility.',
         images: [
             {
                 url: aboutImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },

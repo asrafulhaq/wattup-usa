@@ -4,7 +4,6 @@
 import {
     deleteArticle,
     duplicateArticle,
-    togglePinArticle,
     updateArticleStatus,
 } from '@/app/_actions/postActions';
 import {
@@ -32,8 +31,6 @@ import {
     IconCircleCheckFilled,
     IconDotsVertical,
     IconGripVertical,
-    IconPin,
-    IconPinFilled,
     IconTrash,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
@@ -65,8 +62,10 @@ export type Article = {
     title: string;
     content: string;
     slug: string;
-    date: string;
-    pinned: boolean;
+    author?: string | null;
+    authorUrl?: string | null;
+    publishedAt: string | null;
+    createdAt: string;
     status: string;
     image?: string | null;
     imageAlt?: string | null;
@@ -91,12 +90,6 @@ function ActionCell({ row }: { row: any }) {
         const res = await duplicateArticle(article.id);
         if (res.success) toast.success('Article duplicated');
         else toast.error('Failed to duplicate');
-    };
-
-    const handleTogglePin = async () => {
-        const res = await togglePinArticle(article.id, !article.pinned);
-        if (res.success) toast.success(article.pinned ? 'Unpinned' : 'Pinned');
-        else toast.error('Failed to update pin');
     };
 
     const handleTogglePublish = async () => {
@@ -130,15 +123,11 @@ function ActionCell({ row }: { row: any }) {
                             View
                         </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleTogglePin}>
-                        {article.pinned ? 'Unpin' : 'Pin'}
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href={`/dashboard/articles/edit/${article.id}`}>
                             Edit
                         </Link>
                     </DropdownMenuItem>
-
                     <DropdownMenuItem onClick={handleTogglePublish}>
                         {article.status === 'Published'
                             ? 'Unpublish'
@@ -230,22 +219,6 @@ export function ArticleBatchActions({
         toast.success(`${count} article${count > 1 ? 's' : ''} set to draft`);
     };
 
-    const handleBatchPin = async () => {
-        setIsLoading(true);
-        await Promise.all(ids.map(id => togglePinArticle(id, true)));
-        setIsLoading(false);
-        clearSelection();
-        toast.success(`${count} article${count > 1 ? 's' : ''} pinned`);
-    };
-
-    const handleBatchUnpin = async () => {
-        setIsLoading(true);
-        await Promise.all(ids.map(id => togglePinArticle(id, false)));
-        setIsLoading(false);
-        clearSelection();
-        toast.success(`${count} article${count > 1 ? 's' : ''} unpinned`);
-    };
-
     return (
         <>
             <Button
@@ -265,24 +238,6 @@ export function ArticleBatchActions({
                 onClick={handleBatchUnpublish}>
                 <BsFileEarmarkMedical className='size-3' />
                 Draft
-            </Button>
-            <Button
-                size='sm'
-                variant='outline'
-                className='h-7 text-xs gap-1.5'
-                disabled={isLoading}
-                onClick={handleBatchPin}>
-                <IconPinFilled className='size-3' />
-                Pin
-            </Button>
-            <Button
-                size='sm'
-                variant='outline'
-                className='h-7 text-xs gap-1.5'
-                disabled={isLoading}
-                onClick={handleBatchUnpin}>
-                <IconPin className='size-3' />
-                Unpin
             </Button>
             <Button
                 size='sm'
@@ -368,7 +323,6 @@ export const columns: ColumnDef<Article>[] = [
             const { image, imageAlt, title, slug } = row.original;
             return (
                 <div className='flex items-center gap-3'>
-                    {/* Featured image thumbnail */}
                     {image ? (
                         <Image
                             height={500}
@@ -396,6 +350,23 @@ export const columns: ColumnDef<Article>[] = [
         enableHiding: false,
     },
     {
+        accessorKey: 'author',
+        header: 'Author',
+        cell: ({ row }) => {
+            const name = row.original.author || 'WattUp USA';
+            const href = row.original.authorUrl || process.env.NEXT_PUBLIC_APP_URL || '/';
+            return (
+                <Link
+                    href={href}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-sm text-muted-foreground whitespace-nowrap hover:text-foreground hover:underline underline-offset-2 transition-colors'>
+                    {name}
+                </Link>
+            );
+        },
+    },
+    {
         accessorKey: 'content',
         header: 'Content',
         cell: ({ row }) => {
@@ -411,11 +382,22 @@ export const columns: ColumnDef<Article>[] = [
         },
     },
     {
-        accessorKey: 'date',
-        header: 'Date',
+        accessorKey: 'publishedAt',
+        header: 'Publish Date',
         cell: ({ row }) => (
-            <div className=' text-sm text-muted-foreground'>
-                {row.original.date}
+            <div className='text-sm text-muted-foreground whitespace-nowrap'>
+                {row.original.publishedAt ?? (
+                    <span className='text-muted-foreground/50 italic'>—</span>
+                )}
+            </div>
+        ),
+    },
+    {
+        accessorKey: 'createdAt',
+        header: 'Created',
+        cell: ({ row }) => (
+            <div className='text-sm text-muted-foreground whitespace-nowrap'>
+                {row.original.createdAt}
             </div>
         ),
     },
@@ -438,23 +420,7 @@ export const columns: ColumnDef<Article>[] = [
         ),
     },
     {
-        accessorKey: 'pinned',
-        header: 'Pinned',
-        cell: ({ row }) => (
-            <div className='flex items-center'>
-                {row.original.pinned ? (
-                    <Badge
-                        variant='secondary'
-                        className=' text-[10px] px-2 py-0 h-5 bg-muted-foreground/20 text-foreground border-none'>
-                        Pinned
-                    </Badge>
-                ) : null}
-            </div>
-        ),
-    },
-    {
         id: 'actions',
         cell: ({ row }) => <ActionCell row={row} />,
     },
 ];
-

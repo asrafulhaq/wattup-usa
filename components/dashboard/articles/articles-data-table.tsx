@@ -44,7 +44,12 @@ export function ArticlesDataTable({
 
             const formattedArticles = result.articles.map(article => ({
                 ...article,
-                date: new Date(article.createdAt).toLocaleDateString(),
+                author: article.author || null,
+                authorUrl: article.authorUrl || null,
+                publishedAt: article.publishedAt
+                    ? new Date(article.publishedAt).toLocaleDateString()
+                    : null,
+                createdAt: new Date(article.createdAt).toLocaleDateString(),
             })) as any[];
 
             setData(formattedArticles);

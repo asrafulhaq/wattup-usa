@@ -7,29 +7,29 @@ import Link from 'next/link';
 import { baseUrl } from './(frontend)/page';
 
 export const metadata: Metadata = {
-    title: '404 | WattupUSA',
-    description: '404 | WattupUSA',
+    title: '404 | WattUp USA',
+    description: '404 | WattUp USA',
     openGraph: {
-        title: '404 | WattupUSA',
-        description: '404 | WattupUSA',
+        title: '404 | WattUp USA',
+        description: '404 | WattUp USA',
         images: [
             {
                 url: notFoundImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },
     twitter: {
-        title: '404 | WattupUSA',
-        description: '404 | WattupUSA',
+        title: '404 | WattUp USA',
+        description: '404 | WattUp USA',
         images: [
             {
                 url: notFoundImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },

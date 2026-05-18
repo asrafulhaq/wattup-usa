@@ -7,7 +7,7 @@ export function SectionIntro({
         <>
             {' '}
             <p className='text-[16px] font-normal! md:text-[20px] leading-[130%]  md:text-dark/70'>
-                WattupUSA is developing a scalable network of EV charging
+                WattUp USA is developing a scalable network of EV charging
                 infrastructure designed for high-traffic commercial environments
                 across the United States.
             </p>

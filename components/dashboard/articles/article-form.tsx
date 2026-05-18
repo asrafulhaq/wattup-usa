@@ -23,9 +23,11 @@ interface FormState {
     slug: string;
     content: string;
     status: string;
-    pinned: boolean;
     imageUrl: string;
     imageAlt: string;
+    author: string;
+    authorUrl: string;
+    publishedAt: string;
     isSaving: boolean;
     isUploading: boolean;
     error: string;
@@ -65,9 +67,13 @@ function makeInitialState(d?: Posts | null): FormState {
         slug: d?.slug || '',
         content: d?.content || '',
         status: d?.status || 'Draft',
-        pinned: d?.pinned || false,
         imageUrl: d?.image || '',
         imageAlt: d?.imageAlt || '',
+        author: d?.author || '',
+        authorUrl: d?.authorUrl || '',
+        publishedAt: d?.publishedAt
+            ? d.publishedAt.toISOString().slice(0, 10)
+            : '',
         isSaving: false,
         isUploading: false,
         error: '',
@@ -86,9 +92,11 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
         slug,
         content,
         status,
-        pinned,
         imageUrl,
         imageAlt,
+        author,
+        authorUrl,
+        publishedAt,
         isSaving,
         isUploading,
     } = state;
@@ -138,7 +146,6 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
             return;
         }
         dispatch({ type: 'SET_SAVING', value: true });
-        // Clear any previous errors
         dispatch({ type: 'SET_FIELD', field: 'error', value: '' });
 
         try {
@@ -147,9 +154,11 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
                 slug,
                 content,
                 status: publish ? 'Published' : status,
-                pinned,
                 image: imageUrl,
                 imageAlt,
+                author,
+                authorUrl,
+                publishedAt: publishedAt ? new Date(publishedAt) : undefined,
             };
 
             const res = initialData?.id
@@ -216,10 +225,14 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
                 <FormMetadata
                     slug={slug}
                     status={status}
-                    pinned={pinned}
+                    author={author}
+                    authorUrl={authorUrl}
+                    publishedAt={publishedAt}
                     onSlugChange={set('slug')}
                     onStatusChange={set('status')}
-                    onPinnedChange={set('pinned')}
+                    onAuthorChange={set('author')}
+                    onAuthorUrlChange={set('authorUrl')}
+                    onPublishedAtChange={set('publishedAt')}
                 />
 
                 <FormEditor
@@ -247,4 +260,3 @@ export default function ArticleForm({ initialData }: ArticleFormProps) {
         </div>
     );
 }
-

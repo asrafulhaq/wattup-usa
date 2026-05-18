@@ -268,7 +268,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                                 <Field
                                     id='org-name'
                                     label='Organisation Name'
-                                    placeholder='WattupUSA'
+                                    placeholder='WattUp USA'
                                     value={orgName}
                                     onChange={setOrgName}
                                 />
@@ -307,7 +307,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                                 </Label>
                                 <Textarea
                                     id='org-description'
-                                    placeholder='WattupUSA provides turnkey EV charging solutions for property owners, fleet operators, and drivers...'
+                                    placeholder='WattUp USA provides turnkey EV charging solutions for property owners, fleet operators, and drivers...'
                                     value={orgDescription}
                                     onChange={e =>
                                         setOrgDescription(e.target.value)

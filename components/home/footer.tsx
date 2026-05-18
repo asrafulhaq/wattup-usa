@@ -99,7 +99,7 @@ const Footer = async () => {
                 {/* 4. Descriptive Text (Order 4 Mobile, Top Left Desktop) */}
                 <div className='order-4 lg:col-start-1 lg:row-start-1 max-w-80 md:max-w-149 mb-4 lg:mb-0 text-[14px] text-white/60 leading-[129%] tracking-[-3%]'>
                     <p className='text-[14px] text-white/60 font-normal leading-[130%] tracking-[-3%] mb-0 md:mb-4'>
-                        WattupUSA operates a growing EV charging network.
+                        WattUp USA operates a growing EV charging network.
                         Availability, performance, and access to charging
                         services may vary by location and are subject to change
                         without notice. Certain features, pricing, and
@@ -122,7 +122,7 @@ const Footer = async () => {
                 {/* 5. Copyright (Order 5 Mobile, Bottom Left Desktop) */}
                 <div className='order-5 lg:col-start-1 lg:row-start-2 lg:pt-0 lg:mt-12'>
                     <p className='text-[14px] text-white/50 leading-[130%] tracking-[-1%]'>
-                        Copyright © {settings?.orgName || 'WattupUSA'} 2026
+                        Copyright © {settings?.orgName || 'WattUp USA'} 2026
                     </p>
                 </div>
             </div>

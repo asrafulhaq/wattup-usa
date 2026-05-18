@@ -11,7 +11,6 @@ const Article = ({
         slug: string;
         content: string;
         date: string;
-        pinned: boolean;
         image?: string | null;
     };
 }) => {
@@ -27,7 +26,6 @@ const Article = ({
             className='group relative flex flex-row gap-4 justify-between items-center border-b border-border pb-4'>
             <div className='flex-1 flex flex-col gap-8'>
                 <div className='flex items-center justify-between  font-medium text-[12px] leading-[14px] uppercase tracking-[-3%] text-text-muted'>
-                    <span>{article.pinned ? '[PINNED]' : ''}</span>
                     <SocialShare />
                 </div>
                 <div className='flex flex-col gap-2'>

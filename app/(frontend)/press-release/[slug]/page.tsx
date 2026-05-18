@@ -92,6 +92,8 @@ async function PressReleaseContent({ params }: Props) {
             <PressReleaseDetailsHeader
                 title={article.title}
                 date={formatDate(article.publishedAt || article.createdAt)}
+                author={article.author || 'WattUp USA'}
+                authorUrl={article.authorUrl || process.env.NEXT_PUBLIC_APP_URL || undefined}
             />
             <PressReleaseDetails article={article} />
         </>

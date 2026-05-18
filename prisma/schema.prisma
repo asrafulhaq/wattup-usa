@@ -111,17 +111,17 @@ model Posts {
   content    String?   @default("")
   image      String?   @default("")
   imageAlt  String?   @default("")
+  author     String?   @default("")
+  authorUrl  String?   @default("")
   featured   Boolean   @default(false)
   featuredImage Json?
   status     String    @default("Draft")
   publishedAt DateTime?
-  pinned      Boolean   @default(false)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
   @@index([id])
   @@index([slug])
   @@index([status])
-  @@index([pinned])
   @@index([publishedAt])
 }
 

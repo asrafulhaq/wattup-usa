@@ -19,7 +19,7 @@ export async function getArticles(page = 1, pageSize = 10, status?: string) {
         const articles = await prisma.posts.findMany({
             skip,
             take: pageSize,
-            orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+            orderBy: [{ createdAt: 'desc' }],
             where,
         });
         return articles;
@@ -48,7 +48,7 @@ export async function getPaginatedArticles(
             prisma.posts.findMany({
                 skip,
                 take: pageSize,
-                orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+                orderBy: [{ createdAt: 'desc' }],
                 where,
             }),
             prisma.posts.count({
@@ -112,7 +112,12 @@ export async function createArticle(data: any) {
             data: {
                 ...data,
                 slug,
-                publishedAt: data.status === 'Published' ? new Date() : null,
+                publishedAt:
+                    data.publishedAt instanceof Date
+                        ? data.publishedAt
+                        : data.status === 'Published'
+                          ? new Date()
+                          : null,
             },
         });
 
@@ -203,21 +208,6 @@ export async function deleteArticle(id: string) {
     }
 }
 
-export async function togglePinArticle(id: string, pinned: boolean) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
-    try {
-        await prisma.posts.update({
-            where: { id },
-            data: { pinned },
-        });
-        updateTag('posts');
-        return { success: true };
-    } catch (error) {
-        console.error('Toggle Pin Error:', error);
-        return { success: false, error: 'Failed to update pin status' };
-    }
-}
 
 export async function updateArticleStatus(id: string, status: string) {
     const session = await getAdminSession();
@@ -262,7 +252,6 @@ export async function duplicateArticle(id: string) {
                 title: newTitle,
                 slug: newSlug,
                 status: 'Draft',
-                pinned: false,
             } as any,
         });
         updateTag('posts');

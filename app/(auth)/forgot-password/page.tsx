@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
                     <Suspense fallback={'2026'}>
                         <CopyrightYear />
                     </Suspense>{' '}
-                    WattupUSA. All rights reserved.
+                    WattUp USA. All rights reserved.
                 </p>
             </div>
         </div>

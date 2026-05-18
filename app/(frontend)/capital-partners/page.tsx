@@ -9,32 +9,32 @@ import { capitalPartnersImageUrls } from '@/lib/images/capital-partners';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Capital Partners | WattupUSA',
+    title: 'Capital Partners | WattUp USA',
     description:
-        'Explore WattupUSA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
+        'Explore WattUp USA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
     openGraph: {
-        title: 'Capital Partners | WattupUSA',
+        title: 'Capital Partners | WattUp USA',
         description:
-            'Explore WattupUSA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
+            'Explore WattUp USA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
         images: [
             {
                 url: capitalPartnersImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },
     twitter: {
-        title: 'Capital Partners | WattupUSA',
+        title: 'Capital Partners | WattUp USA',
         description:
-            'Explore WattupUSA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
+            'Explore WattUp USA’s Capital Partners page to understand our collaboration model for bringing EV charging to communities nationwide.',
         images: [
             {
                 url: capitalPartnersImageUrls.ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'WattupUSA EV Charging',
+                alt: 'WattUp USA EV Charging',
             },
         ],
     },
@@ -56,7 +56,7 @@ export default function CapitalPartnersPage() {
 
             {/* 03. Why Wattup Usa */}
             <StepGrid
-                heading='Why WattupUSA'
+                heading='Why WattUp USA'
                 stepData={CapitalPartnersWhyData}
                 gridClass='grid-cols-2 max-lg:gap-8 lg:grid-cols-4'
                 descClass='text-[16px]! font-medium! leading-[130%] tracking-[-3%]'
@@ -73,7 +73,7 @@ export default function CapitalPartnersPage() {
                 mobileImage={capitalPartnersImageUrls.leadershipMobile}
                 heading={'Leadership & Governance'}
                 subHeading={
-                    'WattupUSA is led by a team with experience across infrastructure development, operations, and capital management. The company maintains a disciplined approach to deployment, prioritizing long-term asset performance and sustainable growth.'
+                    'WattUp USA is led by a team with experience across infrastructure development, operations, and capital management. The company maintains a disciplined approach to deployment, prioritizing long-term asset performance and sustainable growth.'
                 }
             />
 

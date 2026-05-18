@@ -36,17 +36,17 @@ export async function generateMetadata(): Promise<Metadata> {
         metadataBase: new URL(baseUrl),
         title: {
             default:
-                'WattupUSA | EV Charging Solutions for Properties & Drivers',
-            template: '%s | WattupUSA',
+                'WattUp USA | EV Charging Solutions for Properties & Drivers',
+            template: '%s | WattUp USA',
         },
         description:
-            'Partner with WattupUSA to bring seamless EV charging to your property, or find a reliable charger near you. The future of mobility starts here.',
+            'Partner with WattUp USA to bring seamless EV charging to your property, or find a reliable charger near you. The future of mobility starts here.',
         keywords: [
             'EV Charging',
             'Electric Vehicle',
             'EV Charger Installation',
             'Commercial EV Charging',
-            'WattupUSA',
+            'WattUp USA',
             'EV Drivers',
             'Property Management EV',
         ],
@@ -55,22 +55,22 @@ export async function generateMetadata(): Promise<Metadata> {
             type: 'website',
             locale: 'en_US',
             url: baseUrl,
-            title: 'WattupUSA | EV Charging Solutions for Properties & Drivers',
+            title: 'WattUp USA | EV Charging Solutions for Properties & Drivers',
             description:
                 'Bring seamless EV charging to your property or find a reliable WattUp charger near you.',
-            siteName: 'WattupUSA',
+            siteName: 'WattUp USA',
             images: [
                 {
                     url: ogImageUrl,
                     width: 1200,
                     height: 630,
-                    alt: 'WattupUSA EV Charging',
+                    alt: 'WattUp USA EV Charging',
                 },
             ],
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'WattupUSA | EV Charging Solutions',
+            title: 'WattUp USA | EV Charging Solutions',
             description:
                 'The future of mobility starts with WattUp. Partner with us to install EV chargers or find a station near you.',
             images: [ogImageUrl],
@@ -102,11 +102,11 @@ export default async function RootLayout({
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app';
     const settings = await getSiteSettings();
 
-    const orgName = settings?.orgName || 'WattupUSA';
+    const orgName = settings?.orgName || 'WattUp USA';
     const orgUrl = settings?.orgUrl || baseUrl;
     const orgDescription =
         settings?.orgDescription ||
-        'WattupUSA provides turnkey EV charging solutions for property owners, fleet operators, and drivers — delivering seamless charging infrastructure across the United States.';
+        'WattUp USA provides turnkey EV charging solutions for property owners, fleet operators, and drivers — delivering seamless charging infrastructure across the United States.';
 
     const organizationSchema = buildOrganizationSchema({
         name: orgName,

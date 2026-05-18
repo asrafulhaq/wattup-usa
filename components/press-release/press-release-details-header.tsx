@@ -5,9 +5,13 @@ import { ArrowLeftIcon } from '../icons/icons';
 export function PressReleaseDetailsHeader({
     title,
     date,
+    author,
+    authorUrl,
 }: {
     title: string;
     date: string;
+    author?: string;
+    authorUrl?: string;
 }) {
     return (
         <section className='w-full bg-[#EEEEEE] pt-[75px]  pb-[40px]'>
@@ -25,9 +29,22 @@ export function PressReleaseDetailsHeader({
 
                         <p className='text-[20px] font-semibold max-w-[670px] leading-[130%] traking-[-03%] text-dark/70'>
                             {date || 'March 25, 2026'}{' '}
-                            <Link className='font-light ml-1' href='/'>
-                                | <span className='ml-1'>WattUpUSA</span>
-                            </Link>
+                            {author && (
+                                <span className='font-light ml-1'>
+                                    |{' '}
+                                    {authorUrl ? (
+                                        <Link
+                                            href={authorUrl}
+                                            target='_blank'
+                                            rel='noopener noreferrer'
+                                            className='ml-1 '>
+                                            {author}
+                                        </Link>
+                                    ) : (
+                                        <span className='ml-1'>{author}</span>
+                                    )}
+                                </span>
+                            )}
                         </p>
                     </div>
                 </FadeUp>

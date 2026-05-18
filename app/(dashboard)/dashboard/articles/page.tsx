@@ -10,7 +10,12 @@ export async function ArticlesTable() {
 
     const formattedArticles = articles.map(article => ({
         ...article,
-        date: article.createdAt.toLocaleDateString(),
+        author: article.author || null,
+        authorUrl: article.authorUrl || null,
+        publishedAt: article.publishedAt
+            ? article.publishedAt.toLocaleDateString()
+            : null,
+        createdAt: article.createdAt.toLocaleDateString(),
     }));
 
     return (

@@ -53,7 +53,7 @@ export function PrivacyOptions() {
 
                     <FadeUp delay={0.2}>
                         <p className='text-description max-w-[842px] mb-4 font-normal! '>
-                            This website is operated by WattupUSA. By accessing
+                            This website is operated by WattUp USA. By accessing
                             and using this website, you agree to comply with and
                             be bound by the following legal terms and privacy
                             practices.
