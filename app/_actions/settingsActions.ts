@@ -7,24 +7,24 @@ import { getAdminSession } from './auth-actions';
 const SETTINGS_ID = 'singleton';
 
 export type SiteSettingsData = {
-    googleAnalyticsId?: string;
-    googleTagManagerId?: string;
-    googleSiteVerification?: string;
-    metaPixelId?: string;
-    headScripts?: string;
-    bodyStartScripts?: string;
-    bodyEndScripts?: string;
-    orgName?: string;
-    orgDescription?: string;
-    orgUrl?: string;
-    orgPhone?: string;
-    orgEmail?: string;
-    orgAddress?: string;
-    orgLogoUrl?: string;
-    orgTwitter?: string;
-    orgLinkedin?: string;
-    orgFacebook?: string;
-    orgInstagram?: string;
+    googleAnalyticsId?: string | null;
+    googleTagManagerId?: string | null;
+    googleSiteVerification?: string | null;
+    metaPixelId?: string | null;
+    headScripts?: string | null;
+    bodyStartScripts?: string | null;
+    bodyEndScripts?: string | null;
+    orgName?: string | null;
+    orgDescription?: string | null;
+    orgUrl?: string | null;
+    orgPhone?: string | null;
+    orgEmail?: string | null;
+    orgAddress?: string | null;
+    orgLogoUrl?: string | null;
+    orgTwitter?: string | null;
+    orgLinkedin?: string | null;
+    orgFacebook?: string | null;
+    orgInstagram?: string | null;
 };
 
 export async function getSiteSettings() {

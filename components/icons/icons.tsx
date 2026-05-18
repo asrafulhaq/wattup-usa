@@ -112,6 +112,24 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
         </svg>
     );
 }
+function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width={24}
+            height={24}
+            viewBox='0 0 24 24'
+            fill='none'
+            {...props}>
+            <path
+                d='M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2V9zm2-6a2 2 0 110 4 2 2 0 010-4z'
+                fill='#fff'
+                fillOpacity={0.5}
+            />
+        </svg>
+    );
+}
+
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg
@@ -333,6 +351,7 @@ export {
     EllipsisIcon,
     FacebookIcon,
     InstagramIcon,
+    LinkedInIcon,
     MobileMenuCloseIcon,
     MobileMenuIcon,
     PlusIcon,

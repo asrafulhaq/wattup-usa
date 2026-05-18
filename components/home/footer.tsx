@@ -1,7 +1,7 @@
 import { getSiteSettings } from '@/app/_actions/settingsActions';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FacebookIcon, InstagramIcon, XIcon } from '../icons/icons';
+import { FacebookIcon, InstagramIcon, LinkedInIcon, XIcon } from '../icons/icons';
 
 const COLUMN_1_LINKS = [
     { label: 'Home', href: '/' },
@@ -23,6 +23,11 @@ const Footer = async () => {
     const settings = await getSiteSettings();
 
     const socialLinks = [
+        {
+            icon: LinkedInIcon,
+            href: settings?.orgLinkedin || null,
+            label: 'LinkedIn',
+        },
         {
             icon: InstagramIcon,
             href: settings?.orgInstagram || null,
@@ -131,3 +136,4 @@ const Footer = async () => {
 };
 
 export default Footer;
+
