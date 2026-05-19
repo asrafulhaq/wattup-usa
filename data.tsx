@@ -913,7 +913,7 @@ export interface GroupedFAQ {
 
 export const GroupedFAQData: GroupedFAQ[] = [
   {
-    category: "Order",
+    category: "Driver Questions",
     items: [
       {
         question: "How do I start charging?",
@@ -933,7 +933,7 @@ export const GroupedFAQData: GroupedFAQ[] = [
     ],
   },
   {
-    category: "Incentives",
+    category: "Charging & Compatibility",
     items: [
       {
         question: "What vehicles are compatible?",
@@ -953,7 +953,7 @@ export const GroupedFAQData: GroupedFAQ[] = [
     ],
   },
   {
-    category: "Preparing for Delivery",
+    category: "Sustainability",
     items: [
       {
         question: "How do I find a WattUp station near me?",
@@ -973,7 +973,7 @@ export const GroupedFAQData: GroupedFAQ[] = [
     ],
   },
   {
-    category: "Charging Solutions",
+    category: "Property Owners & Partners",
     items: [
       {
         question: "What solutions do you offer commercial property owners?",
