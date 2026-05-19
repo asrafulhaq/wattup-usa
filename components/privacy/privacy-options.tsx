@@ -59,13 +59,13 @@ export function PrivacyOptions() {
                             practices.
                         </p>
                     </FadeUp>
-               {/*      <FadeUp delay={0.4}>
+                    <FadeUp delay={0.4}>
                         <Link
-                            href={'#'}
+                            href={'/privacy-policy'}
                             className='text-primary text-[16px] font-semibold py-[10px] mb-10! block'>
                             Read Privacy Notice
                         </Link>
-                    </FadeUp> */}
+                    </FadeUp> 
 
                     {/* Desktop Grid View */}
                     <div className='hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-5'>
