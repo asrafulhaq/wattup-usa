@@ -48,7 +48,7 @@ function renderText(text: string): React.ReactNode {
     parts.push(text.slice(lastIndex));
   }
 
-  return parts.length > 1 ? <>{parts}</> : text;
+  return parts.length > 0 ? <>{parts}</> : text;
 }
 
 export function LegalPageContent({ data }: { data: LegalDocumentData }) {
