@@ -46,7 +46,7 @@ export default function PolicyPage() {
           image={policyImageUrls.policyPageHero}
           mobileImage={policyImageUrls.policyPageHeroMobile}
           alt="Policy Page Hero Background"
-          heading="Privacy and legal"
+          heading="Privacy Policy"
           sectionClass="md:h-[810px]!"
           contentContainerClass="md:items-start w-full md:text-left"
           textContainerClass="md:items-start md:text-left"
