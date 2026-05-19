@@ -42,14 +42,14 @@ function HeroContent({ dark }: { dark: boolean }) {
           <div className="flex flex-row items-center justify-center gap-[16px]">
             <WattupButton
               href="/locations?showAll=true#locations"
-              className="w-full md:w-[210px]"
+              className="w-full md:w-auto"
             >
               Our Growing Network
             </WattupButton>
             <WattupButton
               href="/contact#contact-us"
               variant="white"
-              className="w-full md:w-[210px] max-md:shadow-[0px_4px_14px_rgba(0,0,0,0.05)] max-md:border max-md:border-[#E2E8F0]"
+              className="w-full md:w-auto max-md:shadow-[0px_4px_14px_rgba(0,0,0,0.05)] max-md:border max-md:border-[#E2E8F0]"
             >
               Partner With Us
             </WattupButton>

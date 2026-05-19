@@ -48,9 +48,6 @@ export default function FAQPage() {
             Find out the answers <br /> to all your questions
           </>
         }
-        subHeading={"Find out the answers to all your questions"}
-        buttonText="Find a Charger"
-        buttonLink="#"
         buttonLight={true}
         buttonClass="max-md:bg-primary max-md:hover:bg-primary-hover max-md:text-white"
       />

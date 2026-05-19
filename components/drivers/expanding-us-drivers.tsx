@@ -68,7 +68,7 @@ function ExpandingUsDriversInner({
               </h2>
             </FadeUp>
             <FadeUp delay={0.1}>
-              <p className="text-description text-dark/70 max-md:max-w-87 max-w-3xl">
+              <p className="text-description text-dark/70 max-md:max-w-full max-w-3xl">
                 WattUpUSA is strategically expanding its ultra-fast EV charging
                 network throughout California’s high-traffic retail and
                 commercial corridors through a disciplined deployment strategy
