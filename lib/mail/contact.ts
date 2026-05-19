@@ -86,12 +86,12 @@ function detailsTable(
         .map(
             ({ label, value, multiline }) => `
         <tr>
-          <td style="padding:10px 20px 0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:rgba(17,24,39,0.4);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;vertical-align:top;">
+          <td style="padding:10px 20px 0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:10px;font-weight:700;color:rgba(17,24,39,0.35);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;vertical-align:top;">
             ${label}
           </td>
         </tr>
         <tr>
-          <td style="padding:4px 20px ${multiline ? '14px' : '10px'};font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:14px;font-weight:500;color:#0f1117;line-height:1.6;${multiline ? 'white-space:pre-wrap;' : ''}border-bottom:1px solid #f0f0f0;">
+          <td style="padding:4px 20px ${multiline ? '14px' : '10px'};font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:14px;font-weight:500;color:#2d2d2d;line-height:130%;letter-spacing:-0.03em;${multiline ? 'white-space:pre-wrap;' : ''}border-bottom:1px solid #f0f0f0;">
             ${value}
           </td>
         </tr>`
@@ -99,9 +99,9 @@ function detailsTable(
         .join('');
 
     return `
-    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f9fa;border:1px solid #e8e8e8;border-radius:10px;margin:20px 0 0;overflow:hidden;">
-      <tr><td style="padding:16px 20px 0;">
-        <p style="margin:0 0 4px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:rgba(17,24,39,0.4);letter-spacing:0.06em;text-transform:uppercase;">Inquiry Details</p>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f4f5;border:1px solid #e8e8e8;border-radius:10px;margin:20px 0 0;overflow:hidden;">
+      <tr><td style="padding:14px 20px 0;">
+        <p style="margin:0 0 4px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:10px;font-weight:700;color:rgba(17,24,39,0.35);letter-spacing:0.08em;text-transform:uppercase;">Inquiry Details</p>
       </td></tr>
       ${rowsHtml}
       <tr><td style="padding:10px 0 0;"></td></tr>

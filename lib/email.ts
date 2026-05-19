@@ -19,6 +19,11 @@ export const sendMail = async ({
     });
 
     if (error) {
-        throw new Error(`Resend error: ${error.message}`);
+        console.error('[Resend] send failed:', {
+            name: (error as any).name,
+            statusCode: (error as any).statusCode,
+            message: error.message,
+        });
+        throw new Error(`Resend error [${(error as any).statusCode ?? 'unknown'}] ${(error as any).name ?? ''}: ${error.message}`);
     }
 };

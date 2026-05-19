@@ -61,8 +61,13 @@ export const auth = betterAuth({
             user: { email: string; name?: string };
             url: string;
         }) {
-            const { subject, html } = resetPasswordTemplate({ name: user.name, url });
-            await sendMail({ email: user.email, subject, html });
+            try {
+                const { subject, html } = resetPasswordTemplate({ name: user.name, url });
+                await sendMail({ email: user.email, subject, html });
+            } catch (err) {
+                console.error('[Auth] sendResetPassword failed for', user.email, err);
+                throw err;
+            }
         },
     },
 
