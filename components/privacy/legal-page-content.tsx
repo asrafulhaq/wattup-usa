@@ -1,6 +1,56 @@
 import { LegalDocumentData } from "@/data";
 import { FadeUp } from "@/components/ui/fade-up";
 
+function renderText(text: string): React.ReactNode {
+  const pattern =
+    /([\w.+-]+@[\w.-]+\.[a-zA-Z]{2,})|((?:https?:\/\/)?(?:[\w-]+\.)+[a-zA-Z]{2,}(?:\/[^\s(),"]*)?)/g;
+
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    const [full, email, url] = match;
+
+    if (email) {
+      parts.push(
+        <a
+          key={match.index}
+          href={`mailto:${email}`}
+          className="text-primary hover:underline"
+        >
+          {email}
+        </a>
+      );
+    } else if (url) {
+      const href = url.startsWith("http") ? url : `https://${url}`;
+      parts.push(
+        <a
+          key={match.index}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          {url}
+        </a>
+      );
+    }
+
+    lastIndex = match.index + full.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 1 ? <>{parts}</> : text;
+}
+
 export function LegalPageContent({ data }: { data: LegalDocumentData }) {
   return (
     <section className="w-full common-section-padding bg-white overflow-hidden">
@@ -27,14 +77,14 @@ export function LegalPageContent({ data }: { data: LegalDocumentData }) {
             </p>
             <p className="text-description max-w-[842px] font-normal! text-dark/70">
               <span className="font-semibold text-dark">Contact: </span>
-              {data.contactEmail}
+              {renderText(data.contactEmail)}
             </p>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.15}>
           <p className="text-description max-w-[842px] mb-6 font-normal! text-dark/70">
-            {data.intro}
+            {renderText(data.intro)}
           </p>
         </FadeUp>
 
@@ -54,15 +104,18 @@ export function LegalPageContent({ data }: { data: LegalDocumentData }) {
                     </h3>
                   )}
                   {block.paragraphs?.map((text, k) => (
-                    <p key={k} className={`text-description max-w-[842px] font-normal! text-dark/70 ${block.compact ? "mb-1" : "mb-6"}`}>
-                      {text}
+                    <p
+                      key={k}
+                      className={`text-description max-w-[842px] font-normal! text-dark/70 ${block.compact ? "mb-1" : "mb-6"}`}
+                    >
+                      {renderText(text)}
                     </p>
                   ))}
                   {block.list && (
                     <ul className="list-disc pl-6 mb-6 space-y-3">
                       {block.list.map((item, k) => (
                         <li key={k} className="text-description font-normal! text-dark/70">
-                          {item}
+                          {renderText(item)}
                         </li>
                       ))}
                     </ul>
@@ -72,7 +125,7 @@ export function LegalPageContent({ data }: { data: LegalDocumentData }) {
                       {block.keyValuePairs.map((pair, k) => (
                         <p key={k} className="text-description font-normal! text-dark/70">
                           <span className="font-semibold text-dark">{pair.label}: </span>
-                          {pair.value}
+                          {renderText(pair.value)}
                         </p>
                       ))}
                     </div>
