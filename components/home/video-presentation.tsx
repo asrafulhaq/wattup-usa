@@ -59,7 +59,7 @@ export function VideoPresentation() {
                     poster={desktopPoster}
                     onPlaying={() => setDesktopPlaying(true)}>
                     <source
-                        src={cloudinaryVideoUrl(videos.video1)}
+                        src={cloudinaryVideoUrl(videos.video1, undefined, 5)}
                         type='video/mp4'
                     />
                 </video>
@@ -86,7 +86,7 @@ export function VideoPresentation() {
                     poster={mobilePoster}
                     onPlaying={() => setMobilePlaying(true)}>
                     <source
-                        src={cloudinaryVideoUrl(videos.videoMobile)}
+                        src={cloudinaryVideoUrl(videos.videoMobile, undefined, 5)}
                         type='video/mp4'
                     />
                 </video>
