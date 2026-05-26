@@ -51,6 +51,7 @@ export const homeImages = {
     technologyBacked1Mobile: 'technology-backed-1-mobile_xfzize',
     technologyBacked2: 'technology-backed-2_erxp4b',
     technologyBacked2Mobile: 'technology-backed-2-mobile_m3olql',
+    technologyBacked2Full: 'technology-backed-2-full_oonmcg',
     technologyBacked3: 'technology-backed-3_yavhl2',
     technologyBacked3Mobile: 'technology-backed-3-mobile_b2hjeq',
 

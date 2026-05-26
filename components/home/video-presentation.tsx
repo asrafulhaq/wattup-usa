@@ -1,14 +1,9 @@
 'use client';
 
+import { homeImageUrls } from '@/lib/images/home';
 import { cloudinaryVideoUrl, videos } from '@/lib/images/videos';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dsfms7jb4';
-
-function videoPoster(publicId: string) {
-    return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0,f_jpg,q_auto/${publicId}`;
-}
 
 export function VideoPresentation() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -44,8 +39,8 @@ export function VideoPresentation() {
         return () => observer.disconnect();
     }, []);
 
-    const desktopPoster = videoPoster(videos.video1);
-    const mobilePoster = videoPoster(videos.videoMobile);
+    const desktopPoster = homeImageUrls.technologyBacked2;
+    const mobilePoster = homeImageUrls.technologyBacked2Full;
 
     return (
         <section
@@ -101,7 +96,7 @@ export function VideoPresentation() {
                         alt=''
                         aria-hidden='true'
                         fill
-                        className='object-cover opacity-60 md:hidden'
+                        className='object-contain opacity-60 md:hidden'
                         unoptimized
                     />
                 )}
