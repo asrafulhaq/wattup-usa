@@ -69,7 +69,7 @@ export function VideoPresentation() {
                         alt=''
                         aria-hidden='true'
                         fill
-                        className='object-cover opacity-60 max-md:hidden'
+                        className='object-cover max-md:hidden'
                         unoptimized
                     />
                 )}
@@ -96,7 +96,7 @@ export function VideoPresentation() {
                         alt=''
                         aria-hidden='true'
                         fill
-                        className='object-contain opacity-60 md:hidden'
+                        className='object-contain md:hidden'
                         unoptimized
                     />
                 )}
