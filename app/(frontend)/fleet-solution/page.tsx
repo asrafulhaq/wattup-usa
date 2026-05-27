@@ -91,7 +91,7 @@ export default function FleetSolutionPage() {
                     'WattUp provides end-to-end EV charging solutions tailored for fleet operators — from infrastructure planning to ongoing network management.'
                 }
                 sectionClass='pb-0! -mb-20'
-                imageHeight='h-[480px] sm:h-[700px] md:h-[950px] lg:h-[1000px] xl:h-[1095px] 2xl:h-[1250px]! 3xl:h-[1650px]! ultra:h-[1790px]!'
+                imageHeight='h-[780px] sm:h-[850px] md:h-[950px] lg:h-[1000px] xl:h-[1095px] 2xl:h-[1250px]! 3xl:h-[1650px]! ultra:h-[1790px]!'
             />
 
             {/* 04. Why Choose WattUp for Your Fleet */}
