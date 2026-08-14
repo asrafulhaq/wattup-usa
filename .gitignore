@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# security scan findings & client docs (internal, keep out of the repo)
+risk_findings_*.csv
+wattup-risk-report.html
+REMEDIATION_PLAN.md
+OWNER_ACTION_REQUEST.md
+OWNER_ACTION_REQUEST_SLACK.txt
