@@ -9,7 +9,7 @@ import { InjectHeadScripts } from '@/components/inject-head-scripts';
 import {
     BodyEndScripts,
     BodyStartScripts,
-    GtmBodyNoscript,
+    ConsentModeDefaults,
     GtmHeadScript,
     TrackingScripts,
 } from '@/components/tracking-scripts';
@@ -165,6 +165,9 @@ export default async function RootLayout({
                     <InjectHeadScripts html={settings.headScripts} />
                 )}
 
+                {/* Consent Mode defaults — must precede every Google script */}
+                <ConsentModeDefaults />
+
                 {/* GTM loader — as high in <head> as possible */}
                 <Suspense fallback={null}>
                     <GtmHeadScript />
@@ -176,11 +179,6 @@ export default async function RootLayout({
                     'font-sans antialiased mx-auto',
                     plusJakartaSans.variable
                 )}>
-                {/* GTM noscript fallback — immediately after <body> */}
-                <Suspense fallback={null}>
-                    <GtmBodyNoscript />
-                </Suspense>
-
                 {/* Custom body-start scripts from admin */}
                 <Suspense fallback={null}>
                     <BodyStartScripts />
