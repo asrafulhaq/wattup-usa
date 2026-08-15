@@ -92,9 +92,10 @@ const Footer = async () => {
           </div>
         </div>
 
-        {/* 3. Social Icons (Order 3 Mobile, Bottom Right Desktop) */}
+        {/* 3. CCPA opt-out + Social Icons (Order 3 Mobile, Bottom Right Desktop) */}
         {socialLinks.length > 0 && (
-          <div className="order-3 lg:col-start-2 lg:row-start-2 flex items-center gap-6 mb-8 lg:mb-0 lg:mt-15 lg:justify-end">
+          <div className="order-3 lg:col-start-2 lg:row-start-2 flex flex-wrap items-center gap-6 mb-8 lg:mb-0 lg:mt-15 lg:justify-end">
+            <DoNotSellLink className="text-[13px] text-white/50 hover:text-white leading-[130%] tracking-[-1%] transition-colors cursor-pointer underline underline-offset-2" />
             {socialLinks.map((social) => (
               <Link
                 key={social.label}
@@ -131,12 +132,11 @@ const Footer = async () => {
           </p>{" "}
         </div>
 
-        {/* 5. Copyright + CCPA opt-out (Order 5 Mobile, Bottom Left Desktop) */}
-        <div className="order-5 lg:col-start-1 lg:row-start-2 lg:pt-0 lg:mt-12 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
+        {/* 5. Copyright (Order 5 Mobile, Bottom Left Desktop) */}
+        <div className="order-5 lg:col-start-1 lg:row-start-2 lg:pt-0 lg:mt-12">
           <p className="text-[14px] text-white/50 leading-[130%] tracking-[-1%]">
             Copyright © {settings?.orgName || "WattUp USA"} 2026
           </p>
-          <DoNotSellLink className="text-[13px] text-white/50 hover:text-white leading-[130%] tracking-[-1%] transition-colors text-left cursor-pointer underline underline-offset-2" />
         </div>
       </div>
     </footer>

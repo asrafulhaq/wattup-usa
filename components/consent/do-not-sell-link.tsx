@@ -26,15 +26,14 @@ export function DoNotSellLink({ className }: { className?: string }) {
         else if (window.Cookiebot) window.Cookiebot.renew();
     };
 
-    // NOTE: Coalition's "Missing Do Not Sell Link" scan text-matches the
-    // phrase "Do Not Sell ... My Personal Information" on the homepage —
-    // this shorter label will not satisfy that check.
+    // Label must keep the statutory "Do Not Sell ..." phrase — Coalition's
+    // scan and the CCPA both look for it on the homepage.
     return (
         <button
             type='button'
             onClick={openPreferences}
             className={`cky-banner-element ${className ?? ''}`}>
-            Manage Cookies
+            Do Not Sell or Share My Personal Information
         </button>
     );
 }
