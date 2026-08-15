@@ -88,7 +88,6 @@ const Footer = async () => {
                   {link.label}
                 </Link>
               ))}
-              <DoNotSellLink className="text-[16px] py-2.5 font-semibold text-white hover:text-primary leading-[130%] tracking-[2%] transition-colors text-left cursor-pointer" />
             </div>
           </div>
         </div>
@@ -132,11 +131,12 @@ const Footer = async () => {
           </p>{" "}
         </div>
 
-        {/* 5. Copyright (Order 5 Mobile, Bottom Left Desktop) */}
-        <div className="order-5 lg:col-start-1 lg:row-start-2 lg:pt-0 lg:mt-12">
+        {/* 5. Copyright + CCPA opt-out (Order 5 Mobile, Bottom Left Desktop) */}
+        <div className="order-5 lg:col-start-1 lg:row-start-2 lg:pt-0 lg:mt-12 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
           <p className="text-[14px] text-white/50 leading-[130%] tracking-[-1%]">
             Copyright © {settings?.orgName || "WattUp USA"} 2026
           </p>
+          <DoNotSellLink className="text-[13px] text-white/50 hover:text-white leading-[130%] tracking-[-1%] transition-colors text-left cursor-pointer underline underline-offset-2" />
         </div>
       </div>
     </footer>

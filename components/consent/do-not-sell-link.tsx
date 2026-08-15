@@ -19,14 +19,22 @@ export function DoNotSellLink({ className }: { className?: string }) {
     );
     if (!enabled) return null;
 
+    // CookieYes binds clicks on .cky-banner-element itself once banner.js
+    // loads; the onClick is a fallback for Cookiebot (and late loads).
     const openPreferences = () => {
         if (window.revisitCkyConsent) window.revisitCkyConsent();
         else if (window.Cookiebot) window.Cookiebot.renew();
     };
 
+    // NOTE: Coalition's "Missing Do Not Sell Link" scan text-matches the
+    // phrase "Do Not Sell ... My Personal Information" on the homepage —
+    // this shorter label will not satisfy that check.
     return (
-        <button type='button' onClick={openPreferences} className={className}>
-            Do Not Sell or Share My Personal Information
+        <button
+            type='button'
+            onClick={openPreferences}
+            className={`cky-banner-element ${className ?? ''}`}>
+            Manage Cookies
         </button>
     );
 }
