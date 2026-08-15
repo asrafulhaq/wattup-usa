@@ -1,4 +1,5 @@
 import { getSiteSettings } from '@/app/_actions/settingsActions';
+import { getActiveCmp } from '@/components/consent/cmp-script';
 import { cacheLife, cacheTag } from 'next/cache';
 import Script from 'next/script';
 
@@ -19,17 +20,23 @@ async function getTrackingIds() {
 }
 
 /**
- * Google Consent Mode v2 defaults — must render in <head> BEFORE any
- * Google script. Interim state until a CMP is installed: visitors sending
- * the Global Privacy Control signal are opted out of all storage; the CMP
- * will later override these defaults with banner-driven choices.
+ * Google Consent Mode v2 defaults — must render in <head> BEFORE the CMP
+ * and any Google script. With a CMP configured (CookieYes or Cookiebot),
+ * everything defaults to denied and the CMP sends the update after the
+ * visitor's banner choice. Without one (e.g. local dev), only Global
+ * Privacy Control visitors are opted out so analytics keeps working while
+ * the banner is absent.
  */
 export function ConsentModeDefaults() {
+    const hasCmp = Boolean(getActiveCmp());
+    const defaults = hasCmp
+        ? `gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});`
+        : `var gpcDenied=navigator.globalPrivacyControl===true?'denied':'granted';gtag('consent','default',{ad_storage:gpcDenied,ad_user_data:gpcDenied,ad_personalization:gpcDenied,analytics_storage:gpcDenied,wait_for_update:500});`;
     return (
         <script
             id='consent-mode-defaults'
             dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}var gpcDenied=navigator.globalPrivacyControl===true?'denied':'granted';gtag('consent','default',{ad_storage:gpcDenied,ad_user_data:gpcDenied,ad_personalization:gpcDenied,analytics_storage:gpcDenied,wait_for_update:500});`,
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}${defaults}`,
             }}
         />
     );

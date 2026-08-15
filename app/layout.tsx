@@ -6,6 +6,7 @@ import {
     buildWebSiteSchema,
 } from '@/components/json-ld';
 import { InjectHeadScripts } from '@/components/inject-head-scripts';
+import { CmpScript } from '@/components/consent/cmp-script';
 import {
     BodyEndScripts,
     BodyStartScripts,
@@ -165,8 +166,11 @@ export default async function RootLayout({
                     <InjectHeadScripts html={settings.headScripts} />
                 )}
 
-                {/* Consent Mode defaults — must precede every Google script */}
+                {/* Consent Mode defaults — must precede the CMP and every Google script */}
                 <ConsentModeDefaults />
+
+                {/* CMP (CookieYes/Cookiebot) — first sync script so auto-blocking can intercept trackers */}
+                <CmpScript />
 
                 {/* GTM loader — as high in <head> as possible */}
                 <Suspense fallback={null}>

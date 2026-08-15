@@ -1,4 +1,5 @@
 import { getSiteSettings } from "@/app/_actions/settingsActions";
+import { DoNotSellLink } from "@/components/consent/do-not-sell-link";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -87,6 +88,7 @@ const Footer = async () => {
                   {link.label}
                 </Link>
               ))}
+              <DoNotSellLink className="text-[16px] py-2.5 font-semibold text-white hover:text-primary leading-[130%] tracking-[2%] transition-colors text-left cursor-pointer" />
             </div>
           </div>
         </div>
