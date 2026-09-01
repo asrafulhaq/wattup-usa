@@ -161,7 +161,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
           />
         </FadeUp>
 
-        <div className="relative mt-8 w-full overflow-hidden rounded-2xl bg-[#E8EDF4] md:mt-10">
+        <div className="relative mt-8 w-full overflow-hidden rounded-lg bg-[#E8EDF4] md:mt-10">
           <MapCanvas
             stations={ranked.length > 0 ? ranked : stations}
             selectedSlug={selectedSlug}
@@ -169,7 +169,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             onSelect={onSelect}
             onHover={setHoveredSlug}
             mapboxToken={mapboxToken}
-            className="h-[440px] w-full md:h-[620px]"
+            className="h-[520px] w-full md:h-[780px]"
           />
 
           {ranked.length === 0 && (

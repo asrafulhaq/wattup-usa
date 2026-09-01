@@ -130,6 +130,7 @@ export function StationMap({
   className,
 }: StationMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<MapView>(DEFAULT_MAP_VIEW);
   const option = viewOption(view);
 
@@ -376,6 +377,23 @@ export function StationMap({
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  /**
+   * Keeps the drawing buffer matched to the container.
+   *
+   * Mapbox sizes its canvas once and then only listens for window resizes. Anything that
+   * changes the container without changing the window leaves the canvas at its old size
+   * and the container's own background showing through: a responsive breakpoint, a
+   * sibling collapsing, or simply editing the height during development.
+   */
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+
+    const observer = new ResizeObserver(() => mapRef.current?.getMap()?.resize());
+    observer.observe(shell);
+    return () => observer.disconnect();
+  }, []);
+
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
     [onSelect],
@@ -464,7 +482,7 @@ export function StationMap({
   };
 
   return (
-    <div className={`relative ${className ?? ""}`}>
+    <div ref={shellRef} className={`relative ${className ?? ""}`}>
       <div className="absolute right-3 top-3 z-10 flex gap-1 rounded-lg bg-white/95 p-1 shadow-md ring-1 ring-black/5 backdrop-blur md:right-4 md:top-4">
         {MAP_VIEWS.map((entry) => (
           <button
