@@ -236,6 +236,12 @@ for (const row of rows) {
     goLiveYear: orderedDate ? 2026 : 2027,
     county: county.name,
     countyFips: county.fips,
+    // 310 kW across the network, given by the client. Not in the sheet.
+    maxPowerKw: 310,
+    // Assigned per site in the dashboard once the sites are surveyed. The catalogue
+    // itself lives in lib/locations/amenities.ts and is seeded whole, so every option
+    // exists before anyone opens the dashboard.
+    amenities: [],
     // straight from the sheet
     signedNumber: number('Location # signed'),
     initialNotes: value('Initial Notes'),

@@ -1,3 +1,4 @@
+import type { AmenityId } from "./amenities";
 import { haversineMiles } from "./distance";
 import { matchesQuery } from "./search";
 import type { SearchPoint } from "./search";
@@ -14,6 +15,13 @@ export interface StationFilters {
   years: number[];
   /** Minimum chargers on site. */
   minChargers: number;
+  /**
+   * Amenities a site must have, all of them.
+   *
+   * "Must have" rather than "any of": someone ticking Restrooms and Food wants a site
+   * with both, not a site with either. The reference labels its section the same way.
+   */
+  amenities: AmenityId[];
 }
 
 export const DEFAULT_FILTERS: StationFilters = {
@@ -22,6 +30,7 @@ export const DEFAULT_FILTERS: StationFilters = {
   radius: null,
   years: [],
   minChargers: 0,
+  amenities: [],
 };
 
 export const RADIUS_OPTIONS = [5, 10, 25, 50, 100] as const;
@@ -36,7 +45,7 @@ export function applyFilters(
   stations: PublicStation[],
   filters: StationFilters,
 ): RankedStation[] {
-  const { near, radius, years, minChargers, query } = filters;
+  const { near, radius, years, minChargers, amenities, query } = filters;
 
   return stations
     .map((station) => ({
@@ -48,6 +57,7 @@ export function applyFilters(
     .filter((station) => {
       if (years.length > 0 && !years.includes(station.goLiveYear)) return false;
       if (station.chargerCount < minChargers) return false;
+      if (!amenities.every((amenity) => station.amenities.includes(amenity))) return false;
       if (radius !== null && station.distance !== null && station.distance > radius) {
         return false;
       }
@@ -77,5 +87,6 @@ export function activeFilterCount(filters: StationFilters): number {
   if (filters.years.length > 0) n += 1;
   if (filters.minChargers > 0) n += 1;
   if (filters.radius !== null) n += 1;
+  if (filters.amenities.length > 0) n += 1;
   return n;
 }

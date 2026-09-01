@@ -1,5 +1,6 @@
 "use client";
 
+import { AMENITIES } from "@/lib/locations/amenities";
 import { countWith, type StationFilters } from "@/lib/locations/filters";
 import type { PublicStation } from "@/lib/locations/types";
 
@@ -25,7 +26,7 @@ const CHARGER_STEPS = [4, 6, 8] as const;
  */
 export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayProps) {
   return (
-    <div className="w-[320px] rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
+    <div className="max-h-[70vh] w-[340px] overflow-y-auto rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
           Opening
@@ -88,6 +89,50 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
             onClick={() => onChange({ minChargers: step })}
           />
         ))}
+      </div>
+
+      <h3 className="mt-5 text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
+        Amenities (must have)
+      </h3>
+      {/* Every amenity is listed whether or not a site has it yet. The catalogue is the
+          fixed set the dashboard assigns from, and hiding the unassigned ones would make
+          the filter appear to change shape as sites are surveyed. Counts of zero are
+          disabled rather than removed, which says "not yet" instead of "never". */}
+      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+        {AMENITIES.map((amenity) => {
+          const checked = filters.amenities.includes(amenity.id);
+          const count = countWith(stations, filters, { amenities: [amenity.id] });
+          return (
+            <label
+              key={amenity.id}
+              className={`flex items-center justify-between gap-2 text-[14px] ${
+                count === 0 && !checked
+                  ? "cursor-not-allowed text-dark/30"
+                  : "cursor-pointer text-dark"
+              }`}
+            >
+              <span className="flex min-w-0 items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={count === 0 && !checked}
+                  onChange={() =>
+                    onChange({
+                      amenities: checked
+                        ? filters.amenities.filter((id) => id !== amenity.id)
+                        : [...filters.amenities, amenity.id],
+                    })
+                  }
+                  className="h-4 w-4 shrink-0 accent-primary"
+                />
+                <span className="truncate">{amenity.label}</span>
+              </span>
+              <span className="shrink-0 text-[13px] tabular-nums text-dark/35">
+                {count}
+              </span>
+            </label>
+          );
+        })}
       </div>
     </div>
   );

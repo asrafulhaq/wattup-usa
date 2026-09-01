@@ -2,6 +2,8 @@
  * No site is live yet: all 27 are signed and in build. The map must say so, or a driver
  * taps a pin and drives to a construction site.
  */
+import type { AmenityId } from "./amenities";
+
 export type StationStatus = "LIVE" | "UNDER_CONSTRUCTION" | "PLANNED";
 
 /** Sites are funded per install year. Both years are in the data, told apart by this. */
@@ -35,6 +37,10 @@ export interface StationRecord {
   /** County the site falls in, resolved against the basemap at generation time. */
   county: string;
   countyFips: string;
+  /** Peak charging speed in kW. 310 across the network, per the client's spec. */
+  maxPowerKw: number;
+  /** Amenities present on site. Assigned in the dashboard, empty until surveyed. */
+  amenities: AmenityId[];
 
   // straight from the sheet
   signedNumber: number | null;
@@ -77,6 +83,8 @@ export type PublicStation = Pick<
   | "goLiveYear"
   | "county"
   | "countyFips"
+  | "maxPowerKw"
+  | "amenities"
   | "chargerCount"
 >;
 

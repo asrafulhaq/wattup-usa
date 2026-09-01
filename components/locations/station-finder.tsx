@@ -5,6 +5,7 @@ import { SearchBar } from "@/components/locations/search-bar";
 import { StationCard } from "@/components/locations/station-card";
 import { StationStrip } from "@/components/locations/station-strip";
 import { FadeUp } from "@/components/ui/fade-up";
+import { AMENITY_IDS, type AmenityId } from "@/lib/locations/amenities";
 import { haversineMiles } from "@/lib/locations/distance";
 import {
   applyFilters,
@@ -54,6 +55,9 @@ function parseFilters(params: URLSearchParams): StationFilters {
       : null,
     years,
     minChargers: Number(params.get("min")) || 0,
+    amenities: (params.get("amenities") ?? "")
+      .split(",")
+      .filter((id): id is AmenityId => AMENITY_IDS.includes(id as AmenityId)),
   };
 }
 
@@ -114,6 +118,8 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             set("min", patch.minChargers ? String(patch.minChargers) : null);
           if ("years" in patch)
             set("years", patch.years?.length ? patch.years.join(",") : null);
+          if ("amenities" in patch)
+            set("amenities", patch.amenities?.length ? patch.amenities.join(",") : null);
           if ("near" in patch) {
             if (patch.near) {
               next.set(
@@ -142,7 +148,14 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   const onReset = useCallback(
     () =>
       startTransition(() => {
-        applyOptimistic({ years: [], minChargers: 0, radius: null, query: "", near: null });
+        applyOptimistic({
+          years: [],
+          minChargers: 0,
+          radius: null,
+          amenities: [],
+          query: "",
+          near: null,
+        });
         write((next) => [...next.keys()].forEach((key) => next.delete(key)));
       }),
     [write, applyOptimistic],

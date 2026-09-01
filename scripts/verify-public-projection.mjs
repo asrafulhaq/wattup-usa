@@ -28,7 +28,7 @@ const records = JSON.parse(src.slice(src.indexOf('= [') + 2, src.lastIndexOf(']'
 const PUBLIC_KEYS = [
   'slug', 'name', 'street', 'city', 'region', 'postalCode', 'country',
   'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'county', 'countyFips',
-  'chargerCount',
+  'maxPowerKw', 'amenities', 'chargerCount',
 ];
 const toPublic = (r) => Object.fromEntries(PUBLIC_KEYS.map((k) => [k, r[k]]));
 

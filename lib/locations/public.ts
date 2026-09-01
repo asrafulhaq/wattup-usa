@@ -40,6 +40,8 @@ export function toPublicStation(record: StationRecord): PublicStation {
     goLiveYear: record.goLiveYear,
     county: record.county,
     countyFips: record.countyFips,
+    maxPowerKw: record.maxPowerKw,
+    amenities: record.amenities,
     chargerCount: record.chargerCount,
   };
 }
