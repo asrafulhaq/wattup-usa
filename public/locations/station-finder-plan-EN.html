@@ -332,6 +332,27 @@
   ol.qs strong { color: var(--ink); }
   ol.qs .assume { color: var(--muted); font-size: 0.92rem; display: block; margin-top: 0.15rem; }
 
+
+  blockquote.brief {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    color: var(--ink-2);
+  }
+  blockquote.brief p { font-size: 0.97rem; }
+  blockquote.brief .who {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
   footer {
     border-top: 1px solid var(--line);
     padding: 1.5rem 0 3rem;
@@ -363,6 +384,27 @@
 </header>
 
 <main class="wrap">
+
+  <section id="brief">
+    <div class="sec-label">The brief, as given</div>
+    <blockquote class="brief">
+      <div class="who">Client request &middot; 1 September 2026</div>
+      <p>&ldquo;Wattup has already signed up the following locations and is currently setting up their machines. They need a similar map and location-finder functionality to the Ionna example, but better &mdash; more functional, faster, and aesthetically polished.</p>
+      <p>Need the initial version done by this Friday. The same map/system will also be reused for Wattup&rsquo;s expansion across Asia, from Singapore to Thailand and other markets later this year, so make sure the setup is scalable and easy to expand.</p>
+      <p>Plan this out and report back on how you&rsquo;re going to approach it, including which map library/platform and frameworks you would use, the overall architecture and data structure, how search and location functionality will work, the performance and optimisation approach and how we should structure it for future expansion.</p>
+      <p>The Ionna map is just a reference &mdash; aim for a better, faster, more modern, and visually polished experience. No matter if we need Three.js or React Fiber, GSAP or anything &mdash; just tell me exactly which map library we need. If it is paid that is also fine, but I need exactly this look. The map and UI in the reference is in black mode, but we will do light mode. We will also manage this from the dashboard, and put it all in the seed file so we can seed on first run and manage everything from the dashboard afterwards.&rdquo;</p>
+    </blockquote>
+    <div class="prose">
+      <p>Five things in that brief each changed a decision in this plan, so they are worth pulling out:</p>
+      <ul class="plain">
+        <li><strong>&ldquo;Exactly this look, paid is fine&rdquo;</strong> &mdash; this is what settles the platform question. The reference frame is defined by everything that has been stripped out of the basemap, and per-layer control over that is precisely what you pay Mapbox for.</li>
+        <li><strong>&ldquo;Light mode, not black&rdquo;</strong> &mdash; the style gets rebuilt on a near-white ground with WattUp blue as the single accent. This is not an inversion: on a light ground the markers need more weight and less glow than the reference, or they disappear.</li>
+        <li><strong>&ldquo;Three.js, React Fiber, GSAP &mdash; whatever it takes&rdquo;</strong> &mdash; the honest answer is that a second WebGL layer would cost frames and add nothing, because the map is already WebGL. GSAP does the parts that genuinely need it. Detail in the <a href="#platforms">alternatives</a> section.</li>
+        <li><strong>&ldquo;Reused for Asia later this year&rdquo;</strong> &mdash; the reason <code>market</code>, <code>country</code> and distance units are in the schema on day one rather than added in December.</li>
+        <li><strong>&ldquo;Seed first, then manage from the dashboard&rdquo;</strong> &mdash; the data workflow, described in the next section.</li>
+      </ul>
+    </div>
+  </section>
 
   <section id="decision">
     <div class="sec-label">The decision you need to make</div>
@@ -485,6 +527,50 @@
         <h3>Why geocode once <span class="tag">perf</span></h3>
         <p>Addresses become coordinates at import time and are stored. Nothing geocodes at page load, so the map has nothing to wait for.</p>
       </div>
+    </div>
+  </section>
+
+
+  <section id="seed">
+    <div class="sec-label">Seed first, dashboard after</div>
+    <div class="prose">
+      <p>The 27 sites go into <code>prisma/seed.ts</code>, which this repo already runs &mdash; <code>db:seed</code> is wired in <code>package.json</code> and <code>build</code> calls it. One command populates a fresh database; from that moment on, every change happens in the dashboard and nobody touches the seed again.</p>
+    </div>
+    <pre><span class="cm">// prisma/seed-data/locations.ts &mdash; generated once from the CSV, then committed</span>
+<span class="kw">export const</span> locationSeed = [
+  {
+    slug: 'redlands-w-colton-ave',
+    name: 'WattUp Redlands',
+    status: 'PLANNED',
+    goLiveQuarter: 'Q3 2026',
+    street: '1405 W. Colton Ave', city: 'Redlands',
+    region: 'CA', postalCode: '92374', country: 'US',
+    latitude: 34.0639, longitude: -117.2231,   <span class="cm">// geocoded at import, baked in</span>
+    market: 'us-ca', timezone: 'America/Los_Angeles',
+    chargerCount: 2,
+  },
+  <span class="cm">// &hellip; 26 more</span>
+]</pre>
+    <div class="cards">
+      <div class="card">
+        <h3>Coordinates are baked in, not fetched <span class="tag">offline</span></h3>
+        <p>Geocoding runs once in a separate import script and the results are written into the seed file. Seeding therefore needs no Mapbox key, no network, and gives the same answer every time &mdash; on your machine, in CI, and on a new laptop.</p>
+      </div>
+      <div class="card">
+        <h3>Re-running the seed is safe <span class="tag">idempotent</span></h3>
+        <p>Every row is an <code>upsert</code> keyed on <code>slug</code>, so running it twice creates nothing twice. It also means <code>build</code> can keep calling it, as it does today, without surprises.</p>
+      </div>
+      <div class="card">
+        <h3>The seed never overwrites dashboard edits <span class="tag">important</span></h3>
+        <p>This is the part that usually goes wrong. Once a row has been touched in the dashboard it carries <code>managedInDashboard: true</code>, and the seed skips those rows on update. Otherwise the next deploy would quietly revert a status someone changed that morning.</p>
+      </div>
+      <div class="card">
+        <h3>After seeding, the dashboard owns everything <span class="tag">workflow</span></h3>
+        <p>Add a site, edit an address, flip PLANNED to LIVE, publish or unpublish &mdash; all in <code>/dashboard/locations</code>, reusing the RBAC and the Cloudinary upload flow already in the project. Saving revalidates the <code>locations</code> cache tag, so the public map updates without a deploy.</p>
+      </div>
+    </div>
+    <div class="prose">
+      <p>One extra piece worth building on Wednesday while the import script is open: <strong>geocoding on save in the dashboard</strong>. When someone types a new address, the form resolves it to coordinates and shows a small map preview for confirmation. Without it, the first location added after launch has no coordinates and silently never appears on the map &mdash; which is exactly the sort of bug that surfaces three weeks later.</p>
     </div>
   </section>
 
@@ -629,7 +715,8 @@
         <div class="when"><span class="dow">Wednesday</span><span class="date">2 SEP</span></div>
         <ul>
           <li>Prisma <code>Location</code> model and migration; dashboard CRUD reusing the existing RBAC.</li>
-          <li>Import the 27 sites from the sheet, split public from internal fields, geocode once and store the coordinates.</li>
+          <li>Import the 27 sites from the sheet, split public from internal fields, geocode once and bake the coordinates into <code>prisma/seed-data/locations.ts</code>.</li>
+          <li>Extend <code>prisma/seed.ts</code> with the locations (idempotent upsert on slug); dashboard CRUD with geocode-on-save.</li>
           <li>Market registry, distance and address helpers, GeoJSON endpoint.</li>
           <li><strong>Needs from you:</strong> the Mapbox token, and a yes/no on the three flags above.</li>
         </ul>

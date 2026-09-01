@@ -208,6 +208,27 @@
     padding: 0.3rem 0.7rem; border-radius: 2px; align-self: flex-start;
   }
 
+
+  blockquote.brief {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    color: var(--ink-2);
+  }
+  blockquote.brief p { font-size: 0.97rem; }
+  blockquote.brief .who {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
   footer {
     border-top: 1px solid var(--line); padding: 1.5rem 0 3rem;
     color: var(--faint); font-size: 0.88rem;
@@ -237,6 +258,27 @@
 </header>
 
 <main class="wrap">
+
+  <section id="brief">
+    <div class="sec-label">আপনার দেওয়া মূল brief <span class="en">the brief</span></div>
+    <blockquote class="brief">
+      <div class="who">ক্লায়েন্টের অনুরোধ &middot; ১ সেপ্টেম্বর ২০২৬</div>
+      <p>&ldquo;Wattup এর লোকেশনগুলো signed হয়ে গেছে, এখন মেশিন বসানোর কাজ চলছে। Ionna-এর মতো একটা ম্যাপ আর লোকেশন-ফাইন্ডার দরকার, কিন্তু অনেক বেশি কাজের, দ্রুত আর সুন্দর।</p>
+      <p>প্রথম ভারসন শুক্রবারের মধ্যে লাগবে। এই একই ম্যাপ/সিস্টেম পরে এশিয়ায় — Singapore থেকে Thailand আর অন্য মার্কেটে — এ বছরের মধ্যেই ব্যবহার হবে, তাই setup টা scalable আর সহজে বাড়ানো যায় এমন হতে হবে।</p>
+      <p>পুরো পরিকল্পনা করে জানাও — কোন ম্যাপ লাইব্রেরি/প্ল্যাটফর্ম আর ফ্রেমওয়ার্ক ব্যবহার করবে, আর্কিটেকচার আর ডেটা স্ট্রাকচার কী, সার্চ আর লোকেশন কীভাবে কাজ করবে, পারফরম্যান্স কীভাবে সামলাবে, আর ভবিষ্যতের expansion-এর জন্য কীভাবে সাজাবে।</p>
+      <p>Ionna-র ম্যাপটা শুধু রেফারেন্স — আমাদেরটা হবে আরও ভালো, দ্রুত আর আধুনিক। Three.js বা React Fiber, GSAP — যা লাগে লাগুক, সমস্যা নেই; শুধু বলো কোন ম্যাপ লাইব্রেরি লাগবে। পয়সা দিতে হলেও সমস্যা নেই, কিন্তু লুকটা হুবহু এই রকম লাগবে। রেফারেন্সে ম্যাপ আর UI কালো, কিন্তু আমরা করব লাইট মোডে। আর এই সবকিছু dashboard থেকেও ম্যানেজ হবে — সব ডেটা seed ফাইলে থাকবে, প্রথমে একবার seed চালাব, তারপর সব dashboard থেকে।&rdquo;</p>
+    </blockquote>
+    <div class="prose">
+      <p>এই brief-এর পাঁচটা কথা প্ল্যানের একএকটা সিদ্ধান্ত বদলে দিয়েছে, তাই আলাদা করে বলি:</p>
+      <ul class="plain">
+        <li><strong>&ldquo;হুবহু এই লুক, পয়সা লাগলেও সমস্যা নেই&rdquo;</strong> — এই কথাটাই ম্যাপ লাইব্রেরির প্রশ্নটা শেষ করে দেয়। রেফারেন্সের সৌন্দর্য পুরোটাই ম্যাপ থেকে কি কি সরানো হয়েছে তার উপর, আর এই লেয়ার-লেবেল কন্ট্রোলের জন্যই Mapbox-এর টাকা।</li>
+        <li><strong>&ldquo;কালো না, লাইট মোড&rdquo;</strong> — সাদাটে ব্যাকগ্রাউন্ডে স্টাইলটা নতুন করে বানানো হবে, WattUp নীল হবে একমাত্র accent। এটা শুধু রঙ উল্টানো নয় — সাদার উপর মার্কার বেশি গাঢ় আর কম গ্লো লাগবে, নাহলে মার্কার হারিয়ে যাবে।</li>
+        <li><strong>&ldquo;Three.js, React Fiber, GSAP — যা লাগে&rdquo;</strong> — সত্যি কথা হলো, দ্বিতীয় একটা WebGL লেয়ার শুধু ফ্রেম রেট খাবে, কিছু যোগ করবে না — কারণ ম্যাপ নিজেই WebGL। GSAP শুধু যেখানে সতিয়ি দরকার সেখানে।</li>
+        <li><strong>&ldquo;এ বছরেই এশিয়ায় লাগবে&rdquo;</strong> — এই কারণেই <code>market</code>, <code>country</code> আর দূরত্বের একক ডিসেম্বরে যোগ না করে প্রথম দিনেই schema-তে রাখছি।</li>
+        <li><strong>&ldquo;আগে seed, পরে dashboard&rdquo;</strong> — পরের সেকশনে বিস্তারিত।</li>
+      </ul>
+    </div>
+  </section>
 
   <section>
     <div class="sec-label">শুরুতেই: কাজটা আসলে কী <span class="en">the brief</span></div>
@@ -370,6 +412,50 @@
         <h3>geocode একবারই কেন<span class="tag">perf</span></h3>
         <p>Import-এর সময় ঠিকানা থেকে coordinate বানিয়ে সেভ করা থাকবে। পেজ লোডের সময় কিছুই geocode হবে না, তাই ম্যাপকে কারো জন্য অপেক্ষা করতে হবে না।</p>
       </div>
+    </div>
+  </section>
+
+
+  <section id="seed">
+    <div class="sec-label">আগে seed, পরে dashboard <span class="en">data workflow</span></div>
+    <div class="prose">
+      <p>২৭টা সাইট যাবে <code>prisma/seed.ts</code>-এ — যেটা এই রিপোতে আগে থেকেই চালু আছে (<code>package.json</code>-এ <code>db:seed</code> আছে, আর <code>build</code> নিজেই সেটা ডাকে)। একটা কমান্ডে নতুন ডাটাবেজ ভরে যাবে; তারপর থেকে সব পরিবর্তন dashboard থেকে, seed ফাইলে আর হাত দিতে হবে না।</p>
+    </div>
+    <pre><span class="cm">// prisma/seed-data/locations.ts &mdash; CSV থেকে একবার বানানো, তারপর commit</span>
+<span class="kw">export const</span> locationSeed = [
+  {
+    slug: 'redlands-w-colton-ave',
+    name: 'WattUp Redlands',
+    status: 'PLANNED',
+    goLiveQuarter: 'Q3 2026',
+    street: '1405 W. Colton Ave', city: 'Redlands',
+    region: 'CA', postalCode: '92374', country: 'US',
+    latitude: 34.0639, longitude: -117.2231,   <span class="cm">// import-এ geocode করে বসানো</span>
+    market: 'us-ca', timezone: 'America/Los_Angeles',
+    chargerCount: 2,
+  },
+  <span class="cm">// &hellip; আরও ২৬টা</span>
+]</pre>
+    <div class="cards">
+      <div class="card">
+        <h3>Coordinate আগেই বসানো থাকবে<span class="tag">offline</span></h3>
+        <p>Geocoding চলবে আলাদা একটা import স্ক্রিপ্টে, একবারই — ফলাফল seed ফাইলে লেখা হয়ে যাবে। তাই seed চালাতে Mapbox key বা ইন্টারনেট লাগবে না, আর প্রতিবার একই ফল আসবে — আপনার মেশিনে, CI-তে, নতুন ল্যাপটপে।</p>
+      </div>
+      <div class="card">
+        <h3>বারবার seed চালালেও সমস্যা নেই<span class="tag">idempotent</span></h3>
+        <p>প্রতিটা রো যাবে <code>slug</code> ধরে <code>upsert</code> হিসেবে, তাই দুইবার চালালে ডুপ্লিকেট হবে না। এর ফলে <code>build</code> এখনকার মতোই seed ডাকতে পারবে, কোনো বিপদ নেই।</p>
+      </div>
+      <div class="card">
+        <h3>Seed কখনো dashboard-এর এডিট মুছবে না<span class="tag">গুরুত্বপূর্ণ</span></h3>
+        <p>এই জায়গাতেই সাধারণত ভুল হয়। কোনো রো dashboard থেকে একবার এডিট হলে সেটাতে <code>managedInDashboard: true</code> বসবে, আর seed সেই রোগুলো update করবে না। নাহলে পরের deploy চুপচাপ সকালে করা স্ট্যাটাস পরিবর্তন ফিরিয়ে দেবে।</p>
+      </div>
+      <div class="card">
+        <h3>Seed-এর পর সব dashboard-এর হাতে<span class="tag">workflow</span></h3>
+        <p>নতুন সাইট যোগ, ঠিকানা এডিট, PLANNED থেকে LIVE করা, publish/unpublish — সব <code>/dashboard/locations</code> থেকে, আপনার আগের RBAC আর Cloudinary আপলোড ফ্লো কাজে লাগিয়ে। সেভ করলেই <code>locations</code> ক্যাশ ট্যাগ রিফ্রেশ হবে, মানে deploy ছাড়াই পাবলিক ম্যাপ আপডেট।</p>
+      </div>
+    </div>
+    <div class="prose">
+      <p>বুধবার import স্ক্রিপ্ট লেখার সময়েই আরেকটা জিনিস বানিয়ে ফেলা উচিত: <strong>dashboard-এ সেভ করার সময় অটো geocoding</strong>। কেউ নতুন ঠিকানা লিখলে ফরম নিজেই coordinate বের করবে আর একটা ছোট ম্যাপ preview দেখাবে মিলিয়ে নেওয়ার জন্য। এটা না রাখলে লঞ্চের পর যোগ করা প্রথম লোকেশনটার coordinate থাকবে না, আর সেটা চুপচাপ ম্যাপে দেখাবেই না — এমন বাগ তিন সপ্তাহ পর ধরা পড়ে।</p>
     </div>
   </section>
 
@@ -510,7 +596,8 @@
         <div class="when"><div class="dow">বুধবার</div><div class="date">2 SEP</div></div>
         <ul>
           <li>Prisma-তে <code>Location</code> মডেল আর migration; dashboard-এ CRUD (বিদ্যমান RBAC কাজে লাগিয়ে)।</li>
-          <li>শিট থেকে ২৭টা সাইট import; পাবলিক আর ইন্টারনাল ফিল্ড আলাদা করা; একবার geocode করে coordinate সেভ।</li>
+          <li>শিট থেকে ২৭টা সাইট import; পাবলিক আর ইন্টারনাল ফিল্ড আলাদা করা; একবার geocode করে coordinate <code>prisma/seed-data/locations.ts</code>-এ বসানো।</li>
+          <li><code>prisma/seed.ts</code>-এ লোকেশন যোগ (slug ধরে idempotent upsert); dashboard CRUD, সেভের সময় auto geocode সহ।</li>
           <li>Market registry, দূরত্ব ও ঠিকানার helper, GeoJSON endpoint।</li>
           <li><strong>আপনার কাছ থেকে লাগবে:</strong> Mapbox token, আর উপরের তিনটা সতর্কতার উত্তর।</li>
         </ul>
