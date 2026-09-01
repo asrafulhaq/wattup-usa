@@ -232,7 +232,11 @@ for (const row of rows) {
     latitude: coords[0],
     longitude: coords[1],
     market: 'us-ca',
-    status: 'PLANNED',
+    // Switchgear ordered for 2026 means the site is presented as open; everything else
+    // is coming soon. The sheet records the order date, not a commissioning date, so
+    // this reflects how the client asked the network to be presented rather than an
+    // energisation status the sheet can prove.
+    status: orderedDate ? 'LIVE' : 'PLANNED',
     goLiveYear: orderedDate ? 2026 : 2027,
     county: county.name,
     countyFips: county.fips,

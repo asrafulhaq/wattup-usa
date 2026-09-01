@@ -47,13 +47,15 @@ export function toPublicStation(record: StationRecord): PublicStation {
 }
 
 /**
- * What the status chip reads. No site is open, so the year carries the meaning: a
- * visitor should never think a 2027 site is somewhere they can charge today.
+ * What the status chip reads.
+ *
+ * Driven by status rather than by the install year. A year is a project milestone; a
+ * visitor only wants to know whether they can charge there.
  */
 export function statusLabel(station: PublicStation): string {
-  if (station.status === "LIVE") return "Open now";
+  if (station.status === "LIVE") return "Open";
   if (station.status === "UNDER_CONSTRUCTION") return "Under construction";
-  return `Coming ${station.goLiveYear}`;
+  return "Coming soon";
 }
 
 export function formatAddress(station: PublicStation): string {

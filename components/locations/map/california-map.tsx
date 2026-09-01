@@ -62,7 +62,7 @@ const CORRIDOR_WIDTH = 0.0012;
 interface Placed {
   station: PublicStation;
   point: Point;
-  /** Sites with switchgear ordered lead the design; the rest sit back. */
+  /** Open sites lead the design; the ones still coming sit back. */
   isLead: boolean;
 }
 
@@ -131,7 +131,7 @@ export function CaliforniaMap({
       stations.map((station) => ({
         station,
         point: project(station.latitude, station.longitude),
-        isLead: station.goLiveYear === 2026,
+        isLead: station.status === "LIVE",
       })),
     [stations],
   );

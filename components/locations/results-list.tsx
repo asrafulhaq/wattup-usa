@@ -85,7 +85,7 @@ export function ResultsList({
                 </span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${
-                    station.goLiveYear === 2026
+                    station.status === "LIVE"
                       ? "bg-primary/10 text-primary"
                       : "bg-amber-100 text-amber-800"
                   }`}

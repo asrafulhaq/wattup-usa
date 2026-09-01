@@ -11,7 +11,11 @@ interface FilterTrayProps {
   onReset: () => void;
 }
 
-const YEARS = [2026, 2027] as const;
+/** The year is what the filter stores; the label is what it means to a visitor. */
+const AVAILABILITY = [
+  { year: 2026, label: "Open" },
+  { year: 2027, label: "Coming soon" },
+] as const;
 const CHARGER_STEPS = [4, 6, 8] as const;
 
 /**
@@ -29,7 +33,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
     <div className="max-h-[70vh] w-[340px] overflow-y-auto rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
-          Opening
+          Availability
         </h3>
         <button
           type="button"
@@ -41,7 +45,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
       </div>
 
       <div className="mt-3 flex flex-col gap-2">
-        {YEARS.map((year) => {
+        {AVAILABILITY.map(({ year, label }) => {
           const checked = filters.years.includes(year);
           const count = countWith(stations, filters, { years: [year] });
           return (
@@ -62,7 +66,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
                   }
                   className="h-4 w-4 accent-primary"
                 />
-                Coming {year}
+                {label}
               </span>
               <span className="text-[13px] tabular-nums text-dark/40">{count}</span>
             </label>

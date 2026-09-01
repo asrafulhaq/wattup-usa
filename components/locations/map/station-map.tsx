@@ -224,7 +224,7 @@ export function StationMap({
         properties: {
           slug: station.slug,
           city: station.city,
-          lead: station.goLiveYear === 2026 ? 1 : 0,
+          lead: station.status === "LIVE" ? 1 : 0,
           label: `${station.city}\n${station.chargerCount} chargers · ${statusLabel(station)}`,
         },
         geometry: {
@@ -237,14 +237,14 @@ export function StationMap({
   );
 
   /**
-   * The dashed connector, west to east across the sites opening first.
+   * The dashed connector, west to east across the sites that are open.
    *
    * Carried over from the reference, where it traces a driving route. WattUp has no
    * route between these sites, so this is a graphic device and nothing more.
    */
   const corridor = useMemo(() => {
     const leads = orderByProximity(
-      stations.filter((station) => station.goLiveYear === 2026),
+      stations.filter((station) => station.status === "LIVE"),
       (station) => [station.longitude, station.latitude] as Coord,
     );
     const curve = smoothLine(leads.map((s) => [s.longitude, s.latitude] as Coord));
