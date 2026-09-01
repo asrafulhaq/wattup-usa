@@ -45,12 +45,14 @@ const ACTIVE_TWEEN_MS = 320;
 const ACTIVE_GLOW_OPACITY = 0.6;
 
 /** Radii the active marker moves between, in pixels. */
-const ACTIVE_GLOW_FROM = 14;
-const ACTIVE_GLOW_TO = 38;
+const ACTIVE_GLOW_FROM = 18;
+const ACTIVE_GLOW_TO = 52;
 const ACTIVE_DOT_FROM = 5.5;
 const ACTIVE_DOT_TO = 9.5;
 
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+/** Eased at both ends, so growing in and falling away are equally soft. */
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 /** How long the highlight takes to travel the line once. */
 const PULSE_DURATION_MS = 5200;
@@ -150,12 +152,15 @@ export function StationMap({
   const shellRef = useRef<HTMLDivElement>(null);
   /** Where the active marker's grow animation currently sits, 0 to 1. */
   const activeProgress = useRef(0);
+  /** The station the last tween was for, so a change of marker restarts the growth. */
+  const previousActive = useRef<string | null>(null);
   const [view, setView] = useState<MapView>(DEFAULT_MAP_VIEW);
   const option = viewOption(view);
 
-  // Hovering previews a station and selecting commits to it; both put the same marker
-  // forward, so they drive one animation rather than two competing ones.
-  const activeSlug = selectedSlug ?? hoveredSlug;
+  // Hover takes precedence over selection, so moving the pointer over any marker grows
+  // it even while another station is open. Leaving the marker hands the emphasis back to
+  // whatever is selected rather than dropping it entirely.
+  const activeSlug = hoveredSlug ?? selectedSlug;
 
   const geojson = useMemo(
     () => ({
@@ -433,13 +438,20 @@ export function StationMap({
 
     const target = activeSlug ? 1 : 0;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const from = reduced ? target : activeProgress.current;
+
+    // Moving straight from one marker to another used to leave the progress at 1, so the
+    // marker being moved to appeared already grown. Restarting from zero whenever the
+    // active station changes means it grows in the same way it would from nothing, while
+    // leaving a marker still falls away from wherever the previous tween had reached.
+    const movedToAnother = activeSlug !== null && activeSlug !== previousActive.current;
+    previousActive.current = activeSlug;
+    const from = reduced ? target : movedToAnother ? 0 : activeProgress.current;
     const started = performance.now();
     let frame = 0;
 
     const paint = (value: number) => {
       activeProgress.current = value;
-      const eased = easeOut(value);
+      const eased = easeInOut(value);
       if (!map.getLayer(ACTIVE_DOT_LAYER)) return;
       try {
         map.setPaintProperty(
@@ -470,7 +482,11 @@ export function StationMap({
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [activeSlug]);
+    // option.style is a dependency because switching basemap recreates every layer at
+    // the paint values declared in JSX, which are the start of the tween. Without this
+    // the active marker silently reverts to its small size after a view change and stays
+    // there until the selection happens to change.
+  }, [activeSlug, option.style]);
 
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
@@ -561,8 +577,10 @@ export function StationMap({
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
-      interactiveLayerIds={[DOTS_LAYER]}
-      cursor="default"
+      interactiveLayerIds={[DOTS_LAYER, ACTIVE_DOT_LAYER]}
+      // A marker is clickable, so it should say so. Everything else keeps the grab
+      // cursor the map itself provides for panning.
+      cursor={hoveredSlug ? "pointer" : undefined}
       // Disabled here so the compact control below can replace it, not to remove the
       // credit: Mapbox's terms require attribution to stay visible.
       attributionControl={false}
