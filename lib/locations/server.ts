@@ -19,3 +19,16 @@ export function getPublicStations(): PublicStation[] {
 export function getStationRecords(): StationRecord[] {
   return STATIONS;
 }
+
+/**
+ * The Mapbox public token.
+ *
+ * Stored as MAPBOX_ACCESS_TOKEN rather than NEXT_PUBLIC_MAPBOX_TOKEN, so Next does not
+ * inline it into every client bundle. It is read here and handed to the map island as a
+ * prop, which means it still reaches the browser, because Mapbox GL cannot fetch tiles
+ * without it. That is unavoidable and by design for a pk token: the protection is the
+ * URL restriction list on the token itself, not secrecy.
+ */
+export function getMapboxToken(): string | null {
+  return process.env.MAPBOX_ACCESS_TOKEN?.trim() || null;
+}

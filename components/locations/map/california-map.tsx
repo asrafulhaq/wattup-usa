@@ -123,11 +123,13 @@ export function CaliforniaMap({
     const maxY = Math.max(...ys);
     const padX = Math.max((maxX - minX) * FRAME_PADDING, 40);
     const padY = Math.max((maxY - minY) * FRAME_PADDING, 40);
+    // Rounded for the same reason the projection is: identical strings on both sides.
+    const round = (value: number) => Math.round(value * 1e3) / 1e3;
     return {
-      x: minX - padX,
-      y: minY - padY,
-      width: maxX - minX + padX * 2,
-      height: maxY - minY + padY * 2,
+      x: round(minX - padX),
+      y: round(minY - padY),
+      width: round(maxX - minX + padX * 2),
+      height: round(maxY - minY + padY * 2),
     };
   }, [placed]);
 
@@ -183,7 +185,7 @@ export function CaliforniaMap({
           <path
             key={county.fips}
             d={county.d}
-            fill={occupied.has(county.fips) ? "#D3DCE8" : "#DFE5EE"}
+            fill={occupied.has(county.fips) ? "#C2CEDE" : "#CFD9E6"}
             stroke="#F1F4F9"
             strokeWidth={2.6 / scale}
             strokeLinejoin="round"

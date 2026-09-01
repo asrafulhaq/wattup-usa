@@ -70,11 +70,11 @@ arbitrary address geocoding is needed; this section does not need it.
 4. [x] `lib/locations/distance.ts` haversine + `search.ts` local match
 5. [x] `components/locations/map/california-map.tsx` basemap + markers
 6. [x] `components/locations/station-card.tsx` selected site card
-7. [ ] `components/locations/search-bar.tsx` four segment pill
-8. [ ] `components/locations/filter-tray.tsx` popover
-9. [ ] `components/locations/use-my-location.tsx` Geolocation API
+7. [x] `components/locations/search-bar.tsx` four segment pill
+8. [x] `components/locations/filter-tray.tsx` popover
+9. [x] Geolocation API, built into the search bar rather than a separate component
 10. [~] `components/locations/results-list.tsx` panel done, `vaul` sheet on mobile still to do
-11. [~] `components/locations/station-finder.tsx` island done, URL state still to do
+11. [x] `components/locations/station-finder.tsx` island, URL state
 12. [x] Wire into `app/(frontend)/locations/page.tsx`
 13. [ ] Empty states, reduced motion, keyboard and screen reader pass
 14. [ ] Typecheck, lint, build
@@ -160,3 +160,31 @@ Hero, then the finder (which owns the `#locations` anchor), then the faded image
 its own. `ExpandingUsDrivers` is no longer rendered here, so its copy and city grid are
 not duplicated; it still serves `/for-drivers` unchanged, and now takes the `#network`
 id there to avoid two elements claiming `#locations`.
+
+## Mapbox is wired, for search only
+
+The token is in `.env` as `MAPBOX_ACCESS_TOKEN`, read server side in
+`lib/locations/server.ts` and passed to the island as a prop, so Next does not inline it
+into every client bundle. It still reaches the browser, because Mapbox cannot fetch
+without it; the protection is the URL restriction list on the token, not secrecy.
+
+**The token still has no URL restrictions.** Add them before deploy.
+
+Geocoding is used only where the local data cannot answer. `resolveSearchPoint` matches
+cities, postcodes and site names from memory and costs nothing; only when it finds
+nothing does a debounced Geocoding v6 call go out. So the common query bills no request.
+
+`next.config.ts` needed two changes for any of this to work:
+- CSP: `api.mapbox.com` and `events.mapbox.com` in `connect-src`, `api.mapbox.com` in
+  `img-src`, and `worker-src`/`child-src` allowing `blob:` for Mapbox's tile workers.
+  Without these the map renders blank with no error pointing at the cause.
+- `Permissions-Policy` was `geolocation=()`, a hard block that made "use my location"
+  impossible. Now `geolocation=(self)`. Third party frames are still denied.
+
+## Hydration bug worth remembering
+
+`Math.log` and `Math.tan` are only specified as approximately correct, so Node's V8 and
+Chrome's V8 disagreed in the final bits: the server rendered `cy="1006.3181808081831"`
+where the client computed `1006.3181808081838`, and React reported a hydration mismatch
+on every load. Projected coordinates and the frame are now rounded to three decimals,
+which is far below a pixel at this viewBox and makes both sides agree exactly.

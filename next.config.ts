@@ -10,10 +10,17 @@ const contentSecurityPolicy = [
     // log.cookieyes.com) and Cookiebot (consent.cookiebot.com, consentcdn.cookiebot.com)
     `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://cdn-cookieyes.com https://consent.cookiebot.com https://consentcdn.cookiebot.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://res.cloudinary.com https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://cdn-cookieyes.com https://consent.cookiebot.com https://imgsdk.cookiebot.com",
+    "img-src 'self' data: blob: https://res.cloudinary.com https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://cdn-cookieyes.com https://consent.cookiebot.com https://imgsdk.cookiebot.com https://api.mapbox.com",
     "media-src 'self' blob: https://res.cloudinary.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://cdn-cookieyes.com https://log.cookieyes.com https://consentcdn.cookiebot.com",
+    // Mapbox GL fetches styles, tiles, fonts and sprites from api.mapbox.com, and
+    // reports usage to events.mapbox.com. Without both the map renders blank with no
+    // console error that points at the cause.
+    "connect-src 'self' https://*.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://cdn-cookieyes.com https://log.cookieyes.com https://consentcdn.cookiebot.com https://api.mapbox.com https://events.mapbox.com",
+    // Mapbox GL builds its tile workers from blob URLs. Browsers check worker-src for
+    // that, falling back to child-src, so both are set rather than loosening script-src.
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
     "frame-src https://www.googletagmanager.com https://consentcdn.cookiebot.com",
     "frame-ancestors 'self'",
     "base-uri 'self'",
@@ -30,8 +37,11 @@ const securityHeaders = [
     { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     {
+        // geolocation is (self) rather than () because the station finder's "use my
+        // location" needs it. An empty allowlist is a hard browser block, so the
+        // feature cannot work without this. Third party frames are still denied.
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=()',
+        value: 'camera=(), microphone=(), geolocation=(self)',
     },
     { key: 'Content-Security-Policy', value: contentSecurityPolicy },
 ];

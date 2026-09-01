@@ -3,7 +3,7 @@ import { StationFinder } from "@/components/locations/station-finder";
 import { FadedImageCrossSection } from "@/components/ui/faded-image-cross-section";
 import { homeImageUrls } from "@/lib/images/home";
 import { locationsImageUrls } from "@/lib/images/locations";
-import { getPublicStations } from "@/lib/locations/server";
+import { getMapboxToken, getPublicStations } from "@/lib/locations/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -42,6 +42,7 @@ export default function LocationsPage() {
   // Read on the server so the private columns of the sheet never enter the bundle:
   // only the projection from lib/locations/public crosses into the client island.
   const stations = getPublicStations();
+  const mapboxToken = getMapboxToken();
 
   return (
     <main className="flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20">
@@ -67,7 +68,7 @@ export default function LocationsPage() {
       />
 
       {/* 2. Station finder */}
-      <StationFinder stations={stations} />
+      <StationFinder stations={stations} mapboxToken={mapboxToken} />
 
       {/* 3. The faded image band on its own: the finder above already carries the
           copy and the list, so only the image belongs here. */}
