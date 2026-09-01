@@ -107,6 +107,20 @@ const ROAD_COLOR = "#6A6F77";
 const PLACE_LABEL_COLOR = "#A7AEB8";
 
 /**
+ * Paint transitions for the markers.
+ *
+ * A Mapbox paint property jumps to its new value the moment the expression behind it
+ * changes, so hovering or selecting resized the markers in a single frame. Giving each
+ * property a transition makes the renderer interpolate instead, which is what turns the
+ * change from a snap into a movement.
+ */
+const MARKER_TRANSITION = {
+  "circle-radius-transition": { duration: 280, delay: 0 },
+  "circle-opacity-transition": { duration: 280, delay: 0 },
+  "circle-color-transition": { duration: 200, delay: 0 },
+} as const;
+
+/**
  * Layer groups for the minimal view.
  *
  * Only the noise is hidden. Landuse, landcover, parks and hillshade carry a dozen
@@ -411,28 +425,35 @@ export function StationMap({
     id: "wattup-glow",
     type: "circle",
     paint: {
+      // The reference singles out its selected point with a small core inside a broad,
+      // soft disc, so the halo carries the emphasis and the dot stays small. Radius here
+      // is roughly five times the dot it sits under.
       "circle-radius": [
         "case",
         ["==", ["get", "slug"], selectedSlug ?? ""],
-        30,
+        38,
         ["==", ["get", "slug"], hoveredSlug ?? ""],
-        24,
+        26,
         ["==", ["get", "lead"], 1],
-        16,
-        11,
+        15,
+        10,
       ],
       "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
-      "circle-blur": 1,
+      "circle-blur": 0.85,
       "circle-opacity": [
         "case",
         ["==", ["get", "slug"], selectedSlug ?? ""],
-        0.75,
+        0.85,
         ["==", ["get", "slug"], hoveredSlug ?? ""],
         0.6,
         ["==", ["get", "lead"], 1],
-        0.42,
-        0.28,
+        0.4,
+        0.26,
       ],
+      // Without these the halo snaps between sizes the instant selection changes, which
+      // is what made hovering and clicking feel abrupt. Mapbox interpolates any paint
+      // property given a matching transition.
+      ...MARKER_TRANSITION,
     },
   };
 
@@ -440,20 +461,42 @@ export function StationMap({
     id: DOTS_LAYER,
     type: "circle",
     paint: {
+      // The dot stays small even when selected: the halo above does the work, which is
+      // how the reference keeps a selected point from turning into a blob.
       "circle-radius": [
         "case",
         ["==", ["get", "slug"], selectedSlug ?? ""],
-        9,
+        7,
         ["==", ["get", "slug"], hoveredSlug ?? ""],
-        8,
+        6.5,
         ["==", ["get", "lead"], 1],
-        6,
-        5,
+        5.5,
+        4.5,
       ],
-      "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
-      "circle-stroke-width": 2.5,
-      "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
+      "circle-color": [
+        "case",
+        ["==", ["get", "slug"], selectedSlug ?? ""],
+        "#FFFFFF",
+        ["==", ["get", "lead"], 1],
+        ACCENT,
+        MUTED_DOT,
+      ],
+      "circle-stroke-width": [
+        "case",
+        ["==", ["get", "slug"], selectedSlug ?? ""],
+        3,
+        2.5,
+      ],
+      "circle-stroke-color": [
+        "case",
+        ["==", ["get", "slug"], selectedSlug ?? ""],
+        ACCENT,
+        option.detailed ? "#FFFFFF" : WATER_COLOR,
+      ],
       "circle-opacity": 1,
+      ...MARKER_TRANSITION,
+      "circle-stroke-width-transition": MARKER_TRANSITION["circle-radius-transition"],
+      "circle-stroke-color-transition": MARKER_TRANSITION["circle-radius-transition"],
     },
   };
 
