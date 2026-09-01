@@ -163,6 +163,10 @@ export function SearchBar({
 
   return (
     <div ref={containerRef} className="relative w-full">
+      {/* The tray hangs off this row, not off the outer block. The outer block also holds
+          the links beneath the bar, so anchoring to it dropped the tray a whole row lower
+          than the control that opens it. */}
+      <div className="relative">
       <div className="flex h-14 w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm transition-shadow focus-within:border-primary/40 focus-within:shadow-md">
         <input
           value={text}
@@ -247,6 +251,24 @@ export function SearchBar({
         </button>
       </div>
 
+        {/* Anchored to the filter button rather than to the bar's left edge, so the panel
+            reads as belonging to the control that opened it. */}
+        {trayOpen && (
+          <div
+            id={trayId}
+            style={{ right: trayRight }}
+            className="absolute top-full z-40 mt-2"
+          >
+            <FilterTray
+              stations={stations}
+              filters={filters}
+              onChange={onChange}
+              onReset={onReset}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 px-2">
         <button
           type="button"
@@ -257,7 +279,7 @@ export function SearchBar({
           <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 fill-current">
             <path d="M10 1.6a5.7 5.7 0 0 0-5.7 5.7c0 4.1 5.05 10.4 5.27 10.67a.56.56 0 0 0 .86 0c.22-.27 5.27-6.57 5.27-10.67A5.7 5.7 0 0 0 10 1.6Zm0 8.2a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
           </svg>
-          {locate === "locating" ? "Finding you…" : "Use My Location »"}
+          {locate === "locating" ? "Finding you\u2026" : "Use My Location \u00bb"}
         </button>
         {locate === "denied" && (
           <span className="text-[13px] text-dark/55">
@@ -282,23 +304,6 @@ export function SearchBar({
           </button>
         )}
       </div>
-
-      {/* Anchored to the filter button rather than to the bar, so the panel reads as
-          belonging to the control that opened it. */}
-      {trayOpen && (
-        <div
-          id={trayId}
-          style={{ right: trayRight }}
-          className="absolute top-full z-40 mt-2"
-        >
-          <FilterTray
-            stations={stations}
-            filters={filters}
-            onChange={onChange}
-            onReset={onReset}
-          />
-        </div>
-      )}
     </div>
   );
 }

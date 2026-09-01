@@ -14,7 +14,14 @@ import {
 import type { PublicStation } from "@/lib/locations/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useMemo,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 
 interface StationFinderProps {
   stations: PublicStation[];
@@ -55,10 +62,26 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   const router = useRouter();
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
-  const filters = useMemo(
+  const urlFilters = useMemo(
     () => parseFilters(new URLSearchParams(params.toString())),
     [params],
   );
+
+  /**
+   * Filters render from an optimistic copy, not straight from the URL.
+   *
+   * The URL is the source of truth, but writing to it goes through the router, and a chip
+   * that waits for that round-trip before it looks pressed feels broken however fast the
+   * filtering itself is. The patch is applied here immediately and the router catches up;
+   * when it does, this snaps back to whatever the URL actually says, so a failed or
+   * superseded navigation cannot leave the controls lying.
+   */
+  const [filters, applyOptimistic] = useOptimistic(
+    urlFilters,
+    (state: StationFilters, patch: Partial<StationFilters>) => ({ ...state, ...patch }),
+  );
+  const [, startTransition] = useTransition();
+
   const selectedSlug = params.get("sel");
 
   const write = useCallback(
@@ -73,32 +96,35 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
 
   const onFiltersChange = useCallback(
     (patch: Partial<StationFilters>) =>
-      write((next) => {
-        const set = (key: string, value: string | null) =>
-          value ? next.set(key, value) : next.delete(key);
+      startTransition(() => {
+        applyOptimistic(patch);
+        write((next) => {
+          const set = (key: string, value: string | null) =>
+            value ? next.set(key, value) : next.delete(key);
 
-        if ("query" in patch) set("q", patch.query ?? null);
-        if ("radius" in patch) set("radius", patch.radius ? String(patch.radius) : null);
-        if ("minChargers" in patch)
-          set("min", patch.minChargers ? String(patch.minChargers) : null);
-        if ("years" in patch)
-          set("years", patch.years?.length ? patch.years.join(",") : null);
-        if ("near" in patch) {
-          if (patch.near) {
-            next.set(
-              "near",
-              `${patch.near.latitude.toFixed(5)},${patch.near.longitude.toFixed(5)}`,
-            );
-            next.set("label", patch.near.label);
-          } else {
-            next.delete("near");
-            next.delete("label");
+          if ("query" in patch) set("q", patch.query ?? null);
+          if ("radius" in patch) set("radius", patch.radius ? String(patch.radius) : null);
+          if ("minChargers" in patch)
+            set("min", patch.minChargers ? String(patch.minChargers) : null);
+          if ("years" in patch)
+            set("years", patch.years?.length ? patch.years.join(",") : null);
+          if ("near" in patch) {
+            if (patch.near) {
+              next.set(
+                "near",
+                `${patch.near.latitude.toFixed(5)},${patch.near.longitude.toFixed(5)}`,
+              );
+              next.set("label", patch.near.label);
+            } else {
+              next.delete("near");
+              next.delete("label");
+            }
           }
-        }
-        // A new search should not keep a selection that may now be filtered out.
-        if ("near" in patch || "query" in patch) next.delete("sel");
+          // A new search should not keep a selection that may now be filtered out.
+          if ("near" in patch || "query" in patch) next.delete("sel");
+        });
       }),
-    [write],
+    [write, applyOptimistic],
   );
 
   const onSelect = useCallback(
@@ -108,8 +134,12 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   );
 
   const onReset = useCallback(
-    () => write((next) => [...next.keys()].forEach((key) => next.delete(key))),
-    [write],
+    () =>
+      startTransition(() => {
+        applyOptimistic({ years: [], minChargers: 0, radius: null, query: "", near: null });
+        write((next) => [...next.keys()].forEach((key) => next.delete(key)));
+      }),
+    [write, applyOptimistic],
   );
 
   const ranked = useMemo(() => applyFilters(stations, filters), [stations, filters]);
