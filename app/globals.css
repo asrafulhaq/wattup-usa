@@ -388,3 +388,54 @@ body {
         }
     }
 }
+
+/*
+ * Panels that drop out of the search bar: the typeahead and the filter tray.
+ *
+ * CSS rather than a JS animation library, for the same reason the station card is: a
+ * keyframe runs whether or not anything else has finished initialising, so a panel can
+ * never be left stranded at its opening frame, invisible but still holding the controls
+ * inside it.
+ */
+@keyframes wattup-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes wattup-pop-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.98) translateY(-4px);
+    }
+}
+
+.wattup-pop-enter {
+    animation: wattup-pop-in 170ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: top center;
+}
+
+.wattup-pop-exit {
+    animation: wattup-pop-out 130ms cubic-bezier(0.4, 0, 1, 1) both;
+    transform-origin: top center;
+}
+
+/*
+ * Shortened rather than switched off. These panels unmount on animationend, and an
+ * animation of none never fires it, which would leave a closed panel on screen forever.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .wattup-pop-enter,
+    .wattup-pop-exit {
+        animation-duration: 1ms;
+    }
+}

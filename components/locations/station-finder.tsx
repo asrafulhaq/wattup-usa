@@ -147,6 +147,28 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
     [write],
   );
 
+  /**
+   * Searches near a station and selects it in the same write.
+   *
+   * Two separate updates would fight: setting a search point clears the selection, on
+   * the reasoning that a new search should not keep a station that may now be filtered
+   * out. That is right when someone types a place and wrong when they pick a station by
+   * name, so this writes both at once.
+   */
+  const onPickStation = useCallback(
+    (station: PublicStation) =>
+      write((next) => {
+        next.set(
+          "near",
+          `${station.latitude.toFixed(5)},${station.longitude.toFixed(5)}`,
+        );
+        next.set("label", `${station.city}, ${station.region}`);
+        next.set("sel", station.slug);
+        next.delete("q");
+      }),
+    [write],
+  );
+
   const onReset = useCallback(
     () =>
       startTransition(() => {
@@ -245,6 +267,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             filters={filters}
             mapboxToken={mapboxToken}
             onChange={onFiltersChange}
+            onPick={onPickStation}
             onReset={onReset}
           />
         </FadeUp>

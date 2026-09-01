@@ -28,6 +28,8 @@ interface SearchBarProps {
   filters: StationFilters;
   mapboxToken: string | null;
   onChange: (next: Partial<StationFilters>) => void;
+  /** Search near this station and select it, in one step. */
+  onPick: (station: PublicStation) => void;
   onReset: () => void;
 }
 
@@ -40,6 +42,30 @@ const DEFAULT_NEARBY_RADIUS = 50;
 const SUGGESTION_LIMIT = 10;
 
 /**
+ * Keeps a panel mounted for the length of its exit animation.
+ *
+ * Unmounting the moment it closes cuts the animation off at its first frame, so the
+ * panel would simply disappear however carefully the keyframes were written.
+ *
+ * The open state is adjusted during render rather than in an effect, and the close waits
+ * on the animation itself rather than on a timer that has to be kept in step with the
+ * stylesheet. Under reduced motion the keyframes run for a millisecond instead of being
+ * switched off, so this still fires and the panel still unmounts.
+ */
+function usePanel(open: boolean) {
+  const [visible, setVisible] = useState(open);
+  if (open && !visible) setVisible(true);
+
+  return {
+    mounted: open || visible,
+    className: open ? "wattup-pop-enter" : "wattup-pop-exit",
+    onAnimationEnd: () => {
+      if (!open) setVisible(false);
+    },
+  };
+}
+
+/**
  * The four segment bar from the reference: address or postcode, distance, filters,
  * submit, with "use my location" beneath.
  */
@@ -48,6 +74,7 @@ export function SearchBar({
   filters,
   mapboxToken,
   onChange,
+  onPick,
   onReset,
 }: SearchBarProps) {
   const [text, setText] = useState(filters.near?.label ?? filters.query);
@@ -160,14 +187,10 @@ export function SearchBar({
   const applyStation = (station: PublicStation) => {
     setText(station.city);
     setOpen(false);
-    onChange({
-      near: {
-        latitude: station.latitude,
-        longitude: station.longitude,
-        label: `${station.city}, ${station.region}`,
-      },
-      query: "",
-    });
+    // Picking a station from the list is choosing it, not just searching near it. It
+    // becomes the selected station too, so the map centres on it and its card opens
+    // rather than the visitor having to find and click the marker they just named.
+    onPick(station);
   };
 
   const applyPlace = (point: SearchPoint) => {
@@ -178,7 +201,7 @@ export function SearchBar({
 
   const submit = () => {
     setOpen(false);
-    if (stationMatches.length > 0 && !local) {
+    if (stationMatches.length > 0 && debounced.length >= 2 && !local) {
       applyStation(stationMatches[0]);
       return;
     }
@@ -226,6 +249,10 @@ export function SearchBar({
   };
 
   const filterCount = activeFilterCount(filters);
+  const suggestionsOpen =
+    open && (stationMatches.length > 0 || places.length > 0);
+  const suggestionPanel = usePanel(suggestionsOpen);
+  const trayPanel = usePanel(trayOpen);
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -326,11 +353,12 @@ export function SearchBar({
         {/* Typeahead. Stations we hold come first and cost nothing to match; places from
             the geocoder only appear when nothing local fits, which keeps the common
             query off the network entirely. */}
-        {open && (stationMatches.length > 0 || places.length > 0) && (
+        {suggestionPanel.mounted && (
           <ul
             role="listbox"
             aria-label="Search suggestions"
-            className="absolute left-0 top-full z-50 mt-2 max-h-[380px] w-full max-w-[520px] overflow-y-auto rounded-xl border border-black/10 bg-white py-1.5 shadow-2xl shadow-black/10"
+            className={`absolute left-0 top-full z-50 mt-2 max-h-[380px] w-full max-w-[520px] overflow-y-auto rounded-xl border border-black/10 bg-white py-1.5 shadow-2xl shadow-black/10 ${suggestionPanel.className}`}
+            onAnimationEnd={suggestionPanel.onAnimationEnd}
           >
             {debounced.length < 2 && stationMatches.length > 0 && (
               <li
@@ -417,11 +445,12 @@ export function SearchBar({
 
         {/* Anchored to the filter button rather than to the bar's left edge, so the panel
             reads as belonging to the control that opened it. */}
-        {trayOpen && (
+        {trayPanel.mounted && (
           <div
             id={trayId}
             style={{ right: trayRight }}
-            className="absolute top-full z-40 mt-2"
+            className={`absolute top-full z-40 mt-2 ${trayPanel.className}`}
+            onAnimationEnd={trayPanel.onAnimationEnd}
           >
             <FilterTray
               stations={stations}
@@ -433,17 +462,20 @@ export function SearchBar({
         )}
       </div>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 px-2">
+      <div className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 px-0.5">
         <button
           type="button"
           onClick={useMyLocation}
           disabled={locate === "locating"}
-          className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-primary transition-opacity hover:opacity-70 disabled:opacity-50"
+          // Matched to the Clear control beside it: same size, shape, padding and
+          // hover. One was a blue link and the other underlined grey text, so two
+          // controls doing the same kind of job looked unrelated.
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13.5px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-50"
         >
           <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 fill-current">
             <path d="M10 1.6a5.7 5.7 0 0 0-5.7 5.7c0 4.1 5.05 10.4 5.27 10.67a.56.56 0 0 0 .86 0c.22-.27 5.27-6.57 5.27-10.67A5.7 5.7 0 0 0 10 1.6Zm0 8.2a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
           </svg>
-          {locate === "locating" ? "Finding you\u2026" : "Use My Location \u00bb"}
+          {locate === "locating" ? "Finding you\u2026" : "Use my location"}
         </button>
         {locate === "denied" && (
           <span className="text-[13px] text-dark/55">
@@ -462,9 +494,20 @@ export function SearchBar({
               setText("");
               onChange({ near: null, query: "" });
             }}
-            className="text-[13px] text-dark/55 underline underline-offset-2 hover:text-dark"
+            // Matched to the control beside it: same size, same shape, same hover.
+            // One was a blue link with an icon and the other underlined grey text, so
+            // two controls doing the same kind of job looked unrelated.
+            className="inline-flex max-w-[280px] cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13.5px] font-medium text-dark/55 transition-colors hover:bg-black/[0.06] hover:text-dark"
           >
-            Clear &ldquo;{filters.near.label}&rdquo;
+            <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5 shrink-0">
+              <path
+                d="M2.5 2.5l11 11M13.5 2.5l-11 11"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="truncate">Clear {filters.near.label}</span>
           </button>
         )}
       </div>
