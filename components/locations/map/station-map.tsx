@@ -48,7 +48,7 @@ const ACTIVE_GLOW_OPACITY = 0.6;
 const ACTIVE_GLOW_FROM = 14;
 const ACTIVE_GLOW_TO = 38;
 const ACTIVE_DOT_FROM = 5.5;
-const ACTIVE_DOT_TO = 8;
+const ACTIVE_DOT_TO = 9.5;
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -649,11 +649,13 @@ export function StationMap({
           type="circle"
           filter={["==", ["get", "slug"], activeSlug ?? "\u0000"]}
           paint={{
-            // Solid accent with no stroke. A stroke here drew a ring in the ground
-            // colour around the dot, which read as a dark hole rather than a marker.
+            // Identical to the base markers, only larger. Giving the active one its own
+            // treatment, whether an inverted fill or a missing stroke, made it read as a
+            // different kind of thing rather than as the same marker singled out.
             "circle-color": ACCENT,
             "circle-radius": ACTIVE_DOT_FROM,
-            "circle-stroke-width": 0,
+            "circle-stroke-width": 2.5,
+            "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
             "circle-opacity": 1,
           }}
         />
