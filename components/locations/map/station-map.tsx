@@ -14,6 +14,7 @@ import type { PublicStation } from "@/lib/locations/types";
 import type { LngLatBoundsLike } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Map, {
+  AttributionControl,
   Layer,
   Source,
   type LayerProps,
@@ -512,6 +513,8 @@ export function StationMap({
       onMouseLeave={() => onHover(null)}
       interactiveLayerIds={[DOTS_LAYER]}
       cursor="default"
+      // Disabled here so the compact control below can replace it, not to remove the
+      // credit: Mapbox's terms require attribution to stay visible.
       attributionControl={false}
       reuseMaps
     >
@@ -527,6 +530,11 @@ export function StationMap({
 
       {/* lineMetrics computes each vertex's distance along the line, which is what
           line-gradient reads. Without it the animated pulse below silently does nothing. */}
+      {/* Mapbox's terms require the credit to stay visible. Compact renders it as a
+          small "i" that expands on click, which keeps it out of the way without
+          removing it. */}
+      <AttributionControl compact position="bottom-right" />
+
       <Source id="wattup-corridor" type="geojson" data={corridor} lineMetrics>
         {/* Two passes make the glow: a wide, heavily blurred stroke underneath, then a
             crisp thin one on top. A single blurred line reads as smudged rather than lit,

@@ -11,6 +11,7 @@ import {
   type StationFilters,
 } from "@/lib/locations/filters";
 import type { PublicStation } from "@/lib/locations/types";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useMemo, useState } from "react";
 
@@ -199,13 +200,34 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             </div>
           )}
 
-          {selected && (
-            <div className="pointer-events-none absolute bottom-5 left-5 z-10 md:bottom-7 md:left-7">
-              <div className="pointer-events-auto">
-                <StationCard station={selected} onClose={() => onSelect(null)} />
-              </div>
-            </div>
-          )}
+          {/* AnimatePresence is what makes the close animate at all: without it the card
+              unmounts the instant selection clears and there is nothing left to animate.
+              The card scales up from the map rather than sliding, so it reads as the
+              station opening out rather than a panel arriving from off screen. */}
+          <AnimatePresence>
+            {selected && (
+              <motion.div
+                key={selected.slug}
+                initial={{ opacity: 0, scale: 0.82, y: 14 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 8 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 380,
+                  damping: 30,
+                  mass: 0.7,
+                }}
+                style={{ originX: 0, originY: 1 }}
+                // Clear of the Mapbox wordmark in the corner: the card must not cover
+                // the credit, and overlapping it looked untidy besides.
+                className="pointer-events-none absolute bottom-11 left-5 z-10 md:bottom-12 md:left-7"
+              >
+                <div className="pointer-events-auto">
+                  <StationCard station={selected} onClose={() => onSelect(null)} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>
