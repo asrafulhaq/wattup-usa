@@ -7,6 +7,13 @@ import {
   RADIUS_OPTIONS,
   type StationFilters,
 } from "@/lib/locations/filters";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { resolveSearchPoint, type SearchPoint } from "@/lib/locations/search";
 import type { PublicStation } from "@/lib/locations/types";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -46,6 +53,9 @@ export function SearchBar({
   const [locate, setLocate] = useState<LocateState>("idle");
   const trayId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
+  const filterButtonRef = useRef<HTMLButtonElement>(null);
+  /** Distance from the bar's right edge to the filter button's, so the tray lines up. */
+  const [trayRight, setTrayRight] = useState(0);
 
   // Local matching answers the common queries and is a pure function of what we already
   // hold, so it is derived during render rather than pushed through an effect.
@@ -83,6 +93,14 @@ export function SearchBar({
 
   useEffect(() => {
     if (!trayOpen) return;
+    const container = containerRef.current;
+    const button = filterButtonRef.current;
+    if (container && button) {
+      setTrayRight(
+        container.getBoundingClientRect().right - button.getBoundingClientRect().right,
+      );
+    }
+
     const onPointerDown = (event: PointerEvent) => {
       if (!containerRef.current?.contains(event.target as Node)) setTrayOpen(false);
     };
@@ -161,47 +179,44 @@ export function SearchBar({
         />
 
         {/* Each control fills the bar's full height, so the dividers run edge to edge and
-            there is no dead strip between segments. */}
-        <label className="relative flex shrink-0 items-center border-l border-black/10 transition-colors hover:bg-black/[0.02]">
-          <span className="sr-only">Distance</span>
-          <select
-            value={filters.radius ?? ""}
-            onChange={(event) =>
-              onChange({ radius: event.target.value ? Number(event.target.value) : null })
+            there is no dead strip between segments. The trigger is stripped back to a
+            plain segment: it lives inside the bar rather than being a control on top of
+            it, so it carries no border, radius or shadow of its own. */}
+        <div className="flex shrink-0 items-stretch border-l border-black/10">
+          <Select
+            value={filters.radius ? String(filters.radius) : "any"}
+            onValueChange={(value) =>
+              onChange({ radius: value === "any" ? null : Number(value) })
             }
-            className="h-full cursor-pointer appearance-none bg-transparent pl-5 pr-10 text-[15px] text-dark outline-none"
           >
-            <option value="">Distance</option>
-            {RADIUS_OPTIONS.map((miles) => (
-              <option key={miles} value={miles}>
-                {miles} mi
-              </option>
-            ))}
-          </select>
-          <svg
-            viewBox="0 0 12 8"
-            aria-hidden="true"
-            className="pointer-events-none absolute right-4 h-2 w-3 text-dark/45"
-          >
-            <path
-              d="M1 1.5 6 6.5l5-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </label>
+            <SelectTrigger
+              aria-label="Distance"
+              className="h-full w-[152px] rounded-none border-0 bg-transparent px-5 text-[15px] text-dark shadow-none transition-colors hover:bg-black/[0.02] focus-visible:ring-0 data-[size=default]:h-full"
+            >
+              <SelectValue placeholder="Distance" />
+            </SelectTrigger>
+            <SelectContent align="end" className="min-w-[152px]">
+              <SelectItem value="any">Any distance</SelectItem>
+              {RADIUS_OPTIONS.map((miles) => (
+                <SelectItem key={miles} value={String(miles)}>
+                  Within {miles} mi
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <button
+          ref={filterButtonRef}
           type="button"
           onClick={() => setTrayOpen((open) => !open)}
           aria-expanded={trayOpen}
           aria-controls={trayId}
           aria-label={`Filters${filterCount ? `, ${filterCount} active` : ""}`}
-          className={`relative flex shrink-0 items-center border-l border-black/10 px-5 transition-colors ${
-            trayOpen ? "bg-primary/5 text-primary" : "text-dark/70 hover:bg-black/[0.02] hover:text-dark"
+          className={`relative flex shrink-0 items-center gap-2 border-l border-black/10 px-6 text-[15px] transition-colors ${
+            trayOpen
+              ? "bg-primary/5 text-primary"
+              : "text-dark/70 hover:bg-black/[0.02] hover:text-dark"
           }`}
         >
           <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
@@ -215,8 +230,9 @@ export function SearchBar({
             <circle cx="13" cy="10" r="1.6" fill="currentColor" />
             <circle cx="10" cy="14.5" r="1.6" fill="currentColor" />
           </svg>
+          <span className="hidden md:inline">Filters</span>
           {filterCount > 0 && (
-            <span className="absolute right-2.5 top-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+            <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-white">
               {filterCount}
             </span>
           )}
@@ -236,8 +252,11 @@ export function SearchBar({
           type="button"
           onClick={useMyLocation}
           disabled={locate === "locating"}
-          className="text-[13.5px] font-medium text-primary transition-opacity hover:opacity-70 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-primary transition-opacity hover:opacity-70 disabled:opacity-50"
         >
+          <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 fill-current">
+            <path d="M10 1.6a5.7 5.7 0 0 0-5.7 5.7c0 4.1 5.05 10.4 5.27 10.67a.56.56 0 0 0 .86 0c.22-.27 5.27-6.57 5.27-10.67A5.7 5.7 0 0 0 10 1.6Zm0 8.2a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
+          </svg>
           {locate === "locating" ? "Finding you…" : "Use My Location »"}
         </button>
         {locate === "denied" && (
@@ -264,8 +283,14 @@ export function SearchBar({
         )}
       </div>
 
+      {/* Anchored to the filter button rather than to the bar, so the panel reads as
+          belonging to the control that opened it. */}
       {trayOpen && (
-        <div id={trayId} className="absolute left-0 top-full z-40 mt-2">
+        <div
+          id={trayId}
+          style={{ right: trayRight }}
+          className="absolute top-full z-40 mt-2"
+        >
           <FilterTray
             stations={stations}
             filters={filters}
