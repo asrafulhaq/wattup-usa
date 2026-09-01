@@ -262,8 +262,8 @@ export function CaliforniaMap({
           <path
             key={county.fips}
             d={county.d}
-            fill={occupied.has(county.fips) ? "#C2CEDE" : "#E6EBF2"}
-            stroke="#F7F9FC"
+            fill={occupied.has(county.fips) ? "#CDD7E4" : "#E2E8F1"}
+            stroke="#E4EAF2"
             strokeWidth={(STROKE_LAND * unit) / scale}
             strokeLinejoin="round"
           />
@@ -273,7 +273,8 @@ export function CaliforniaMap({
           <path
             d={corridor}
             fill="none"
-            stroke="#AFBBCB"
+            stroke="var(--color-primary)"
+            strokeOpacity={0.55}
             strokeWidth={(CORRIDOR_WIDTH * unit) / scale}
             strokeDasharray={`${(0.005 * unit) / scale} ${(0.005 * unit) / scale}`}
             strokeLinecap="round"
@@ -321,7 +322,7 @@ export function CaliforniaMap({
                 cx={point.x}
                 cy={point.y}
                 r={r}
-                fill={isLead || active ? "var(--color-primary)" : "#98A5B7"}
+                fill={isLead || active ? "var(--color-primary)" : "#93A2B6"}
               />
               {showLabel && (
                 <text

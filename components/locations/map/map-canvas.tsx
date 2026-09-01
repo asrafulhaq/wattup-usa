@@ -36,8 +36,24 @@ interface MapCanvasProps {
  * rate limited token from leaving a blank rectangle on the page.
  */
 export function MapCanvas({ mapboxToken, className, ...rest }: MapCanvasProps) {
-  if (!mapboxToken) {
-    return <CaliforniaMap {...rest} className={className} />;
-  }
-  return <StationMap {...rest} mapboxToken={mapboxToken} className={className} />;
+  return (
+    <div className={`relative ${className ?? ""}`}>
+      {mapboxToken ? (
+        <StationMap {...rest} mapboxToken={mapboxToken} className="h-full w-full" />
+      ) : (
+        <CaliforniaMap {...rest} className="h-full w-full" />
+      )}
+
+      {/*
+        The reference lights its field from the top left and falls away to the bottom
+        right, about 40 luminance points across the frame. Flat colour reads noticeably
+        more clinical than the reference, and a map canvas cannot carry a gradient of its
+        own, so it goes over the top. It must not intercept clicks meant for the map.
+      */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_12%_8%,rgba(255,255,255,0.55)_0%,rgba(255,255,255,0)_45%,rgba(37,52,74,0.07)_100%)]"
+      />
+    </div>
+  );
 }

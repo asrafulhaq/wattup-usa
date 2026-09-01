@@ -38,8 +38,28 @@ const LABELS_LAYER = "wattup-labels";
 const HIDDEN_LAYER_PATTERN =
   /road|bridge|tunnel|poi|transit|aeroway|building|ferry|path|golf|pitch/i;
 
-const LAND_COLOR = "#E4EAF2";
+/** Boundary lines are restyled rather than hidden, so counties stay distinguishable. */
+const BOUNDARY_LAYER_PATTERN = /admin|boundary/i;
+
+/**
+ * Palette, translated from the reference rather than picked by eye.
+ *
+ * Measured off `_.jpeg`: the field sits around luminance 64 and the land shapes around
+ * 90, so land reads about 27 points away from its ground. Every grey there is cool, with
+ * blue running roughly 11 above red. Light mode inverts which side is darker but keeps
+ * both the separation and the hue, so the relationship survives the change of ground.
+ *
+ * The reference draws no outline on its shapes at all; separation is tonal. The boundary
+ * lines here are therefore barely above the land, present only so counties do not fuse
+ * into one silhouette.
+ */
+const LAND_COLOR = "#CDD7E4";
 const WATER_COLOR = "#F2F5FA";
+const BOUNDARY_COLOR = "#E4EAF2";
+const ACCENT = "#197dff";
+const MUTED_DOT = "#93A2B6";
+const LABEL_LEAD = "#26313F";
+const LABEL_MUTED = "#7C8899";
 
 export function StationMap({
   stations,
@@ -72,6 +92,34 @@ export function StationMap({
     }),
     [stations],
   );
+
+  /**
+   * The dashed connector, west to east across the sites opening first.
+   *
+   * Carried over from the reference, where it traces a driving route. WattUp has no
+   * route between these sites, so this is a graphic device and nothing more.
+   */
+  const corridor = useMemo(() => {
+    const leads = stations
+      .filter((station) => station.goLiveYear === 2026)
+      .sort((a, b) => a.longitude - b.longitude);
+    return {
+      type: "FeatureCollection" as const,
+      features:
+        leads.length < 2
+          ? []
+          : [
+              {
+                type: "Feature" as const,
+                properties: {},
+                geometry: {
+                  type: "LineString" as const,
+                  coordinates: leads.map((s) => [s.longitude, s.latitude]),
+                },
+              },
+            ],
+    };
+  }, [stations]);
 
   const bounds = useMemo<LngLatBoundsLike>(() => {
     const lons = stations.map((s) => s.longitude);
@@ -106,21 +154,24 @@ export function StationMap({
         // A style can rename layers between versions; a missing one is not fatal.
       }
     }
-    for (const [id, color] of [
-      ["land", LAND_COLOR],
-      ["background", LAND_COLOR],
-      ["water", WATER_COLOR],
-    ] as const) {
+    for (const layer of map.getStyle()?.layers ?? []) {
+      if (layer.id.startsWith("wattup-")) continue;
       try {
-        map.setPaintProperty(id, id === "water" ? "fill-color" : "background-color", color);
+        if (layer.id === "background" || layer.id === "land") {
+          map.setPaintProperty(layer.id, "background-color", LAND_COLOR);
+        } else if (/water|ocean/i.test(layer.id) && layer.type === "fill") {
+          map.setPaintProperty(layer.id, "fill-color", WATER_COLOR);
+        } else if (BOUNDARY_LAYER_PATTERN.test(layer.id) && layer.type === "line") {
+          map.setLayoutProperty(layer.id, "visibility", "visible");
+          map.setPaintProperty(layer.id, "line-color", BOUNDARY_COLOR);
+          map.setPaintProperty(layer.id, "line-width", 1.2);
+          map.setPaintProperty(layer.id, "line-opacity", 1);
+          map.setPaintProperty(layer.id, "line-dasharray", [1, 0]);
+        }
       } catch {
-        // ignore: not every style exposes these ids
+        // A style can rename or restructure layers between versions; skipping one that
+        // does not take a given property is not fatal.
       }
-    }
-    try {
-      map.setPaintProperty("land", "background-color", LAND_COLOR);
-    } catch {
-      // ignore
     }
   }, [bounds]);
 
@@ -169,12 +220,7 @@ export function StationMap({
         6,
         5,
       ],
-      "circle-color": [
-        "case",
-        ["==", ["get", "lead"], 1],
-        "#197dff",
-        "#94a3b8",
-      ],
+      "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
       "circle-stroke-width": 2,
       "circle-stroke-color": "#ffffff",
       "circle-opacity": 1,
@@ -196,7 +242,7 @@ export function StationMap({
       "text-padding": 4,
     },
     paint: {
-      "text-color": ["case", ["==", ["get", "lead"], 1], "#26313f", "#7c8899"],
+      "text-color": ["case", ["==", ["get", "lead"], 1], LABEL_LEAD, LABEL_MUTED],
       "text-halo-color": "#ffffff",
       "text-halo-width": 1.4,
     },
@@ -219,6 +265,19 @@ export function StationMap({
       attributionControl={false}
       reuseMaps
     >
+      <Source id="wattup-corridor" type="geojson" data={corridor}>
+        <Layer
+          id="wattup-corridor-line"
+          type="line"
+          paint={{
+            "line-color": ACCENT,
+            "line-width": 1.6,
+            "line-opacity": 0.55,
+            "line-dasharray": [2, 2.5],
+          }}
+        />
+      </Source>
+
       <Source id="wattup-stations" type="geojson" data={geojson}>
         <Layer {...dots} />
         <Layer {...labels} />
