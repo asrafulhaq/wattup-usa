@@ -25,7 +25,7 @@ const CHARGER_STEPS = [4, 6, 8] as const;
  */
 export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayProps) {
   return (
-    <div className="w-[320px] rounded-xl border border-black/10 bg-white p-5 shadow-xl shadow-black/5">
+    <div className="w-[320px] rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
       <div className="flex items-center justify-between">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
           Opening

@@ -139,7 +139,10 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
           </p>
         </FadeUp>
 
-        <FadeUp delay={0.15} className="mt-8 md:mt-10">
+        {/* Above the strip: the filter tray drops out of the bar and would otherwise be
+            painted over, since the strip is a later sibling with its own stacking
+            context and z-index alone cannot reach across that. */}
+        <FadeUp delay={0.15} className="relative z-30 mt-8 md:mt-10">
           <SearchBar
             stations={stations}
             filters={filters}
@@ -149,7 +152,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
           />
         </FadeUp>
 
-        <FadeUp delay={0.2} className="mt-10 md:mt-14">
+        <FadeUp delay={0.2} className="relative z-10 mt-10 md:mt-14">
           <p className="mb-5 text-[13px] font-medium text-dark/45">
             {ranked.length} of {stations.length} locations
             {filters.near ? ` near ${filters.near.label}` : ""}

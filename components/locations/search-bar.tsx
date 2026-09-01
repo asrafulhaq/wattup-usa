@@ -129,7 +129,7 @@ export function SearchBar({
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <div className="flex w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm">
+      <div className="flex h-14 w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm transition-shadow focus-within:border-primary/40 focus-within:shadow-md">
         <input
           value={text}
           onChange={(event) => setText(event.target.value)}
@@ -141,17 +141,19 @@ export function SearchBar({
           }}
           placeholder="Address / Zip"
           aria-label="Search by address or postcode"
-          className="min-w-0 flex-1 bg-transparent px-5 py-3.5 text-[15px] text-dark outline-none placeholder:text-dark/40"
+          className="min-w-0 flex-1 bg-transparent px-6 text-[15px] text-dark outline-none placeholder:text-dark/40"
         />
 
-        <label className="flex shrink-0 items-center border-l border-black/10 px-3">
+        {/* Each control fills the bar's full height, so the dividers run edge to edge and
+            there is no dead strip between segments. */}
+        <label className="relative flex shrink-0 items-center border-l border-black/10 transition-colors hover:bg-black/[0.02]">
           <span className="sr-only">Distance</span>
           <select
             value={filters.radius ?? ""}
             onChange={(event) =>
               onChange({ radius: event.target.value ? Number(event.target.value) : null })
             }
-            className="cursor-pointer bg-transparent py-3.5 pr-1 text-[15px] text-dark outline-none"
+            className="h-full cursor-pointer appearance-none bg-transparent pl-5 pr-10 text-[15px] text-dark outline-none"
           >
             <option value="">Distance</option>
             {RADIUS_OPTIONS.map((miles) => (
@@ -160,6 +162,20 @@ export function SearchBar({
               </option>
             ))}
           </select>
+          <svg
+            viewBox="0 0 12 8"
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 h-2 w-3 text-dark/45"
+          >
+            <path
+              d="M1 1.5 6 6.5l5-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </label>
 
         <button
@@ -168,7 +184,9 @@ export function SearchBar({
           aria-expanded={trayOpen}
           aria-controls={trayId}
           aria-label={`Filters${filterCount ? `, ${filterCount} active` : ""}`}
-          className="relative flex shrink-0 items-center border-l border-black/10 px-4 text-dark/70 transition-colors hover:text-dark"
+          className={`relative flex shrink-0 items-center border-l border-black/10 px-5 transition-colors ${
+            trayOpen ? "bg-primary/5 text-primary" : "text-dark/70 hover:bg-black/[0.02] hover:text-dark"
+          }`}
         >
           <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
             <path
@@ -182,7 +200,7 @@ export function SearchBar({
             <circle cx="10" cy="14.5" r="1.6" fill="currentColor" />
           </svg>
           {filterCount > 0 && (
-            <span className="absolute right-1.5 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+            <span className="absolute right-2.5 top-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
               {filterCount}
             </span>
           )}
@@ -191,7 +209,7 @@ export function SearchBar({
         <button
           type="button"
           onClick={submit}
-          className="shrink-0 bg-primary px-7 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover"
+          className="shrink-0 bg-primary px-8 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover"
         >
           Go
         </button>
@@ -231,7 +249,7 @@ export function SearchBar({
       </div>
 
       {trayOpen && (
-        <div id={trayId} className="absolute left-0 top-full z-30 mt-2">
+        <div id={trayId} className="absolute left-0 top-full z-40 mt-2">
           <FilterTray
             stations={stations}
             filters={filters}
