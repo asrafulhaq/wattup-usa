@@ -71,3 +71,46 @@ export function matchesQuery(station: PublicStation, query: string): boolean {
     `${station.name} ${station.street} ${station.city} ${station.region} ${station.postalCode}`,
   ).includes(q);
 }
+
+export interface StationMatch {
+  station: PublicStation;
+  /** Lower sorts first. */
+  rank: number;
+}
+
+/**
+ * Stations matching typed text, best first.
+ *
+ * Ranked so an exact city beats a prefix and a prefix beats a match buried in the middle
+ * of a street name. Without that, typing "Ontario" put a street in another town above
+ * the town itself.
+ */
+export function matchStations(
+  query: string,
+  stations: PublicStation[],
+  limit = 6,
+): PublicStation[] {
+  const q = normalise(query);
+  if (q.length < 2) return [];
+
+  const matches: StationMatch[] = [];
+  for (const station of stations) {
+    const city = normalise(station.city);
+    const name = normalise(station.name);
+    const street = normalise(station.street);
+
+    let rank = Infinity;
+    if (city === q || station.postalCode === q) rank = 0;
+    else if (city.startsWith(q)) rank = 1;
+    else if (name.includes(q)) rank = 2;
+    else if (street.includes(q)) rank = 3;
+    else if (normalise(station.county).startsWith(q)) rank = 4;
+
+    if (rank !== Infinity) matches.push({ station, rank });
+  }
+
+  return matches
+    .sort((a, b) => a.rank - b.rank || a.station.city.localeCompare(b.station.city))
+    .slice(0, limit)
+    .map((match) => match.station);
+}

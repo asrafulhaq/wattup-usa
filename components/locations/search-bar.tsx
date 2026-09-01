@@ -2,6 +2,7 @@
 
 import { FilterTray } from "@/components/locations/filter-tray";
 import { geocode, reverseGeocode } from "@/lib/locations/geocode";
+import { statusLabel } from "@/lib/locations/public";
 import {
   activeFilterCount,
   RADIUS_OPTIONS,
@@ -14,7 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { resolveSearchPoint, type SearchPoint } from "@/lib/locations/search";
+import {
+  matchStations,
+  resolveSearchPoint,
+  type SearchPoint,
+} from "@/lib/locations/search";
 import type { PublicStation } from "@/lib/locations/types";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -50,6 +55,7 @@ export function SearchBar({
     points: [],
   });
   const [trayOpen, setTrayOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [locate, setLocate] = useState<LocateState>("idle");
   const trayId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,17 +63,31 @@ export function SearchBar({
   /** Distance from the bar's right edge to the filter button's, so the tray lines up. */
   const [trayRight, setTrayRight] = useState(0);
 
+  /**
+   * The text the dropdown reads, held one step behind the input.
+   *
+   * The field itself stays immediate, so typing never feels laggy; only the suggestions
+   * wait. Without this the list reflowed on every keystroke, which is both distracting
+   * and a wasted match over 27 stations per character.
+   */
+  const [debounced, setDebounced] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(text.trim()), 180);
+    return () => window.clearTimeout(timer);
+  }, [text]);
+
   // Local matching answers the common queries and is a pure function of what we already
   // hold, so it is derived during render rather than pushed through an effect.
   const local = useMemo(
-    () => (text.trim().length >= 3 ? resolveSearchPoint(text, stations) : null),
-    [text, stations],
+    () => (debounced.length >= 3 ? resolveSearchPoint(debounced, stations) : null),
+    [debounced, stations],
   );
 
   // Only when local finds nothing do we spend a geocoding call, debounced so that
   // typing does not bill one request per keystroke.
   useEffect(() => {
-    const query = text.trim();
+    const query = debounced;
     if (query.length < 3 || local || !mapboxToken) return;
 
     const controller = new AbortController();
@@ -83,16 +103,21 @@ export function SearchBar({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [text, local, mapboxToken]);
+  }, [debounced, local, mapboxToken]);
 
-  const suggestions = local
-    ? [local]
-    : remote.query === text.trim()
-      ? remote.points
-      : [];
+  /** Stations matching what has been typed, for the dropdown. */
+  const stationMatches = useMemo(
+    () => matchStations(debounced, stations),
+    [debounced, stations],
+  );
+
+  /** Places, only consulted when nothing we hold matches. */
+  const places = remote.query === debounced ? remote.points : [];
+
+  const suggestions = local ? [local] : places;
 
   useEffect(() => {
-    if (!trayOpen) return;
+    if (!trayOpen && !open) return;
     const container = containerRef.current;
     const button = filterButtonRef.current;
     if (container && button) {
@@ -102,10 +127,15 @@ export function SearchBar({
     }
 
     const onPointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) setTrayOpen(false);
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setTrayOpen(false);
+        setOpen(false);
+      }
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setTrayOpen(false);
+      if (event.key !== "Escape") return;
+      setTrayOpen(false);
+      setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKey);
@@ -113,9 +143,33 @@ export function SearchBar({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [trayOpen]);
+  }, [trayOpen, open]);
+
+  const applyStation = (station: PublicStation) => {
+    setText(station.city);
+    setOpen(false);
+    onChange({
+      near: {
+        latitude: station.latitude,
+        longitude: station.longitude,
+        label: `${station.city}, ${station.region}`,
+      },
+      query: "",
+    });
+  };
+
+  const applyPlace = (point: SearchPoint) => {
+    setText(point.label);
+    setOpen(false);
+    onChange({ near: point, query: "" });
+  };
 
   const submit = () => {
+    setOpen(false);
+    if (stationMatches.length > 0 && !local) {
+      applyStation(stationMatches[0]);
+      return;
+    }
     const point = suggestions[0] ?? resolveSearchPoint(text, stations);
     onChange(point ? { near: point, query: "" } : { near: null, query: text });
   };
@@ -170,12 +224,18 @@ export function SearchBar({
       <div className="flex h-14 w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm transition-shadow focus-within:border-primary/40 focus-within:shadow-md">
         <input
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => {
+            setText(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          autoComplete="off"
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               event.preventDefault();
               submit();
             }
+            if (event.key === "Escape") setOpen(false);
           }}
           placeholder="Address / Zip"
           aria-label="Search by address or postcode"
@@ -250,6 +310,69 @@ export function SearchBar({
           Go
         </button>
       </div>
+
+        {/* Typeahead. Stations we hold come first and cost nothing to match; places from
+            the geocoder only appear when nothing local fits, which keeps the common
+            query off the network entirely. */}
+        {open && debounced.length >= 2 && (stationMatches.length > 0 || places.length > 0) && (
+          <ul
+            role="listbox"
+            aria-label="Search suggestions"
+            className="absolute left-0 top-full z-50 mt-2 w-full max-w-[520px] overflow-hidden rounded-xl border border-black/10 bg-white py-1.5 shadow-2xl shadow-black/10"
+          >
+            {stationMatches.map((match) => (
+              <li key={match.slug}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  onClick={() => applyStation(match)}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.04]"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <svg viewBox="0 0 20 20" className="h-4 w-4 fill-current" aria-hidden="true">
+                      <path d="M10 1.6a5.7 5.7 0 0 0-5.7 5.7c0 4.1 5.05 10.4 5.27 10.67a.56.56 0 0 0 .86 0c.22-.27 5.27-6.57 5.27-10.67A5.7 5.7 0 0 0 10 1.6Zm0 8.2a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
+                    </svg>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[15px] font-semibold text-dark">
+                      {match.city}
+                    </span>
+                    <span className="block truncate text-[13px] text-dark/55">
+                      {match.street} &middot; {statusLabel(match)}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+
+            {places.length > 0 && stationMatches.length > 0 && (
+              <li aria-hidden="true" className="my-1.5 border-t border-black/10" />
+            )}
+
+            {places.map((place) => (
+              <li key={`${place.latitude},${place.longitude},${place.label}`}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  onClick={() => applyPlace(place)}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.04]"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/5 text-dark/50">
+                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
+                      <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8" />
+                      <path d="M13.5 13.5 17 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <span className="min-w-0 truncate text-[15px] text-dark">
+                    {place.label}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Anchored to the filter button rather than to the bar's left edge, so the panel
             reads as belonging to the control that opened it. */}
