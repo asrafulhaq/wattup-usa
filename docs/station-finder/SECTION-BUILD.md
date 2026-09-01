@@ -68,14 +68,14 @@ arbitrary address geocoding is needed; this section does not need it.
 2. [x] `scripts/build-ca-geometry.mjs` + generated `lib/locations/ca-geometry.ts`
 3. [x] `lib/locations/types.ts`, `data.ts` (27 public records), `projection.ts`
 4. [x] `lib/locations/distance.ts` haversine + `search.ts` local match
-5. [ ] `components/locations/map/california-map.tsx` basemap + markers
-6. [ ] `components/locations/station-card.tsx` selected site card
+5. [x] `components/locations/map/california-map.tsx` basemap + markers
+6. [x] `components/locations/station-card.tsx` selected site card
 7. [ ] `components/locations/search-bar.tsx` four segment pill
 8. [ ] `components/locations/filter-tray.tsx` popover
 9. [ ] `components/locations/use-my-location.tsx` Geolocation API
-10. [ ] `components/locations/results-list.tsx` panel, `vaul` sheet on mobile
-11. [ ] `components/locations/station-finder.tsx` island, URL state
-12. [ ] Wire into `app/(frontend)/locations/page.tsx`
+10. [~] `components/locations/results-list.tsx` panel done, `vaul` sheet on mobile still to do
+11. [~] `components/locations/station-finder.tsx` island done, URL state still to do
+12. [x] Wire into `app/(frontend)/locations/page.tsx`
 13. [ ] Empty states, reduced motion, keyboard and screen reader pass
 14. [ ] Typecheck, lint, build
 
@@ -131,3 +131,32 @@ the data being bundled, because a module that throws has already shipped. The re
 guarantee is that no `"use client"` module imports it. The `server-only` package turns
 that into a build time error and is one dependency away; not installed, since adding a
 dependency is not my call.
+
+## Matching the reference
+
+Values measured from `_.jpeg` rather than eyeballed. The accent there is `#FF5B3F`;
+ours is WattUp blue, and the structure is what carries over:
+
+| Reference | Here |
+|---|---|
+| Separated land shapes on an open field | County paths stroked in the panel ground colour, so they read as discrete blobs |
+| Two dot tiers, accent and muted | 2026 sites (switchgear ordered) lead in blue; 2027 sites sit back in grey |
+| Bold label under accent dots, quiet label under the rest | Same, with greedy collision avoidance |
+| Dashed route line through the accent points | Corridor line west to east across the lead sites |
+| Soft radial glow on the selected point | `radialGradient`, accent at 42% fading to 0 |
+| Flat accent card, small radius, mark on the right | Same, 6px radius, no drop shadow |
+
+**The corridor line is the one honest deviation.** In the reference it traces a driving
+route. WattUp has no route between these sites, so it is a graphic device only. If it
+ever reads as a road it should come out.
+
+**Labels cannot all be shown.** Twenty five of the 27 sites sit inside greater Los
+Angeles and San Diego. Every label would collide, so leads are offered a label first and
+anything that would overlap is dropped. That is also what gives the reference its calm.
+
+## Page order on /locations
+
+Hero, then the finder (which owns the `#locations` anchor), then the faded image band on
+its own. `ExpandingUsDrivers` is no longer rendered here, so its copy and city grid are
+not duplicated; it still serves `/for-drivers` unchanged, and now takes the `#network`
+id there to avoid two elements claiming `#locations`.

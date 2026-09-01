@@ -1,4 +1,3 @@
-import { STATIONS } from "./data";
 import type { GoLiveYear, PublicStation, StationRecord } from "./types";
 
 /**
@@ -7,6 +6,10 @@ import type { GoLiveYear, PublicStation, StationRecord } from "./types";
  * Everything from the sheet is kept in ./data. This module is the only route from that
  * record to the browser, so widening or narrowing what visitors see is one edit here
  * rather than an audit of every component.
+ *
+ * Nothing here imports ./data. That module is server only, and these helpers are needed
+ * inside client components, so pulling it in would drag private data across the
+ * boundary and fail the build. Reading the records lives in ./server.
  *
  * Deliberately excluded, pending a decision:
  *   company               owner's legal entity
@@ -35,23 +38,24 @@ export function toPublicStation(record: StationRecord): PublicStation {
     market: record.market,
     status: record.status,
     goLiveYear: record.goLiveYear,
+    county: record.county,
+    countyFips: record.countyFips,
     chargerCount: record.chargerCount,
   };
 }
 
-/** Every signed site, both install years, in the shape the browser may see. */
-export function getPublicStations(): PublicStation[] {
-  return STATIONS.map(toPublicStation);
-}
-
 /**
- * What the status chip reads. No site is live, so the year carries the meaning: a
+ * What the status chip reads. No site is open, so the year carries the meaning: a
  * visitor should never think a 2027 site is somewhere they can charge today.
  */
 export function statusLabel(station: PublicStation): string {
   if (station.status === "LIVE") return "Open now";
   if (station.status === "UNDER_CONSTRUCTION") return "Under construction";
   return `Coming ${station.goLiveYear}`;
+}
+
+export function formatAddress(station: PublicStation): string {
+  return `${station.street}, ${station.city}, ${station.region} ${station.postalCode}`;
 }
 
 export function stationsByYear(

@@ -27,7 +27,8 @@ const records = JSON.parse(src.slice(src.indexOf('= [') + 2, src.lastIndexOf(']'
 // mirrors lib/locations/public.ts
 const PUBLIC_KEYS = [
   'slug', 'name', 'street', 'city', 'region', 'postalCode', 'country',
-  'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'chargerCount',
+  'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'county', 'countyFips',
+  'chargerCount',
 ];
 const toPublic = (r) => Object.fromEntries(PUBLIC_KEYS.map((k) => [k, r[k]]));
 

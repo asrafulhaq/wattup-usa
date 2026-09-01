@@ -32,6 +32,9 @@ export interface StationRecord {
   market: string;
   status: StationStatus;
   goLiveYear: GoLiveYear;
+  /** County the site falls in, resolved against the basemap at generation time. */
+  county: string;
+  countyFips: string;
 
   // straight from the sheet
   signedNumber: number | null;
@@ -72,6 +75,8 @@ export type PublicStation = Pick<
   | "market"
   | "status"
   | "goLiveYear"
+  | "county"
+  | "countyFips"
   | "chargerCount"
 >;
 

@@ -53,7 +53,12 @@ function ExpandingUsDriversInner({
     isLocationsPage && showAll ? cities : cities.slice(0, 8);
 
   return (
-    <div id="locations" className="pt-[40px] md:pt-[82px]">
+    // On the locations page the finder above owns the #locations anchor, so this
+    // section takes its own id rather than duplicating one.
+    <div
+      id={isLocationsPage ? "network" : "locations"}
+      className="pt-[40px] md:pt-[82px]"
+    >
       <FadedImageCrossSection
         imageSrc={homeImageUrls.locationMarqueBg}
         imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
