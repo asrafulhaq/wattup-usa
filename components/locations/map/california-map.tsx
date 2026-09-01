@@ -241,9 +241,9 @@ export function CaliforniaMap({
     >
       <defs>
         <radialGradient id="wattup-marker-glow">
-          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.42" />
-          <stop offset="55%" stopColor="var(--color-primary)" stopOpacity="0.14" />
-          <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+          <stop offset="0%" stopColor="#3B8CFF" stopOpacity="0.45" />
+          <stop offset="55%" stopColor="#3B8CFF" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#3B8CFF" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -262,8 +262,8 @@ export function CaliforniaMap({
           <path
             key={county.fips}
             d={county.d}
-            fill={occupied.has(county.fips) ? "#9FB2CB" : "#C3D0E0"}
-            stroke="#B4C4D9"
+            fill={occupied.has(county.fips) ? "#53585E" : "#464B52"}
+            stroke="#3A3F45"
             strokeWidth={(STROKE_LAND * unit) / scale}
             strokeLinejoin="round"
           />
@@ -273,7 +273,7 @@ export function CaliforniaMap({
           <path
             d={corridor}
             fill="none"
-            stroke="var(--color-primary)"
+            stroke="#3B8CFF"
             strokeOpacity={0.55}
             strokeWidth={(CORRIDOR_WIDTH * unit) / scale}
             strokeDasharray={`${(0.005 * unit) / scale} ${(0.005 * unit) / scale}`}
@@ -322,7 +322,7 @@ export function CaliforniaMap({
                 cx={point.x}
                 cy={point.y}
                 r={r}
-                fill={isLead || active ? "var(--color-primary)" : "#93A2B6"}
+                fill={isLead || active ? "#3B8CFF" : "#8B919A"}
               />
               {showLabel && (
                 <text
@@ -331,7 +331,7 @@ export function CaliforniaMap({
                   textAnchor="middle"
                   fontSize={(LABEL_SIZE * unit) / scale}
                   fontWeight={isLead || active ? 700 : 500}
-                  fill={active ? "#0B1420" : isLead ? "#1B2634" : "#5C6A7C"}
+                  fill={active ? "#FFFFFF" : isLead ? "#FFFFFF" : "#9AA1AA"}
                   className="pointer-events-none select-none"
                 >
                   {station.city}

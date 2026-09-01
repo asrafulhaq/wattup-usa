@@ -13,7 +13,7 @@ const StationMap = dynamic(
   () => import("@/components/locations/map/station-map").then((m) => m.StationMap),
   {
     ssr: false,
-    loading: () => <div className="h-full w-full animate-pulse bg-[#E8EDF4]" />,
+    loading: () => <div className="h-full w-full animate-pulse bg-[#33383E]" />,
   },
 );
 
@@ -37,7 +37,7 @@ interface MapCanvasProps {
  */
 export function MapCanvas({ mapboxToken, className, ...rest }: MapCanvasProps) {
   return (
-    <div className={`relative ${className ?? ""}`}>
+    <div className={`relative bg-[#3A3F45] ${className ?? ""}`}>
       {mapboxToken ? (
         <StationMap {...rest} mapboxToken={mapboxToken} className="h-full w-full" />
       ) : (
@@ -52,7 +52,7 @@ export function MapCanvas({ mapboxToken, className, ...rest }: MapCanvasProps) {
       */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_12%_8%,rgba(255,255,255,0.55)_0%,rgba(255,255,255,0)_45%,rgba(37,52,74,0.07)_100%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(125%_125%_at_12%_8%,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0)_42%,rgba(0,0,0,0.28)_100%)]"
       />
     </div>
   );
