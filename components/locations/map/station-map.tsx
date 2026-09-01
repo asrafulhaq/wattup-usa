@@ -9,7 +9,7 @@ import {
   type MapView,
 } from "@/lib/locations/map-views";
 import { statusLabel } from "@/lib/locations/public";
-import { smoothLine, type Coord } from "@/lib/locations/smooth-line";
+import { orderByProximity, smoothLine, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
 import type { LngLatBoundsLike } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -33,6 +33,48 @@ interface StationMapProps {
 
 const DOTS_LAYER = "wattup-dots";
 const LABELS_LAYER = "wattup-labels";
+const PULSE_LAYER = "wattup-corridor-pulse";
+
+/** How long the highlight takes to travel the line once. */
+const PULSE_DURATION_MS = 5200;
+
+/** Half width of the highlight, as a fraction of the line. */
+const PULSE_HALF_WIDTH = 0.07;
+
+/**
+ * A gradient with one bright band at `head`, transparent elsewhere.
+ *
+ * `line-gradient` stops must be strictly increasing and inside 0..1, so the band is
+ * clamped at both ends rather than allowed to wrap; it fades out at the finish and back
+ * in at the start, which reads as continuous travel without a seam.
+ */
+function pulseGradient(head: number) {
+  const clamp = (value: number) => Math.min(1, Math.max(0, value));
+  const start = clamp(head - PULSE_HALF_WIDTH);
+  const end = clamp(head + PULSE_HALF_WIDTH);
+  const stops: [number, string][] = [
+    [0, "rgba(59,140,255,0)"],
+    [start, "rgba(59,140,255,0)"],
+    [clamp(head), "rgba(160,205,255,0.9)"],
+    [end, "rgba(59,140,255,0)"],
+    [1, "rgba(59,140,255,0)"],
+  ];
+
+  // Collapse any stops that clamping pushed onto the same position, since a repeated
+  // input makes the whole expression invalid.
+  const unique: [number, string][] = [];
+  for (const [at, color] of stops) {
+    if (unique.length > 0 && at <= unique[unique.length - 1][0]) continue;
+    unique.push([at, color]);
+  }
+
+  return [
+    "interpolate",
+    ["linear"],
+    ["line-progress"],
+    ...unique.flat(),
+  ] as unknown as never;
+}
 
 /**
  * Basemap layers to hide.
@@ -116,9 +158,10 @@ export function StationMap({
    * route between these sites, so this is a graphic device and nothing more.
    */
   const corridor = useMemo(() => {
-    const leads = stations
-      .filter((station) => station.goLiveYear === 2026)
-      .sort((a, b) => a.longitude - b.longitude);
+    const leads = orderByProximity(
+      stations.filter((station) => station.goLiveYear === 2026),
+      (station) => [station.longitude, station.latitude] as Coord,
+    );
     const curve = smoothLine(leads.map((s) => [s.longitude, s.latitude] as Coord));
     return {
       type: "FeatureCollection" as const,
@@ -135,68 +178,92 @@ export function StationMap({
     };
   }, [stations]);
 
+  /**
+   * The opening view.
+   *
+   * Fitting all 27 sites is fitting a tall, narrow box, because Roseville and Lodi sit
+   * roughly 300 miles north of the other 25. Fitted into a wide container that box is
+   * constrained by its height, and the map ends up showing Nevada and Arizona to fill
+   * the width. Trimming the outermost sites gives the cluster where 25 of them actually
+   * are; the two northern ones are still on the map, still in the strip, and selecting
+   * either flies to it.
+   */
   const bounds = useMemo<LngLatBoundsLike>(() => {
-    const lons = stations.map((s) => s.longitude);
-    const lats = stations.map((s) => s.latitude);
+    const trim = (values: number[]) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      const at = (fraction: number) =>
+        sorted[Math.min(sorted.length - 1, Math.max(0, Math.round((sorted.length - 1) * fraction)))];
+      return [at(0.08), at(0.92)] as const;
+    };
+    const [west, east] = trim(stations.map((s) => s.longitude));
+    const [south, north] = trim(stations.map((s) => s.latitude));
     return [
-      [Math.min(...lons), Math.min(...lats)],
-      [Math.max(...lons), Math.max(...lats)],
+      [west, south],
+      [east, north],
     ];
   }, [stations]);
 
   /**
-   * Applies the view.
+   * Strips the basemap for the minimal view.
    *
-   * Runs on every style load, not just the first: switching basemap replaces the whole
-   * style, so anything done here has to be redone. In the detailed views the basemap is
-   * left exactly as Mapbox ships it, which is the point of them: roads, route shields,
-   * place names and boundaries all present.
+   * Detailed views are left exactly as Mapbox ships them, which is the point of them.
    */
   const applyStyle = useCallback(() => {
     const map = mapRef.current?.getMap();
-    if (!map) return;
-    if (option.detailed) return;
+    if (!map || option.detailed) return;
 
     for (const layer of map.getStyle()?.layers ?? []) {
       // Our own layers are symbol layers too, and hiding them here is what made the
-      // station labels disappear. Skip anything we added.
-      if (layer.id.startsWith("wattup-")) continue;
-      // Every other symbol layer goes: those are the basemap's own labels, and ours
-      // replace them. Line and fill layers only go if they are infrastructure.
-      const drop = layer.type === "symbol" || HIDDEN_LAYER_PATTERN.test(layer.id);
-      if (!drop) continue;
-      try {
-        map.setLayoutProperty(layer.id, "visibility", "none");
-      } catch {
-        // A style can rename layers between versions; a missing one is not fatal.
-      }
-    }
-    for (const layer of map.getStyle()?.layers ?? []) {
+      // station labels disappear the first time. Skip anything we added.
       if (layer.id.startsWith("wattup-")) continue;
       try {
-        if (layer.id === "background" || layer.id === "land") {
+        if (layer.type === "symbol" || HIDDEN_LAYER_PATTERN.test(layer.id)) {
+          map.setLayoutProperty(layer.id, "visibility", "none");
+        } else if (layer.id === "background" || layer.id === "land") {
           map.setPaintProperty(layer.id, "background-color", LAND_COLOR);
         } else if (/water|ocean/i.test(layer.id) && layer.type === "fill") {
           map.setPaintProperty(layer.id, "fill-color", WATER_COLOR);
         } else if (BOUNDARY_LAYER_PATTERN.test(layer.id) && layer.type === "line") {
-          map.setLayoutProperty(layer.id, "visibility", "visible");
           map.setPaintProperty(layer.id, "line-color", BOUNDARY_COLOR);
           map.setPaintProperty(layer.id, "line-width", 1.2);
           map.setPaintProperty(layer.id, "line-opacity", 1);
-          map.setPaintProperty(layer.id, "line-dasharray", [1, 0]);
         }
       } catch {
-        // A style can rename or restructure layers between versions; skipping one that
-        // does not take a given property is not fatal.
+        // A style can rename or restructure layers between versions; a layer that does
+        // not take a given property is not fatal.
       }
     }
   }, [option.detailed]);
 
+  /**
+   * Reapplies the strip every time a basemap finishes loading.
+   *
+   * Switching view changes the style prop, but Mapbox swaps the style asynchronously
+   * afterwards. Acting on the prop change alone stripped the style that was on its way
+   * out and then the incoming one replaced everything, which is why the minimal view
+   * kept showing the basemap labels it was supposed to hide. `style.load` fires once the
+   * new style is actually in place, which is the only safe moment to touch its layers.
+   */
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    map.on("style.load", applyStyle);
+    // Covers the first mount, where the style can finish loading before this runs.
+    if (map.isStyleLoaded()) applyStyle();
+
+    return () => {
+      map.off("style.load", applyStyle);
+    };
+  }, [applyStyle]);
+
   const onLoad = useCallback(() => {
-    // Fit explicitly rather than relying on initialViewState.bounds: the map is mounted
-    // before its container has been laid out, so the initial fit is computed against the
-    // wrong size and lands zoomed far too far out.
-    mapRef.current?.getMap().fitBounds(bounds, { padding: 64, duration: 0 });
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    // resize first: the map can mount before its container has been laid out, and a fit
+    // computed against the wrong size lands at the wrong zoom.
+    map.resize();
+    map.fitBounds(bounds, { padding: 56, duration: 0 });
     applyStyle();
   }, [bounds, applyStyle]);
 
@@ -225,6 +292,41 @@ export function StationMap({
     const slug = feature?.properties?.slug;
     return typeof slug === "string" ? slug : null;
   };
+
+  /**
+   * Drives the travelling highlight.
+   *
+   * The gradient is rewritten on a frame loop rather than animated by the style, because
+   * Mapbox has no transition for `line-gradient`. It is capped at about 30fps: the
+   * highlight is meant to be barely noticed, and repainting a line layer 60 times a
+   * second costs battery for movement nobody is watching. It does not run at all when
+   * the visitor has asked for reduced motion, or while the tab is in the background.
+   */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let frame = 0;
+    let lastPaint = 0;
+    const started = performance.now();
+
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      if (document.hidden || now - lastPaint < 33) return;
+      lastPaint = now;
+
+      const map = mapRef.current?.getMap();
+      if (!map?.getLayer(PULSE_LAYER)) return;
+      const head = ((now - started) % PULSE_DURATION_MS) / PULSE_DURATION_MS;
+      try {
+        map.setPaintProperty(PULSE_LAYER, "line-gradient", pulseGradient(head));
+      } catch {
+        // The layer goes away for a moment while a new basemap style loads.
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
@@ -339,7 +441,6 @@ export function StationMap({
       mapStyle={option.style}
       style={{ width: "100%", height: "100%" }}
       onLoad={onLoad}
-      onStyleData={applyStyle}
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
@@ -358,7 +459,9 @@ export function StationMap({
         />
       )}
 
-      <Source id="wattup-corridor" type="geojson" data={corridor}>
+      {/* lineMetrics computes each vertex's distance along the line, which is what
+          line-gradient reads. Without it the animated pulse below silently does nothing. */}
+      <Source id="wattup-corridor" type="geojson" data={corridor} lineMetrics>
         {/* Two passes make the glow: a wide, heavily blurred stroke underneath, then a
             crisp thin one on top. A single blurred line reads as smudged rather than lit,
             because there is no bright core for the halo to come off. */}
@@ -381,6 +484,18 @@ export function StationMap({
             "line-color": ACCENT,
             "line-width": 2.2,
             "line-opacity": 0.95,
+          }}
+        />
+        {/* The travelling highlight. Its gradient is rewritten each frame by the effect
+            below; the stops here are only the starting position. */}
+        <Layer
+          id={PULSE_LAYER}
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{
+            "line-width": 5,
+            "line-blur": 4,
+            "line-gradient": pulseGradient(0),
           }}
         />
       </Source>

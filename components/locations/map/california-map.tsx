@@ -2,7 +2,7 @@
 
 import { CA_COUNTIES } from "@/lib/locations/ca-geometry";
 import { project, type Point } from "@/lib/locations/projection";
-import { smoothPath, type Coord } from "@/lib/locations/smooth-line";
+import { orderByProximity, smoothPath, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
 import { useMemo, useState } from "react";
 
@@ -195,7 +195,10 @@ export function CaliforniaMap({
    * out if it ever reads as one.
    */
   const corridor = useMemo(() => {
-    const leads = placed.filter((p) => p.isLead).sort((a, b) => a.point.x - b.point.x);
+    const leads = orderByProximity(
+      placed.filter((p) => p.isLead),
+      ({ point }) => [point.x, point.y] as Coord,
+    );
     if (leads.length < 2) return null;
     // A spline rather than straight segments, so the line leaves each site in a curve
     // instead of hinging at it.
