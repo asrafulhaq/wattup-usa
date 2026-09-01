@@ -450,7 +450,8 @@ export function StationMap({
       try {
         map.setPaintProperty(PULSE_LAYER, "line-gradient", pulseGradient(head));
       } catch {
-        // The layer goes away for a moment while a new basemap style loads.
+        // The layer can disappear between the check above and this call while a new
+        // basemap style is loading.
       }
     };
 
@@ -547,35 +548,51 @@ export function StationMap({
 
   // Hover only scales the dot. Selection is what adds the halo, so the two states read
   // differently rather than the second being a louder version of the first.
-  const applyHover = useCallback(
-    (eased: number) => {
-      mapRef.current
-        ?.getMap()
-        ?.setPaintProperty(
-          HOVER_DOT_LAYER,
-          "circle-radius",
-          ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
-        );
+  /**
+   * Sets a paint property only once its layer exists.
+   *
+   * Layers are added by react-map-gl as children, which happens after the map itself is
+   * ready. Returning to this page remounted the map and ran the effects below before the
+   * layers were back, and Mapbox throws on an unknown layer rather than ignoring it. The
+   * same gap opens for a moment whenever the basemap style is swapped.
+   */
+  const paintIfPresent = useCallback(
+    (layer: string, property: "circle-radius" | "circle-opacity", value: number) => {
+      const map = mapRef.current?.getMap();
+      if (!map?.getLayer(layer)) return;
+      map.setPaintProperty(layer, property, value);
     },
     [],
   );
 
-  const applySelection = useCallback((eased: number) => {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    map.setPaintProperty(
-      ACTIVE_DOT_LAYER,
-      "circle-radius",
-      ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
-    );
-    // Clamped again at the point of use: opacity is the one property here with a range
-    // Mapbox enforces, so it is worth guarding even though the easing already clamps.
-    map.setPaintProperty(
-      ACTIVE_GLOW_LAYER,
-      "circle-opacity",
-      clamp01(ACTIVE_GLOW_OPACITY * eased),
-    );
-  }, []);
+  const applyHover = useCallback(
+    (eased: number) => {
+      paintIfPresent(
+        HOVER_DOT_LAYER,
+        "circle-radius",
+        ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
+      );
+    },
+    [paintIfPresent],
+  );
+
+  const applySelection = useCallback(
+    (eased: number) => {
+      paintIfPresent(
+        ACTIVE_DOT_LAYER,
+        "circle-radius",
+        ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
+      );
+      // Clamped again at the point of use: opacity is the one property here with a range
+      // Mapbox enforces, so it is worth guarding even though the easing already clamps.
+      paintIfPresent(
+        ACTIVE_GLOW_LAYER,
+        "circle-opacity",
+        clamp01(ACTIVE_GLOW_OPACITY * eased),
+      );
+    },
+    [paintIfPresent],
+  );
 
   useMarkerTween(hoveredSlug, hoverProgress, previousHover, applyHover);
   useMarkerTween(selectedSlug, selectProgress, previousSelected, applySelection);

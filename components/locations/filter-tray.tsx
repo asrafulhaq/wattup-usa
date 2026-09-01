@@ -30,11 +30,9 @@ const CHARGER_STEPS = [4, 6, 8] as const;
  */
 export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayProps) {
   return (
-    <div className="max-h-[70vh] w-[340px] overflow-y-auto rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
+    <div className="max-h-[70vh] w-[400px] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
-          Availability
-        </h3>
+        <h3 className="text-[14px] font-bold text-dark">Availability</h3>
         <button
           type="button"
           onClick={onReset}
@@ -74,9 +72,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
         })}
       </div>
 
-      <h3 className="mt-5 text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
-        Minimum chargers
-      </h3>
+      <h3 className="mt-6 text-[14px] font-bold text-dark">Minimum chargers</h3>
       <div className="mt-3 flex flex-wrap gap-2">
         <FilterChip
           label="Any"
@@ -95,9 +91,8 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
         ))}
       </div>
 
-      <h3 className="mt-5 text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
-        Amenities (must have)
-      </h3>
+      <h3 className="mt-6 text-[14px] font-bold text-dark">Amenities</h3>
+      <p className="mt-0.5 text-[13px] text-dark/45">A site must have all you pick.</p>
       {/* Every amenity stays selectable even at a count of zero.
           Disabling on zero looked reasonable and was wrong here: no site has been
           surveyed yet, so every count is zero and the whole section arrived dead, with
@@ -112,7 +107,10 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
               key={amenity.id}
               className="flex cursor-pointer items-center justify-between gap-2 text-[14px] text-dark"
             >
-              <span className="flex min-w-0 items-center gap-2">
+              {/* No truncation. The longest labels, Vending Machine and Step-free
+                  Access, were being cut to an ellipsis in a 340px panel. The panel is
+                  wider and the labels are allowed their full width. */}
+              <span className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={checked}
@@ -129,7 +127,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
                   aria-hidden="true"
                   className={`h-4 w-4 shrink-0 ${checked ? "text-primary" : "text-dark/45"}`}
                 />
-                <span className="truncate">{amenity.label}</span>
+                <span className="whitespace-nowrap">{amenity.label}</span>
               </span>
               <span className="shrink-0 text-[13px] tabular-nums text-dark/35">
                 {count}
