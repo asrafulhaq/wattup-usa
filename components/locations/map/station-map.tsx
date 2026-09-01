@@ -38,6 +38,17 @@ const PULSE_LAYER = "wattup-corridor-pulse";
 const ACTIVE_GLOW_LAYER = "wattup-active-glow";
 const ACTIVE_DOT_LAYER = "wattup-active-dot";
 const HOVER_DOT_LAYER = "wattup-hover-dot";
+const HIT_LAYER = "wattup-hit";
+
+/**
+ * Radius of the invisible target around each marker, in pixels.
+ *
+ * Mapbox hit-tests the circle it actually drew, so a 5.5px dot gives a 5.5px target and
+ * the pointer had to be dead centre before anything responded. This layer is fully
+ * transparent and never seen; it exists only to be the thing queried, which is what
+ * gives the marker a comfortable reach without making it look bigger.
+ */
+const HIT_RADIUS = 20;
 
 /** How long the active marker takes to grow in or fall away. */
 const ACTIVE_TWEEN_MS = 320;
@@ -63,7 +74,7 @@ const ACTIVE_GLOW_OPACITY = 0.6;
  * halo swelling is a much larger visual event than the dot scaling, and it reads as a
  * pulse. It is simply larger now, and only the dot moves.
  */
-const ACTIVE_GLOW_RADIUS = 34;
+const ACTIVE_GLOW_RADIUS = 48;
 
 /** Radii the active dot scales between, in pixels. */
 const ACTIVE_DOT_FROM = 5.5;
@@ -614,7 +625,9 @@ export function StationMap({
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
-      interactiveLayerIds={[DOTS_LAYER, HOVER_DOT_LAYER, ACTIVE_DOT_LAYER]}
+      // Only the transparent target is queried. Hit-testing the visible dots as well
+      // would just shrink the reach back to whichever the pointer happened to be over.
+      interactiveLayerIds={[HIT_LAYER]}
       // A marker is clickable, so it should say so. Everything else keeps the grab
       // cursor the map itself provides for panning.
       cursor={hoveredSlug ? "pointer" : undefined}
@@ -680,6 +693,13 @@ export function StationMap({
       </Source>
 
       <Source id="wattup-stations" type="geojson" data={geojson}>
+        {/* Below everything and fully transparent: the target, not a marker. */}
+        <Layer
+          id={HIT_LAYER}
+          type="circle"
+          paint={{ "circle-radius": HIT_RADIUS, "circle-opacity": 0 }}
+        />
+
         <Layer {...dots} />
 
         {/* Hovering scales the dot and nothing else. */}
