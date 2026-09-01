@@ -81,8 +81,20 @@ const ACTIVE_DOT_FROM = 5.5;
 const ACTIVE_DOT_TO = 9.5;
 
 /** Eased at both ends, so growing in and falling away are equally soft. */
-const easeInOut = (t: number) =>
-  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+/**
+ * Eased at both ends, so growing in and falling away are equally soft.
+ *
+ * Clamped on the way in and out. The cubic on either side of the midpoint returns values
+ * a fraction beyond the range for inputs a fraction beyond it, and Mapbox validates
+ * circle-opacity against a hard minimum of zero: an eased result of -7e-8 was enough to
+ * be rejected outright and logged as an error.
+ */
+const easeInOut = (t: number) => {
+  const x = clamp01(t);
+  return clamp01(x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+};
 
 /** How long the highlight takes to travel the line once. */
 const PULSE_DURATION_MS = 5200;
@@ -556,7 +568,13 @@ export function StationMap({
       "circle-radius",
       ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
     );
-    map.setPaintProperty(ACTIVE_GLOW_LAYER, "circle-opacity", ACTIVE_GLOW_OPACITY * eased);
+    // Clamped again at the point of use: opacity is the one property here with a range
+    // Mapbox enforces, so it is worth guarding even though the easing already clamps.
+    map.setPaintProperty(
+      ACTIVE_GLOW_LAYER,
+      "circle-opacity",
+      clamp01(ACTIVE_GLOW_OPACITY * eased),
+    );
   }, []);
 
   useMarkerTween(hoveredSlug, hoverProgress, previousHover, applyHover);
