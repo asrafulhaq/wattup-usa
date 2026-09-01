@@ -348,7 +348,7 @@ export function SearchBar({
                   role="option"
                   aria-selected={false}
                   onClick={() => applyStation(match)}
-                  className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04]"
+                  className="flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04]"
                 >
                   <span
                     className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
@@ -398,7 +398,7 @@ export function SearchBar({
                   role="option"
                   aria-selected={false}
                   onClick={() => applyPlace(place)}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.04]"
+                  className="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.04]"
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/5 text-dark/50">
                     <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
