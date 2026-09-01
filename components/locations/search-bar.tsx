@@ -21,6 +21,9 @@ interface SearchBarProps {
 
 type LocateState = "idle" | "locating" | "denied" | "unavailable";
 
+/** Applied when the visitor asks for stations near them and has set no distance. */
+const DEFAULT_NEARBY_RADIUS = 50;
+
 /**
  * The four segment bar from the reference: address or postcode, distance, filters,
  * submit, with "use my location" beneath.
@@ -114,17 +117,20 @@ export function SearchBar({
         const provisional = "Your location";
         setLocate("idle");
         setText(provisional);
-        // No radius is forced here. Defaulting to 50 miles emptied the list outright for
-        // anyone who is not near the network, which reads as a broken filter rather than
-        // as "the nearest station is a long way from you".
-        onChange({ near: { latitude, longitude, label: provisional }, query: "" });
+
+        // A radius is applied, and it is what makes the result honest. Without one the
+        // list happily returns every site sorted by distance, which for someone outside
+        // the network means entries "7661 mi away": technically sorted, useless to read.
+        // With it, the empty state says nothing is near and names the closest station.
+        const radius = filters.radius ?? DEFAULT_NEARBY_RADIUS;
+        onChange({ near: { latitude, longitude, label: provisional }, query: "", radius });
 
         if (!mapboxToken) return;
         try {
           const label = await reverseGeocode(latitude, longitude, { token: mapboxToken });
           if (!label) return;
           setText(label);
-          onChange({ near: { latitude, longitude, label }, query: "" });
+          onChange({ near: { latitude, longitude, label }, query: "", radius });
         } catch {
           // Keep the provisional label: the point itself is already correct.
         }
