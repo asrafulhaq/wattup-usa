@@ -70,18 +70,6 @@ export function StationCard({ station, onClose }: StationCardProps) {
           {statusLabel(station)}
         </span>
 
-        {amenities.length > 0 && (
-          <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
-            {amenities.map((amenity) => (
-              <amenity.icon
-                key={amenity.id}
-                aria-label={amenity.label}
-                className="h-[18px] w-[18px] text-dark/50"
-              />
-            ))}
-          </div>
-        )}
-
         <Link
           href={`/locations/${station.slug}`}
           className="mt-4 flex w-full items-center justify-center rounded-full bg-primary px-4 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-hover"
@@ -111,6 +99,30 @@ export function StationCard({ station, onClose }: StationCardProps) {
           <dd className={price ? "text-dark/65" : "text-dark/35"}>
             {price ?? "Being confirmed"}
           </dd>
+        </div>
+        {/* A row like the others rather than an icon strip that appears only when there
+            is something to draw. Hiding it left three fields in the same state showing
+            three different things: two saying "being confirmed" and one silently gone. */}
+        <div className="flex items-baseline justify-between gap-4 py-1">
+          <dt className="font-semibold text-dark">Amenities</dt>
+          {amenities.length > 0 ? (
+            <dd className="flex flex-wrap items-center justify-end gap-2">
+              {amenities.slice(0, 6).map((amenity) => (
+                <amenity.icon
+                  key={amenity.id}
+                  aria-label={amenity.label}
+                  className="h-[17px] w-[17px] text-dark/55"
+                />
+              ))}
+              {amenities.length > 6 && (
+                <span className="text-[13px] text-dark/45">
+                  +{amenities.length - 6}
+                </span>
+              )}
+            </dd>
+          ) : (
+            <dd className="text-dark/35">Being confirmed</dd>
+          )}
         </div>
       </dl>
     </div>
