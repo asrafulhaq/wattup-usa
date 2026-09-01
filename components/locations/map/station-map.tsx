@@ -35,6 +35,7 @@ interface StationMapProps {
 const DOTS_LAYER = "wattup-dots";
 const LABELS_LAYER = "wattup-labels";
 const PULSE_LAYER = "wattup-corridor-pulse";
+const ACTIVE_RIPPLE_LAYER = "wattup-active-ripple";
 const ACTIVE_GLOW_LAYER = "wattup-active-glow";
 const ACTIVE_DOT_LAYER = "wattup-active-dot";
 const HOVER_DOT_LAYER = "wattup-hover-dot";
@@ -66,6 +67,13 @@ const SHRINK_GRACE_MS = 160;
 
 /** The halo's opacity, held steady so it never fades while a station is active. */
 const ACTIVE_GLOW_OPACITY = 0.6;
+
+/** One expansion of the ripple, in milliseconds. */
+const RIPPLE_MS = 2200;
+
+/** The ring grows between these radii as it fades out. */
+const RIPPLE_FROM = 10;
+const RIPPLE_TO = 46;
 
 /**
  * The halo's radius, fixed.
@@ -280,8 +288,24 @@ export function StationMap({
         sorted[Math.min(sorted.length - 1, Math.max(0, Math.round((sorted.length - 1) * fraction)))];
       return [at(0.08), at(0.92)] as const;
     };
-    const [west, east] = trim(stations.map((s) => s.longitude));
-    const [south, north] = trim(stations.map((s) => s.latitude));
+    let [west, east] = trim(stations.map((s) => s.longitude));
+    let [south, north] = trim(stations.map((s) => s.latitude));
+
+    // A single station, or several at one point, gives a box with no area, and fitting
+    // one of those pins the camera at maximum zoom over a blank tile. Padding it out to
+    // roughly five miles gives a view with the surrounding streets in it.
+    const MIN_SPAN = 0.08;
+    if (east - west < MIN_SPAN) {
+      const midpoint = (east + west) / 2;
+      west = midpoint - MIN_SPAN / 2;
+      east = midpoint + MIN_SPAN / 2;
+    }
+    if (north - south < MIN_SPAN) {
+      const midpoint = (north + south) / 2;
+      south = midpoint - MIN_SPAN / 2;
+      north = midpoint + MIN_SPAN / 2;
+    }
+
     return [
       [west, south],
       [east, north],
@@ -603,6 +627,56 @@ export function StationMap({
     applySelection(easeInOut(selectProgress.current));
   }, [option.style, applyHover, applySelection]);
 
+  /**
+   * The ripple on the selected marker.
+   *
+   * A ring that grows out of the dot and fades, once every couple of seconds. It reads
+   * as a live signal rather than as a highlight, which is the point on a page about one
+   * station: it says this is the place, without a second colour or a larger dot.
+   *
+   * Driven on a frame loop for the same reason the marker tween is: Mapbox will not
+   * transition a paint property, so nothing animates unless it is written per frame. It
+   * does not run under reduced motion, or while the tab is in the background.
+   */
+  useEffect(() => {
+    if (!selectedSlug) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let frame = 0;
+    let lastPaint = 0;
+    const started = performance.now();
+
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      if (document.hidden || now - lastPaint < 33) return;
+      lastPaint = now;
+
+      const map = mapRef.current?.getMap();
+      if (!map?.getLayer(ACTIVE_RIPPLE_LAYER)) return;
+      const t = ((now - started) % RIPPLE_MS) / RIPPLE_MS;
+      try {
+        map.setPaintProperty(
+          ACTIVE_RIPPLE_LAYER,
+          "circle-radius",
+          RIPPLE_FROM + (RIPPLE_TO - RIPPLE_FROM) * t,
+        );
+        // The ring is the stroke, so that is what fades; the fill stays transparent.
+        // It is never fully opaque even at the start, since a ring arriving at full
+        // strength reads as a second marker rather than as a pulse.
+        map.setPaintProperty(
+          ACTIVE_RIPPLE_LAYER,
+          "circle-stroke-opacity",
+          clamp01(0.55 * (1 - t) ** 1.6),
+        );
+      } catch {
+        // The layer can go while a basemap style is loading.
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [selectedSlug]);
+
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
     [onSelect],
@@ -767,6 +841,19 @@ export function StationMap({
 
         {/* Selecting adds the halo. Filtered to one feature so both radii are plain
             numbers the frame loops above can drive. */}
+        <Layer
+          id={ACTIVE_RIPPLE_LAYER}
+          type="circle"
+          filter={["==", ["get", "slug"], selectedSlug ?? "\u0000"]}
+          paint={{
+            "circle-color": "rgba(0,0,0,0)",
+            "circle-radius": RIPPLE_FROM,
+            "circle-opacity": 0,
+            "circle-stroke-width": 2,
+            "circle-stroke-color": TIER_COLOR,
+            "circle-stroke-opacity": 0,
+          }}
+        />
         <Layer
           id={ACTIVE_GLOW_LAYER}
           type="circle"
