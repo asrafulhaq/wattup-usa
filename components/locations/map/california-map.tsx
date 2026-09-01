@@ -262,8 +262,8 @@ export function CaliforniaMap({
           <path
             key={county.fips}
             d={county.d}
-            fill={occupied.has(county.fips) ? "#CDD7E4" : "#E2E8F1"}
-            stroke="#E4EAF2"
+            fill={occupied.has(county.fips) ? "#9FB2CB" : "#C3D0E0"}
+            stroke="#B4C4D9"
             strokeWidth={(STROKE_LAND * unit) / scale}
             strokeLinejoin="round"
           />
@@ -331,7 +331,7 @@ export function CaliforniaMap({
                   textAnchor="middle"
                   fontSize={(LABEL_SIZE * unit) / scale}
                   fontWeight={isLead || active ? 700 : 500}
-                  fill={active ? "#0F1926" : isLead ? "#26313F" : "#7C8899"}
+                  fill={active ? "#0B1420" : isLead ? "#1B2634" : "#5C6A7C"}
                   className="pointer-events-none select-none"
                 >
                   {station.city}

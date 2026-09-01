@@ -44,18 +44,23 @@ const BOUNDARY_LAYER_PATTERN = /admin|boundary/i;
 /**
  * Palette, translated from the reference rather than picked by eye.
  *
- * Measured off `_.jpeg`: the field sits around luminance 64 and the land shapes around
- * 90, so land reads about 27 points away from its ground. Every grey there is cool, with
- * blue running roughly 11 above red. Light mode inverts which side is darker but keeps
- * both the separation and the hue, so the relationship survives the change of ground.
+ * Measured off `_.jpeg`, and matched on *relative* contrast rather than absolute
+ * difference. Its field sits at luminance 64 with land at 90, so land is 41% away from
+ * its ground. Copying the raw 26 point gap onto a near white ground gives only 13%, which
+ * is why an earlier pass looked washed out next to the reference. Land is dark enough
+ * here to hold roughly 28% instead.
+ *
+ * The reference is 98.4% neutral grey and 1.6% saturated accent: its colour comes from
+ * contrast and one vivid hue, not from many hues. Every grey there is cool, blue running
+ * about 11 above red, which is kept.
  *
  * The reference draws no outline on its shapes at all; separation is tonal. The boundary
  * lines here are therefore barely above the land, present only so counties do not fuse
  * into one silhouette.
  */
-const LAND_COLOR = "#CDD7E4";
+const LAND_COLOR = "#9FB2CB";
 const WATER_COLOR = "#F2F5FA";
-const BOUNDARY_COLOR = "#E4EAF2";
+const BOUNDARY_COLOR = "#B4C4D9";
 const ACCENT = "#197dff";
 const MUTED_DOT = "#93A2B6";
 const LABEL_LEAD = "#26313F";
@@ -221,7 +226,7 @@ export function StationMap({
         5,
       ],
       "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
-      "circle-stroke-width": 2,
+      "circle-stroke-width": 2.5,
       "circle-stroke-color": "#ffffff",
       "circle-opacity": 1,
     },
