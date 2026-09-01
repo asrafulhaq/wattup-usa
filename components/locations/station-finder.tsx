@@ -13,7 +13,7 @@ import {
 } from "@/lib/locations/filters";
 import type { PublicStation } from "@/lib/locations/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Suspense,
   useCallback,
@@ -60,6 +60,7 @@ function parseFilters(params: URLSearchParams): StationFilters {
 function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   const params = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   const urlFilters = useMemo(
@@ -89,9 +90,14 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
       const next = new URLSearchParams(params.toString());
       mutate(next);
       const query = next.toString();
-      router.replace(query ? `?${query}#locations` : "#locations", { scroll: false });
+      // The path is always written out. "#locations" on its own is resolved against the
+      // current URL, query string included, so clearing the last parameter left it in
+      // place: Reset all filters appeared to do nothing because the state it wrote was
+      // immediately re-read from the URL it had failed to clear.
+      const next_url = query ? `${pathname}?${query}#locations` : `${pathname}#locations`;
+      router.replace(next_url, { scroll: false });
     },
-    [params, router],
+    [params, pathname, router],
   );
 
   const onFiltersChange = useCallback(
