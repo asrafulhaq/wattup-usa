@@ -80,12 +80,22 @@ export function StationStrip({
 
   const activeSlug = selectedSlug ?? stations[0]?.slug ?? null;
 
-  /** Which ends have more content past them, so only those are faded. */
+  /**
+   * Which ends have more content past them, so only those are faded.
+   *
+   * The state is only replaced when one of the two booleans actually flips. Setting a
+   * fresh object on every scroll event meant a smooth scroll re-rendered the strip on
+   * every frame it moved, which is forty renders for one glide, on top of the map's own
+   * animation loops.
+   */
   const readEdges = useCallback(() => {
     const list = listRef.current;
     if (!list) return;
     const max = list.scrollWidth - list.clientWidth;
-    setEdges({ start: list.scrollLeft > 1, end: list.scrollLeft < max - 1 });
+    const next = { start: list.scrollLeft > 1, end: list.scrollLeft < max - 1 };
+    setEdges((current) =>
+      current.start === next.start && current.end === next.end ? current : next,
+    );
   }, []);
 
   useEffect(() => {

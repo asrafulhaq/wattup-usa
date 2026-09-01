@@ -13,7 +13,6 @@ import {
   type StationFilters,
 } from "@/lib/locations/filters";
 import type { PublicStation } from "@/lib/locations/types";
-import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Suspense,
@@ -23,6 +22,9 @@ import {
   useState,
   useTransition,
 } from "react";
+
+/** Matches the .wattup-card-exit animation in globals.css. */
+const CARD_EXIT_MS = 180;
 
 interface StationFinderProps {
   stations: PublicStation[];
@@ -165,6 +167,22 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   const selected = ranked.find((station) => station.slug === selectedSlug) ?? null;
 
   /**
+   * Keeps the card on screen for the length of its exit animation.
+   *
+   * Clearing the selection unmounts the card immediately, which would cut the animation
+   * off at the first frame. The station is held here for as long as the exit runs and
+   * then released.
+   */
+  const [closing, setClosing] = useState<PublicStation | null>(null);
+  const cardStation = selected ?? closing;
+
+  const closeCard = useCallback(() => {
+    if (selected) setClosing(selected);
+    onSelect(null);
+    window.setTimeout(() => setClosing(null), CARD_EXIT_MS);
+  }, [selected, onSelect]);
+
+  /**
    * The closest station to the search point, ignoring every filter.
    *
    * An empty result usually is not "nothing matches": it is that the visitor is further
@@ -303,34 +321,22 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             </div>
           )}
 
-          {/* AnimatePresence is what makes the close animate at all: without it the card
-              unmounts the instant selection clears and there is nothing left to animate.
-              The card scales up from the map rather than sliding, so it reads as the
-              station opening out rather than a panel arriving from off screen. */}
-          <AnimatePresence>
-            {selected && (
-              <motion.div
-                key={selected.slug}
-                initial={{ opacity: 0, scale: 0.82, y: 14 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 380,
-                  damping: 30,
-                  mass: 0.7,
-                }}
-                style={{ originX: 0, originY: 1 }}
-                // Clear of the Mapbox wordmark in the corner: the card must not cover
-                // the credit, and overlapping it looked untidy besides.
-                className="pointer-events-none absolute bottom-11 left-5 z-10 md:bottom-12 md:left-7"
+          {/* Rendered whenever a station is selected, or while one is on its way out.
+              The exit is driven by a short timer rather than by an animation library:
+              the card previously mounted through AnimatePresence and stayed at its
+              initial keyframe, leaving it invisible but still in the tree, which is why
+              its close button could not be clicked. */}
+          {cardStation && (
+            <div className="pointer-events-none absolute bottom-11 left-5 z-10 md:bottom-12 md:left-7">
+              <div
+                className={`pointer-events-auto ${
+                  closing ? "wattup-card-exit" : "wattup-card-enter"
+                }`}
               >
-                <div className="pointer-events-auto">
-                  <StationCard station={selected} onClose={() => onSelect(null)} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <StationCard station={cardStation} onClose={closeCard} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
