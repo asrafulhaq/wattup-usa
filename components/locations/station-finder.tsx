@@ -350,7 +350,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
               initial keyframe, leaving it invisible but still in the tree, which is why
               its close button could not be clicked. */}
           {cardStation && (
-            <div className="pointer-events-none absolute bottom-11 left-5 z-10 md:bottom-12 md:left-7">
+            <div className="pointer-events-none absolute bottom-10 left-3 right-3 z-10 flex justify-start md:bottom-12 md:left-7 md:right-auto">
               <div
                 className={`pointer-events-auto ${
                   closing ? "wattup-card-exit" : "wattup-card-enter"

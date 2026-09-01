@@ -21,7 +21,7 @@ import {
   type SearchPoint,
 } from "@/lib/locations/search";
 import type { PublicStation } from "@/lib/locations/types";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 interface SearchBarProps {
   stations: PublicStation[];
@@ -90,8 +90,24 @@ export function SearchBar({
   const trayId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
-  /** Distance from the bar's right edge to the filter button's, so the tray lines up. */
-  const [trayRight, setTrayRight] = useState(0);
+
+  /**
+   * Lines the filter tray up under the button that opened it.
+   *
+   * A callback ref rather than state: the offset is a measurement, and holding it in
+   * state meant setting state from an effect on every open, which cascades a render for
+   * a number that never reaches React's output.
+   */
+  const positionTray = useCallback((node: HTMLDivElement | null) => {
+    const container = containerRef.current;
+    const button = filterButtonRef.current;
+    if (!node || !container || !button) return;
+
+    const bar = container.getBoundingClientRect();
+    // Below the breakpoint the controls sit on their own row, so anchoring the panel to
+    // the filter button would push it off the side. It spans the bar instead.
+    node.style.right = bar.width < 768 ? "0px" : `${bar.right - button.getBoundingClientRect().right}px`;
+  }, []);
 
   /**
    * The text the dropdown reads, held one step behind the input.
@@ -157,13 +173,6 @@ export function SearchBar({
 
   useEffect(() => {
     if (!trayOpen && !open) return;
-    const container = containerRef.current;
-    const button = filterButtonRef.current;
-    if (container && button) {
-      setTrayRight(
-        container.getBoundingClientRect().right - button.getBoundingClientRect().right,
-      );
-    }
 
     const onPointerDown = (event: PointerEvent) => {
       if (!containerRef.current?.contains(event.target as Node)) {
@@ -260,7 +269,10 @@ export function SearchBar({
           the links beneath the bar, so anchoring to it dropped the tray a whole row lower
           than the control that opens it. */}
       <div className="relative">
-      <div className="flex h-14 w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm transition-shadow focus-within:border-primary/40 focus-within:shadow-md">
+      {/* One pill from md up. Below that it stacks: at phone widths the four segments
+          left the address field a sliver a few characters wide, which is the one part
+          of the bar that needs room. */}
+      <div className="flex w-full flex-col gap-2 md:h-14 md:flex-row md:items-stretch md:gap-0 md:overflow-hidden md:rounded-full md:border md:border-black/10 md:bg-white md:shadow-sm md:transition-shadow md:focus-within:border-primary/40 md:focus-within:shadow-md">
         <input
           value={text}
           onChange={(event) => {
@@ -278,14 +290,15 @@ export function SearchBar({
           }}
           placeholder="Address / Zip"
           aria-label="Search by address or postcode"
-          className="min-w-0 flex-1 bg-transparent px-6 text-[15px] text-dark outline-none placeholder:text-dark/40"
+          className="h-12 w-full rounded-full border border-black/10 bg-white px-5 text-[15px] text-dark shadow-sm outline-none transition-shadow placeholder:text-dark/40 focus:border-primary/40 md:h-auto md:min-w-0 md:flex-1 md:rounded-none md:border-0 md:px-6 md:shadow-none"
         />
 
         {/* Each control fills the bar's full height, so the dividers run edge to edge and
             there is no dead strip between segments. The trigger is stripped back to a
             plain segment: it lives inside the bar rather than being a control on top of
             it, so it carries no border, radius or shadow of its own. */}
-        <div className="flex shrink-0 items-stretch border-l border-black/10">
+        <div className="flex h-12 items-stretch gap-2 md:contents">
+        <div className="flex min-w-0 flex-1 items-stretch rounded-full border border-black/10 bg-white shadow-sm md:h-auto md:flex-none md:rounded-none md:border-0 md:border-l md:border-black/10 md:shadow-none">
           <Select
             value={filters.radius ? String(filters.radius) : "any"}
             onValueChange={(value) => {
@@ -299,7 +312,7 @@ export function SearchBar({
           >
             <SelectTrigger
               aria-label="Distance"
-              className="h-full w-[152px] rounded-none border-0 bg-transparent px-5 text-[15px] text-dark shadow-none transition-colors hover:bg-black/[0.02] focus-visible:ring-0 data-[size=default]:h-full"
+              className="h-full w-full min-w-0 rounded-full border-0 bg-transparent px-4 text-[15px] text-dark shadow-none transition-colors hover:bg-black/[0.02] focus-visible:ring-0 data-[size=default]:h-full md:w-[152px] md:rounded-none md:px-5"
             >
               <SelectValue placeholder="Distance" />
             </SelectTrigger>
@@ -321,7 +334,7 @@ export function SearchBar({
           aria-expanded={trayOpen}
           aria-controls={trayId}
           aria-label={`Filters${filterCount ? `, ${filterCount} active` : ""}`}
-          className={`relative flex shrink-0 items-center gap-2 border-l border-black/10 px-6 text-[15px] transition-colors ${
+          className={`relative flex shrink-0 items-center gap-2 rounded-full border border-black/10 bg-white px-4 text-[15px] shadow-sm transition-colors md:rounded-none md:border-0 md:border-l md:border-black/10 md:px-6 md:shadow-none ${
             trayOpen
               ? "bg-primary/5 text-primary"
               : "text-dark/70 hover:bg-black/[0.02] hover:text-dark"
@@ -349,10 +362,11 @@ export function SearchBar({
         <button
           type="button"
           onClick={submit}
-          className="shrink-0 bg-primary px-8 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover"
+          className="shrink-0 rounded-full bg-primary px-7 text-[15px] font-semibold text-white transition-colors hover:bg-primary-hover md:rounded-none md:px-8"
         >
           Go
         </button>
+        </div>
       </div>
 
         {/* Typeahead. Stations we hold come first and cost nothing to match; places from
@@ -453,7 +467,7 @@ export function SearchBar({
         {trayPanel.mounted && (
           <div
             id={trayId}
-            style={{ right: trayRight }}
+            ref={positionTray}
             className={`absolute top-full z-40 mt-2 ${trayPanel.className}`}
             onAnimationEnd={trayPanel.onAnimationEnd}
           >

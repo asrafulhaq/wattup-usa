@@ -24,8 +24,8 @@ export function StationCard({ station, onClose }: StationCardProps) {
   const isOpen = station.status === "LIVE";
 
   return (
-    <div className="w-[320px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl bg-white shadow-2xl shadow-black/20">
-      <div className="relative p-5">
+    <div className="w-[300px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl bg-white shadow-2xl shadow-black/20 md:w-[320px]">
+      <div className="relative p-4 md:p-5">
         {onClose && (
           <button
             type="button"
@@ -83,7 +83,7 @@ export function StationCard({ station, onClose }: StationCardProps) {
         </Link>
       </div>
 
-      <dl className="border-t border-black/10 px-5 py-4 text-[14px]">
+      <dl className="border-t border-black/10 px-4 py-3 text-[14px] md:px-5 md:py-4">
         <div className="flex items-baseline justify-between gap-4 py-1">
           <dt className="font-semibold text-dark">Charging speed</dt>
           <dd className="text-dark/65">{station.maxPowerKw}kW</dd>
