@@ -22,7 +22,11 @@ Replaces: the city grid in `components/drivers/expanding-us-drivers.tsx` on `/lo
 8. The section renders on the server with the full list in HTML, and is usable with
    JavaScript disabled.
 9. No WebGL. The section is interactive on a low end phone with no GPU context.
-10. Nothing from the internal columns of the signed-locations sheet reaches the browser.
+10. The data layer holds **every** column of the signed-locations sheet. What of it is
+    public is a separate decision, made in one place (`lib/locations/public.ts`), and
+    nothing internal reaches the browser until that decision changes.
+11. Both install years are in the data. A 2027 site is present and told apart by
+    `status` plus `goLiveYear`, never hidden.
 
 ### Out of scope on this branch
 
@@ -54,6 +58,8 @@ arbitrary address geocoding is needed; this section does not need it.
   geocoder and are deferred.
 - **The list replaces the city grid, not supplements it.** Capacity, site type and
   status move into the result cards.
+- **All 27 sites render, both years.** 11 for 2026 and 16 for 2027, each carrying its
+  own status chip. Nothing is filtered out by default.
 - **Accent is WattUp blue `#197dff`**, amber reserved for coming soon status.
 
 ## Implementation order, risky part first
@@ -105,3 +111,23 @@ This project has no test runner: `package.json` defines `lint` but no `test`. Th
 projection was verified with a throwaway point in polygon script rather than a
 committed unit test. Adding a runner is a separate decision, not something to slip into
 this branch unannounced.
+
+## Data shape: everything in, exposure decided later
+
+Per instruction, `lib/locations/data.ts` captures all 12 sheet columns (24 fields per
+record with the derived ones). It is server side only and carries a runtime guard.
+
+`lib/locations/public.ts` is the only route from that record to the browser. It
+currently exposes 13 fields and lists every excluded one with the reason, so widening
+what visitors see is a single edit in a reviewable diff.
+
+`scripts/verify-public-projection.mjs` asserts the boundary: every private value must be
+absent from the public shape, and every private field must still be present in the full
+record. Run it after changing either module.
+
+**Caveat on the guard.** The runtime check in `data.ts` throws if the module is
+evaluated in a browser, which makes the mistake loud in development. It does not stop
+the data being bundled, because a module that throws has already shipped. The real
+guarantee is that no `"use client"` module imports it. The `server-only` package turns
+that into a build time error and is one dependency away; not installed, since adding a
+dependency is not my call.

@@ -1,4 +1,4 @@
-import type { StationLocation } from "./types";
+import type { PublicStation } from "./types";
 
 export interface SearchPoint {
   latitude: number;
@@ -25,7 +25,7 @@ const normalise = (value: string) =>
  */
 export function resolveSearchPoint(
   query: string,
-  stations: StationLocation[],
+  stations: PublicStation[],
 ): SearchPoint | null {
   const q = normalise(query);
   if (!q) return null;
@@ -64,7 +64,7 @@ export function resolveSearchPoint(
 }
 
 /** Free text filter, used when a query does not resolve to a single point. */
-export function matchesQuery(station: StationLocation, query: string): boolean {
+export function matchesQuery(station: PublicStation, query: string): boolean {
   const q = normalise(query);
   if (!q) return true;
   return normalise(
