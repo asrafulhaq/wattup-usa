@@ -283,25 +283,28 @@ export function StationStrip({
                   onMouseLeave={() => onHover(null)}
                   onFocus={() => onHover(station.slug)}
                   onBlur={() => onHover(null)}
-                  className="group flex w-[240px] shrink-0 flex-col items-start gap-2 text-left md:w-[280px] md:gap-4"
+                  className="group flex w-[260px] shrink-0 flex-col items-start gap-2 text-left md:w-[300px] md:gap-4"
                 >
                   {/* Typography matches the existing city grid exactly, so the strip
                       reads as the same product rather than a second style. */}
                   <h3
-                    className={`text-[20px] font-semibold leading-[130%] tracking-[-0.02em] transition-colors md:text-[28px] md:font-bold md:leading-[110%] ${
+                    className={`whitespace-nowrap text-[20px] font-semibold leading-[130%] tracking-[-0.02em] transition-colors md:text-[28px] md:font-bold md:leading-[110%] ${
                       isActive ? "text-dark" : "text-dark/75 group-hover:text-dark"
                     }`}
                   >
                     {station.city}
                   </h3>
+                  {/* Three single lines, as the existing city grid has: power, place,
+                      status. Each is nowrap, so an entry cannot grow to two lines and
+                      throw the row out of alignment with its neighbours. Charger count
+                      lives on the card and in the results list, where "6 chargers · San
+                      Bernardino County" has the width to sit on one line. */}
                   <div className="flex flex-col gap-y-2 text-[16px] leading-[120%] text-dark md:text-[20px]">
-                    <span>
+                    <span className="whitespace-nowrap">
                       {station.maxPowerKw}kW Ultra Fast Charging
                     </span>
-                    <span>
-                      {station.chargerCount} chargers &middot; {station.county} County
-                    </span>
-                    <span>
+                    <span className="whitespace-nowrap">{station.county} County</span>
+                    <span className="whitespace-nowrap">
                       {station.distance !== null
                         ? `${formatDistance(station.distance, "mi")} away`
                         : statusLabel(station)}
