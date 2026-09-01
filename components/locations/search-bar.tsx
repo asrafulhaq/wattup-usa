@@ -36,6 +36,9 @@ type LocateState = "idle" | "locating" | "denied" | "unavailable";
 /** Applied when the visitor asks for stations near them and has set no distance. */
 const DEFAULT_NEARBY_RADIUS = 50;
 
+/** How many stations the dropdown offers, browsing or searching. */
+const SUGGESTION_LIMIT = 10;
+
 /**
  * The four segment bar from the reference: address or postcode, distance, filters,
  * submit, with "use my location" beneath.
@@ -105,9 +108,18 @@ export function SearchBar({
     };
   }, [debounced, local, mapboxToken]);
 
-  /** Stations matching what has been typed, for the dropdown. */
+  /**
+   * What the dropdown lists.
+   *
+   * With nothing typed it opens on the first ten stations rather than staying empty. An
+   * empty menu teaches the visitor nothing about what can be searched, and most people
+   * arriving at a network this size want to browse it before they want to filter it.
+   */
   const stationMatches = useMemo(
-    () => matchStations(debounced, stations),
+    () =>
+      debounced.length >= 2
+        ? matchStations(debounced, stations, SUGGESTION_LIMIT)
+        : stations.slice(0, SUGGESTION_LIMIT),
     [debounced, stations],
   );
 
@@ -314,12 +326,21 @@ export function SearchBar({
         {/* Typeahead. Stations we hold come first and cost nothing to match; places from
             the geocoder only appear when nothing local fits, which keeps the common
             query off the network entirely. */}
-        {open && debounced.length >= 2 && (stationMatches.length > 0 || places.length > 0) && (
+        {open && (stationMatches.length > 0 || places.length > 0) && (
           <ul
             role="listbox"
             aria-label="Search suggestions"
-            className="absolute left-0 top-full z-50 mt-2 w-full max-w-[520px] overflow-hidden rounded-xl border border-black/10 bg-white py-1.5 shadow-2xl shadow-black/10"
+            className="absolute left-0 top-full z-50 mt-2 max-h-[380px] w-full max-w-[520px] overflow-y-auto rounded-xl border border-black/10 bg-white py-1.5 shadow-2xl shadow-black/10"
           >
+            {debounced.length < 2 && stationMatches.length > 0 && (
+              <li
+                aria-hidden="true"
+                className="px-4 pb-1 pt-1 text-[12px] font-semibold text-dark/40"
+              >
+                All locations
+              </li>
+            )}
+
             {stationMatches.map((match) => (
               <li key={match.slug}>
                 <button
@@ -327,19 +348,39 @@ export function SearchBar({
                   role="option"
                   aria-selected={false}
                   onClick={() => applyStation(match)}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.04]"
+                  className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04]"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <span
+                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                      match.status === "LIVE"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
                     <svg viewBox="0 0 20 20" className="h-4 w-4 fill-current" aria-hidden="true">
                       <path d="M10 1.6a5.7 5.7 0 0 0-5.7 5.7c0 4.1 5.05 10.4 5.27 10.67a.56.56 0 0 0 .86 0c.22-.27 5.27-6.57 5.27-10.67A5.7 5.7 0 0 0 10 1.6Zm0 8.2a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
                     </svg>
                   </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-[15px] font-semibold text-dark">
-                      {match.city}
+
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-3">
+                      <span className="truncate text-[15px] font-semibold text-dark">
+                        {match.city}
+                      </span>
+                      <span
+                        className={`shrink-0 text-[12px] font-semibold ${
+                          match.status === "LIVE" ? "text-primary" : "text-amber-700"
+                        }`}
+                      >
+                        {statusLabel(match)}
+                      </span>
                     </span>
-                    <span className="block truncate text-[13px] text-dark/55">
-                      {match.street} &middot; {statusLabel(match)}
+                    <span className="mt-0.5 block truncate text-[13px] text-dark/60">
+                      {match.street}, {match.city}, {match.region} {match.postalCode}
+                    </span>
+                    <span className="mt-1 block truncate text-[12.5px] text-dark/45">
+                      {match.maxPowerKw}kW &middot; {match.chargerCount} chargers &middot;{" "}
+                      {match.county} County
                     </span>
                   </span>
                 </button>
