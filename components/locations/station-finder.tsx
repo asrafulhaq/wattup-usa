@@ -5,6 +5,7 @@ import { SearchBar } from "@/components/locations/search-bar";
 import { StationCard } from "@/components/locations/station-card";
 import { StationStrip } from "@/components/locations/station-strip";
 import { FadeUp } from "@/components/ui/fade-up";
+import { haversineMiles } from "@/lib/locations/distance";
 import {
   applyFilters,
   RADIUS_OPTIONS,
@@ -114,12 +115,41 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   const ranked = useMemo(() => applyFilters(stations, filters), [stations, filters]);
   const selected = ranked.find((station) => station.slug === selectedSlug) ?? null;
 
+  /**
+   * The closest station to the search point, ignoring every filter.
+   *
+   * An empty result usually is not "nothing matches": it is that the visitor is further
+   * from the network than the distance filter allows. Naming the nearest station and how
+   * far it is answers the question they actually asked, and matters most for someone
+   * outside California entirely, where every radius on the list comes back empty.
+   */
+  const nearest = useMemo(() => {
+    if (!filters.near || stations.length === 0) return null;
+    return stations
+      .map((station) => ({
+        station,
+        miles: haversineMiles(
+          filters.near!.latitude,
+          filters.near!.longitude,
+          station.latitude,
+          station.longitude,
+        ),
+      }))
+      .sort((a, b) => a.miles - b.miles)[0];
+  }, [stations, filters.near]);
+
   // Widening to the next radius up is a better offer than "no results": it tells the
   // visitor the network exists, just further away.
   const widerRadius =
     filters.radius === null
       ? null
       : (RADIUS_OPTIONS.find((radius) => radius > filters.radius!) ?? null);
+
+  /** Past the widest radius on offer, the only useful move is to drop the limit. */
+  const nearestBeyondRadius =
+    nearest !== null &&
+    filters.radius !== null &&
+    nearest.miles > filters.radius;
 
   return (
     <section id="locations" className="w-full bg-[#F7F9FC] py-[40px] md:py-[82px]">
@@ -178,26 +208,47 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
 
           {ranked.length === 0 && (
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <div className="pointer-events-auto rounded-xl bg-white/95 px-6 py-5 text-center shadow-lg">
-                <p className="text-[15px] font-semibold text-dark">
-                  No locations match these filters
-                </p>
-                {widerRadius ? (
-                  <button
-                    type="button"
-                    onClick={() => onFiltersChange({ radius: widerRadius })}
-                    className="mt-3 rounded-full bg-primary px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-primary-hover"
-                  >
-                    Widen to {widerRadius} miles
-                  </button>
+              <div className="pointer-events-auto max-w-[320px] rounded-xl bg-white/95 px-6 py-5 text-center shadow-lg">
+                {nearestBeyondRadius ? (
+                  <>
+                    <p className="text-[15px] font-semibold text-dark">
+                      Nothing within {filters.radius} miles of you
+                    </p>
+                    <p className="mt-1 text-[14px] leading-[140%] text-dark/60">
+                      The nearest is {nearest.station.name} in{" "}
+                      {nearest.station.city}, {Math.round(nearest.miles)} miles away.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => onFiltersChange({ radius: null })}
+                      className="mt-4 rounded-full bg-primary px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-primary-hover"
+                    >
+                      Show it anyway
+                    </button>
+                  </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={onReset}
-                    className="mt-3 text-[14px] font-semibold text-primary"
-                  >
-                    Clear filters
-                  </button>
+                  <>
+                    <p className="text-[15px] font-semibold text-dark">
+                      No locations match these filters
+                    </p>
+                    {widerRadius ? (
+                      <button
+                        type="button"
+                        onClick={() => onFiltersChange({ radius: widerRadius })}
+                        className="mt-4 rounded-full bg-primary px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-primary-hover"
+                      >
+                        Widen to {widerRadius} miles
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={onReset}
+                        className="mt-4 text-[14px] font-semibold text-primary"
+                      >
+                        Clear filters
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>

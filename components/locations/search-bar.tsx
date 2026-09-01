@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterTray } from "@/components/locations/filter-tray";
-import { geocode } from "@/lib/locations/geocode";
+import { geocode, reverseGeocode } from "@/lib/locations/geocode";
 import {
   activeFilterCount,
   RADIUS_OPTIONS,
@@ -106,18 +106,28 @@ export function SearchBar({
     }
     setLocate("locating");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Apply the point immediately so the map moves without waiting on a request,
+        // then replace the placeholder label once the address comes back.
+        const provisional = "Your location";
         setLocate("idle");
-        setText("Your location");
-        onChange({
-          near: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            label: "Your location",
-          },
-          query: "",
-          radius: filters.radius ?? 50,
-        });
+        setText(provisional);
+        // No radius is forced here. Defaulting to 50 miles emptied the list outright for
+        // anyone who is not near the network, which reads as a broken filter rather than
+        // as "the nearest station is a long way from you".
+        onChange({ near: { latitude, longitude, label: provisional }, query: "" });
+
+        if (!mapboxToken) return;
+        try {
+          const label = await reverseGeocode(latitude, longitude, { token: mapboxToken });
+          if (!label) return;
+          setText(label);
+          onChange({ near: { latitude, longitude, label }, query: "" });
+        } catch {
+          // Keep the provisional label: the point itself is already correct.
+        }
       },
       // A fair number of people refuse, so this is a normal path, not an error path.
       () => setLocate("denied"),

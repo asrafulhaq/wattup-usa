@@ -70,3 +70,38 @@ export async function geocode(
     ];
   });
 }
+
+/**
+ * Turns coordinates from the browser into a name a person recognises.
+ *
+ * The Geolocation API returns numbers and nothing else, so without this the search bar
+ * can only say something generic like "Your location", which tells the visitor nothing
+ * about whether the browser actually placed them correctly.
+ */
+export async function reverseGeocode(
+  latitude: number,
+  longitude: number,
+  { token, signal }: { token: string; signal?: AbortSignal },
+): Promise<string | null> {
+  const params = new URLSearchParams({
+    longitude: String(longitude),
+    latitude: String(latitude),
+    access_token: token,
+    limit: "1",
+    types: "address,street,neighborhood,locality,place",
+  });
+
+  const response = await fetch(`${ENDPOINT.replace("/forward", "/reverse")}?${params}`, {
+    signal,
+  });
+  if (!response.ok) return null;
+
+  const body: { features?: MapboxFeature[] } = await response.json();
+  const properties = body.features?.[0]?.properties;
+  return (
+    properties?.full_address ??
+    properties?.name ??
+    properties?.place_formatted ??
+    null
+  );
+}
