@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WattUp Station Finder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #F7F9FC;
+    --surface: #FFFFFF;
+    --surface-2: #EFF3F9;
+    --ink: #0D1522;
+    --ink-2: #2A3646;
+    --muted: #5A677C;
+    --faint: #8794A6;
+    --line: #DCE3ED;
+    --line-strong: #C3CEDD;
+    --accent: #197DFF;
+    --accent-soft: #E8F1FF;
+    --live: #0B7A52;
+    --live-soft: #E2F3EC;
+    --planned: #A2610A;
+    --planned-soft: #FBF0DE;
+    --flag: #B3261E;
+    --flag-soft: #FBEAE8;
+    --code-bg: #F1F5FA;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B111A;
+      --surface: #131B26;
+      --surface-2: #1A2432;
+      --ink: #E7ECF3;
+      --ink-2: #C3CCD9;
+      --muted: #96A3B5;
+      --faint: #6F7E92;
+      --line: #24303F;
+      --line-strong: #35455A;
+      --accent: #5AA2FF;
+      --accent-soft: #14263F;
+      --live: #57C79A;
+      --live-soft: #10291F;
+      --planned: #E0A64F;
+      --planned-soft: #2E2312;
+      --flag: #F0958C;
+      --flag-soft: #331C19;
+      --code-bg: #0F1721;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B111A;
+    --surface: #131B26;
+    --surface-2: #1A2432;
+    --ink: #E7ECF3;
+    --ink-2: #C3CCD9;
+    --muted: #96A3B5;
+    --faint: #6F7E92;
+    --line: #24303F;
+    --line-strong: #35455A;
+    --accent: #5AA2FF;
+    --accent-soft: #14263F;
+    --live: #57C79A;
+    --live-soft: #10291F;
+    --planned: #E0A64F;
+    --planned-soft: #2E2312;
+    --flag: #F0958C;
+    --flag-soft: #331C19;
+    --code-bg: #0F1721;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 63rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  h1, h2, h3 {
+    font-family: Barlow, "Helvetica Neue", Arial, sans-serif;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.018em;
+  }
+  h1 { font-size: clamp(2.1rem, 5vw, 3rem); font-weight: 700; line-height: 1.05; }
+  h2 { font-size: clamp(1.35rem, 3vw, 1.7rem); font-weight: 700; line-height: 1.15; }
+  h3 { font-size: 1.05rem; font-weight: 600; line-height: 1.3; letter-spacing: -0.008em; }
+
+  p { margin: 0; max-width: 66ch; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- header ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--line);
+    background:
+      linear-gradient(to bottom, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%),
+      repeating-linear-gradient(to right, var(--line) 0 1px, transparent 1px 88px),
+      repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 88px),
+      var(--bg);
+    padding: 4.25rem 0 2.5rem;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .masthead .stack { display: flex; flex-direction: column; gap: 1.15rem; }
+  .dek { font-size: 1.1rem; color: var(--muted); max-width: 54ch; }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.25rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.15rem;
+    margin-top: 0.5rem;
+  }
+  .fact { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.35rem 0; }
+  .fact .v {
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .fact .k {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* ---------- sections ---------- */
+  main { display: flex; flex-direction: column; gap: 3.5rem; padding: 3.25rem 0 4.5rem; }
+  section { display: flex; flex-direction: column; gap: 1.15rem; scroll-margin-top: 2rem; }
+  .sec-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.6rem;
+  }
+  .prose { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  /* ---------- decision block ---------- */
+  .decision {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-top: 3px solid var(--accent);
+    padding: 1.6rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .decision .verdict {
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .decision .verdict em { font-style: normal; color: var(--accent); }
+  .rationale { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem 1.75rem; }
+  .rationale > div { display: flex; flex-direction: column; gap: 0.2rem; }
+  .rationale dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .rationale dd { margin: 0; font-size: 0.95rem; color: var(--ink-2); }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 40rem; }
+  th, td { text-align: left; padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pick td { background: var(--accent-soft); }
+  .pick td:first-child { box-shadow: inset 3px 0 0 var(--accent); font-weight: 600; }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .chip.yes { background: var(--live-soft); color: var(--live); }
+  .chip.no  { background: var(--flag-soft); color: var(--flag); }
+  .chip.mid { background: var(--planned-soft); color: var(--planned); }
+
+  /* ---------- code ---------- */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    padding: 1.05rem 1.2rem;
+    overflow-x: auto;
+    margin: 0;
+    font-size: 0.83rem;
+    line-height: 1.62;
+    tab-size: 2;
+  }
+  pre, code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  p code, li code, td code {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    padding: 0.05em 0.32em;
+    font-size: 0.86em;
+    border-radius: 2px;
+  }
+  .cm { color: var(--faint); }
+  .kw { color: var(--accent); }
+
+  /* ---------- flags ---------- */
+  .flags { display: flex; flex-direction: column; gap: 0.75rem; }
+  .flag-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--flag);
+    padding: 0.95rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .flag-item.soft { border-left-color: var(--planned); }
+  .flag-item h3 { font-size: 0.98rem; }
+  .flag-item p { font-size: 0.92rem; color: var(--ink-2); }
+
+  /* ---------- two-col cards ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.85rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .card h3 { display: flex; align-items: baseline; gap: 0.5rem; }
+  .card p { font-size: 0.92rem; color: var(--ink-2); }
+  .card .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* ---------- timeline (a real sequence) ---------- */
+  .timeline { display: flex; flex-direction: column; }
+  .day {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 0 1.5rem;
+    border-top: 1px solid var(--line);
+    padding: 1.15rem 0;
+  }
+  .day:last-child { border-bottom: 1px solid var(--line); }
+  .day .when { display: flex; flex-direction: column; gap: 0.15rem; }
+  .day .dow {
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+  .day .date {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--faint);
+    letter-spacing: 0.06em;
+  }
+  .day ul { margin: 0; padding-left: 1.05rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .day li { font-size: 0.94rem; color: var(--ink-2); }
+  .day li::marker { color: var(--line-strong); }
+
+  ul.plain { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.42rem; }
+  ul.plain li { color: var(--ink-2); }
+  ul.plain li::marker { color: var(--line-strong); }
+
+  ol.qs { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.85rem; counter-reset: q; }
+  ol.qs li { padding-left: 0.15rem; }
+  ol.qs li::marker { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--accent); }
+  ol.qs strong { color: var(--ink); }
+  ol.qs .assume { color: var(--muted); font-size: 0.92rem; display: block; margin-top: 0.15rem; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 1.5rem 0 3rem;
+    color: var(--faint);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 640px) {
+    .day { grid-template-columns: 1fr; gap: 0.5rem; }
+    .facts { gap: 0 1.4rem; }
+    header.masthead { padding-top: 2.75rem; }
+  }
+</style>
+
+<div style="max-width:62rem;margin:0 auto;padding:0.75rem 1.5rem 0;"><a href="station-finder-plan-BN.html" style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:0.3rem 0.7rem;display:inline-block;">বাংলা সংস্করণ &rarr;</a></div>
+<header class="masthead">
+  <div class="wrap stack">
+    <div class="eyebrow">Build plan &middot; v1 scope &middot; due Fri 4 Sep</div>
+    <h1>WattUp Station Finder</h1>
+    <p class="dek">A map and location finder for the signed California sites, built on a stack that carries straight over to Singapore and Thailand without a rewrite.</p>
+    <div class="facts">
+      <div class="fact"><span class="v">27</span><span class="k">signed sites</span></div>
+      <div class="fact"><span class="v">162</span><span class="k">chargers</span></div>
+      <div class="fact"><span class="v">25</span><span class="k">cities</span></div>
+      <div class="fact"><span class="v">11 / 16</span><span class="k">2026 / 2027 install</span></div>
+      <div class="fact"><span class="v">3</span><span class="k">working days</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="decision">
+    <div class="sec-label">The decision you need to make</div>
+    <div class="decision">
+      <div class="verdict">Build it on <em><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS</a></em>, behind the <em><a href="https://visgl.github.io/react-map-gl/" target="_blank" rel="noopener">react-map-gl</a></em> wrapper.</div>
+      <p>Mapbox is the only mainstream platform where the reference look is a design task rather than a fight. <a href="https://studio.mapbox.com/" target="_blank" rel="noopener">Mapbox Studio</a> is a visual editor for the basemap itself: turn off every road, POI and label, recolour land and water to flat greys, and you have the reference frame exactly, in light mode, in an afternoon. Because we sit behind <code>react-map-gl</code>, the same component code runs on MapLibre if you ever want off the invoice.</p>
+      <dl class="rationale">
+        <div><dt>Cost at our size</dt><dd><a href="https://www.mapbox.com/pricing" target="_blank" rel="noopener">50,000 map loads/month free</a>, then $5 per 1,000. A marketing page at this traffic is almost certainly $0.</dd></div>
+        <div><dt>Asia</dt><dd>Full Singapore and Thailand coverage day one, with local-script labels available from the same style.</dd></div>
+        <div><dt>Escape hatch</dt><dd><a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre</a> + self-hosted <a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a> tiles is a drop-in swap, roughly one day, if cost or vendor lock ever bites.</dd></div>
+        <div><dt>What I need Wednesday</dt><dd>A Mapbox account on WattUp's billing, and a public access token.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="reference">
+    <div class="sec-label">What the references actually specify</div>
+    <div class="prose">
+      <p>I pulled the 239 frames out of the interaction GIF to see what moves. Three things define that design, and only one of them is the map:</p>
+      <ul class="plain">
+        <li><strong>A tab strip across the top</strong> — six locations, each with a name, a region line and two data lines, with a thin accent bar that slides between them. The map re-centres as the bar moves. This is a component we write, not a map feature.</li>
+        <li><strong>A deliberately empty basemap</strong> — flat grey landmasses, no roads, no POI labels, a dashed connector line and small dot markers. The polish comes from what has been <em>removed</em>. That is a Mapbox Studio style, plus one custom GeoJSON layer for the region shapes.</li>
+        <li><strong>One accent colour, used sparingly</strong> — the selected marker glows, its card is solid fill, everything else is grey. In light mode this becomes WattUp blue <code>#197dff</code>, already the primary token in <code>globals.css</code>. I would keep amber strictly for "coming soon" status, so the accent never competes with a state.</li>
+      </ul>
+      <p>The second reference — the address/zip bar with a distance selector, a filter tray and <em>Use My Location</em> — is the functional half. It sits above the map on desktop and collapses into a sticky pill on mobile. That layout is settled; the detail is in the <a href="#search">search section</a> below.</p>
+      <p>On the tooling question you raised: <strong>we do not need Three.js or React Three Fiber.</strong> Mapbox GL is already a WebGL renderer, and putting a second WebGL context on the page costs frames and battery for no visual gain. <a href="https://gsap.com/docs/v3/" target="_blank" rel="noopener">GSAP</a> is already installed and is the right tool for the sliding indicator and card transitions; <a href="https://motion.dev/" target="_blank" rel="noopener">framer-motion</a> and <a href="https://vaul.emilkowal.ski/" target="_blank" rel="noopener">vaul</a> — also already installed — cover the list and the mobile sheet.</p>
+    </div>
+  </section>
+
+  <section id="platforms">
+    <div class="sec-label">Why not the others</div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Platform</th><th>Style control</th><th>Search &amp; directions</th><th>Asia</th><th>Cost signal</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr class="pick">
+            <td><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS</a></td>
+            <td><span class="chip yes">Total</span> visual editor, per-layer</td>
+            <td>Geocoding + Directions in-house</td>
+            <td>Strong</td>
+            <td class="num">50k free / mo, then $5 per 1k</td>
+            <td>Recommended</td>
+          </tr>
+          <tr>
+            <td><a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre</a> + <a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a></td>
+            <td><span class="chip yes">Total</span> same spec, hand-edited JSON</td>
+            <td>Bring your own (Nominatim, Stadia)</td>
+            <td>Strong</td>
+            <td class="num">Storage only, ≈$0</td>
+            <td>Phase 2 cost move</td>
+          </tr>
+          <tr>
+            <td><a href="https://developers.google.com/maps/documentation/cloud-customization" target="_blank" rel="noopener">Google Maps</a></td>
+            <td><span class="chip mid">Limited</span> cloud styling, coarse</td>
+            <td>Best-in-class</td>
+            <td>Strong</td>
+            <td class="num">Higher at volume</td>
+            <td>Cannot hit the look</td>
+          </tr>
+          <tr>
+            <td><a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a> + raster tiles</td>
+            <td><span class="chip no">None</span> whatever the tiles look like</td>
+            <td>Bring your own</td>
+            <td>Varies</td>
+            <td class="num">Free</td>
+            <td>Wrong era, no WebGL</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.react-simple-maps.io/" target="_blank" rel="noopener">react-simple-maps</a></td>
+            <td><span class="chip yes">Total</span> it is just SVG</td>
+            <td><span class="chip no">None</span></td>
+            <td>N/A</td>
+            <td class="num">Free</td>
+            <td>A picture, not a finder</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="dek" style="font-size:0.88rem;">The last row is worth a sentence, because it is the tempting one: a pure SVG map would nail the reference frame and cost nothing. It cannot answer "what is near me", cannot zoom to a forecourt, and would have to be redrawn by hand for every new country. It is the right tool for a hero illustration and the wrong one for a station finder.</p>
+  </section>
+
+  <section id="architecture">
+    <div class="sec-label">Architecture</div>
+    <div class="prose">
+      <p>Locations become a first-class record in the database you already have, managed from the dashboard you already have. Nobody should need a deploy to add a site or flip one live.</p>
+    </div>
+    <pre><span class="cm">Neon Postgres ── Prisma Location model</span>
+      │            <span class="cm">managed in the existing /dashboard, RBAC already in place</span>
+      ▼
+<span class="kw">server component</span>  'use cache' + cacheTag('locations')
+      │            <span class="cm">same pattern as siteSettings today; edits revalidate the tag</span>
+      ▼
+<span class="kw">/locations</span>       server-rendered shell: SEO copy, JSON-LD, full list in HTML
+      │            <span class="cm">crawlable and useful with JavaScript switched off</span>
+      ▼
+<span class="kw">&lt;LocationFinder&gt;</span>  client island, state lives in the URL
+      ├── &lt;MapCanvas&gt;    dynamic import, mounts on viewport intersection
+      ├── &lt;SearchBar&gt;    address/zip · distance · filters · use my location
+      ├── &lt;ResultsList&gt;  desktop panel  /  vaul bottom sheet on mobile
+      └── &lt;MarketTabs&gt;   the sliding-indicator strip from the reference
+
+<span class="kw">/locations/[slug]</span> one static page per site
+                   <span class="cm">"EV charging on W Colton Ave, Redlands" — the SEO surface</span></pre>
+    <div class="cards">
+      <div class="card">
+        <h3>Why the database, not a JSON file <span class="tag">data</span></h3>
+        <p>A file means a developer and a deploy for every status change. There are 27 sites today and 16 of them flip status during 2027 — that is a year of small deploys avoided.</p>
+      </div>
+      <div class="card">
+        <h3>Why a page per station <span class="tag">seo</span></h3>
+        <p>"EV charging near Redlands" is a query someone types. A map alone is invisible to that; 27 indexed pages with LocalBusiness schema are not.</p>
+      </div>
+      <div class="card">
+        <h3>Why URL state <span class="tag">ux</span></h3>
+        <p>Filters and selection in the query string means back works, links are shareable, and support can send a customer straight to a station.</p>
+      </div>
+      <div class="card">
+        <h3>Why geocode once <span class="tag">perf</span></h3>
+        <p>Addresses become coordinates at import time and are stored. Nothing geocodes at page load, so the map has nothing to wait for.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="model">
+    <div class="sec-label">Data model</div>
+    <div class="prose">
+      <p>Written for the second market, not the first. <code>market</code>, <code>country</code>, <code>timezone</code> and <code>distanceUnit</code> exist from day one so that Singapore is rows in a table rather than a refactor.</p>
+    </div>
+    <pre><span class="cm">// <a href="https://www.prisma.io/docs/orm/prisma-schema" target="_blank" rel="noopener">Prisma schema</a></span>
+<span class="kw">model</span> Location {
+  id            String   @id @default(cuid())
+  slug          String   @unique     <span class="cm">// redlands-w-colton-ave</span>
+  name          String               <span class="cm">// public site name, not the owner LLC</span>
+  status        SiteStatus           <span class="cm">// LIVE | UNDER_CONSTRUCTION | PLANNED</span>
+  goLiveQuarter String?              <span class="cm">// "Q3 2026" — drives the "coming" chip</span>
+
+  <span class="cm">// address, split so it can be formatted per market</span>
+  street        String
+  city          String
+  region        String               <span class="cm">// CA · Central Region · Bangkok</span>
+  postalCode    String
+  country       String               <span class="cm">// ISO-3166: US, SG, TH</span>
+  latitude      Float
+  longitude     Float
+
+  <span class="cm">// market registry key — one row per market in config, not code</span>
+  market        String               <span class="cm">// "us-ca" | "sg" | "th"</span>
+  timezone      String               <span class="cm">// America/Los_Angeles</span>
+
+  <span class="cm">// what a driver actually wants to know</span>
+  chargerCount  Int
+  connectors    Connector[]          <span class="cm">// CCS1 / NACS / CCS2 / CHAdeMO</span>
+  maxPowerKw    Int?
+  amenities     Amenity[]            <span class="cm">// restroom, food, retail, lighting, canopy</span>
+  access        AccessType           <span class="cm">// PUBLIC_24_7 | HOST_HOURS</span>
+  hours         Json?
+
+  <span class="cm">// internal — never serialised to the browser</span>
+  ownerEntity   String?
+  apn           String?
+  salesRep      String?
+  siteScore     Float?
+  internalNotes String?
+
+  publishedAt   DateTime?
+  @@index([market, status])
+  @@index([latitude, longitude])
+}</pre>
+    <p class="dek" style="font-size:0.88rem;">The public endpoint selects an explicit field list, never the whole row, so an internal column cannot leak by being added later. It ships as <a href="https://geojson.org/" target="_blank" rel="noopener">GeoJSON</a> because that is what the map consumes natively — one shape, no transform on the client.</p>
+  </section>
+
+  <section id="flags">
+    <div class="sec-label">Before we publish anything — three flags on the spreadsheet</div>
+    <div class="flags">
+      <div class="flag-item">
+        <h3>The sheet carries private data that must not reach the website</h3>
+        <p>It holds the property owner's legal entity, their notice address, the parcel number and the sales rep for every site. Several notice addresses are plainly residential — one is a home in Beverly Hills. Publishing those would expose your landlords' home addresses and hand your pipeline to competitors. The public record is: site address, city, state, postcode, charger count, status. Everything else stays behind the dashboard login.</p>
+      </div>
+      <div class="flag-item">
+        <h3>"Rating out of 5" is an internal site score, not a customer review</h3>
+        <p>Shown next to a station on a public map, a 3.7 reads as "other drivers rated this poorly", which is both wrong and unhelpful. My assumption is that it stays internal. If you want stars later, they should come from real driver feedback.</p>
+      </div>
+      <div class="flag-item soft">
+        <h3>No site is live yet, and the map must say so</h3>
+        <p>All 27 are signed and in build — 11 with switchgear ordered for 2026, 16 for 2027. A driver who taps a pin and drives there will find nothing. Every marker carries a status chip, "coming soon" sites use a hollow marker against solid for live, and the default filter can be set either way. This also turns the map into a leasing asset: it shows momentum rather than pretending to be a network.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="search">
+    <div class="sec-label">Search and location behaviour</div>
+    <div class="cards">
+      <div class="card">
+        <h3>Address or postcode <span class="tag">geocode</span></h3>
+        <p><a href="https://docs.mapbox.com/api/search/search-box/" target="_blank" rel="noopener">Mapbox Search Box</a> with autocomplete, debounced at 250&nbsp;ms and biased to the active market. Session tokens keep the billing on one search, not one keystroke.</p>
+      </div>
+      <div class="card">
+        <h3>Use my location <span class="tag">browser</span></h3>
+        <p>The browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API" target="_blank" rel="noopener">Geolocation API</a>: one tap, permission asked at the moment of intent rather than on load. A clean fallback message when it is refused, because a fair number of people do refuse.</p>
+      </div>
+      <div class="card">
+        <h3>Distance <span class="tag">client</span></h3>
+        <p>5 / 10 / 25 / 50 / 100 with the unit taken from the market — miles in California, kilometres in Singapore. Filtering is a haversine pass over data already in memory, so it is instant.</p>
+      </div>
+      <div class="card">
+        <h3>Filters <span class="tag">client</span></h3>
+        <p>Status, connector type, minimum chargers, amenities. Every filter shows its result count and nothing ever returns a blank screen with no explanation.</p>
+      </div>
+      <div class="card">
+        <h3>Free text <span class="tag">client</span></h3>
+        <p>Fuzzy match on city and site name across the whole set, resolved locally in well under a frame. Even 500 sites is a payload smaller than one hero image.</p>
+      </div>
+      <div class="card">
+        <h3>List and map are one thing <span class="tag">ux</span></h3>
+        <p>Hovering a card lifts its marker, selecting flies the map and opens the card, and the list is always sorted by distance from the current search point.</p>
+      </div>
+    </div>
+    <pre><span class="cm">// every piece of state is in the URL — shareable, back-button-safe, SSR-able</span>
+/locations?market=us-ca&amp;near=34.056,-117.195&amp;label=Redlands%20CA
+          &amp;radius=25&amp;status=live,soon&amp;connector=nacs&amp;sel=redlands-w-colton-ave</pre>
+    <p class="dek" style="font-size:0.88rem;">Empty states do real work: "No stations within 25 miles. The nearest is Loma Linda, 38 miles away" with a button that widens the radius — rather than an empty list, which is where most finders lose the visitor.</p>
+  </section>
+
+  <section id="performance">
+    <div class="sec-label">Performance</div>
+    <div class="prose">
+      <p>A map library is heavy — roughly 200&nbsp;KB gzipped before a single tile. The plan is that it never sits in front of the first paint.</p>
+      <ul class="plain">
+        <li><strong>The map is not in the initial bundle.</strong> It is dynamically imported when its container approaches the viewport. Until then the slot holds a styled placeholder rendered on the server, so the largest paint never waits on WebGL.</li>
+        <li><strong>Markers are WebGL layers, not DOM nodes.</strong> One GeoJSON source with <a href="https://docs.mapbox.com/mapbox-gl-js/example/cluster/" target="_blank" rel="noopener">clustering</a>, drawn as symbol layers. DOM markers are fine at 27 and fall apart at 500; doing it right now means the Asia rollout changes nothing.</li>
+        <li><strong>Data is cached, not fetched per visit.</strong> <a href="https://nextjs.org/docs/app/api-reference/directives/use-cache" target="_blank" rel="noopener"><code>use cache</code></a> with a <code>locations</code> tag, revalidated when the dashboard saves — the pattern already running for site settings.</li>
+        <li><strong>Station pages prefetch on hover</strong>, so opening one from the list is instant.</li>
+        <li><strong>Motion respects <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" target="_blank" rel="noopener">the system reduced-motion setting</a>.</strong> With reduced motion on, the map jumps rather than flies and the marker pulse is dropped.</li>
+      </ul>
+      <p><strong>Budgets I will hold the build to:</strong> LCP under 2.0&nbsp;s on a mid-range phone over 4G; map interactive within 1.5&nbsp;s of entering the viewport; 60&nbsp;fps while panning; and the <code>/locations</code> document itself under 40&nbsp;KB gzipped before the map loads.</p>
+    </div>
+  </section>
+
+  <section id="expansion">
+    <div class="sec-label">Adding Singapore, Thailand, and whatever follows</div>
+    <div class="prose">
+      <p>The test of this build is not California. It is whether the second market costs a week or a day. Each market is one config file plus rows in the table:</p>
+    </div>
+    <pre>markets/sg.ts
+  center: [103.8198, 1.3521]   defaultZoom: 11   bounds: [...]
+  distanceUnit: 'km'           currency: 'SGD'   locale: 'en-SG'
+  addressFormat: 'sg'          geocodeBias: 'SG'
+  labelLanguage: 'en'          <span class="cm">// 'th' for Thailand, Thai script from the same style</span></pre>
+    <ul class="plain">
+      <li><strong>Routes:</strong> <code>/locations</code> stays the US surface; new markets get <code>/sg/locations</code> and <code>/th/locations</code>. Path segments rather than a query parameter, because each market needs to rank on its own in local search.</li>
+      <li><strong>Units and formats are never hardcoded.</strong> Distance, address order and phone format all read from the market config. Writing "mi" into a component today is what makes the Singapore launch expensive.</li>
+      <li><strong>Copy is externalised from the start</strong> so Thai translation is a file, not a hunt through JSX. Thai also needs a font with proper script coverage — worth settling before we have a page full of it.</li>
+      <li><strong>The map style is shared.</strong> One Studio style, all markets; only the camera and the label language change.</li>
+      <li><strong>The market strip</strong> — the sliding-indicator component from the reference — becomes the market switcher once there is more than one. It is built for that on Friday even though it will show one entry.</li>
+    </ul>
+  </section>
+
+  <section id="schedule">
+    <div class="sec-label">Getting to Friday</div>
+    <div class="timeline">
+      <div class="day">
+        <div class="when"><span class="dow">Wednesday</span><span class="date">2 SEP</span></div>
+        <ul>
+          <li>Prisma <code>Location</code> model and migration; dashboard CRUD reusing the existing RBAC.</li>
+          <li>Import the 27 sites from the sheet, split public from internal fields, geocode once and store the coordinates.</li>
+          <li>Market registry, distance and address helpers, GeoJSON endpoint.</li>
+          <li><strong>Needs from you:</strong> the Mapbox token, and a yes/no on the three flags above.</li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="when"><span class="dow">Thursday</span><span class="date">3 SEP</span></div>
+        <ul>
+          <li>Mapbox Studio style: light monochrome, roads and POIs suppressed at overview zoom and faded in past street level.</li>
+          <li>Map canvas, clustered markers, live and coming-soon marker states, the selected-station card.</li>
+          <li>The tab strip with the GSAP indicator, wired to camera moves.</li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="when"><span class="dow">Friday</span><span class="date">4 SEP</span></div>
+        <ul>
+          <li>Search bar, filter tray, use-my-location, distance filtering, URL state.</li>
+          <li>Results list, mobile bottom sheet, empty and error states.</li>
+          <li>Station detail pages with <a href="https://schema.org/LocalBusiness" target="_blank" rel="noopener">LocalBusiness</a> schema; performance and accessibility pass.</li>
+          <li><strong>Delivered:</strong> a preview URL for review by end of day.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prose">
+      <p><strong>Deliberately not in v1:</strong> turn-by-turn directions (a "Directions" button hands off to the phone's map app instead), live availability and pricing — which needs the chargers commissioned and an OCPP feed — driver reviews, and photography per site. Each is a clean addition afterwards; none of them changes the architecture above.</p>
+    </div>
+  </section>
+
+  <section id="questions">
+    <div class="sec-label">What I need from you — @Wattup</div>
+    <p class="dek" style="max-width:66ch;">The first three block Wednesday's work. The rest I have assumed an answer for and will proceed unless you say otherwise.</p>
+    <ol class="qs">
+      <li><strong>Mapbox account and token.</strong> Who owns the account and the billing? I need a public token by Wednesday morning; the free tier almost certainly covers this traffic, but the card has to be on file.</li>
+      <li><strong>Confirm the public field list.</strong> Site address, city, state, postcode, charger count, status — and nothing else from the sheet.<span class="assume">Assumption: owner entities, notice addresses, parcel numbers, sales reps and site scores all stay internal.</span></li>
+      <li><strong>How specific should "coming soon" be?</strong> Naming a quarter is stronger for leasing and worse if a date slips.<span class="assume">Assumption: "Coming 2026" / "Coming 2027" unless marketing prefers a plain "Coming soon".</span></li>
+      <li><strong>Connector types and power per site.</strong> Not in the sheet, and a driver filters on exactly this. Can engineering give me CCS1/NACS and kW per location?<span class="assume">Assumption: if it is not ready by Thursday, the connector filter ships hidden and turns on when the data lands.</span></li>
+      <li><strong>Amenities.</strong> Your reference has an amenities filter; we have no amenity data yet. It is roughly an hour per site to capture, or one pass by whoever did the site surveys.<span class="assume">Assumption: v1 ships without it, with the filter already built.</span></li>
+      <li><strong>Accent colour.</strong> The reference is orange; WattUp's primary is blue.<span class="assume">Assumption: blue for selection and brand, amber reserved for "coming soon".</span></li>
+      <li><strong>Asia timing.</strong> Roughly when do Singapore and Thailand need to be live, and will the first Asian sites carry the same data shape?<span class="assume">Assumption: later this year, same schema, so it is config plus content.</span></li>
+    </ol>
+  </section>
+
+  <section id="links">
+    <div class="sec-label">Every link in one place</div>
+    <div class="cards">
+      <div class="card">
+        <h3>Map platform <span class="tag">decide</span></h3>
+        <ul class="plain">
+          <li><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS docs</a></li>
+          <li><a href="https://studio.mapbox.com/" target="_blank" rel="noopener">Mapbox Studio</a> — where the look gets designed</li>
+          <li><a href="https://www.mapbox.com/pricing" target="_blank" rel="noopener">Mapbox pricing</a></li>
+          <li><a href="https://visgl.github.io/react-map-gl/" target="_blank" rel="noopener">react-map-gl</a> — the React wrapper</li>
+          <li><a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener">Create the Mapbox account</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The free alternative <span class="tag">phase 2</span></h3>
+        <ul class="plain">
+          <li><a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre GL JS</a></li>
+          <li><a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a> — self-hosted tiles</li>
+          <li><a href="https://www.maptiler.com/cloud/pricing/" target="_blank" rel="noopener">MapTiler pricing</a></li>
+          <li><a href="https://stadiamaps.com/switch-to-stadia/from-mapbox/" target="_blank" rel="noopener">Mapbox alternatives compared</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>APIs we will call <span class="tag">build</span></h3>
+        <ul class="plain">
+          <li><a href="https://docs.mapbox.com/api/search/search-box/" target="_blank" rel="noopener">Search Box API</a> — address &amp; postcode</li>
+          <li><a href="https://docs.mapbox.com/api/search/geocoding/" target="_blank" rel="noopener">Geocoding API</a> — one-time import</li>
+          <li><a href="https://docs.mapbox.com/api/navigation/directions/" target="_blank" rel="noopener">Directions API</a> — post-v1</li>
+          <li><a href="https://docs.mapbox.com/mapbox-gl-js/example/cluster/" target="_blank" rel="noopener">Clustering example</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API" target="_blank" rel="noopener">Geolocation API</a> — use my location</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Already in this repo <span class="tag">stack</span></h3>
+        <ul class="plain">
+          <li><a href="https://gsap.com/docs/v3/" target="_blank" rel="noopener">GSAP</a> — the sliding indicator</li>
+          <li><a href="https://vaul.emilkowal.ski/" target="_blank" rel="noopener">vaul</a> — mobile bottom sheet</li>
+          <li><a href="https://motion.dev/" target="_blank" rel="noopener">framer-motion</a> — list transitions</li>
+          <li><a href="https://www.prisma.io/docs/orm/prisma-schema" target="_blank" rel="noopener">Prisma schema</a></li>
+          <li><a href="https://nextjs.org/docs/app/api-reference/directives/use-cache" target="_blank" rel="noopener">Next.js use cache</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Standards &amp; data <span class="tag">reference</span></h3>
+        <ul class="plain">
+          <li><a href="https://geojson.org/" target="_blank" rel="noopener">GeoJSON spec</a></li>
+          <li><a href="https://schema.org/LocalBusiness" target="_blank" rel="noopener">LocalBusiness schema</a> — SEO</li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" target="_blank" rel="noopener">prefers-reduced-motion</a></li>
+          <li><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html" target="_blank" rel="noopener">US Census TIGER</a> — free county shapes</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The references <span class="tag">design</span></h3>
+        <ul class="plain">
+          <li><a href="https://www.ionna.com/" target="_blank" rel="noopener">Ionna</a> — the benchmark to beat</li>
+          <li><code>public/locations/_.jpeg</code> — the map frame</li>
+          <li><code>public/locations/UI Interactions&hellip;.gif</code> — the tab strip</li>
+          <li><code>public/locations/Wattup Location Signed&hellip;.csv</code> — the 27 sites</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>Prepared from the signed-locations sheet and the two UI references in <code>public/locations</code>. Counts read directly from the sheet on 1 September 2026: 27 sites with addresses, 162 chargers, 25 cities. Pricing figures are current published rates and worth re-checking at signup.</p>
+</footer>
+
+</body>
+</html>

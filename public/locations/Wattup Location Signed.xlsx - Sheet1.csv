@@ -1,0 +1,30 @@
+Location # signed,Initial Notes,Location # in pipeline,Company,Location address,Notice Address,Accessor's Parcel # (APN) ,Rating out of a 5,# of Chargers,# of Swtichgear,Switchgear Ordered date,Sales Rep
+1,EC and NEVI,1,Cozy Nook Inc / Mona Lisa Redlands,"1405 W. Colton Ave. Redlands, CA 92374","369 S. Doheny Dr 128 Beverly Hills, CA 90211",0169-391-01,4.2,2,1,8/1/26,Lisa
+2,NEVI,4,R & G Tyler LLC,"10170 Indiana Ave Riverside, CA 92503","16518 East Valley Blvd La Puente, CA 91744",234-160-075,3.9,11,2,8/1/26,Deepak
+3,EC and NEVI,39,B and B Family Ventures CA LLC,"20220 State Rd. Cerritos, CA 90703","20240 State Rd, Cerritos, CA 90703",7049-021-010,4.6,4,1,8/1/26,Deepak
+4,EC and Disadvantaged,65,"Polyak, M H Trust 10/3/08, LLC","14485 Foothill Blvd Fontana, CA 92335","6389 Las Cumbres Whittier, CA 90603",230051630000,4.3,6,1,8/1/26,Deepak
+5,"EC, Disadvantages and NEVI",67,Haggag Family Trust (6-16-06),"1880 Mountain View Ave, Loma Linda, CA 92354","1880 Mountain View Ave, Loma Linda, CA 92354",281243110000,4.2,4,1,8/1/26,Deepak
+6,EC,83,Bem Retail Market Inc.,"15631 S Avalon Blvd. Gardena, CA 90248",16614 Monte Cristo Avenue Cerritos Ca 90703,6139-010-016,3.9,8,2,8/1/26,Nikki
+7,EC and Disadvantaged,93,"Art's Auto Care, Inc ","15885 Main St, Hesperia, CA 92345","1524 Park Lawn Road Hacienda Heights, CA 91545",413101200000,3.7,8,2,8/1/26,Deepak
+8,Chris Daniels - Will place 3 chargers,64,Hinds Investment LP,"7872-7876 Valley View St, Buena Park, CA 90620","505 Lomas Santa Fe Dr Ste 170, Solana Beach, CA 92075",263-351-28,4.7,3,1,8/1/26,Akshay
+9,Chris Daniels - Last Hybrid structure ever,73,Hinds Investments LP,"11270 - 11308 Los Alamitos Blvd., Los Alamitos, 90720","505 Lomas Santa Fe Dr Ste 170, Solana Beach, CA 92075","222-081-05,06,07, 08",4.5,7,2,8/1/26,Akshay
+10,Last Hybrid structure ever,8,Del Oro Plaza LLC,"4120 Oceanside Blvd Oceanside, CA 92056","3148 Deep Canyon Dr. Beverly Hills, CA 90210",1625022500 & 1622405100,4.3,7,2,8/1/26,Akshay
+12,EC - No stabilization period,143,Bristol I LLC,"2810 S Bristol St, Santa Ana, CA 92704","2810 S Bristol St, Santa Ana, CA 92704",412-201-03,4.5,6,1,8/1/26,Collin
+,,,,,,,2026 install,66,16,,
+,2027 Install Below:,,,,,,,,,,
+13,LevelUp Installing - EC and Disadvantaged,150,The Harry Sarkin and Nanette D Sarkin 1974 Family Trust,"1108 W Mission Blvd, Ontario, CA 91762",2244 N Edgemont St Los Angeles CA 90027,1011181110000 & 1011181120000,4.2,4,1,,Deepak
+14,Chris Daniels - Hybrid,72,Hinds Investments LP,"1312 West Edinger Ave., Santa Ana, 92704","505 Lomas Santa Fe Dr Ste 170, Solana Beach, CA 92075",408-273-14,4.4,6,1,,Akshay
+15,Parking Garage,225,Rockwell Properties LLC,249 E Ocean Blvd Long Beach CA 90802,249 E Ocean Blvd Long Beach CA 90802,7280-029-031,4.6,8,2,,Deepak
+16,Sumeet - Hybrid,16,"HPI Miramar Square, LLC","9282 Miramar Rd., San Diego, CA 92126","405 S Highway 101 Ste. 100, Solana Beach, CA 92075",341-220-3600,4.4,6,1,,AK/Sergio
+17,Sumeet - Hybrid,36,HPI - Camino Village LP,"11265 Camino Ruiz San Diego, CA 92126","405 S. Highway 101 Ste 100, Solana Beach, CA 92075",3092606100,4.2,6,1,,AK/Sergio
+18,Sumeet - Hybrid,47,Palm Plaza LTD.,"3388 Palm Ave., San Diego, CA 92154","9484 Black Mountain Road, Ste H, San Diego, CA 92126",6292102200,3.8,6,1,,Akshay
+19,Sumeet - Hybrid,48,Santa Fe La Costa LLC,"7720 Rancho Santa Fe Rd. Carlsbad, CA 92009 ","405 S. Highway 101 Ste. 100, Solana Beach, CA 92075",2230602800,4.3,4,1,,Akshay
+20,Sumeet - Hybrid,49,95 College Plaza LTD.,"3510 College Blvd, Oceanside, CA 92056","405 S. Highway 101 Ste. 100, Solana Beach, CA 92075",1680123200,4.3,8,2,,Akshay
+21,Jae Chung,35,Terra Nova Group LP,"344 E. H St. Chula Vista, CA 91910","2505 Congress St, San Diego, CA 92110",5922001400,4.5,6,1,,AK/Sergio
+22,EC and NEVI,56,24635 Madison LLC,"24635 Madison Ave Murrieta, CA 92562","9900 Culver Boulevard 1a, Culver City, CA 90232",949600010,4.2,4,1,,Akshay
+23,Same Client for Collin,238,Santa Fe Center LLC,"3564 Santa Anita Ave, El Monte, CA 91731","7007 Washington Ave, #221, Whittier, CA 90602",8579-001-023,4.3,8,2,,Collin
+24,Ralph,CA-09,Roseville Covenant Group LLC,1928 Freedom Way Roseville 95678,"3521 Volunteer Boulevard Henderson, Nevada 89044",363-022-020-000,4,6,1,,Harshil
+25,Ralph,CA-22,Lodi Exchange LLC,"1361 S Lower Sacramento Rd, Lodi, CA 95242","3521 Volunteer Boulevard Henderson, Nevada 89044",2742006,3.7,6,1,,Harshil
+26,,79,IMA Investment LLC,26498 Base Line St Highland CA 92346,26498 Base Line St Highland CA 92346,1191231310000,4,5,1,,Deepak
+27,,202,Holt Realty Investments LLC,"4288 Holt Boulevard Montclair, CA 91763","2859 S. Euclid Ave Ontario, CA 91762",1009514060000,4,5,,,Graham
+28,Signed LOI 1 year ago exactly,6,MacArthur Red Hill Campus Maintenance Association,"1420 Reynolds Ave Irvine, CA 92614","1420 Reynolds Ave Irvine, CA 92614","939-65-181, 939-65-180",4.7,8,,,Deepak

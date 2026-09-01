@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>স্টেশন ফাইন্ডার পরিকল্পনা</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Serif+Bengali:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #F7F9FC; --surface: #FFFFFF; --surface-2: #EFF3F9;
+    --ink: #0D1522; --ink-2: #2A3646; --muted: #5A677C; --faint: #8794A6;
+    --line: #DCE3ED; --line-strong: #C3CEDD;
+    --accent: #197DFF; --accent-soft: #E8F1FF;
+    --live: #0B7A52; --live-soft: #E2F3EC;
+    --planned: #A2610A; --planned-soft: #FBF0DE;
+    --flag: #B3261E; --flag-soft: #FBEAE8;
+    --code-bg: #F1F5FA;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B111A; --surface: #131B26; --surface-2: #1A2432;
+      --ink: #E7ECF3; --ink-2: #C3CCD9; --muted: #96A3B5; --faint: #6F7E92;
+      --line: #24303F; --line-strong: #35455A;
+      --accent: #5AA2FF; --accent-soft: #14263F;
+      --live: #57C79A; --live-soft: #10291F;
+      --planned: #E0A64F; --planned-soft: #2E2312;
+      --flag: #F0958C; --flag-soft: #331C19;
+      --code-bg: #0F1721;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B111A; --surface: #131B26; --surface-2: #1A2432;
+    --ink: #E7ECF3; --ink-2: #C3CCD9; --muted: #96A3B5; --faint: #6F7E92;
+    --line: #24303F; --line-strong: #35455A;
+    --accent: #5AA2FF; --accent-soft: #14263F;
+    --live: #57C79A; --live-soft: #10291F;
+    --planned: #E0A64F; --planned-soft: #2E2312;
+    --flag: #F0958C; --flag-soft: #331C19;
+    --code-bg: #0F1721;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.85;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  h1, h2, h3 {
+    font-family: "Noto Serif Bengali", "Noto Sans Bengali", serif;
+    text-wrap: balance;
+    margin: 0;
+    line-height: 1.4;
+  }
+  h1 { font-size: clamp(1.9rem, 4.6vw, 2.7rem); font-weight: 700; line-height: 1.25; }
+  h3 { font-size: 1.06rem; font-weight: 600; line-height: 1.5; }
+
+  p { margin: 0; max-width: 68ch; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  .mono, code, pre {
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  header.masthead {
+    border-bottom: 1px solid var(--line);
+    background:
+      linear-gradient(to bottom, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%),
+      repeating-linear-gradient(to right, var(--line) 0 1px, transparent 1px 88px),
+      repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 88px),
+      var(--bg);
+    padding: 4rem 0 2.5rem;
+  }
+  .masthead .stack { display: flex; flex-direction: column; gap: 1.15rem; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); display: flex; align-items: center; gap: 0.55rem;
+  }
+  .eyebrow::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .dek { font-size: 1.08rem; color: var(--muted); max-width: 58ch; }
+
+  .facts {
+    display: flex; flex-wrap: wrap; gap: 0 2.25rem;
+    border-top: 1px solid var(--line); padding-top: 1.1rem; margin-top: 0.4rem;
+  }
+  .fact { display: flex; flex-direction: column; gap: 0; padding: 0.3rem 0; }
+  .fact .v {
+    font-family: "IBM Plex Mono", monospace; font-weight: 500;
+    font-size: 1.4rem; line-height: 1.35; color: var(--ink);
+  }
+  .fact .k { font-size: 0.8rem; color: var(--faint); line-height: 1.5; }
+
+  main { display: flex; flex-direction: column; gap: 3.25rem; padding: 3rem 0 4rem; }
+  section { display: flex; flex-direction: column; gap: 1.1rem; }
+  .sec-label {
+    font-size: 0.95rem; font-weight: 600; color: var(--accent);
+    font-family: "Noto Sans Bengali", sans-serif;
+    border-bottom: 1px solid var(--line); padding-bottom: 0.55rem;
+    display: flex; align-items: baseline; gap: 0.6rem;
+  }
+  .sec-label .en {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.66rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  }
+  .prose { display: flex; flex-direction: column; gap: 0.95rem; }
+
+  .decision {
+    background: var(--surface); border: 1px solid var(--line-strong);
+    border-top: 3px solid var(--accent);
+    padding: 1.5rem 1.7rem; display: flex; flex-direction: column; gap: 1rem;
+  }
+  .decision .verdict {
+    font-family: "Noto Serif Bengali", serif; font-weight: 700;
+    font-size: 1.35rem; line-height: 1.5;
+  }
+  .decision .verdict em { font-style: normal; color: var(--accent); }
+  .rationale { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem 1.75rem; }
+  .rationale > div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .rationale dt { font-size: 0.86rem; font-weight: 600; color: var(--faint); }
+  .rationale dd { margin: 0; font-size: 0.95rem; color: var(--ink-2); line-height: 1.75; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 36rem; }
+  th, td { text-align: left; padding: 0.72rem 0.95rem; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.7; }
+  thead th {
+    font-size: 0.8rem; color: var(--faint); font-weight: 600;
+    background: var(--surface-2); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .pick td { background: var(--accent-soft); }
+  .pick td:first-child { box-shadow: inset 3px 0 0 var(--accent); font-weight: 600; }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line);
+    padding: 1rem 1.15rem; overflow-x: auto; margin: 0;
+    font-size: 0.8rem; line-height: 1.7;
+  }
+  p code, li code, td code {
+    background: var(--code-bg); border: 1px solid var(--line);
+    padding: 0.05em 0.3em; font-size: 0.84em; border-radius: 2px;
+  }
+  .cm { color: var(--faint); }
+  .kw { color: var(--accent); }
+
+  .flags { display: flex; flex-direction: column; gap: 0.75rem; }
+  .flag-item {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--flag);
+    padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .flag-item.soft { border-left-color: var(--planned); }
+  .flag-item p { font-size: 0.95rem; color: var(--ink-2); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.85rem; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 1.05rem 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .card p { font-size: 0.93rem; color: var(--ink-2); }
+  .card .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint);
+    margin-left: 0.4rem;
+  }
+
+  .timeline { display: flex; flex-direction: column; }
+  .day {
+    display: grid; grid-template-columns: 8rem 1fr; gap: 0 1.5rem;
+    border-top: 1px solid var(--line); padding: 1.1rem 0;
+  }
+  .day:last-child { border-bottom: 1px solid var(--line); }
+  .day .dow { font-family: "Noto Serif Bengali", serif; font-weight: 700; font-size: 1.05rem; }
+  .day .date { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--faint); }
+  .day ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  .day li { font-size: 0.95rem; color: var(--ink-2); }
+  .day li::marker { color: var(--line-strong); }
+
+  ul.plain { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  ul.plain li { color: var(--ink-2); }
+  ul.plain li::marker { color: var(--line-strong); }
+
+  ol.qs { margin: 0; padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  ol.qs li { color: var(--ink-2); }
+  ol.qs li::marker { font-family: "IBM Plex Mono", monospace; color: var(--accent); font-size: 0.9rem; }
+  ol.qs .assume { color: var(--muted); font-size: 0.92rem; display: block; }
+
+  .switcher {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-size: 0.85rem; color: var(--muted);
+    border: 1px solid var(--line); background: var(--surface);
+    padding: 0.3rem 0.7rem; border-radius: 2px; align-self: flex-start;
+  }
+
+  footer {
+    border-top: 1px solid var(--line); padding: 1.5rem 0 3rem;
+    color: var(--faint); font-size: 0.88rem;
+  }
+
+  @media (max-width: 640px) {
+    .day { grid-template-columns: 1fr; gap: 0.4rem; }
+    .facts { gap: 0 1.4rem; }
+    header.masthead { padding-top: 2.5rem; }
+  }
+</style>
+
+<div style="max-width:62rem;margin:0 auto;padding:0.75rem 1.5rem 0;"><a href="station-finder-plan-EN.html" style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:0.3rem 0.7rem;display:inline-block;">&larr; English version</a></div>
+<header class="masthead">
+  <div class="wrap stack">
+    <div class="eyebrow">বিল্ড প্ল্যান &middot; v1 &middot; ডেডলাইন শুক্রবার ৪ সেপ্টেম্বর</div>
+    <h1>WattUp স্টেশন ফাইন্ডার</h1>
+    <p class="dek">ক্যালিফোর্নিয়ার signed লোকেশনগুলোর জন্য একটা ম্যাপ আর লোকেশন ফাইন্ডার — এমনভাবে বানানো যাতে পরে Singapore আর Thailand যোগ করতে গিয়ে পুরোটা আবার লিখতে না হয়।</p>
+    <div class="facts">
+      <div class="fact"><span class="v">২৭</span><span class="k">signed লোকেশন</span></div>
+      <div class="fact"><span class="v">১৬২</span><span class="k">চার্জার</span></div>
+      <div class="fact"><span class="v">২৫</span><span class="k">শহর</span></div>
+      <div class="fact"><span class="v">১১ / ১৬</span><span class="k">২০২৬ / ২০২৭ ইনস্টল</span></div>
+      <div class="fact"><span class="v">৩</span><span class="k">কর্মদিবস</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec-label">শুরুতেই: কাজটা আসলে কী <span class="en">the brief</span></div>
+    <div class="prose">
+      <p>Wattup-এর ২৭টা লোকেশন signed হয়ে গেছে, এখন চার্জার বসানোর কাজ চলছে। ওরা চায় <a href="https://www.ionna.com/" target="_blank" rel="noopener">Ionna</a>-র মতো একটা ম্যাপ আর লোকেশন ফাইন্ডার — যেখানে মানুষ ঢুকে দেখবে কোথায় কোথায় চার্জিং স্টেশন আছে, আর নিজের আশেপাশে খুঁজে নিতে পারবে।</p>
+      <p>শর্ত তিনটা, আর তিনটাই এই প্ল্যানের প্রতিটা সিদ্ধান্তকে নিয়ন্ত্রণ করেছে। <strong>এক,</strong> Ionna-র চেয়ে সুন্দর, দ্রুত আর বেশি কাজের হতে হবে। <strong>দুই,</strong> প্রথম ভার্সন শুক্রবারের মধ্যে — মানে হাতে মাত্র তিনটা কর্মদিবস। <strong>তিন,</strong> পরে এশিয়ায় (Singapore, Thailand) এক্সপ্যান্ড করার সময় যেন নতুন করে সব বানাতে না হয়।</p>
+      <p>এই তিন নম্বর শর্তটাই সবচেয়ে গুরুত্বপূর্ণ, আর সবচেয়ে সহজে ভুল হয়। কারণ তাড়াহুড়ায় শুক্রবারের জন্য যা বানানো হয়, সেটাই পরে সিঙ্গাপুরের সময় ভেঙে ফেলতে হয়। তাই নিচের কিছু সিদ্ধান্ত আজকের ২৭টা লোকেশনের জন্য একটু বাড়াবাড়ি মনে হতে পারে — সেগুলো আসলে দ্বিতীয় মার্কেটের জন্য নেওয়া।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">আপনার ফাইলগুলো থেকে যা পেলাম <span class="en">what I found</span></div>
+    <div class="prose">
+      <p><strong>CSV থেকে</strong> (স্ক্রিপ্ট চালিয়ে গুনেছি): ২৭টা লোকেশন, মোট ১৬২টা চার্জার, ২৫টা শহর — সবগুলোই California-তে। ১১টার switchgear অর্ডার হয়ে গেছে (২০২৬-এ ইনস্টল), বাকি ১৬টা ২০২৭-এ।</p>
+      <p><strong>একটা জরুরি ব্যাপার:</strong> CSV-তে কোনো latitude/longitude নেই, শুধু ঠিকানা আছে। ম্যাপে পিন বসাতে হলে coordinate লাগবেই। তাই import করার সময় একবার ঠিকানাগুলো <a href="https://docs.mapbox.com/api/search/geocoding/" target="_blank" rel="noopener">geocode</a> করে coordinate বানিয়ে ডেটাবেজে রেখে দেব — যাতে সাইট লোড হওয়ার সময় এই কাজটা করতে না হয়।</p>
+      <p><strong>GIF রেফারেন্স থেকে:</strong> আমি GIF-এর ২৩৯টা ফ্রেম বের করে দেখেছি আসলে কোন জিনিসটা নড়ে। ডিজাইনটা মূলত তিনটা জিনিস, আর তার মধ্যে মাত্র একটা ম্যাপের ব্যাপার:</p>
+      <ul class="plain">
+        <li><strong>উপরে একটা tab strip</strong> — ৬টা লোকেশনের নাম পাশাপাশি, নিচে একটা পাতলা রঙিন দাগ যেটা এক নাম থেকে আরেক নামে স্লাইড করে যায়, আর সাথে সাথে ম্যাপ সেই জায়গায় সরে যায়। এটা ম্যাপ লাইব্রেরির কোনো ফিচার না — <strong>এটা আমরা নিজেরা বানাবো</strong>, <a href="https://gsap.com/docs/v3/" target="_blank" rel="noopener">GSAP</a> দিয়ে (যেটা আপনার প্রজেক্টে আগে থেকেই ইনস্টল করা আছে)।</li>
+        <li><strong>ইচ্ছা করে ফাঁকা রাখা ম্যাপ</strong> — কোনো রাস্তা নেই, দোকানপাটের নাম নেই, শুধু ধূসর জমির শেপ, ডটেড লাইন আর ছোট ছোট ডট মার্কার। এই ডিজাইনের সৌন্দর্যটা আসলে <strong>কী কী সরিয়ে ফেলা হয়েছে</strong> তার মধ্যে। এটাই আসল টেকনিক্যাল চ্যালেঞ্জ, আর এটাই ম্যাপ লাইব্রেরি বাছাই ঠিক করে দিয়েছে।</li>
+        <li><strong>মাত্র একটা accent কালার</strong>, খুব কম জায়গায়। শুধু সিলেক্ট করা মার্কারটা জ্বলজ্বল করে, বাকি সব ধূসর। লাইট মোডে এই রঙটা হবে WattUp-এর নিজের নীল <code>#197dff</code> — যেটা আপনার <code>globals.css</code>-এ আগে থেকেই primary টোকেন হিসেবে আছে।</li>
+      </ul>
+      <p><strong>দ্বিতীয় রেফারেন্স</strong> (address/zip সার্চ বার, distance ড্রপডাউন, ফিল্টার প্যানেল, "Use My Location") হলো কাজের অংশটা। ডেস্কটপে ম্যাপের উপরে বসবে, মোবাইলে একটা sticky pill-এ গুটিয়ে যাবে।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">সিদ্ধান্ত: কোন ম্যাপ লাইব্রেরি <span class="en">the decision</span></div>
+    <div class="decision">
+      <div class="verdict"><em><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS</a></em> — আর তার উপরে <em><a href="https://visgl.github.io/react-map-gl/" target="_blank" rel="noopener">react-map-gl</a></em> নামের React wrapper।</div>
+      <p>কারণটা সোজা। Mapbox-এর <a href="https://studio.mapbox.com/" target="_blank" rel="noopener">Studio</a> নামে একটা ভিজ্যুয়াল এডিটর আছে, যেখানে ম্যাপের প্রতিটা লেয়ার আলাদা করে কন্ট্রোল করা যায় — রাস্তা বন্ধ করে দিন, দোকানের নাম মুছে দিন, জমির রঙ ধূসর করে দিন। মানে <strong>আপনার রেফারেন্সের ঐ লুকটা এখানে একটা ডিজাইনের কাজ, কোনো যুদ্ধ না।</strong> এক বিকেলেই হয়ে যাবে। অন্য কোনো প্ল্যাটফর্মে এই কন্ট্রোলটা নেই।</p>
+      <dl class="rationale">
+        <div><dt>খরচ</dt><dd>মাসে ৫০,০০০ map load ফ্রি, এরপর প্রতি হাজারে $৫। আপনাদের ট্রাফিকে সম্ভবত পুরো ফ্রি-তেই চলবে। (<a href="https://www.mapbox.com/pricing" target="_blank" rel="noopener">pricing</a>)</dd></div>
+        <div><dt>এশিয়া</dt><dd>Singapore আর Thailand-এর ম্যাপ প্রথম দিন থেকেই আছে, থাই ভাষায় লেখাও একই স্টাইল থেকে দেখানো যায়।</dd></div>
+        <div><dt>পালানোর রাস্তা</dt><dd>পরে খরচ বাঁচাতে চাইলে <a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre</a> + <a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a> (ফ্রি, self-hosted) এ সুইচ করতে <strong>মোটামুটি এক দিন</strong>। কম্পোনেন্টের কোড বদলাবে না।</dd></div>
+        <div><dt>বুধবারে যা লাগবে</dt><dd>WattUp-এর নামে একটা Mapbox অ্যাকাউন্ট আর একটা public token। (<a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener">signup</a>)</dd></div>
+      </dl>
+    </div>
+    <div class="prose">
+      <p>এই "পালানোর রাস্তা" ব্যাপারটা একটু ব্যাখ্যা করি, কারণ এটাই সিদ্ধান্তটাকে নিরাপদ করেছে। MapLibre আসলে Mapbox-এরই একটা ওপেন সোর্স fork — কোডের API প্রায় হুবহু এক। আমরা যেহেতু সরাসরি Mapbox-এর সাথে কথা না বলে <code>react-map-gl</code>-এর পেছনে কোড লিখব, তাই ভবিষ্যতে বিল বেশি মনে হলে বা vendor lock-এ আটকে যাওয়ার ভয় হলে শুধু কনফিগ বদলে দিলেই হবে। <strong>মানে আজ Mapbox বেছে নিয়ে আমরা কোনো দরজা বন্ধ করছি না।</strong></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">বাকিগুলো কেন বাদ দিলাম <span class="en">alternatives</span></div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>প্ল্যাটফর্ম</th><th>স্টাইল কন্ট্রোল</th><th>সার্চ ও ডিরেকশন</th><th>খরচ</th><th>রায়</th></tr>
+        </thead>
+        <tbody>
+          <tr class="pick">
+            <td><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS</a></td>
+            <td>পুরো — লেয়ার ধরে ধরে</td>
+            <td>নিজেরই আছে</td>
+            <td>৫০ হাজার ফ্রি, পরে $৫/হাজার</td>
+            <td>এটাই নিচ্ছি</td>
+          </tr>
+          <tr>
+            <td><a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre</a> + <a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a></td>
+            <td>পুরো — তবে হাতে JSON লিখে</td>
+            <td>আলাদা জোগাড় করতে হবে</td>
+            <td>শুধু স্টোরেজ, প্রায় ফ্রি</td>
+            <td>পরের ধাপে খরচ কমাতে</td>
+          </tr>
+          <tr>
+            <td><a href="https://developers.google.com/maps/documentation/cloud-customization" target="_blank" rel="noopener">Google Maps</a></td>
+            <td>সীমিত — মোটা দাগে</td>
+            <td>সবচেয়ে ভালো</td>
+            <td>বেশি</td>
+            <td>ঐ লুকটাই আনা যাবে না</td>
+          </tr>
+          <tr>
+            <td><a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a></td>
+            <td>নেই — টাইলে যা আছে তাই</td>
+            <td>আলাদা লাগবে</td>
+            <td>ফ্রি</td>
+            <td>পুরনো, WebGL নেই</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.react-simple-maps.io/" target="_blank" rel="noopener">D3 / react-simple-maps</a></td>
+            <td>পুরো — এটা তো শুধু SVG</td>
+            <td>নেই</td>
+            <td>ফ্রি</td>
+            <td>ছবি হবে, ফাইন্ডার হবে না</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p>শেষের অপশনটা নিয়ে একটু বলা দরকার, কারণ এটাই সবচেয়ে লোভনীয়। খালি SVG দিয়ে আঁকলে <strong>রেফারেন্সের চেহারা হুবহু আসবে, একদম ফ্রি-তে</strong>। কিন্তু ওটা দিয়ে "আমার কাছাকাছি কী আছে" প্রশ্নের উত্তর দেওয়া যায় না, জুম করে গ্যাস স্টেশনের সামনে যাওয়া যায় না, আর প্রতিটা নতুন দেশের জন্য হাতে করে আবার আঁকতে হবে। <strong>হিরো ইলাস্ট্রেশনের জন্য পারফেক্ট, স্টেশন ফাইন্ডারের জন্য ভুল।</strong></p>
+      <p><strong>আপনি Three.js / React Three Fiber-এর কথা বলেছিলেন — ওটা লাগবে না, বরং ক্ষতি করবে।</strong> Mapbox GL নিজেই একটা WebGL রেন্ডারার। একই পেজে দ্বিতীয় আরেকটা WebGL context বসালে ফ্রেম রেট আর ব্যাটারি দুটোই খরচ হবে, অথচ দেখতে এক চুলও ভালো হবে না। আপনার প্রজেক্টে <a href="https://gsap.com/docs/v3/" target="_blank" rel="noopener">GSAP</a>, <a href="https://motion.dev/" target="_blank" rel="noopener">framer-motion</a> আর <a href="https://vaul.emilkowal.ski/" target="_blank" rel="noopener">vaul</a> আগে থেকেই আছে — স্লাইডিং ইন্ডিকেটর, লিস্ট ট্রানজিশন আর মোবাইলের bottom sheet এই তিনটা দিয়েই হয়ে যাবে।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">পুরো সিস্টেমটা কীভাবে সাজাবো <span class="en">architecture</span></div>
+    <div class="prose">
+      <p>মূল নীতি একটাই: <strong>নতুন লোকেশন যোগ করতে বা স্ট্যাটাস বদলাতে যেন কোনো ডেভেলপার আর কোনো deploy না লাগে।</strong> তাই লোকেশন হবে ডেটাবেজের রেকর্ড, আর ম্যানেজ হবে আপনার বানানো dashboard থেকেই।</p>
+    </div>
+    <pre><span class="cm">Neon Postgres ── Prisma-তে Location মডেল</span>
+      │            <span class="cm">আপনার /dashboard থেকেই ম্যানেজ, RBAC আগে থেকেই আছে</span>
+      ▼
+<span class="kw">server component</span>  'use cache' + cacheTag('locations')
+      │            <span class="cm">siteSettings-এ যে প্যাটার্ন এখন চলছে, হুবহু সেটাই</span>
+      ▼
+<span class="kw">/locations</span>       সার্ভারে রেন্ডার: SEO টেক্সট, JSON-LD, পুরো লিস্ট HTML-এ
+      │            <span class="cm">JavaScript বন্ধ থাকলেও পেজটা কাজ করবে, Google-ও পড়তে পারবে</span>
+      ▼
+<span class="kw">&lt;LocationFinder&gt;</span>  client island — সব state URL-এ
+      ├── &lt;MapCanvas&gt;    ম্যাপ চোখে পড়ার আগমুহূর্তে লোড হবে
+      ├── &lt;SearchBar&gt;    ঠিকানা/zip · দূরত্ব · ফিল্টার · use my location
+      ├── &lt;ResultsList&gt;  ডেস্কটপে সাইড প্যানেল / মোবাইলে bottom sheet
+      └── &lt;MarketTabs&gt;   রেফারেন্সের ঐ স্লাইডিং স্ট্রিপ
+
+<span class="kw">/locations/[slug]</span> প্রতিটা সাইটের জন্য আলাদা পেজ
+                   <span class="cm">"EV charging on W Colton Ave, Redlands" — SEO এখান থেকেই আসবে</span></pre>
+    <div class="cards">
+      <div class="card">
+        <h3>JSON ফাইল নয়, ডেটাবেজ কেন<span class="tag">data</span></h3>
+        <p>ফাইলে রাখলে প্রতিটা স্ট্যাটাস বদলের জন্য একজন ডেভেলপার আর একটা deploy লাগবে। আজ ২৭টা সাইট, তার ১৬টার স্ট্যাটাস ২০২৭ সালে বদলাবে — মানে এক বছর ধরে ছোট ছোট deploy। সেটা এড়ানো গেল।</p>
+      </div>
+      <div class="card">
+        <h3>প্রতি স্টেশনে আলাদা পেজ কেন<span class="tag">seo</span></h3>
+        <p>"EV charging near Redlands" মানুষ Google-এ লেখে। শুধু ম্যাপ থাকলে Google সেটা দেখতেই পায় না। ২৭টা আলাদা পেজ <a href="https://schema.org/LocalBusiness" target="_blank" rel="noopener">LocalBusiness</a> schema সহ থাকলে পায়।</p>
+      </div>
+      <div class="card">
+        <h3>URL-এ state কেন<span class="tag">ux</span></h3>
+        <p>ফিল্টার আর সিলেকশন URL-এ থাকলে ব্রাউজারের back বাটন কাজ করে, লিংক শেয়ার করা যায়, আর সাপোর্ট টিম কাস্টমারকে সরাসরি একটা স্টেশনের লিংক পাঠাতে পারে।</p>
+      </div>
+      <div class="card">
+        <h3>geocode একবারই কেন<span class="tag">perf</span></h3>
+        <p>Import-এর সময় ঠিকানা থেকে coordinate বানিয়ে সেভ করা থাকবে। পেজ লোডের সময় কিছুই geocode হবে না, তাই ম্যাপকে কারো জন্য অপেক্ষা করতে হবে না।</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">ডেটা স্ট্রাকচার <span class="en">data model</span></div>
+    <div class="prose">
+      <p>এটা লিখেছি <strong>দ্বিতীয় মার্কেটের কথা ভেবে, প্রথমটার কথা ভেবে না।</strong> <code>market</code>, <code>country</code>, <code>timezone</code> আর distance unit প্রথম দিন থেকেই আছে — যাতে Singapore যোগ করা মানে হয় টেবিলে কয়েকটা সারি যোগ করা, কোনো refactor না।</p>
+    </div>
+    <pre><span class="cm">// <a href="https://www.prisma.io/docs/orm/prisma-schema" target="_blank" rel="noopener">Prisma schema</a></span>
+<span class="kw">model</span> Location {
+  id            String   @id @default(cuid())
+  slug          String   @unique     <span class="cm">// redlands-w-colton-ave</span>
+  name          String               <span class="cm">// পাবলিক নাম, মালিকের কোম্পানির নাম না</span>
+  status        SiteStatus           <span class="cm">// LIVE | UNDER_CONSTRUCTION | PLANNED</span>
+  goLiveQuarter String?              <span class="cm">// "Q3 2026" — "coming" চিপে দেখাবে</span>
+
+  street        String
+  city          String
+  region        String               <span class="cm">// CA · Central Region · Bangkok</span>
+  postalCode    String
+  country       String               <span class="cm">// US, SG, TH</span>
+  latitude      Float
+  longitude     Float
+
+  market        String               <span class="cm">// "us-ca" | "sg" | "th"</span>
+  timezone      String               <span class="cm">// America/Los_Angeles</span>
+
+  chargerCount  Int
+  connectors    Connector[]          <span class="cm">// CCS1 / NACS / CCS2 / CHAdeMO</span>
+  maxPowerKw    Int?
+  amenities     Amenity[]            <span class="cm">// টয়লেট, খাবার, দোকান, আলো, ছাউনি</span>
+  access        AccessType
+  hours         Json?
+
+  <span class="cm">// ইন্টারনাল — কখনোই ব্রাউজারে যাবে না</span>
+  ownerEntity   String?
+  apn           String?
+  salesRep      String?
+  siteScore     Float?
+  internalNotes String?
+
+  publishedAt   DateTime?
+  @@index([market, status])
+}</pre>
+    <p class="dek" style="font-size:0.9rem;">পাবলিক API কখনো পুরো row পাঠাবে না — নির্দিষ্ট করে কোন কোন ফিল্ড যাবে সেটা লেখা থাকবে। ফলে ভবিষ্যতে নতুন কোনো ইন্টারনাল কলাম যোগ হলেও সেটা ভুল করে বাইরে চলে যেতে পারবে না। আর ডেটা যাবে <a href="https://geojson.org/" target="_blank" rel="noopener">GeoJSON</a> ফরম্যাটে, কারণ ম্যাপ সরাসরি ওটাই বোঝে — ব্রাউজারে কোনো কনভার্শন লাগে না।</p>
+  </section>
+
+  <section>
+    <div class="sec-label">পাবলিশ করার আগে — তিনটা জরুরি সতর্কতা <span class="en">flags</span></div>
+    <div class="flags">
+      <div class="flag-item">
+        <h3>স্প্রেডশিটে এমন ডেটা আছে যা কোনোভাবেই ওয়েবসাইটে যাওয়া চলবে না</h3>
+        <p>ওখানে প্রতিটা সাইটের জমির মালিকের কোম্পানির নাম, তার notice address, parcel number (APN) আর কোন sales rep ডিল করেছে — সব আছে। <strong>কয়েকটা notice address স্পষ্টতই বাসার ঠিকানা</strong> — একটা তো Beverly Hills-এর একটা বাড়ি। এগুলো পাবলিশ করা মানে আপনার জমির মালিকদের বাসার ঠিকানা ইন্টারনেটে দিয়ে দেওয়া, আর সেই সাথে প্রতিযোগীদের হাতে পুরো pipeline তুলে দেওয়া। <strong>পাবলিকে যাবে শুধু:</strong> সাইটের ঠিকানা, শহর, স্টেট, পোস্টকোড, চার্জার সংখ্যা আর স্ট্যাটাস। বাকি সব dashboard-এর লগইনের পেছনে।</p>
+      </div>
+      <div class="flag-item">
+        <h3>"Rating out of 5" আসলে ইন্টারনাল স্কোর, কাস্টমার রিভিউ না</h3>
+        <p>পাবলিক ম্যাপে একটা স্টেশনের পাশে 3.7 দেখালে মানুষ বুঝবে "অন্য ড্রাইভাররা এটাকে খারাপ রেটিং দিয়েছে" — যা ভুল এবং ক্ষতিকর। আমার ধরে নেওয়া: এটা ইন্টারনালই থাকবে। পরে সত্যিকারের ড্রাইভার রিভিউ থেকে স্টার আনা যাবে।</p>
+      </div>
+      <div class="flag-item soft">
+        <h3>কোনো সাইট এখনো চালু হয়নি — ম্যাপে সেটা পরিষ্কার বলতে হবে</h3>
+        <p>২৭টাই signed আর নির্মাণাধীন — ১১টার switchgear ২০২৬-এর জন্য অর্ডার হয়েছে, ১৬টা ২০২৭-এ। কেউ পিনে ট্যাপ করে গাড়ি নিয়ে গিয়ে যদি খালি জায়গা পায়, সেটা ব্র্যান্ডের ক্ষতি। তাই প্রতিটা মার্কারে স্ট্যাটাস চিপ থাকবে, "coming soon" সাইটগুলোর মার্কার ফাঁপা আর চালু সাইটগুলোর ভরাট। <strong>এতে ম্যাপটা একটা leasing অস্ত্রও হয়ে যায়</strong> — নেটওয়ার্ক আছে ভান না করে "আমরা দ্রুত বাড়ছি" দেখায়।</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">সার্চ আর লোকেশন কীভাবে কাজ করবে <span class="en">search</span></div>
+    <div class="cards">
+      <div class="card">
+        <h3>ঠিকানা বা zip<span class="tag">geocode</span></h3>
+        <p><a href="https://docs.mapbox.com/api/search/search-box/" target="_blank" rel="noopener">Mapbox Search Box</a> দিয়ে autocomplete, ২৫০ মিলিসেকেন্ড debounce সহ। session token ব্যবহার করব যাতে প্রতিটা কী-স্ট্রোকে বিল না কাটে, পুরো সার্চে একবার কাটে।</p>
+      </div>
+      <div class="card">
+        <h3>Use my location<span class="tag">browser</span></h3>
+        <p>ব্রাউজারের <a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API" target="_blank" rel="noopener">Geolocation API</a>। পারমিশন চাইব ঠিক যখন ইউজার বাটনে চাপবে, পেজ লোডের সময় না — আর না দিলে পরিষ্কার বিকল্প দেখাব।</p>
+      </div>
+      <div class="card">
+        <h3>দূরত্ব<span class="tag">client</span></h3>
+        <p>৫ / ১০ / ২৫ / ৫০ / ১০০ — একক আসবে মার্কেট থেকে, ক্যালিফোর্নিয়ায় মাইল, সিঙ্গাপুরে কিলোমিটার। হিসাবটা ব্রাউজারেই হবে, তাই সাথে সাথে।</p>
+      </div>
+      <div class="card">
+        <h3>ফিল্টার<span class="tag">client</span></h3>
+        <p>স্ট্যাটাস, কানেক্টর টাইপ, ন্যূনতম চার্জার সংখ্যা, সুবিধা। প্রতিটা ফিল্টারের পাশে কয়টা রেজাল্ট আসবে সেটা দেখাবে।</p>
+      </div>
+      <div class="card">
+        <h3>ফ্রি টেক্সট সার্চ<span class="tag">client</span></h3>
+        <p>শহর আর সাইটের নামে fuzzy ম্যাচ, পুরোটা ব্রাউজারে — এক ফ্রেমেরও কম সময়ে। ৫০০টা সাইটের ডেটাও একটা hero ছবির চেয়ে ছোট।</p>
+      </div>
+      <div class="card">
+        <h3>লিস্ট আর ম্যাপ একসাথে<span class="tag">ux</span></h3>
+        <p>কার্ডে hover করলে ম্যাপের মার্কার উঠে আসে, সিলেক্ট করলে ম্যাপ উড়ে যায় সেখানে। লিস্ট সবসময় দূরত্ব অনুযায়ী সাজানো।</p>
+      </div>
+    </div>
+    <pre><span class="cm">// প্রতিটা state URL-এ — শেয়ার করা যায়, back বাটন কাজ করে</span>
+/locations?market=us-ca&amp;near=34.056,-117.195&amp;label=Redlands%20CA
+          &amp;radius=25&amp;status=live,soon&amp;connector=nacs&amp;sel=redlands-w-colton-ave</pre>
+    <p class="dek" style="font-size:0.9rem;">খালি রেজাল্টের ক্ষেত্রেও কাজ করবে: "২৫ মাইলের মধ্যে কোনো স্টেশন নেই। সবচেয়ে কাছেরটা Loma Linda, ৩৮ মাইল দূরে" — সাথে radius বাড়ানোর বাটন। বেশিরভাগ ফাইন্ডার ঠিক এই জায়গাটাতেই ভিজিটর হারায়।</p>
+  </section>
+
+  <section>
+    <div class="sec-label">স্পিড আর পারফরম্যান্স <span class="en">performance</span></div>
+    <div class="prose">
+      <p>ম্যাপ লাইব্রেরি ভারী জিনিস — একটা টাইল লোড হওয়ার আগেই প্রায় ২০০ KB (gzipped)। পরিকল্পনাটা হলো, <strong>এই ওজনটা যেন কখনোই প্রথম পেইন্টের সামনে না দাঁড়ায়।</strong></p>
+      <ul class="plain">
+        <li><strong>ম্যাপ প্রথম bundle-এ থাকবে না।</strong> স্ক্রল করে ম্যাপের জায়গাটা কাছে এলে তখন লোড হবে। ততক্ষণ সার্ভার থেকে রেন্ডার করা একটা স্টাইল করা placeholder বসে থাকবে — তাই LCP কখনো WebGL-এর জন্য অপেক্ষা করবে না।</li>
+        <li><strong>মার্কার হবে WebGL লেয়ার, DOM নোড না।</strong> একটা GeoJSON source, তার উপর <a href="https://docs.mapbox.com/mapbox-gl-js/example/cluster/" target="_blank" rel="noopener">clustering</a>। ২৭টায় DOM মার্কার দিয়েও চলে যেত, কিন্তু ৫০০টায় ভেঙে পড়ত — এখনই ঠিকভাবে করলে এশিয়ার রোলআউটে কিছুই বদলাতে হবে না।</li>
+        <li><strong>ডেটা ক্যাশড।</strong> <a href="https://nextjs.org/docs/app/api-reference/directives/use-cache" target="_blank" rel="noopener"><code>use cache</code></a> আর <code>locations</code> ট্যাগ — dashboard-এ সেভ করলেই রিফ্রেশ। siteSettings-এ এই প্যাটার্ন আপনার ওখানে এখনই চলছে।</li>
+        <li><strong>স্টেশন পেজ hover করলেই prefetch</strong> হবে, তাই লিস্ট থেকে খুললে সাথে সাথে খুলবে।</li>
+        <li><strong>অ্যানিমেশন সিস্টেম সেটিং মানবে</strong> (<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" target="_blank" rel="noopener">prefers-reduced-motion</a>) — কেউ motion কমিয়ে রাখলে ম্যাপ উড়বে না, লাফিয়ে যাবে।</li>
+      </ul>
+      <p><strong>যে টার্গেটগুলো ধরে কাজ করব:</strong> মাঝারি মানের ফোনে 4G-তে LCP ২ সেকেন্ডের নিচে; ম্যাপ চোখে পড়ার ১.৫ সেকেন্ডের মধ্যে ব্যবহারযোগ্য; প্যান করার সময় ৬০fps; আর ম্যাপ লোড হওয়ার আগে <code>/locations</code> পেজটা নিজে ৪০ KB-র নিচে।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">Singapore, Thailand — এবং তারপর যা আসবে <span class="en">expansion</span></div>
+    <div class="prose">
+      <p>এই বিল্ডের আসল পরীক্ষা ক্যালিফোর্নিয়া না। আসল পরীক্ষা হলো — <strong>দ্বিতীয় মার্কেট যোগ করতে এক সপ্তাহ লাগবে, না এক দিন?</strong> প্রতিটা মার্কেট হবে একটা কনফিগ ফাইল আর টেবিলে কিছু সারি:</p>
+    </div>
+    <pre>markets/sg.ts
+  center: [103.8198, 1.3521]   defaultZoom: 11
+  distanceUnit: 'km'           currency: 'SGD'   locale: 'en-SG'
+  addressFormat: 'sg'          geocodeBias: 'SG'
+  labelLanguage: 'en'          <span class="cm">// থাইল্যান্ডের জন্য 'th', একই স্টাইল থেকেই</span></pre>
+    <ul class="plain">
+      <li><strong>রুট:</strong> <code>/locations</code> থাকবে US-এর জন্য, নতুন মার্কেট পাবে <code>/sg/locations</code> আর <code>/th/locations</code>। query parameter না দিয়ে path ব্যবহার করছি, কারণ প্রতিটা মার্কেটকে তার নিজের দেশের সার্চে র‍্যাংক করতে হবে।</li>
+      <li><strong>একক আর ফরম্যাট কোথাও হার্ডকোড করা যাবে না।</strong> দূরত্ব, ঠিকানার ক্রম, ফোন নম্বরের ফরম্যাট — সব মার্কেট কনফিগ থেকে আসবে। আজ কোনো কম্পোনেন্টে "mi" লিখে দিলে সিঙ্গাপুর লঞ্চটাই ব্যয়বহুল হয়ে যাবে।</li>
+      <li><strong>সব লেখা শুরু থেকেই আলাদা ফাইলে</strong> রাখব, যাতে থাই অনুবাদ মানে একটা ফাইল — JSX ঘেঁটে খোঁজা না। থাই স্ক্রিপ্টের জন্য উপযুক্ত ফন্টও আগেই ঠিক করে নেওয়া ভালো।</li>
+      <li><strong>ম্যাপ স্টাইল একটাই</strong> — সব মার্কেটে। শুধু ক্যামেরার অবস্থান আর লেবেলের ভাষা বদলাবে।</li>
+      <li><strong>উপরের ঐ tab strip</strong>-টাই পরে মার্কেট সুইচার হয়ে যাবে। শুক্রবারে একটা মার্কেট থাকলেও সেটা এভাবেই বানানো হবে।</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-label">শুক্রবার পর্যন্ত দিনের হিসাব <span class="en">schedule</span></div>
+    <div class="timeline">
+      <div class="day">
+        <div class="when"><div class="dow">বুধবার</div><div class="date">2 SEP</div></div>
+        <ul>
+          <li>Prisma-তে <code>Location</code> মডেল আর migration; dashboard-এ CRUD (বিদ্যমান RBAC কাজে লাগিয়ে)।</li>
+          <li>শিট থেকে ২৭টা সাইট import; পাবলিক আর ইন্টারনাল ফিল্ড আলাদা করা; একবার geocode করে coordinate সেভ।</li>
+          <li>Market registry, দূরত্ব ও ঠিকানার helper, GeoJSON endpoint।</li>
+          <li><strong>আপনার কাছ থেকে লাগবে:</strong> Mapbox token, আর উপরের তিনটা সতর্কতার উত্তর।</li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="when"><div class="dow">বৃহস্পতিবার</div><div class="date">3 SEP</div></div>
+        <ul>
+          <li>Mapbox Studio-তে স্টাইল বানানো: লাইট মনোক্রোম, দূর থেকে রাস্তা-দোকান লুকানো, কাছে জুম করলে ধীরে ফুটে ওঠা।</li>
+          <li>ম্যাপ ক্যানভাস, ক্লাস্টার করা মার্কার, live আর coming-soon-এর আলাদা চেহারা, সিলেক্ট করা স্টেশনের কার্ড।</li>
+          <li>GSAP ইন্ডিকেটর সহ tab strip, ম্যাপের ক্যামেরার সাথে যুক্ত।</li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="when"><div class="dow">শুক্রবার</div><div class="date">4 SEP</div></div>
+        <ul>
+          <li>সার্চ বার, ফিল্টার ট্রে, use-my-location, দূরত্ব ফিল্টার, URL state।</li>
+          <li>রেজাল্ট লিস্ট, মোবাইলের bottom sheet, খালি ও ভুল অবস্থার মেসেজ।</li>
+          <li>স্টেশন ডিটেইল পেজ (LocalBusiness schema সহ); পারফরম্যান্স আর accessibility পাস।</li>
+          <li><strong>ডেলিভারি:</strong> দিনশেষে রিভিউ করার জন্য একটা preview লিংক।</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prose">
+      <p><strong>v1-এ ইচ্ছা করে রাখছি না:</strong> turn-by-turn ডিরেকশন (এর বদলে "Directions" বাটন ফোনের নিজের ম্যাপ অ্যাপে পাঠিয়ে দেবে), লাইভ availability আর দাম (এর জন্য চার্জার চালু হতে হবে আর OCPP ফিড লাগবে), ড্রাইভার রিভিউ, আর প্রতিটা সাইটের ছবি। এগুলোর একটাও উপরের আর্কিটেকচার বদলায় না — পরে পরিষ্কারভাবে যোগ করা যাবে।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">আপনার কাছ থেকে যা দরকার <span class="en">open questions</span></div>
+    <p class="dek">প্রথম তিনটা বুধবারের কাজ আটকে দেবে। বাকিগুলোর উত্তর আমি ধরে নিয়েছি — আপনি না বললে সেভাবেই এগোবো।</p>
+    <ol class="qs">
+      <li><strong>Mapbox অ্যাকাউন্ট আর token।</strong> অ্যাকাউন্ট আর বিলিং কার নামে হবে? বুধবার সকালে একটা public token লাগবে। ফ্রি টিয়ারেই চলে যাওয়ার কথা, কিন্তু কার্ড ফাইলে থাকতে হবে।</li>
+      <li><strong>পাবলিক ফিল্ডের তালিকা কনফার্ম করুন।</strong> সাইটের ঠিকানা, শহর, স্টেট, পোস্টকোড, চার্জার সংখ্যা, স্ট্যাটাস — শিটের আর কিছুই না।<span class="assume">ধরে নিচ্ছি: মালিকের নাম, notice address, APN, sales rep আর site score সব ইন্টারনাল থাকবে।</span></li>
+      <li><strong>"Coming soon" কতটা নির্দিষ্ট হবে?</strong> কোয়ার্টার বলে দিলে leasing-এ জোর বাড়ে, কিন্তু তারিখ পিছালে সমস্যা।<span class="assume">ধরে নিচ্ছি: "Coming 2026" / "Coming 2027", যদি না মার্কেটিং শুধু "Coming soon" চায়।</span></li>
+      <li><strong>প্রতিটা সাইটে কানেক্টর টাইপ আর kW।</strong> শিটে নেই, অথচ ড্রাইভার ঠিক এটা দিয়েই ফিল্টার করে। ইঞ্জিনিয়ারিং থেকে CCS1/NACS আর kW পাওয়া যাবে?<span class="assume">ধরে নিচ্ছি: বৃহস্পতিবারের মধ্যে না পেলে ফিল্টারটা বানিয়ে লুকিয়ে রাখব, ডেটা এলে চালু হবে।</span></li>
+      <li><strong>Amenities (সুবিধা)।</strong> আপনার রেফারেন্সে amenities ফিল্টার আছে, কিন্তু আমাদের কাছে এই ডেটাই নেই। সাইটপ্রতি প্রায় এক ঘণ্টার কাজ, অথবা যিনি site survey করেছেন তিনি একবারে দিয়ে দিতে পারেন।<span class="assume">ধরে নিচ্ছি: v1-এ থাকবে না, তবে ফিল্টারটা বানানো থাকবে।</span></li>
+      <li><strong>Accent কালার।</strong> রেফারেন্সে কমলা, WattUp-এর ব্র্যান্ড নীল।<span class="assume">ধরে নিচ্ছি: সিলেকশন আর ব্র্যান্ডের জন্য নীল, আর "coming soon"-এর জন্য অ্যাম্বার।</span></li>
+      <li><strong>এশিয়ার টাইমলাইন।</strong> Singapore আর Thailand মোটামুটি কবে লাগবে, আর সেখানকার ডেটা কি একই শেপে আসবে?<span class="assume">ধরে নিচ্ছি: এ বছরের শেষে, একই schema — তাই শুধু কনফিগ আর কনটেন্ট।</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-label">সব লিংক এক জায়গায় <span class="en">links</span></div>
+    <div class="cards">
+      <div class="card">
+        <h3>ম্যাপ প্ল্যাটফর্ম<span class="tag">decide</span></h3>
+        <ul class="plain">
+          <li><a href="https://docs.mapbox.com/mapbox-gl-js/guides/" target="_blank" rel="noopener">Mapbox GL JS ডকুমেন্টেশন</a></li>
+          <li><a href="https://studio.mapbox.com/" target="_blank" rel="noopener">Mapbox Studio</a> — যেখানে লুকটা ডিজাইন হবে</li>
+          <li><a href="https://www.mapbox.com/pricing" target="_blank" rel="noopener">Mapbox pricing</a></li>
+          <li><a href="https://visgl.github.io/react-map-gl/" target="_blank" rel="noopener">react-map-gl</a> — React wrapper</li>
+          <li><a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener">অ্যাকাউন্ট খোলার লিংক</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>ফ্রি বিকল্প<span class="tag">phase 2</span></h3>
+        <ul class="plain">
+          <li><a href="https://maplibre.org/maplibre-gl-js/docs/" target="_blank" rel="noopener">MapLibre GL JS</a></li>
+          <li><a href="https://protomaps.com/" target="_blank" rel="noopener">Protomaps</a> — নিজে হোস্ট করা টাইল</li>
+          <li><a href="https://www.maptiler.com/cloud/pricing/" target="_blank" rel="noopener">MapTiler pricing</a></li>
+          <li><a href="https://stadiamaps.com/switch-to-stadia/from-mapbox/" target="_blank" rel="noopener">Mapbox বিকল্পগুলোর তুলনা</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>যেসব API ব্যবহার করব<span class="tag">build</span></h3>
+        <ul class="plain">
+          <li><a href="https://docs.mapbox.com/api/search/search-box/" target="_blank" rel="noopener">Search Box API</a> — ঠিকানা ও zip</li>
+          <li><a href="https://docs.mapbox.com/api/search/geocoding/" target="_blank" rel="noopener">Geocoding API</a> — import-এর সময় একবার</li>
+          <li><a href="https://docs.mapbox.com/api/navigation/directions/" target="_blank" rel="noopener">Directions API</a> — v1-এর পরে</li>
+          <li><a href="https://docs.mapbox.com/mapbox-gl-js/example/cluster/" target="_blank" rel="noopener">Clustering উদাহরণ</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API" target="_blank" rel="noopener">Geolocation API</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>আপনার রিপোতে আগে থেকেই আছে<span class="tag">stack</span></h3>
+        <ul class="plain">
+          <li><a href="https://gsap.com/docs/v3/" target="_blank" rel="noopener">GSAP</a> — স্লাইডিং ইন্ডিকেটর</li>
+          <li><a href="https://vaul.emilkowal.ski/" target="_blank" rel="noopener">vaul</a> — মোবাইল bottom sheet</li>
+          <li><a href="https://motion.dev/" target="_blank" rel="noopener">framer-motion</a> — লিস্ট ট্রানজিশন</li>
+          <li><a href="https://www.prisma.io/docs/orm/prisma-schema" target="_blank" rel="noopener">Prisma schema</a></li>
+          <li><a href="https://nextjs.org/docs/app/api-reference/directives/use-cache" target="_blank" rel="noopener">Next.js use cache</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>স্ট্যান্ডার্ড ও ডেটা<span class="tag">reference</span></h3>
+        <ul class="plain">
+          <li><a href="https://geojson.org/" target="_blank" rel="noopener">GeoJSON spec</a></li>
+          <li><a href="https://schema.org/LocalBusiness" target="_blank" rel="noopener">LocalBusiness schema</a> — SEO</li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" target="_blank" rel="noopener">prefers-reduced-motion</a></li>
+          <li><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html" target="_blank" rel="noopener">US Census TIGER</a> — ফ্রি কাউন্টি শেপ</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>রেফারেন্সগুলো<span class="tag">design</span></h3>
+        <ul class="plain">
+          <li><a href="https://www.ionna.com/" target="_blank" rel="noopener">Ionna</a> — যাকে হারাতে হবে</li>
+          <li><code>public/locations/_.jpeg</code></li>
+          <li><code>public/locations/UI Interactions&hellip;.gif</code></li>
+          <li><code>public/locations/Wattup Location Signed&hellip;.csv</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>signed-locations শিট আর <code>public/locations</code>-এর দুটো UI রেফারেন্স থেকে তৈরি। সংখ্যাগুলো ১ সেপ্টেম্বর ২০২৬-এ সরাসরি শিট থেকে গোনা: ঠিকানা সহ ২৭টা সাইট, ১৬২টা চার্জার, ২৫টা শহর। দামগুলো এখনকার প্রকাশিত রেট — অ্যাকাউন্ট খোলার সময় আরেকবার দেখে নেওয়া ভালো। ইংরেজি ভার্সন: <code>station-finder-plan.html</code></p>
+</footer>
+
+</body>
+</html>
