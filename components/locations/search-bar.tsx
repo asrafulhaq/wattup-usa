@@ -209,7 +209,7 @@ export function SearchBar({
     onChange(point ? { near: point, query: "" } : { near: null, query: text });
   };
 
-  const useMyLocation = () => {
+  const requestMyLocation = (withRadius?: number) => {
     if (!navigator.geolocation) {
       setLocate("unavailable");
       return;
@@ -229,7 +229,7 @@ export function SearchBar({
         // list happily returns every site sorted by distance, which for someone outside
         // the network means entries "7661 mi away": technically sorted, useless to read.
         // With it, the empty state says nothing is near and names the closest station.
-        const radius = filters.radius ?? DEFAULT_NEARBY_RADIUS;
+        const radius = withRadius ?? filters.radius ?? DEFAULT_NEARBY_RADIUS;
         onChange({ near: { latitude, longitude, label: provisional }, query: "", radius });
 
         if (!mapboxToken) return;
@@ -288,9 +288,14 @@ export function SearchBar({
         <div className="flex shrink-0 items-stretch border-l border-black/10">
           <Select
             value={filters.radius ? String(filters.radius) : "any"}
-            onValueChange={(value) =>
-              onChange({ radius: value === "any" ? null : Number(value) })
-            }
+            onValueChange={(value) => {
+              const radius = value === "any" ? null : Number(value);
+              onChange({ radius });
+              // A radius has nothing to measure from without an origin, so choosing one
+              // with no location set filtered nothing and looked broken. Asking where
+              // they are is the step they were always going to have to take.
+              if (radius !== null && !filters.near) requestMyLocation(radius);
+            }}
           >
             <SelectTrigger
               aria-label="Distance"
@@ -465,7 +470,7 @@ export function SearchBar({
       <div className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 px-0.5">
         <button
           type="button"
-          onClick={useMyLocation}
+          onClick={() => requestMyLocation()}
           disabled={locate === "locating"}
           // Matched to the Clear control beside it: same size, shape, padding and
           // hover. One was a blue link and the other underlined grey text, so two
@@ -479,7 +484,13 @@ export function SearchBar({
         </button>
         {locate === "denied" && (
           <span className="text-[13px] text-dark/55">
-            Location permission was declined. Type a city or postcode instead.
+            Location permission was declined. Search a city or postcode to filter by
+            distance.
+          </span>
+        )}
+        {filters.radius !== null && !filters.near && locate !== "denied" && (
+          <span className="text-[13px] text-dark/55">
+            Distance needs a starting point. Search a place, or use your location.
           </span>
         )}
         {locate === "unavailable" && (
