@@ -101,6 +101,24 @@ const MUTED_DOT = "#8B919A";
 const LABEL_LEAD = "#FFFFFF";
 const LABEL_MUTED = "#9AA1AA";
 const LABEL_HALO = "#2F343A";
+/** Roads sit just above the land, present but never competing with the markers. */
+const ROAD_COLOR = "#6A6F77";
+const PLACE_LABEL_COLOR = "#A7AEB8";
+
+/**
+ * Layer groups for the minimal view.
+ *
+ * Only the noise is hidden. Landuse, landcover, parks and hillshade carry a dozen
+ * slightly different shades and, with nothing else on the map, read as blotches rather
+ * than as regions. Roads and place names stay: they are what makes the map answer a
+ * question rather than just look like one.
+ */
+const NOISE_LAYERS =
+  /landuse|landcover|national[-_]?park|hillshade|pitch|golf|building|aeroway|ferry|crosswalk|structure/i;
+const ROAD_LAYERS = /road|street|bridge|tunnel|motorway|trunk|primary|secondary/i;
+const POI_LABELS = /poi|transit|airport|shield|road[-_]?(label|number|exit)/i;
+const PLACE_LABELS =
+  /settlement|state[-_]?label|country[-_]?label|continent|place[-_]?label|marine[-_]?label|natural[-_]?label/i;
 
 export function StationMap({
   stations,
@@ -197,38 +215,67 @@ export function StationMap({
     const map = mapRef.current?.getMap();
     if (!map || option.detailed) return;
 
-    // Keep land, water and administrative boundaries. Hide everything else.
-    //
-    // Hiding only roads and labels left the style's landuse, landcover, park and
-    // hillshade fills behind, and at a dozen slightly different shades those read as
-    // blotchy noise rather than as the reference's clean regions.
+    // Keep land, water, boundaries, roads and place names. Hide the rest.
     //
     // The shapes come from the basemap rather than from geometry of our own. An earlier
     // pass drew California counties from a local file, which looked right and only
     // worked in California: pan anywhere else and the map was empty, and the Singapore
-    // and Thailand rollout would have needed a new file each time. Styling land, water
-    // and boundaries covers the whole world from one rule.
+    // and Thailand rollout would have needed a new file each time. Styling the basemap
+    // covers the whole world from one rule.
     for (const layer of map.getStyle()?.layers ?? []) {
       if (layer.id.startsWith("wattup-")) continue;
+      const { id, type } = layer;
+
       try {
-        if (layer.type === "background") {
+        if (type === "background") {
           // In a Mapbox style the background is the land; water is filled over it.
-          map.setPaintProperty(layer.id, "background-color", LAND_COLOR);
-        } else if (layer.type === "fill" && /water|ocean|bathymetry/i.test(layer.id)) {
-          map.setPaintProperty(layer.id, "fill-color", WATER_COLOR);
-          map.setPaintProperty(layer.id, "fill-opacity", 1);
-        } else if (layer.type === "line" && /admin|boundary/i.test(layer.id)) {
+          map.setPaintProperty(id, "background-color", LAND_COLOR);
+          continue;
+        }
+
+        if (NOISE_LAYERS.test(id) || POI_LABELS.test(id)) {
+          map.setLayoutProperty(id, "visibility", "none");
+          continue;
+        }
+
+        if (/water|ocean|bathymetry/i.test(id)) {
+          map.setLayoutProperty(id, "visibility", "visible");
+          map.setPaintProperty(
+            id,
+            type === "line" ? "line-color" : "fill-color",
+            WATER_COLOR,
+          );
+          continue;
+        }
+
+        if (type === "line" && /admin|boundary/i.test(id)) {
           // Drawn in the field colour rather than as a border: a stroke the colour of
           // the ground cuts a gap between neighbouring regions, which is what leaves the
           // reference's separated shapes instead of one continuous landmass.
-          map.setLayoutProperty(layer.id, "visibility", "visible");
-          map.setPaintProperty(layer.id, "line-color", WATER_COLOR);
-          map.setPaintProperty(layer.id, "line-width", 1.6);
-          map.setPaintProperty(layer.id, "line-opacity", 0.9);
-          map.setPaintProperty(layer.id, "line-dasharray", [1, 0]);
-        } else {
-          map.setLayoutProperty(layer.id, "visibility", "none");
+          map.setLayoutProperty(id, "visibility", "visible");
+          map.setPaintProperty(id, "line-color", WATER_COLOR);
+          map.setPaintProperty(id, "line-width", 1.6);
+          map.setPaintProperty(id, "line-opacity", 0.9);
+          map.setPaintProperty(id, "line-dasharray", [1, 0]);
+          continue;
         }
+
+        if (type === "line" && ROAD_LAYERS.test(id)) {
+          map.setLayoutProperty(id, "visibility", "visible");
+          map.setPaintProperty(id, "line-color", ROAD_COLOR);
+          map.setPaintProperty(id, "line-opacity", 0.55);
+          continue;
+        }
+
+        if (type === "symbol" && PLACE_LABELS.test(id)) {
+          map.setLayoutProperty(id, "visibility", "visible");
+          map.setPaintProperty(id, "text-color", PLACE_LABEL_COLOR);
+          map.setPaintProperty(id, "text-halo-color", LABEL_HALO);
+          map.setPaintProperty(id, "text-halo-width", 1.4);
+          continue;
+        }
+
+        map.setLayoutProperty(id, "visibility", "none");
       } catch {
         // A style can rename or restructure layers between versions; a layer that does
         // not take a given property is not fatal.

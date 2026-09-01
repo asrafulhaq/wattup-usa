@@ -239,14 +239,23 @@ wrong: it only worked in California. Pan anywhere else and the map was empty, an
 Singapore and Thailand would each have needed their own file, which is the opposite of
 the scalability this build is meant to have.
 
-What it does now is style the basemap instead of replacing it. Every layer is hidden
-except three kinds:
+What it does now is style the basemap instead of replacing it, keeping the road network
+and place names but pulling both back into the palette:
 
 | Kept | Painted as |
 |---|---|
 | background (the land, in a Mapbox style) | land colour |
-| water, ocean and bathymetry fills | field colour |
+| water, ocean and bathymetry | field colour |
 | admin and boundary lines | field colour, 1.6px |
+| roads, streets, bridges, tunnels | `#6A6F77` at 55% |
+| settlement, state, country, natural labels | `#A7AEB8`, dark halo |
+
+Hidden: landuse, landcover, parks, hillshade, buildings, and every point of interest or
+transit label. Those are what turn a dark basemap into blotches, and none of them helps
+a driver.
+
+Minimal is the default view. It is the styled map the design was built around; the three
+stock basemaps are one click away for anyone who wants the full road detail.
 
 Boundaries are drawn in the **field** colour rather than as borders. A stroke the colour
 of the ground behind them cuts a gap between neighbouring regions, which is what leaves

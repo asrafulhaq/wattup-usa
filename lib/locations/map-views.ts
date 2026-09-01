@@ -11,12 +11,14 @@ export interface MapViewOption {
 /**
  * The basemaps offered under the map.
  *
- * "minimal" is the reference look: roads, places of interest and every basemap label
- * stripped out, which is what gives that design its calm. The other three are the
- * opposite, and deliberately so: a driver deciding whether to pull off a freeway needs
- * the road number, the junction and the frontage, none of which the reference frame
- * carries. Keeping both means the section can look like the reference and still answer
- * a real question.
+ * "minimal" is the house style: the reference's dark field and flat regions, with roads
+ * and place names kept but pulled back so they sit under the markers rather than
+ * competing with them. Points of interest, landuse, parks and hillshade are dropped,
+ * since those are what turn a dark basemap into blotches.
+ *
+ * The other three are the stock Mapbox basemaps, untouched. A driver deciding whether to
+ * pull off a freeway wants the route shield, the junction and the frontage, and those
+ * should look exactly as they do on every other map they have used.
  */
 export const MAP_VIEWS: MapViewOption[] = [
   {
@@ -45,7 +47,11 @@ export const MAP_VIEWS: MapViewOption[] = [
   },
 ];
 
-export const DEFAULT_MAP_VIEW: MapView = "map";
+/**
+ * Minimal opens the section: it is the styled view the design was built around, and the
+ * detailed basemaps are one click away for anyone who wants the road network.
+ */
+export const DEFAULT_MAP_VIEW: MapView = "minimal";
 
 export function viewOption(view: MapView): MapViewOption {
   return MAP_VIEWS.find((option) => option.id === view) ?? MAP_VIEWS[0];
