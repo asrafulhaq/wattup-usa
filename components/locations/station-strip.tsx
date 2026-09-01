@@ -18,6 +18,16 @@ const DRAG_THRESHOLD = 6;
 /** Width of the fade at each end, in pixels. */
 const FADE = 56;
 
+/** How long the strip takes to bring a station to the middle. */
+const SCROLL_MS = 620;
+
+/** Per frame velocity decay after a drag is released, and the point it stops. */
+const FRICTION = 0.94;
+const MIN_VELOCITY = 0.05;
+
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
 /**
  * The horizontal strip of locations above the map, with the accent bar that slides
  * between them.
@@ -33,7 +43,40 @@ export function StationStrip({
 }: StationStripProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
+  const animation = useRef(0);
   const [edges, setEdges] = useState({ start: false, end: false });
+
+  /**
+   * Scrolls the strip with an eased curve of our own.
+   *
+   * `scrollTo({behavior: "smooth"})` is left to the browser, which paces it differently
+   * across engines and, in Chrome, arrives in visible steps over a distance this long.
+   * Driving it frame by frame keeps the motion identical everywhere and matches the
+   * easing the markers already use.
+   */
+  const glideTo = useCallback((target: number) => {
+    const list = listRef.current;
+    if (!list) return;
+    cancelAnimationFrame(animation.current);
+
+    const from = list.scrollLeft;
+    const distance = target - from;
+    if (Math.abs(distance) < 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      list.scrollLeft = target;
+      return;
+    }
+
+    const started = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - started) / SCROLL_MS);
+      list.scrollLeft = from + distance * easeInOut(t);
+      if (t < 1) animation.current = requestAnimationFrame(step);
+    };
+    animation.current = requestAnimationFrame(step);
+  }, []);
+
+  useEffect(() => () => cancelAnimationFrame(animation.current), []);
 
   const activeSlug = selectedSlug ?? stations[0]?.slug ?? null;
 
@@ -63,36 +106,50 @@ export function StationStrip({
    * and the entry's offset are in the same coordinate space and stay aligned however far
    * the strip is scrolled.
    */
-  useLayoutEffect(() => {
+  /** Puts the indicator under the active entry. Never scrolls. */
+  const positionBar = useCallback(() => {
     const list = listRef.current;
     const bar = barRef.current;
     if (!list || !bar || !activeSlug) return;
+    const tab = list.querySelector<HTMLElement>(
+      `[data-slug="${CSS.escape(activeSlug)}"]`,
+    );
+    if (!tab) return;
+    bar.style.width = `${tab.offsetWidth}px`;
+    bar.style.transform = `translateX(${tab.offsetLeft}px)`;
+  }, [activeSlug]);
 
-    const move = () => {
-      const tab = list.querySelector<HTMLElement>(
-        `[data-slug="${CSS.escape(activeSlug)}"]`,
-      );
-      if (!tab) return;
-      bar.style.width = `${tab.offsetWidth}px`;
-      bar.style.transform = `translateX(${tab.offsetLeft}px)`;
-
-      // Scrolled by hand rather than with scrollIntoView, which would also scroll the
-      // page vertically to reach the strip.
-      const target = tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2;
-      const max = list.scrollWidth - list.clientWidth;
-      list.scrollTo({
-        left: Math.max(0, Math.min(max, target)),
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "auto"
-          : "smooth",
-      });
-    };
-
-    move();
-    const observer = new ResizeObserver(move);
+  /**
+   * Keeps the indicator under the active entry through layout changes.
+   *
+   * Deliberately separate from the scroll below. Both used to live in one handler that a
+   * ResizeObserver called, so any resize re-centred the strip: after dragging it by hand
+   * it would glide back to the active station on its own, which is what made the
+   * scrolling feel like it was fighting the pointer.
+   */
+  useLayoutEffect(() => {
+    positionBar();
+    const list = listRef.current;
+    if (!list) return;
+    const observer = new ResizeObserver(positionBar);
     observer.observe(list);
     return () => observer.disconnect();
-  }, [activeSlug, stations]);
+  }, [positionBar, stations]);
+
+  /** Brings the active entry to the middle, once, when the selection changes. */
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list || !activeSlug) return;
+    const tab = list.querySelector<HTMLElement>(
+      `[data-slug="${CSS.escape(activeSlug)}"]`,
+    );
+    if (!tab) return;
+    // Scrolled by hand rather than with scrollIntoView, which would also scroll the page
+    // vertically to reach the strip.
+    const target = tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2;
+    const max = list.scrollWidth - list.clientWidth;
+    glideTo(Math.max(0, Math.min(max, target)));
+  }, [activeSlug, glideTo]);
 
   /**
    * Drag to scroll.
@@ -101,29 +158,79 @@ export function StationStrip({
    * so pulling the strip sideways never selects whichever entry it happened to finish
    * over.
    */
-  const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
+  const drag = useRef({
+    active: false,
+    startX: 0,
+    startScroll: 0,
+    moved: false,
+    lastX: 0,
+    lastAt: 0,
+    velocity: 0,
+  });
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const list = listRef.current;
     if (!list || event.pointerType === "touch") return; // touch scrolls natively
+    cancelAnimationFrame(animation.current); // a new grab overrides any glide in flight
     drag.current = {
       active: true,
       startX: event.clientX,
       startScroll: list.scrollLeft,
       moved: false,
+      lastX: event.clientX,
+      lastAt: performance.now(),
+      velocity: 0,
     };
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const list = listRef.current;
     if (!list || !drag.current.active) return;
+
     const dx = event.clientX - drag.current.startX;
     if (Math.abs(dx) > DRAG_THRESHOLD) drag.current.moved = true;
-    if (drag.current.moved) list.scrollLeft = drag.current.startScroll - dx;
+    if (!drag.current.moved) return;
+
+    list.scrollLeft = drag.current.startScroll - dx;
+
+    // Velocity in pixels per millisecond, smoothed so one erratic sample cannot throw
+    // the release. This is what the glide after letting go is built from.
+    const now = performance.now();
+    const elapsed = now - drag.current.lastAt;
+    if (elapsed > 0) {
+      const instant = (event.clientX - drag.current.lastX) / elapsed;
+      drag.current.velocity = drag.current.velocity * 0.7 + instant * 0.3;
+      drag.current.lastX = event.clientX;
+      drag.current.lastAt = now;
+    }
   };
 
+  /**
+   * Carries the strip on after the pointer lets go.
+   *
+   * Without this the strip stops dead the instant the button is released, which feels
+   * like the content is stuck to the cursor rather than being thrown.
+   */
   const endDrag = () => {
+    const list = listRef.current;
+    if (!list || !drag.current.active) return;
     drag.current.active = false;
+
+    let velocity = drag.current.velocity;
+    if (Math.abs(velocity) < MIN_VELOCITY) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let last = performance.now();
+    const decay = (now: number) => {
+      const frames = Math.max(1, (now - last) / 16.67);
+      last = now;
+      list.scrollLeft -= velocity * 16.67 * frames;
+      velocity *= Math.pow(FRICTION, frames);
+      if (Math.abs(velocity) > MIN_VELOCITY) {
+        animation.current = requestAnimationFrame(decay);
+      }
+    };
+    animation.current = requestAnimationFrame(decay);
   };
 
   if (stations.length === 0) return null;

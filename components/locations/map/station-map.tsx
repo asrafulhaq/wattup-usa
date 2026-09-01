@@ -11,7 +11,7 @@ import {
 import { statusLabel } from "@/lib/locations/public";
 import { orderByProximity, smoothLine, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
-import type { LngLatBoundsLike } from "mapbox-gl";
+import type { ExpressionSpecification, LngLatBoundsLike } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Map, {
   AttributionControl,
@@ -150,6 +150,20 @@ const MUTED_DOT = "#8B919A";
 const LABEL_LEAD = "#FFFFFF";
 const LABEL_MUTED = "#9AA1AA";
 const LABEL_HALO = "#2F343A";
+
+/**
+ * A marker keeps its own tier's colour when hovered or selected.
+ *
+ * The emphasis is size and, for a selection, the halo. Recolouring a 2027 site to the
+ * accent on selection said it had become a 2026 site, which is the one thing the two
+ * colours are there to tell apart.
+ */
+const TIER_COLOR: ExpressionSpecification = [
+  "case",
+  ["==", ["get", "lead"], 1],
+  ACCENT,
+  MUTED_DOT,
+];
 /** Roads sit just above the land, present but never competing with the markers. */
 const ROAD_COLOR = "#6A6F77";
 const PLACE_LABEL_COLOR = "#A7AEB8";
@@ -708,7 +722,7 @@ export function StationMap({
           type="circle"
           filter={["==", ["get", "slug"], hoveredSlug ?? "\u0000"]}
           paint={{
-            "circle-color": ACCENT,
+            "circle-color": TIER_COLOR,
             "circle-radius": ACTIVE_DOT_FROM,
             "circle-stroke-width": 2.5,
             "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
@@ -723,7 +737,7 @@ export function StationMap({
           type="circle"
           filter={["==", ["get", "slug"], selectedSlug ?? "\u0000"]}
           paint={{
-            "circle-color": ACCENT,
+            "circle-color": TIER_COLOR,
             "circle-blur": 0.9,
             "circle-radius": ACTIVE_GLOW_RADIUS,
             "circle-opacity": 0,
@@ -737,7 +751,7 @@ export function StationMap({
             // Identical to the base markers, only larger. Giving the active one its own
             // treatment made it read as a different kind of thing rather than as the
             // same marker singled out.
-            "circle-color": ACCENT,
+            "circle-color": TIER_COLOR,
             "circle-radius": ACTIVE_DOT_FROM,
             "circle-stroke-width": 2.5,
             "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
