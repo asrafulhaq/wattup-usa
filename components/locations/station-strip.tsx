@@ -295,8 +295,12 @@ export function StationStrip({
                     {station.city}
                   </h3>
                   <div className="flex flex-col gap-y-2 text-[16px] leading-[120%] text-dark md:text-[20px]">
-                    <span>{station.chargerCount} Ultra Fast Chargers</span>
-                    <span>{station.county} County</span>
+                    <span>
+                      {station.maxPowerKw}kW Ultra Fast Charging
+                    </span>
+                    <span>
+                      {station.chargerCount} chargers &middot; {station.county} County
+                    </span>
                     <span>
                       {station.distance !== null
                         ? `${formatDistance(station.distance, "mi")} away`

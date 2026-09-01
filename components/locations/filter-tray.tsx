@@ -98,10 +98,11 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
       <h3 className="mt-5 text-[13px] font-bold uppercase tracking-[0.08em] text-dark/50">
         Amenities (must have)
       </h3>
-      {/* Every amenity is listed whether or not a site has it yet. The catalogue is the
-          fixed set the dashboard assigns from, and hiding the unassigned ones would make
-          the filter appear to change shape as sites are surveyed. Counts of zero are
-          disabled rather than removed, which says "not yet" instead of "never". */}
+      {/* Every amenity stays selectable even at a count of zero.
+          Disabling on zero looked reasonable and was wrong here: no site has been
+          surveyed yet, so every count is zero and the whole section arrived dead, with
+          nothing to say why. A count of zero is information, not a reason to take the
+          control away. */}
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
         {AMENITIES.map((amenity) => {
           const checked = filters.amenities.includes(amenity.id);
@@ -109,17 +110,12 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
           return (
             <label
               key={amenity.id}
-              className={`flex items-center justify-between gap-2 text-[14px] ${
-                count === 0 && !checked
-                  ? "cursor-not-allowed text-dark/30"
-                  : "cursor-pointer text-dark"
-              }`}
+              className="flex cursor-pointer items-center justify-between gap-2 text-[14px] text-dark"
             >
-              <span className="flex min-w-0 items-center gap-2.5">
+              <span className="flex min-w-0 items-center gap-2">
                 <input
                   type="checkbox"
                   checked={checked}
-                  disabled={count === 0 && !checked}
                   onChange={() =>
                     onChange({
                       amenities: checked
@@ -128,6 +124,10 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
                     })
                   }
                   className="h-4 w-4 shrink-0 accent-primary"
+                />
+                <amenity.icon
+                  aria-hidden="true"
+                  className={`h-4 w-4 shrink-0 ${checked ? "text-primary" : "text-dark/45"}`}
                 />
                 <span className="truncate">{amenity.label}</span>
               </span>

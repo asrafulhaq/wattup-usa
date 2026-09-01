@@ -81,6 +81,9 @@ export function ResultsList({
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-black/5 px-2 py-0.5 text-[12px] font-semibold text-dark/70">
+                  {station.maxPowerKw}kW
+                </span>
+                <span className="rounded-full bg-black/5 px-2 py-0.5 text-[12px] font-semibold text-dark/70">
                   {station.chargerCount} chargers
                 </span>
                 <span

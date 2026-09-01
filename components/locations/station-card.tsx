@@ -27,8 +27,9 @@ export function StationCard({ station, onClose }: StationCardProps) {
           <p className="mt-0.5 text-[12.5px] leading-[140%] text-white/75">
             {formatAddress(station)}
           </p>
-          <p className="mt-2 text-[12.5px] font-semibold leading-none text-white/90">
-            {station.chargerCount} chargers &middot; {statusLabel(station)}
+          <p className="mt-2 text-[12.5px] font-semibold leading-[140%] text-white/90">
+            {station.maxPowerKw}kW &middot; {station.chargerCount} chargers &middot;{" "}
+            {statusLabel(station)}
           </p>
         </div>
 
