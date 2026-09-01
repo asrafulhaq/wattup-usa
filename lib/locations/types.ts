@@ -6,6 +6,13 @@ import type { AmenityId } from "./amenities";
 
 export type StationStatus = "LIVE" | "UNDER_CONSTRUCTION" | "PLANNED";
 
+export type ConnectorType = "CCS1" | "NACS" | "CCS2" | "CHAdeMO";
+
+export interface StationConnector {
+  type: ConnectorType;
+  count: number;
+}
+
 /** Sites are funded per install year. Both years are in the data, told apart by this. */
 export type GoLiveYear = 2026 | 2027;
 
@@ -41,6 +48,17 @@ export interface StationRecord {
   maxPowerKw: number;
   /** Amenities present on site. Assigned in the dashboard, empty until surveyed. */
   amenities: AmenityId[];
+  /**
+   * Price per kWh in USD, before tax. Null until a tariff is set.
+   *
+   * A static figure held per site, not a live rate. The reference network shows a price
+   * with "updated a minute ago" because it reads a live feed from commissioned hardware;
+   * ours has no hardware energised yet, so a number here would be a quote, and one that
+   * cannot be stale is better than one that pretends to be current.
+   */
+  pricePerKwh: number | null;
+  /** Connector types and counts. Empty until the build is specified per site. */
+  connectors: StationConnector[];
 
   // straight from the sheet
   signedNumber: number | null;
@@ -85,6 +103,8 @@ export type PublicStation = Pick<
   | "countyFips"
   | "maxPowerKw"
   | "amenities"
+  | "pricePerKwh"
+  | "connectors"
   | "chargerCount"
 >;
 

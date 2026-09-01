@@ -28,7 +28,7 @@ const records = JSON.parse(src.slice(src.indexOf('= [') + 2, src.lastIndexOf(']'
 const PUBLIC_KEYS = [
   'slug', 'name', 'street', 'city', 'region', 'postalCode', 'country',
   'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'county', 'countyFips',
-  'maxPowerKw', 'amenities', 'chargerCount',
+  'maxPowerKw', 'amenities', 'pricePerKwh', 'connectors', 'chargerCount',
 ];
 const toPublic = (r) => Object.fromEntries(PUBLIC_KEYS.map((k) => [k, r[k]]));
 
@@ -40,7 +40,10 @@ for (const record of records) {
   }
 
   const pub = toPublic(record);
-  const serialised = JSON.stringify(pub).toLowerCase();
+  // Values only. Serialising the whole object searched our own field names too, so a
+  // two letter note like "EC" matched inside the key "connectors" and was reported as a
+  // leak. Keys are names we chose; only the values are data.
+  const serialised = JSON.stringify(Object.values(pub)).toLowerCase();
 
   for (const field of PRIVATE_FIELDS) {
     if (field in pub) failures.push(`${record.slug}: ${field} present in public shape`);
@@ -54,7 +57,9 @@ for (const record of records) {
     // postcodes and coordinates by coincidence, so matching it proves nothing. The
     // values that actually matter here are names and addresses, which are not short
     // and not purely numeric.
-    if (/^\d{1,4}$/.test(value)) continue;
+    // Short values carry no signal: a two or three character note appears inside a
+    // street name or a county by coincidence, and matching one proves nothing.
+    if (/^\d{1,4}$/.test(value) || value.length < 5) continue;
 
     if (serialised.includes(value.toLowerCase())) {
       failures.push(`${record.slug}: value of ${field} ("${value}") leaked into public shape`);

@@ -1,7 +1,7 @@
 import { MapCanvasClient } from "@/components/locations/map/map-canvas-client";
 import { AMENITIES } from "@/lib/locations/amenities";
 import { formatDistance, haversineMiles } from "@/lib/locations/distance";
-import { statusLabel } from "@/lib/locations/public";
+import { formatConnectors, formatPrice, statusLabel } from "@/lib/locations/public";
 import { getMapboxToken } from "@/lib/locations/server";
 import type { PublicStation } from "@/lib/locations/types";
 import Link from "next/link";
@@ -19,6 +19,8 @@ export function StationDetail({ station, stations }: StationDetailProps) {
     station.amenities.includes(amenity.id),
   );
   const isOpen = station.status === "LIVE";
+  const price = formatPrice(station);
+  const connectors = formatConnectors(station);
 
   const nearby = stations
     .filter((entry) => entry.slug !== station.slug)
@@ -177,10 +179,19 @@ export function StationDetail({ station, stations }: StationDetailProps) {
             <DetailRow label="Charging speed" value={`${station.maxPowerKw}kW`} />
             <DetailRow label="Chargers" value={`${station.chargerCount} on site`} />
             <DetailRow label="Availability" value={statusLabel(station)} />
-            {/* Kept visible rather than hidden. The slot exists, the data does not yet,
-                and saying so is more use than a page that quietly omits it. */}
-            <DetailRow label="Connector types" value="Being confirmed" muted />
-            <DetailRow label="Pricing" value="Being confirmed" muted />
+            {/* Real once set in the dashboard; until then the row stays and says so.
+                The slot existing is more use than a page that quietly omits a field a
+                driver came for. */}
+            <DetailRow
+              label="Connector types"
+              value={connectors ?? "Being confirmed"}
+              muted={!connectors}
+            />
+            <DetailRow
+              label="Pricing"
+              value={price ?? "Being confirmed"}
+              muted={!price}
+            />
 
             <div className="flex flex-col gap-3 pt-6">
               <a
@@ -231,21 +242,18 @@ export function StationDetail({ station, stations }: StationDetailProps) {
                   <li key={entry.slug}>
                     <Link
                       href={`/locations/${entry.slug}`}
-                      className="group flex h-full flex-col rounded-xl border border-black/10 bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-black/5"
+                      className="group flex h-full flex-col rounded-xl border border-black/10 bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-black/20 hover:shadow-lg hover:shadow-black/5"
                     >
                       <span className="flex items-center justify-between gap-3">
-                        {/* The distance leads: it is the reason to look at this card at
-                            all, and reading it should not mean reading the card. */}
-                        <span className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+                        {/* Distance leads because it is the reason to look at the card,
+                            but in the text colour: three cards each carrying an accent
+                            distance, an accent chip and an accent link turned a quiet
+                            list into a wall of blue. Only the status keeps a colour, and
+                            only because it means something. */}
+                        <span className="text-[13px] font-semibold text-dark/70">
                           {formatDistance(miles, "mi")} away
                         </span>
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${
-                            entryOpen
-                              ? "bg-primary/10 text-primary"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
-                        >
+                        <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-dark/50">
                           <span
                             aria-hidden="true"
                             className={`h-1.5 w-1.5 rounded-full ${
@@ -269,7 +277,7 @@ export function StationDetail({ station, stations }: StationDetailProps) {
                         <span>
                           {entry.maxPowerKw}kW &middot; {entry.chargerCount} chargers
                         </span>
-                        <span className="inline-flex items-center gap-1 font-semibold text-primary">
+                        <span className="inline-flex items-center gap-1 font-semibold text-dark/70 transition-colors group-hover:text-primary">
                           View
                           <svg
                             viewBox="0 0 16 16"

@@ -42,6 +42,8 @@ export function toPublicStation(record: StationRecord): PublicStation {
     countyFips: record.countyFips,
     maxPowerKw: record.maxPowerKw,
     amenities: record.amenities,
+    pricePerKwh: record.pricePerKwh,
+    connectors: record.connectors,
     chargerCount: record.chargerCount,
   };
 }
@@ -69,4 +71,18 @@ export function stationsByYear(
     2026: stations.filter((s) => s.goLiveYear === 2026),
     2027: stations.filter((s) => s.goLiveYear === 2027),
   };
+}
+
+/** "$0.39/kWh plus tax", or null when no tariff has been set for the site. */
+export function formatPrice(station: PublicStation): string | null {
+  if (station.pricePerKwh === null) return null;
+  return `$${station.pricePerKwh.toFixed(2)}/kWh plus tax`;
+}
+
+/** "6 CCS1 · 4 NACS", or null when the build has not been specified. */
+export function formatConnectors(station: PublicStation): string | null {
+  if (station.connectors.length === 0) return null;
+  return station.connectors
+    .map((connector) => `${connector.count} ${connector.type}`)
+    .join(" \u00b7 ");
 }

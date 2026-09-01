@@ -246,6 +246,10 @@ for (const row of rows) {
     // itself lives in lib/locations/amenities.ts and is seeded whole, so every option
     // exists before anyone opens the dashboard.
     amenities: [],
+    // Both set in the dashboard. No tariff has been agreed and no site's connector mix
+    // is specified in the sheet, so neither is invented here.
+    pricePerKwh: null,
+    connectors: [],
     // straight from the sheet
     signedNumber: number('Location # signed'),
     initialNotes: value('Initial Notes'),
