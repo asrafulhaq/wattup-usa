@@ -35,6 +35,22 @@ interface StationMapProps {
 const DOTS_LAYER = "wattup-dots";
 const LABELS_LAYER = "wattup-labels";
 const PULSE_LAYER = "wattup-corridor-pulse";
+const ACTIVE_GLOW_LAYER = "wattup-active-glow";
+const ACTIVE_DOT_LAYER = "wattup-active-dot";
+
+/** How long the active marker takes to grow in or fall away. */
+const ACTIVE_TWEEN_MS = 320;
+
+/** The halo's opacity, held steady so it never fades while a station is active. */
+const ACTIVE_GLOW_OPACITY = 0.6;
+
+/** Radii the active marker moves between, in pixels. */
+const ACTIVE_GLOW_FROM = 14;
+const ACTIVE_GLOW_TO = 38;
+const ACTIVE_DOT_FROM = 5.5;
+const ACTIVE_DOT_TO = 8;
+
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 /** How long the highlight takes to travel the line once. */
 const PULSE_DURATION_MS = 5200;
@@ -107,20 +123,6 @@ const ROAD_COLOR = "#6A6F77";
 const PLACE_LABEL_COLOR = "#A7AEB8";
 
 /**
- * Paint transitions for the markers.
- *
- * A Mapbox paint property jumps to its new value the moment the expression behind it
- * changes, so hovering or selecting resized the markers in a single frame. Giving each
- * property a transition makes the renderer interpolate instead, which is what turns the
- * change from a snap into a movement.
- */
-const MARKER_TRANSITION = {
-  "circle-radius-transition": { duration: 280, delay: 0 },
-  "circle-opacity-transition": { duration: 280, delay: 0 },
-  "circle-color-transition": { duration: 200, delay: 0 },
-} as const;
-
-/**
  * Layer groups for the minimal view.
  *
  * Only the noise is hidden. Landuse, landcover, parks and hillshade carry a dozen
@@ -146,8 +148,14 @@ export function StationMap({
 }: StationMapProps) {
   const mapRef = useRef<MapRef>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  /** Where the active marker's grow animation currently sits, 0 to 1. */
+  const activeProgress = useRef(0);
   const [view, setView] = useState<MapView>(DEFAULT_MAP_VIEW);
   const option = viewOption(view);
+
+  // Hovering previews a station and selecting commits to it; both put the same marker
+  // forward, so they drive one animation rather than two competing ones.
+  const activeSlug = selectedSlug ?? hoveredSlug;
 
   const geojson = useMemo(
     () => ({
@@ -409,6 +417,61 @@ export function StationMap({
     return () => observer.disconnect();
   }, []);
 
+  /**
+   * Grows the active marker.
+   *
+   * Mapbox will not transition a paint property whose value comes from a data
+   * expression, and the base markers size themselves with `["case", ["get", ...]]`, so
+   * the transitions this originally used never fired: the marker jumped in one frame no
+   * matter what duration was set. The active station is therefore its own pair of
+   * layers, filtered to one feature, whose radius is a plain number. A plain number can
+   * be driven frame by frame, which is what actually produces the movement.
+   */
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const target = activeSlug ? 1 : 0;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const from = reduced ? target : activeProgress.current;
+    const started = performance.now();
+    let frame = 0;
+
+    const paint = (value: number) => {
+      activeProgress.current = value;
+      const eased = easeOut(value);
+      if (!map.getLayer(ACTIVE_DOT_LAYER)) return;
+      try {
+        map.setPaintProperty(
+          ACTIVE_GLOW_LAYER,
+          "circle-radius",
+          ACTIVE_GLOW_FROM + (ACTIVE_GLOW_TO - ACTIVE_GLOW_FROM) * eased,
+        );
+        map.setPaintProperty(
+          ACTIVE_DOT_LAYER,
+          "circle-radius",
+          ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
+        );
+      } catch {
+        // The layers go away for a moment while a new basemap style loads.
+      }
+    };
+
+    if (reduced || from === target) {
+      paint(target);
+      return;
+    }
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - started) / ACTIVE_TWEEN_MS);
+      paint(from + (target - from) * t);
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [activeSlug]);
+
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
     [onSelect],
@@ -425,35 +488,10 @@ export function StationMap({
     id: "wattup-glow",
     type: "circle",
     paint: {
-      // The reference singles out its selected point with a small core inside a broad,
-      // soft disc, so the halo carries the emphasis and the dot stays small. Radius here
-      // is roughly five times the dot it sits under.
-      "circle-radius": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        38,
-        ["==", ["get", "slug"], hoveredSlug ?? ""],
-        26,
-        ["==", ["get", "lead"], 1],
-        15,
-        10,
-      ],
+      "circle-radius": ["case", ["==", ["get", "lead"], 1], 15, 10],
       "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
       "circle-blur": 0.85,
-      "circle-opacity": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        0.85,
-        ["==", ["get", "slug"], hoveredSlug ?? ""],
-        0.6,
-        ["==", ["get", "lead"], 1],
-        0.4,
-        0.26,
-      ],
-      // Without these the halo snaps between sizes the instant selection changes, which
-      // is what made hovering and clicking feel abrupt. Mapbox interpolates any paint
-      // property given a matching transition.
-      ...MARKER_TRANSITION,
+      "circle-opacity": ["case", ["==", ["get", "lead"], 1], 0.4, 0.26],
     },
   };
 
@@ -461,42 +499,11 @@ export function StationMap({
     id: DOTS_LAYER,
     type: "circle",
     paint: {
-      // The dot stays small even when selected: the halo above does the work, which is
-      // how the reference keeps a selected point from turning into a blob.
-      "circle-radius": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        7,
-        ["==", ["get", "slug"], hoveredSlug ?? ""],
-        6.5,
-        ["==", ["get", "lead"], 1],
-        5.5,
-        4.5,
-      ],
-      "circle-color": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        "#FFFFFF",
-        ["==", ["get", "lead"], 1],
-        ACCENT,
-        MUTED_DOT,
-      ],
-      "circle-stroke-width": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        3,
-        2.5,
-      ],
-      "circle-stroke-color": [
-        "case",
-        ["==", ["get", "slug"], selectedSlug ?? ""],
-        ACCENT,
-        option.detailed ? "#FFFFFF" : WATER_COLOR,
-      ],
+      "circle-radius": ["case", ["==", ["get", "lead"], 1], 5.5, 4.5],
+      "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
+      "circle-stroke-width": 2.5,
+      "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
       "circle-opacity": 1,
-      ...MARKER_TRANSITION,
-      "circle-stroke-width-transition": MARKER_TRANSITION["circle-radius-transition"],
-      "circle-stroke-color-transition": MARKER_TRANSITION["circle-radius-transition"],
     },
   };
 
@@ -620,6 +627,36 @@ export function StationMap({
       <Source id="wattup-stations" type="geojson" data={geojson}>
         <Layer {...glow} />
         <Layer {...dots} />
+
+        {/* The active station, drawn again on top of itself. Filtered to one feature so
+            its radius is a plain number the frame loop above can drive. */}
+        <Layer
+          id={ACTIVE_GLOW_LAYER}
+          type="circle"
+          filter={["==", ["get", "slug"], activeSlug ?? "\u0000"]}
+          paint={{
+            "circle-color": ACCENT,
+            "circle-blur": 0.9,
+            "circle-radius": ACTIVE_GLOW_FROM,
+            // Held constant rather than animated. Fading it in made the halo wash out at
+            // exactly the moment the marker was meant to be emphasised; only the radius
+            // moves, and the filter removes the layer outright when nothing is active.
+            "circle-opacity": ACTIVE_GLOW_OPACITY,
+          }}
+        />
+        <Layer
+          id={ACTIVE_DOT_LAYER}
+          type="circle"
+          filter={["==", ["get", "slug"], activeSlug ?? "\u0000"]}
+          paint={{
+            // Solid accent with no stroke. A stroke here drew a ring in the ground
+            // colour around the dot, which read as a dark hole rather than a marker.
+            "circle-color": ACCENT,
+            "circle-radius": ACTIVE_DOT_FROM,
+            "circle-stroke-width": 0,
+            "circle-opacity": 1,
+          }}
+        />
         <Layer {...labels} />
       </Source>
     </Map>
