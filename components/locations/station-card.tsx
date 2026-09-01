@@ -1,7 +1,12 @@
 "use client";
 
 import { AMENITIES } from "@/lib/locations/amenities";
-import { formatAddress, statusLabel } from "@/lib/locations/public";
+import {
+  formatAddress,
+  formatConnectors,
+  formatPrice,
+  statusLabel,
+} from "@/lib/locations/public";
 import type { PublicStation } from "@/lib/locations/types";
 import Link from "next/link";
 
@@ -22,6 +27,8 @@ export function StationCard({ station, onClose }: StationCardProps) {
     station.amenities.includes(amenity.id),
   );
   const isOpen = station.status === "LIVE";
+  const price = formatPrice(station);
+  const connectors = formatConnectors(station);
 
   return (
     <div className="w-[300px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl bg-white shadow-2xl shadow-black/20 md:w-[320px]">
@@ -83,18 +90,27 @@ export function StationCard({ station, onClose }: StationCardProps) {
         </Link>
       </div>
 
+      {/* The three things a driver checks before committing to the detour, in the order
+          the reference puts them: what fits, how fast, what it costs. County lives in
+          the strip and on the station page, where there is room for context. */}
       <dl className="border-t border-black/10 px-4 py-3 text-[14px] md:px-5 md:py-4">
         <div className="flex items-baseline justify-between gap-4 py-1">
-          <dt className="font-semibold text-dark">Charging speed</dt>
-          <dd className="text-dark/65">{station.maxPowerKw}kW</dd>
+          <dt className="font-semibold text-dark">Connectors</dt>
+          <dd className={connectors ? "text-dark/65" : "text-dark/35"}>
+            {connectors ?? "Being confirmed"}
+          </dd>
         </div>
         <div className="flex items-baseline justify-between gap-4 py-1">
-          <dt className="font-semibold text-dark">Chargers</dt>
-          <dd className="text-dark/65">{station.chargerCount}</dd>
+          <dt className="font-semibold text-dark">Speed</dt>
+          <dd className="text-dark/65">
+            {station.maxPowerKw}kW &middot; {station.chargerCount} bays
+          </dd>
         </div>
         <div className="flex items-baseline justify-between gap-4 py-1">
-          <dt className="font-semibold text-dark">County</dt>
-          <dd className="text-dark/65">{station.county}</dd>
+          <dt className="font-semibold text-dark">Price</dt>
+          <dd className={price ? "text-dark/65" : "text-dark/35"}>
+            {price ?? "Being confirmed"}
+          </dd>
         </div>
       </dl>
     </div>
