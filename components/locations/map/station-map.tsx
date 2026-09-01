@@ -37,9 +37,21 @@ const LABELS_LAYER = "wattup-labels";
 const PULSE_LAYER = "wattup-corridor-pulse";
 const ACTIVE_GLOW_LAYER = "wattup-active-glow";
 const ACTIVE_DOT_LAYER = "wattup-active-dot";
+const HOVER_DOT_LAYER = "wattup-hover-dot";
 
 /** How long the active marker takes to grow in or fall away. */
 const ACTIVE_TWEEN_MS = 320;
+
+/**
+ * Grace period before the marker is allowed to shrink.
+ *
+ * Clicking a marker made it grow, shrink and grow again. Hover grew it, the map then
+ * flew to the station so the pointer was no longer over the marker and hover cleared,
+ * and only afterwards did the selection arrive through the URL and grow it back. Waiting
+ * briefly before shrinking lets the selection land first, so the three steps collapse
+ * into one. It also stops the marker flickering when the pointer crosses an edge.
+ */
+const SHRINK_GRACE_MS = 160;
 
 /** The halo's opacity, held steady so it never fades while a station is active. */
 const ACTIVE_GLOW_OPACITY = 0.6;
@@ -157,17 +169,14 @@ export function StationMap({
 }: StationMapProps) {
   const mapRef = useRef<MapRef>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  /** Where the active marker's grow animation currently sits, 0 to 1. */
-  const activeProgress = useRef(0);
-  /** The station the last tween was for, so a change of marker restarts the growth. */
-  const previousActive = useRef<string | null>(null);
+  /** Where each marker state's animation currently sits, 0 to 1. */
+  const hoverProgress = useRef(0);
+  const selectProgress = useRef(0);
+  /** The station each tween was last for, so a change of marker restarts the growth. */
+  const previousHover = useRef<string | null>(null);
+  const previousSelected = useRef<string | null>(null);
   const [view, setView] = useState<MapView>(DEFAULT_MAP_VIEW);
   const option = viewOption(view);
-
-  // Hover takes precedence over selection, so moving the pointer over any marker grows
-  // it even while another station is open. Leaving the marker hands the emphasis back to
-  // whatever is selected rather than dropping it entirely.
-  const activeSlug = hoveredSlug ?? selectedSlug;
 
   const geojson = useMemo(
     () => ({
@@ -430,95 +439,114 @@ export function StationMap({
   }, []);
 
   /**
-   * Grows the active marker.
+   * Drives one marker state's 0 to 1 progress.
    *
    * Mapbox will not transition a paint property whose value comes from a data
-   * expression, and the base markers size themselves with `["case", ["get", ...]]`, so
-   * the transitions this originally used never fired: the marker jumped in one frame no
-   * matter what duration was set. The active station is therefore its own pair of
-   * layers, filtered to one feature, whose radius is a plain number. A plain number can
-   * be driven frame by frame, which is what actually produces the movement.
+   * expression, and the base markers size themselves with ["case", ["get", ...]], so a
+   * transition on them never fires. Each state therefore gets its own layer, filtered to
+   * a single feature, whose radius is a plain number that can be driven frame by frame.
+   *
+   * Growing starts at once. Shrinking waits out a short grace period first, so a marker
+   * does not flicker when the pointer crosses its edge, and so clicking does not shrink
+   * the marker in the gap between hover clearing and the selection arriving.
    */
-  useEffect(() => {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
+  const useMarkerTween = (
+    slug: string | null,
+    progress: React.RefObject<number>,
+    previous: React.RefObject<string | null>,
+    apply: (eased: number) => void,
+  ) => {
+    useEffect(() => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
 
-    const target = activeSlug ? 1 : 0;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const target = slug ? 1 : 0;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // Moving straight to another marker restarts the growth, so it grows in the same
+      // way it would from nothing rather than appearing already at full size.
+      const movedToAnother = slug !== null && slug !== previous.current;
+      previous.current = slug;
+      const from = reduced ? target : movedToAnother ? 0 : progress.current;
 
-    // Moving straight from one marker to another used to leave the progress at 1, so the
-    // marker being moved to appeared already grown. Restarting from zero whenever the
-    // active station changes means it grows in the same way it would from nothing, while
-    // leaving a marker still falls away from wherever the previous tween had reached.
-    const movedToAnother = activeSlug !== null && activeSlug !== previousActive.current;
-    previousActive.current = activeSlug;
-    const from = reduced ? target : movedToAnother ? 0 : activeProgress.current;
-    const started = performance.now();
-    let frame = 0;
+      let frame = 0;
+      const paint = (value: number) => {
+        progress.current = value;
+        try {
+          apply(easeInOut(value));
+        } catch {
+          // The layers go away for a moment while a new basemap style loads.
+        }
+      };
 
-    const paint = (value: number) => {
-      activeProgress.current = value;
-      const eased = easeInOut(value);
-      if (!map.getLayer(ACTIVE_DOT_LAYER)) return;
-      try {
-        // Only the dot scales. The halo holds its size and fades with the same curve, so
-        // the marker grows instead of rippling outward.
-        map.setPaintProperty(
-          ACTIVE_DOT_LAYER,
+      if (reduced || from === target) {
+        paint(target);
+        return;
+      }
+
+      const run = () => {
+        const begun = performance.now();
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - begun) / ACTIVE_TWEEN_MS);
+          paint(from + (target - from) * t);
+          if (t < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+      };
+
+      if (target === 1) {
+        run();
+        return () => cancelAnimationFrame(frame);
+      }
+
+      const delay = window.setTimeout(run, SHRINK_GRACE_MS);
+      return () => {
+        window.clearTimeout(delay);
+        cancelAnimationFrame(frame);
+      };
+      // option.style is a dependency because switching basemap recreates every layer at
+      // the paint values declared in JSX, which are the start of the tween.
+    }, [slug, apply, previous, progress]);
+  };
+
+  // Hover only scales the dot. Selection is what adds the halo, so the two states read
+  // differently rather than the second being a louder version of the first.
+  const applyHover = useCallback(
+    (eased: number) => {
+      mapRef.current
+        ?.getMap()
+        ?.setPaintProperty(
+          HOVER_DOT_LAYER,
           "circle-radius",
           ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
         );
-        map.setPaintProperty(
-          ACTIVE_GLOW_LAYER,
-          "circle-opacity",
-          ACTIVE_GLOW_OPACITY * eased,
-        );
-      } catch {
-        // The layers go away for a moment while a new basemap style loads.
-      }
-    };
+    },
+    [],
+  );
 
-    if (reduced || from === target) {
-      paint(target);
-      return;
-    }
+  const applySelection = useCallback((eased: number) => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    map.setPaintProperty(
+      ACTIVE_DOT_LAYER,
+      "circle-radius",
+      ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
+    );
+    map.setPaintProperty(ACTIVE_GLOW_LAYER, "circle-opacity", ACTIVE_GLOW_OPACITY * eased);
+  }, []);
 
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - started) / ACTIVE_TWEEN_MS);
-      paint(from + (target - from) * t);
-      if (t < 1) frame = requestAnimationFrame(tick);
-    };
+  useMarkerTween(hoveredSlug, hoverProgress, previousHover, applyHover);
+  useMarkerTween(selectedSlug, selectProgress, previousSelected, applySelection);
 
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-    // option.style is a dependency because switching basemap recreates every layer at
-    // the paint values declared in JSX, which are the start of the tween. Without this
-    // the active marker silently reverts to its small size after a view change and stays
-    // there until the selection happens to change.
-  }, [activeSlug, option.style]);
+  // Re-apply after a basemap change, which recreates every layer at its declared paint.
+  useEffect(() => {
+    applyHover(easeInOut(hoverProgress.current));
+    applySelection(easeInOut(selectProgress.current));
+  }, [option.style, applyHover, applySelection]);
 
   const onClick = useCallback(
     (event: MapMouseEvent) => onSelect(slugAt(event)),
     [onSelect],
   );
-
-  /**
-   * The halo under every marker.
-   *
-   * `circle-blur` fades the edge outward in the shader, so this costs one more circle
-   * layer rather than an image or a DOM element per station. The selected marker gets a
-   * wider, stronger halo, which is how the reference singles one out.
-   */
-  const glow: LayerProps = {
-    id: "wattup-glow",
-    type: "circle",
-    paint: {
-      "circle-radius": ["case", ["==", ["get", "lead"], 1], 15, 10],
-      "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
-      "circle-blur": 0.85,
-      "circle-opacity": ["case", ["==", ["get", "lead"], 1], 0.4, 0.26],
-    },
-  };
 
   const dots: LayerProps = {
     id: DOTS_LAYER,
@@ -586,7 +614,7 @@ export function StationMap({
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
-      interactiveLayerIds={[DOTS_LAYER, ACTIVE_DOT_LAYER]}
+      interactiveLayerIds={[DOTS_LAYER, HOVER_DOT_LAYER, ACTIVE_DOT_LAYER]}
       // A marker is clickable, so it should say so. Everything else keeps the grab
       // cursor the map itself provides for panning.
       cursor={hoveredSlug ? "pointer" : undefined}
@@ -652,15 +680,28 @@ export function StationMap({
       </Source>
 
       <Source id="wattup-stations" type="geojson" data={geojson}>
-        <Layer {...glow} />
         <Layer {...dots} />
 
-        {/* The active station, drawn again on top of itself. Filtered to one feature so
-            its radius is a plain number the frame loop above can drive. */}
+        {/* Hovering scales the dot and nothing else. */}
+        <Layer
+          id={HOVER_DOT_LAYER}
+          type="circle"
+          filter={["==", ["get", "slug"], hoveredSlug ?? "\u0000"]}
+          paint={{
+            "circle-color": ACCENT,
+            "circle-radius": ACTIVE_DOT_FROM,
+            "circle-stroke-width": 2.5,
+            "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
+            "circle-opacity": 1,
+          }}
+        />
+
+        {/* Selecting adds the halo. Filtered to one feature so both radii are plain
+            numbers the frame loops above can drive. */}
         <Layer
           id={ACTIVE_GLOW_LAYER}
           type="circle"
-          filter={["==", ["get", "slug"], activeSlug ?? "\u0000"]}
+          filter={["==", ["get", "slug"], selectedSlug ?? "\u0000"]}
           paint={{
             "circle-color": ACCENT,
             "circle-blur": 0.9,
@@ -671,11 +712,11 @@ export function StationMap({
         <Layer
           id={ACTIVE_DOT_LAYER}
           type="circle"
-          filter={["==", ["get", "slug"], activeSlug ?? "\u0000"]}
+          filter={["==", ["get", "slug"], selectedSlug ?? "\u0000"]}
           paint={{
             // Identical to the base markers, only larger. Giving the active one its own
-            // treatment, whether an inverted fill or a missing stroke, made it read as a
-            // different kind of thing rather than as the same marker singled out.
+            // treatment made it read as a different kind of thing rather than as the
+            // same marker singled out.
             "circle-color": ACCENT,
             "circle-radius": ACTIVE_DOT_FROM,
             "circle-stroke-width": 2.5,
@@ -683,6 +724,7 @@ export function StationMap({
             "circle-opacity": 1,
           }}
         />
+
         <Layer {...labels} />
       </Source>
     </Map>
