@@ -227,3 +227,23 @@ The three lines are charger count, county and opening, all of which come from th
 The live site's "300kW+ Ultra Fast Charging" line is not used because no kW figure
 exists in the sheet for any site; it is a claim already published elsewhere, and adding
 it here should be a deliberate decision rather than something I infer.
+
+## The minimal view draws its own regions
+
+Hiding roads and labels was not enough. A vector style carries dozens of landuse,
+landcover, park and hillshade fills at slightly different shades, and with the labels
+gone those read as blotchy noise rather than as the reference's clean regions.
+
+So the minimal view hides **every** basemap layer except the background, paints that flat,
+and draws county polygons from our own data on top. `scripts/build-ca-geometry.mjs` now
+emits a lng/lat GeoJSON copy alongside the SVG paths for exactly this.
+
+Only the seven counties holding a site are drawn. The reference shows a scattered handful
+of regions with open field between them, and that restraint is most of the design.
+
+Those seven are adjacent, so filled alone they merge into one mass. The outline is
+therefore drawn in the **field** colour rather than as a border, which cuts a gap between
+neighbours and leaves the separated shapes the reference has.
+
+`@types/geojson` was added for this, types only and no runtime cost. Hand written
+interfaces would have drifted from what mapbox-gl expects.

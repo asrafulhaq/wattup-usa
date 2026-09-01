@@ -2,6 +2,7 @@
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import { CA_COUNTIES_GEO } from "@/lib/locations/ca-counties-geo";
 import {
   DEFAULT_MAP_VIEW,
   MAP_VIEWS,
@@ -77,20 +78,6 @@ function pulseGradient(head: number) {
 }
 
 /**
- * Basemap layers to hide.
- *
- * The reference frame is defined by what has been taken out: no roads, no places of
- * interest, no transit, and none of the basemap's own labels, since we draw our own.
- * Doing this in code rather than in a Mapbox Studio style keeps the design in the repo,
- * reviewable in a diff, instead of in a web editor where a change ships silently.
- */
-const HIDDEN_LAYER_PATTERN =
-  /road|bridge|tunnel|poi|transit|aeroway|building|ferry|path|golf|pitch/i;
-
-/** Boundary lines are restyled rather than hidden, so counties stay distinguishable. */
-const BOUNDARY_LAYER_PATTERN = /admin|boundary/i;
-
-/**
  * Palette, taken directly off `_.jpeg`.
  *
  * Its field measures luminance 64 with land at 90, so land sits 41% above its ground.
@@ -109,7 +96,6 @@ const BOUNDARY_LAYER_PATTERN = /admin|boundary/i;
  */
 const LAND_COLOR = "#53585E";
 const WATER_COLOR = "#3A3F45";
-const BOUNDARY_COLOR = "#5E636A";
 /** Brighter than the brand blue, which goes muddy on a dark ground. */
 const ACCENT = "#3B8CFF";
 const MUTED_DOT = "#8B919A";
@@ -188,6 +174,23 @@ export function StationMap({
    * are; the two northern ones are still on the map, still in the strip, and selecting
    * either flies to it.
    */
+  /**
+   * The county shapes for the minimal view.
+   *
+   * Only the ones holding a site are drawn. The reference shows a scattered handful of
+   * regions with open field between them, not a filled map, and that restraint is most
+   * of the design. Ours is seven counties.
+   */
+  const counties = useMemo(() => {
+    const occupied = new Set(stations.map((station) => station.countyFips));
+    return {
+      ...CA_COUNTIES_GEO,
+      features: CA_COUNTIES_GEO.features.filter((feature) =>
+        occupied.has(feature.properties.fips),
+      ),
+    };
+  }, [stations]);
+
   const bounds = useMemo<LngLatBoundsLike>(() => {
     const trim = (values: number[]) => {
       const sorted = [...values].sort((a, b) => a - b);
@@ -212,21 +215,19 @@ export function StationMap({
     const map = mapRef.current?.getMap();
     if (!map || option.detailed) return;
 
+    // Everything except the background goes.
+    //
+    // Hiding only roads and labels left the style's landuse, landcover, park and
+    // hillshade fills behind, which at a dozen different shades read as blotchy noise
+    // rather than as the reference's clean regions. The field is a single flat colour
+    // and the only shapes on it are the county polygons drawn below.
     for (const layer of map.getStyle()?.layers ?? []) {
-      // Our own layers are symbol layers too, and hiding them here is what made the
-      // station labels disappear the first time. Skip anything we added.
       if (layer.id.startsWith("wattup-")) continue;
       try {
-        if (layer.type === "symbol" || HIDDEN_LAYER_PATTERN.test(layer.id)) {
+        if (layer.type === "background") {
+          map.setPaintProperty(layer.id, "background-color", WATER_COLOR);
+        } else {
           map.setLayoutProperty(layer.id, "visibility", "none");
-        } else if (layer.id === "background" || layer.id === "land") {
-          map.setPaintProperty(layer.id, "background-color", LAND_COLOR);
-        } else if (/water|ocean/i.test(layer.id) && layer.type === "fill") {
-          map.setPaintProperty(layer.id, "fill-color", WATER_COLOR);
-        } else if (BOUNDARY_LAYER_PATTERN.test(layer.id) && layer.type === "line") {
-          map.setPaintProperty(layer.id, "line-color", BOUNDARY_COLOR);
-          map.setPaintProperty(layer.id, "line-width", 1.2);
-          map.setPaintProperty(layer.id, "line-opacity", 1);
         }
       } catch {
         // A style can rename or restructure layers between versions; a layer that does
@@ -457,6 +458,25 @@ export function StationMap({
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(125%_125%_at_12%_8%,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0)_42%,rgba(0,0,0,0.28)_100%)]"
         />
+      )}
+
+      {!option.detailed && (
+        <Source id="wattup-counties" type="geojson" data={counties}>
+          <Layer
+            id="wattup-counties-fill"
+            type="fill"
+            paint={{ "fill-color": LAND_COLOR, "fill-opacity": 1 }}
+          />
+          {/* Drawn in the field colour rather than as a border. Our seven counties are
+              adjacent, so filled alone they merge into one mass; a stroke the colour of
+              the ground behind them cuts a gap between neighbours and leaves the
+              separated shapes the reference has. */}
+          <Layer
+            id="wattup-counties-line"
+            type="line"
+            paint={{ "line-color": WATER_COLOR, "line-width": 2.5 }}
+          />
+        </Source>
       )}
 
       {/* lineMetrics computes each vertex's distance along the line, which is what
