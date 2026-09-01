@@ -1,0 +1,154 @@
+=========================================================
+MESSAGE 1  —  post this in the channel
+=========================================================
+
+*WattUp Station Finder — approach, stack and plan*
+
+Short version: a light-mode map + location finder for the 27 signed California
+sites, built on a stack that carries straight over to Singapore and Thailand
+without a rewrite. Initial version ready for review *Friday 4 Sep*.
+
+*1. Map platform — Mapbox GL JS (via react-map-gl)*
+The reference look is defined by what has been *removed* from the basemap: no
+roads, no POI labels, flat grey land, small dot markers. Mapbox Studio is a
+visual editor for exactly that, so hitting the reference frame in light mode is
+a design task, not a fight. Cost at our traffic: 50,000 map loads/month free,
+then $5 per 1,000, so realistically $0. Singapore and Thailand are covered day
+one, local-script labels from the same style. Because we sit behind
+`react-map-gl`, the whole thing swaps to free self-hosted MapLibre + Protomaps
+in about a day if we ever want off the invoice.
+
+We do *not* need Three.js or React Three Fiber. Mapbox is already a WebGL
+renderer and a second WebGL context costs frames for no visual gain. GSAP
+(already installed) does the sliding tab indicator and card transitions.
+
+*2. Architecture*
+Locations become a real record in the database we already have, managed from
+the dashboard we already have. Nobody needs a developer or a deploy to add a
+site or flip one live.
+• Neon Postgres + Prisma `Location` model, CRUD in the existing /dashboard
+  with the RBAC already in place
+• `/locations` server-rendered: SEO copy, full list in HTML, works with JS off
+• Map is a client island that only loads when it scrolls into view
+• One static page per station (`/locations/redlands-w-colton-ave`) with
+  LocalBusiness schema — "EV charging near Redlands" is a query people type,
+  and a map alone is invisible to it
+• All state lives in the URL, so back works, links are shareable, and support
+  can send a customer straight to a station
+
+*3. Data workflow — seed first, dashboard after*
+The 27 sites go into the seed file once (addresses geocoded at import, so
+coordinates are baked in and nothing geocodes at page load). One command
+populates a fresh database. From that moment the dashboard owns everything:
+add a site, edit an address, flip PLANNED to LIVE, publish/unpublish. Saving
+refreshes the public map with no deploy. The seed never overwrites a row that
+has been edited in the dashboard, so a deploy can't silently revert a status
+someone changed that morning.
+
+*4. Search and location*
+• Address / postcode search with autocomplete, biased to the active market
+• "Use my location" via the browser, permission asked at the moment of intent
+• Distance filter 5/10/25/50/100, unit from the market — miles in California,
+  km in Singapore
+• Filters for status, connector type, charger count, amenities, each showing
+  its result count
+• List and map are one thing: hover a card and its marker lifts, select and
+  the map flies to it, list always sorted by distance
+• Empty states do real work — "No stations within 25 miles. Nearest is Loma
+  Linda, 38 miles away" with a button to widen the radius
+
+*5. Performance*
+A map library is ~200KB before a single tile, so it never sits in front of the
+first paint. Server-rendered placeholder holds the slot, map loads on scroll.
+Markers are WebGL layers with clustering, not DOM nodes — fine at 27, and the
+same code holds at 500 for the Asia rollout. Budgets I'll hold the build to:
+LCP under 2.0s on a mid-range phone on 4G, map interactive within 1.5s of
+entering view, 60fps panning, `/locations` document under 40KB before the map.
+Motion respects the system reduced-motion setting.
+
+*6. Built for the second market, not the first*
+`market`, `country`, `timezone` and `distanceUnit` are in the schema from day
+one. Adding Singapore is one config file plus rows in a table, not a refactor.
+New markets get their own path (`/sg/locations`, `/th/locations`) so each can
+rank in local search. Units, address order and phone formats are never
+hardcoded. Copy is externalised from the start, so Thai translation is a file
+rather than a hunt through the code. The tab strip from the reference becomes
+the market switcher when there is more than one.
+
+*7. Schedule*
+• *Wed 2 Sep* — data model + migration, dashboard CRUD, import and geocode the
+  27 sites, market registry, GeoJSON endpoint
+• *Thu 3 Sep* — Mapbox Studio light style, map canvas, clustered markers, live
+  vs coming-soon marker states, station card, GSAP tab strip
+• *Fri 4 Sep* — search bar, filters, use-my-location, results list, mobile
+  bottom sheet, station detail pages, performance + accessibility pass.
+  Preview URL for review end of day.
+
+*Deliberately not in v1:* turn-by-turn directions (the button hands off to the
+phone's map app), live availability and pricing (needs the chargers
+commissioned and a live feed), driver reviews, per-site photography. Each is a
+clean addition later; none of them changes anything above.
+
+=========================================================
+MESSAGE 2  —  post as a thread reply, or right after
+=========================================================
+
+*What I need from you*
+
+First three block Wednesday. The rest I've assumed an answer for and will build
+on that assumption unless you tell me otherwise, so nothing is waiting on them.
+
+*1. Mapbox account + public token* — needed Wed morning
+Who owns the account and the billing? Free tier almost certainly covers this
+traffic, but a card has to be on file. Send me the public token.
+
+*2. Confirm what goes public* — needed Wed morning
+The signed-locations sheet carries the property owner's legal entity, their
+notice address, the parcel number, the sales rep and an internal site score for
+every site. Several notice addresses are plainly residential, including one
+private home. None of that can reach the website.
+Proposing public = *site address, city, state, postcode, charger count,
+status*. Everything else stays behind the dashboard login. Confirm and I'll
+build to exactly that list.
+
+Related: the "Rating out of 5" column is an internal site score, not customer
+reviews. Next to a station on a public map a 3.7 reads as "other drivers rated
+this poorly", which is wrong and unhelpful. Assumption: it stays internal.
+
+*3. Connector types and power per site* — needed Thu
+Not in the sheet, and it's exactly what a driver filters on. Can engineering
+give me CCS1/NACS and kW per location?
+Assumption: if it isn't ready by Thursday the connector filter ships hidden and
+switches on the moment the data lands.
+
+Then, lower priority — tell me if any assumption is wrong:
+
+*4. How specific should "coming soon" be?*
+No site is live yet: all 27 are signed and in build, 11 with switchgear ordered
+for 2026 and 16 for 2027. So every marker carries a status chip, coming-soon
+sites use a hollow marker against solid for live, and a driver who taps a pin
+is never misled. This also makes the map a leasing asset: it shows momentum
+rather than pretending to be a finished network.
+Naming a quarter is stronger for leasing and worse if a date slips.
+Assumption: "Coming 2026" / "Coming 2027" unless marketing prefers plain
+"Coming soon".
+
+*5. Amenities*
+The reference has an amenities filter and we have no amenity data. Roughly an
+hour per site to capture, or one pass by whoever did the site surveys.
+Assumption: v1 ships without it, filter already built and ready to switch on.
+
+*6. Accent colour*
+The reference is orange; WattUp's primary is blue.
+Assumption: blue for selection and brand, amber reserved for "coming soon", so
+the accent never competes with a status.
+
+*7. Asia timing*
+Roughly when do Singapore and Thailand need to be live, and will the first
+Asian sites carry the same data shape? That decides how much of the market
+layer I finish now versus in December.
+Assumption: later this year, same schema, so it's config plus content.
+
+Full write-up with the architecture, data model, schedule and every reference
+link is in the repo at `docs/station-finder/` (English and Bangla). Happy to walk
+through any of it on a call.
