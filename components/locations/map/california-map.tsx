@@ -3,7 +3,7 @@
 import { CA_COUNTIES } from "@/lib/locations/ca-geometry";
 import { project, type Point } from "@/lib/locations/projection";
 import type { PublicStation } from "@/lib/locations/types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface CaliforniaMapProps {
   stations: PublicStation[];
@@ -21,14 +21,42 @@ const SELECTED_ZOOM = 3.4;
 const FRAME_PADDING = 0.22;
 
 /**
- * Sizes in viewBox units, tuned so the map reads at the reference's proportions.
- * Everything drawn is divided by the current zoom so it holds its size on screen.
+ * The frame is widened to this aspect so the map fills a wide container.
+ *
+ * Fitting all 27 sites gives a portrait frame, because Roseville and Lodi sit roughly
+ * 300 miles north of the other 25. A portrait frame in a landscape box can only ever be
+ * a narrow sliver of California floating in empty space, however tall the box is: that
+ * is geometry, not styling. So the default frame covers the dense cluster and is padded
+ * out to landscape, and the outliers are reached from the strip or the "show all"
+ * control.
  */
-const DOT_LEAD = 6.5;
-const DOT_MUTED = 5;
-const LABEL_SIZE = 21;
-const LABEL_OFFSET = 27;
-const GLOW_RADIUS = 30;
+const TARGET_ASPECT = 1.75;
+
+/** Sites outside this percentile band are treated as outliers when framing. */
+const TRIM = 0.08;
+
+function percentileBounds(values: number[]): [number, number] {
+  const sorted = [...values].sort((a, b) => a - b);
+  const lo = sorted[Math.floor((sorted.length - 1) * TRIM)];
+  const hi = sorted[Math.ceil((sorted.length - 1) * (1 - TRIM))];
+  return [lo, hi];
+}
+
+/**
+ * Sizes as fractions of the frame width, not fixed viewBox units.
+ *
+ * The frame changes with the filtered results, and the SVG scales whatever it contains
+ * to fill the container. A fixed radius therefore grows on screen every time the frame
+ * tightens. Expressing sizes relative to the frame keeps a dot the same number of
+ * pixels whether the map shows all of California or one county.
+ */
+const DOT_LEAD = 0.0042;
+const DOT_MUTED = 0.0032;
+const LABEL_SIZE = 0.0105;
+const LABEL_OFFSET = 0.016;
+const GLOW_RADIUS = 0.019;
+const STROKE_LAND = 0.0019;
+const CORRIDOR_WIDTH = 0.0012;
 
 interface Placed {
   station: PublicStation;
@@ -45,9 +73,9 @@ interface Placed {
  * wall of overlapping text. Leads are offered a label first, and any label whose box
  * would collide with one already placed is dropped rather than drawn on top.
  */
-function placeLabels(placed: Placed[], scale: number): Set<string> {
-  const size = LABEL_SIZE / scale;
-  const offset = LABEL_OFFSET / scale;
+function placeLabels(placed: Placed[], scale: number, unit: number): Set<string> {
+  const size = (LABEL_SIZE * unit) / scale;
+  const offset = (LABEL_OFFSET * unit) / scale;
   const taken: { x1: number; y1: number; x2: number; y2: number }[] = [];
   const shown = new Set<string>();
 
@@ -96,6 +124,7 @@ export function CaliforniaMap({
   onHover,
   className,
 }: CaliforniaMapProps) {
+  const [fitAll, setFitAll] = useState(false);
   const placed: Placed[] = useMemo(
     () =>
       stations.map((station) => ({
@@ -117,21 +146,45 @@ export function CaliforniaMap({
   const frame = useMemo(() => {
     const xs = placed.map((p) => p.point.x);
     const ys = placed.map((p) => p.point.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const padX = Math.max((maxX - minX) * FRAME_PADDING, 40);
-    const padY = Math.max((maxY - minY) * FRAME_PADDING, 40);
+    const [loX, hiX] = fitAll ? [Math.min(...xs), Math.max(...xs)] : percentileBounds(xs);
+    const [loY, hiY] = fitAll ? [Math.min(...ys), Math.max(...ys)] : percentileBounds(ys);
+
+    const padX = Math.max((hiX - loX) * FRAME_PADDING, 40);
+    const padY = Math.max((hiY - loY) * FRAME_PADDING, 40);
+    let x = loX - padX;
+    let y = loY - padY;
+    let width = hiX - loX + padX * 2;
+    let height = hiY - loY + padY * 2;
+
+    // Grow the short side so the frame matches the container's shape and the land fills
+    // it, rather than sitting as a sliver with empty field either side.
+    if (width / height < TARGET_ASPECT) {
+      const wanted = height * TARGET_ASPECT;
+      x -= (wanted - width) / 2;
+      width = wanted;
+    } else {
+      const wanted = width / TARGET_ASPECT;
+      y -= (wanted - height) / 2;
+      height = wanted;
+    }
+
     // Rounded for the same reason the projection is: identical strings on both sides.
     const round = (value: number) => Math.round(value * 1e3) / 1e3;
-    return {
-      x: round(minX - padX),
-      y: round(minY - padY),
-      width: round(maxX - minX + padX * 2),
-      height: round(maxY - minY + padY * 2),
-    };
-  }, [placed]);
+    return { x: round(x), y: round(y), width: round(width), height: round(height) };
+  }, [placed, fitAll]);
+
+  /** Sites the default frame leaves out, so the map can offer to include them. */
+  const offFrame = useMemo(
+    () =>
+      placed.filter(
+        ({ point }) =>
+          point.x < frame.x ||
+          point.x > frame.x + frame.width ||
+          point.y < frame.y ||
+          point.y > frame.y + frame.height,
+      ),
+    [placed, frame],
+  );
 
   /**
    * The dashed connector, west to east across the lead sites.
@@ -148,7 +201,9 @@ export function CaliforniaMap({
 
   const selected = placed.find((p) => p.station.slug === selectedSlug) ?? null;
   const scale = selected ? SELECTED_ZOOM : 1;
-  const labelled = useMemo(() => placeLabels(placed, scale), [placed, scale]);
+  // Every drawn size is a fraction of this, so the map looks the same at any framing.
+  const unit = frame.width;
+  const labelled = useMemo(() => placeLabels(placed, scale, unit), [placed, scale, unit]);
 
   const transform = selected
     ? `translate(${frame.x + frame.width / 2 - selected.point.x * scale} ${
@@ -157,11 +212,29 @@ export function CaliforniaMap({
     : undefined;
 
   return (
-    <svg
+    <div className={`relative ${className ?? ""}`}>
+      {offFrame.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setFitAll(true)}
+          className="absolute right-4 top-4 z-10 rounded-full border border-black/10 bg-white/90 px-3.5 py-2 text-[13px] font-semibold text-dark/70 shadow-sm backdrop-blur transition-colors hover:text-dark"
+        >
+          {offFrame.length} more further north
+        </button>
+      )}
+      {fitAll && (
+        <button
+          type="button"
+          onClick={() => setFitAll(false)}
+          className="absolute right-4 top-4 z-10 rounded-full border border-black/10 bg-white/90 px-3.5 py-2 text-[13px] font-semibold text-dark/70 shadow-sm backdrop-blur transition-colors hover:text-dark"
+        >
+          Back to Southern California
+        </button>
+      )}
+      <svg
       viewBox={`${frame.x} ${frame.y} ${frame.width} ${frame.height}`}
       preserveAspectRatio="xMidYMid meet"
-      style={{ aspectRatio: `${frame.width} / ${frame.height}` }}
-      className={className}
+      className="h-full w-full"
       role="img"
       aria-label={`Map of California showing ${stations.length} WattUp charging locations`}
       onClick={() => onSelect(null)}
@@ -179,15 +252,19 @@ export function CaliforniaMap({
         transform={transform}
         style={{ transformOrigin: "0 0" }}
       >
-        {/* Land. The stroke is the page ground, which is what separates the shapes into
-            discrete blobs instead of one continuous mass. */}
+        {/* Land.
+            The reference reads as scattered blobs because it draws only some counties;
+            the field shows between them. California's counties tile continuously, so
+            the same effect comes from pulling the empty ones back almost to the ground
+            colour and leaving the seven that hold sites clearly forward. The state
+            silhouette stays faintly readable, which a hard cut would lose. */}
         {CA_COUNTIES.map((county) => (
           <path
             key={county.fips}
             d={county.d}
-            fill={occupied.has(county.fips) ? "#C2CEDE" : "#CFD9E6"}
-            stroke="#F1F4F9"
-            strokeWidth={2.6 / scale}
+            fill={occupied.has(county.fips) ? "#C2CEDE" : "#E6EBF2"}
+            stroke="#F7F9FC"
+            strokeWidth={(STROKE_LAND * unit) / scale}
             strokeLinejoin="round"
           />
         ))}
@@ -197,8 +274,8 @@ export function CaliforniaMap({
             d={corridor}
             fill="none"
             stroke="#AFBBCB"
-            strokeWidth={1.7 / scale}
-            strokeDasharray={`${7 / scale} ${7 / scale}`}
+            strokeWidth={(CORRIDOR_WIDTH * unit) / scale}
+            strokeDasharray={`${(0.005 * unit) / scale} ${(0.005 * unit) / scale}`}
             strokeLinecap="round"
           />
         )}
@@ -207,7 +284,7 @@ export function CaliforniaMap({
           const isSelected = station.slug === selectedSlug;
           const isHovered = station.slug === hoveredSlug;
           const active = isSelected || isHovered;
-          const r = (isLead ? DOT_LEAD : DOT_MUTED) / scale;
+          const r = ((isLead ? DOT_LEAD : DOT_MUTED) * unit) / scale;
           const showLabel = labelled.has(station.slug) || active;
 
           return (
@@ -236,7 +313,7 @@ export function CaliforniaMap({
                 <circle
                   cx={point.x}
                   cy={point.y}
-                  r={GLOW_RADIUS / scale}
+                  r={(GLOW_RADIUS * unit) / scale}
                   fill="url(#wattup-marker-glow)"
                 />
               )}
@@ -249,9 +326,9 @@ export function CaliforniaMap({
               {showLabel && (
                 <text
                   x={point.x}
-                  y={point.y + LABEL_OFFSET / scale}
+                  y={point.y + (LABEL_OFFSET * unit) / scale}
                   textAnchor="middle"
-                  fontSize={LABEL_SIZE / scale}
+                  fontSize={(LABEL_SIZE * unit) / scale}
                   fontWeight={isLead || active ? 700 : 500}
                   fill={active ? "#0F1926" : isLead ? "#26313F" : "#7C8899"}
                   className="pointer-events-none select-none"
@@ -263,6 +340,7 @@ export function CaliforniaMap({
           );
         })}
       </g>
-    </svg>
+      </svg>
+    </div>
   );
 }

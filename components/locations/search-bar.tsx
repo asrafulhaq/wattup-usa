@@ -128,7 +128,7 @@ export function SearchBar({
   const filterCount = activeFilterCount(filters);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-[720px]">
+    <div ref={containerRef} className="relative w-full">
       <div className="flex w-full items-stretch overflow-hidden rounded-full border border-black/10 bg-white shadow-sm">
         <input
           value={text}

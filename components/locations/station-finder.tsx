@@ -1,9 +1,9 @@
 "use client";
 
-import { CaliforniaMap } from "@/components/locations/map/california-map";
-import { ResultsList } from "@/components/locations/results-list";
+import { MapCanvas } from "@/components/locations/map/map-canvas";
 import { SearchBar } from "@/components/locations/search-bar";
 import { StationCard } from "@/components/locations/station-card";
+import { StationStrip } from "@/components/locations/station-strip";
 import { FadeUp } from "@/components/ui/fade-up";
 import {
   applyFilters,
@@ -79,10 +79,14 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
         if ("radius" in patch) set("radius", patch.radius ? String(patch.radius) : null);
         if ("minChargers" in patch)
           set("min", patch.minChargers ? String(patch.minChargers) : null);
-        if ("years" in patch) set("years", patch.years?.length ? patch.years.join(",") : null);
+        if ("years" in patch)
+          set("years", patch.years?.length ? patch.years.join(",") : null);
         if ("near" in patch) {
           if (patch.near) {
-            next.set("near", `${patch.near.latitude.toFixed(5)},${patch.near.longitude.toFixed(5)}`);
+            next.set(
+              "near",
+              `${patch.near.latitude.toFixed(5)},${patch.near.longitude.toFixed(5)}`,
+            );
             next.set("label", patch.near.label);
           } else {
             next.delete("near");
@@ -96,21 +100,25 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
   );
 
   const onSelect = useCallback(
-    (slug: string | null) => write((next) => (slug ? next.set("sel", slug) : next.delete("sel"))),
+    (slug: string | null) =>
+      write((next) => (slug ? next.set("sel", slug) : next.delete("sel"))),
     [write],
   );
 
-  const onReset = useCallback(() => write((next) => [...next.keys()].forEach((k) => next.delete(k))), [write]);
+  const onReset = useCallback(
+    () => write((next) => [...next.keys()].forEach((key) => next.delete(key))),
+    [write],
+  );
 
   const ranked = useMemo(() => applyFilters(stations, filters), [stations, filters]);
-  const selected = ranked.find((s) => s.slug === selectedSlug) ?? null;
+  const selected = ranked.find((station) => station.slug === selectedSlug) ?? null;
 
   // Widening to the next radius up is a better offer than "no results": it tells the
   // visitor the network exists, just further away.
   const widerRadius =
     filters.radius === null
       ? null
-      : (RADIUS_OPTIONS.find((r) => r > filters.radius!) ?? null);
+      : (RADIUS_OPTIONS.find((radius) => radius > filters.radius!) ?? null);
 
   return (
     <section id="locations" className="w-full bg-[#F7F9FC] py-[40px] md:py-[82px]">
@@ -120,6 +128,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
             Explore Our Growing Network
           </h2>
         </FadeUp>
+
         <FadeUp delay={0.1}>
           <p className="text-description mt-6 max-w-3xl text-dark/70 max-md:max-w-full">
             WattUpUSA is strategically expanding its ultra-fast EV charging network
@@ -139,44 +148,64 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
           />
         </FadeUp>
 
-        <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[minmax(0,340px)_1fr] lg:items-start">
-          <div className="order-2 lg:order-1 lg:max-h-[620px] lg:overflow-y-auto lg:pr-2">
-            <p className="mb-3 text-[13px] font-medium text-dark/50">
-              {ranked.length} of {stations.length} locations
-              {filters.near ? ` near ${filters.near.label}` : ""}
-            </p>
-            <ResultsList
-              stations={ranked}
-              selectedSlug={selectedSlug}
-              onSelect={onSelect}
-              onHover={setHoveredSlug}
-              onWidenSearch={
-                widerRadius ? () => onFiltersChange({ radius: widerRadius }) : undefined
-              }
-            />
-          </div>
+        <FadeUp delay={0.2} className="mt-10 md:mt-14">
+          <p className="mb-5 text-[13px] font-medium text-dark/45">
+            {ranked.length} of {stations.length} locations
+            {filters.near ? ` near ${filters.near.label}` : ""}
+          </p>
+          <StationStrip
+            stations={ranked}
+            selectedSlug={selectedSlug}
+            onSelect={onSelect}
+            onHover={setHoveredSlug}
+          />
+        </FadeUp>
 
-          {/* The panel ground matches the stroke drawn between counties, which is what
-              separates the land into discrete shapes the way the reference does. */}
-          <div className="relative order-1 flex items-center justify-center overflow-hidden rounded-2xl bg-[#F1F4F9] p-4 lg:order-2 lg:p-6">
-            <CaliforniaMap
-              stations={ranked.length > 0 ? ranked : stations}
-              selectedSlug={selectedSlug}
-              hoveredSlug={hoveredSlug}
-              onSelect={onSelect}
-              onHover={setHoveredSlug}
-              className="h-[440px] w-auto md:h-[680px]"
-            />
-            {/* Selecting centres the station, so the card can sit at a fixed offset
-                from the middle: below and to the left, as in the reference. */}
-            {selected && (
-              <div className="pointer-events-none absolute left-1/2 top-1/2 z-10">
-                <div className="pointer-events-auto -translate-x-[calc(100%+18px)] translate-y-[46px]">
-                  <StationCard station={selected} onClose={() => onSelect(null)} />
-                </div>
+        <div className="relative mt-8 w-full overflow-hidden rounded-2xl border border-black/5 md:mt-10">
+          <MapCanvas
+            stations={ranked.length > 0 ? ranked : stations}
+            selectedSlug={selectedSlug}
+            hoveredSlug={hoveredSlug}
+            onSelect={onSelect}
+            onHover={setHoveredSlug}
+            mapboxToken={mapboxToken}
+            className="h-[440px] w-full md:h-[620px]"
+          />
+
+          {ranked.length === 0 && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <div className="pointer-events-auto rounded-xl bg-white/95 px-6 py-5 text-center shadow-lg">
+                <p className="text-[15px] font-semibold text-dark">
+                  No locations match these filters
+                </p>
+                {widerRadius ? (
+                  <button
+                    type="button"
+                    onClick={() => onFiltersChange({ radius: widerRadius })}
+                    className="mt-3 rounded-full bg-primary px-4 py-2 text-[14px] font-semibold text-white transition-colors hover:bg-primary-hover"
+                  >
+                    Widen to {widerRadius} miles
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onReset}
+                    className="mt-3 text-[14px] font-semibold text-primary"
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {selected && (
+            <div className="pointer-events-none absolute bottom-5 left-5 z-10 md:bottom-7 md:left-7">
+              <div className="pointer-events-auto">
+                <StationCard station={selected} onClose={() => onSelect(null)} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

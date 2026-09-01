@@ -188,3 +188,42 @@ Chrome's V8 disagreed in the final bits: the server rendered `cy="1006.318180808
 where the client computed `1006.3181808081838`, and React reported a hydration mismatch
 on every load. Projected coordinates and the frame are now rounded to three decimals,
 which is far below a pixel at this viewBox and makes both sides agree exactly.
+
+## Switched to Mapbox for the map itself
+
+Earlier this branch rendered the map as inline SVG, on the reasoning that the reference
+frame is an illustration. On seeing it in place the decision changed: the map is now
+Mapbox GL, containerised inside the section rather than full bleed.
+
+`components/locations/map/map-canvas.tsx` picks the renderer. With a token it loads
+`station-map.tsx` through a dynamic import, so Mapbox's roughly 230 KB stays out of the
+page bundle and a server rendered placeholder holds the slot. Without a token it falls
+back to the SVG map, which needs no network and no WebGL, so a missing or rate limited
+token leaves a usable map rather than a blank rectangle.
+
+The reference look is produced in code, not in a Mapbox Studio style: on load every
+symbol layer and every road, transit, building and POI layer is hidden, and land and
+water are recoloured. Keeping it in code means the design is in the repo and reviewable
+in a diff, rather than in a web editor where an edit ships silently.
+
+Stations are a GeoJSON source with a circle layer and a symbol layer. Mapbox drops
+labels that would collide, which replaces the hand written greedy placement the SVG map
+needed, and the same layers hold at 500 sites for the Asia rollout.
+
+Two bugs found while wiring it:
+- `onLoad` hid every symbol layer, including our own station labels, so no label
+  rendered. It now skips any layer whose id starts with `wattup-`.
+- `initialViewState.bounds` fitted against the container's pre layout size and left the
+  map zoomed out over the whole southwest. `fitBounds` is now called explicitly on load.
+
+## Layout, after the reference's full view
+
+Search bar full width, then the horizontal location strip with the accent bar that
+slides between entries, then the map. The sidebar list is gone. Strip typography matches
+the existing city grid exactly: 20/28px semibold to bold name, then three lines at
+16/20px, so the strip reads as the same product rather than a second style.
+
+The three lines are charger count, county and opening, all of which come from the sheet.
+The live site's "300kW+ Ultra Fast Charging" line is not used because no kW figure
+exists in the sheet for any site; it is a claim already published elsewhere, and adding
+it here should be a deliberate decision rather than something I infer.
