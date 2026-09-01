@@ -161,7 +161,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
           />
         </FadeUp>
 
-        <div className="relative mt-8 w-full overflow-hidden rounded-2xl bg-[#3A3F45] md:mt-10">
+        <div className="relative mt-8 w-full overflow-hidden rounded-2xl bg-[#E8EDF4] md:mt-10">
           <MapCanvas
             stations={ranked.length > 0 ? ranked : stations}
             selectedSlug={selectedSlug}

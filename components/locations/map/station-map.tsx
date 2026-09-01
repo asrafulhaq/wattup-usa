@@ -2,10 +2,16 @@
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import {
+  DEFAULT_MAP_VIEW,
+  MAP_VIEWS,
+  viewOption,
+  type MapView,
+} from "@/lib/locations/map-views";
 import { statusLabel } from "@/lib/locations/public";
 import type { PublicStation } from "@/lib/locations/types";
 import type { LngLatBoundsLike } from "mapbox-gl";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Map, {
   Layer,
   Source,
@@ -78,6 +84,8 @@ export function StationMap({
   className,
 }: StationMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const [view, setView] = useState<MapView>(DEFAULT_MAP_VIEW);
+  const option = viewOption(view);
 
   const geojson = useMemo(
     () => ({
@@ -137,15 +145,18 @@ export function StationMap({
     ];
   }, [stations]);
 
-  /** Strips the basemap back to land and water, then recolours both. */
-  const onLoad = useCallback(() => {
+  /**
+   * Applies the view.
+   *
+   * Runs on every style load, not just the first: switching basemap replaces the whole
+   * style, so anything done here has to be redone. In the detailed views the basemap is
+   * left exactly as Mapbox ships it, which is the point of them: roads, route shields,
+   * place names and boundaries all present.
+   */
+  const applyStyle = useCallback(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
-
-    // Fit explicitly rather than relying on initialViewState.bounds: the map is mounted
-    // before its container has been laid out, so the initial fit is computed against the
-    // wrong size and lands zoomed far too far out.
-    map.fitBounds(bounds, { padding: 64, duration: 0 });
+    if (option.detailed) return;
 
     for (const layer of map.getStyle()?.layers ?? []) {
       // Our own layers are symbol layers too, and hiding them here is what made the
@@ -180,7 +191,15 @@ export function StationMap({
         // does not take a given property is not fatal.
       }
     }
-  }, [bounds]);
+  }, [option.detailed]);
+
+  const onLoad = useCallback(() => {
+    // Fit explicitly rather than relying on initialViewState.bounds: the map is mounted
+    // before its container has been laid out, so the initial fit is computed against the
+    // wrong size and lands zoomed far too far out.
+    mapRef.current?.getMap().fitBounds(bounds, { padding: 64, duration: 0 });
+    applyStyle();
+  }, [bounds, applyStyle]);
 
   // Selecting from the strip or the list should move the map, not just recolour a dot.
   useEffect(() => {
@@ -229,7 +248,7 @@ export function StationMap({
       ],
       "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
       "circle-stroke-width": 2.5,
-      "circle-stroke-color": WATER_COLOR,
+      "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
       "circle-opacity": 1,
     },
   };
@@ -249,21 +268,43 @@ export function StationMap({
       "text-padding": 4,
     },
     paint: {
-      "text-color": ["case", ["==", ["get", "lead"], 1], LABEL_LEAD, LABEL_MUTED],
-      "text-halo-color": LABEL_HALO,
-      "text-halo-width": 1.6,
+      // On imagery and street detail the labels need to hold over anything underneath,
+      // so they invert: dark text on a light halo instead of the reverse.
+      "text-color": option.detailed
+        ? ["case", ["==", ["get", "lead"], 1], "#111A24", "#3D4756"]
+        : ["case", ["==", ["get", "lead"], 1], LABEL_LEAD, LABEL_MUTED],
+      "text-halo-color": option.detailed ? "#FFFFFF" : LABEL_HALO,
+      "text-halo-width": option.detailed ? 2 : 1.6,
     },
   };
 
   return (
-    <div className={className}>
+    <div className={`relative ${className ?? ""}`}>
+      <div className="absolute right-3 top-3 z-10 flex gap-1 rounded-lg bg-white/95 p-1 shadow-md ring-1 ring-black/5 backdrop-blur md:right-4 md:top-4">
+        {MAP_VIEWS.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            onClick={() => setView(entry.id)}
+            aria-pressed={entry.id === view}
+            className={`rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+              entry.id === view
+                ? "bg-primary text-white"
+                : "text-dark/65 hover:bg-black/5 hover:text-dark"
+            }`}
+          >
+            {entry.label}
+          </button>
+        ))}
+      </div>
     <Map
       ref={mapRef}
       mapboxAccessToken={mapboxToken}
       initialViewState={{ bounds, fitBoundsOptions: { padding: 64 } }}
-      mapStyle="mapbox://styles/mapbox/dark-v11"
+      mapStyle={option.style}
       style={{ width: "100%", height: "100%" }}
       onLoad={onLoad}
+      onStyleData={applyStyle}
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
@@ -272,6 +313,16 @@ export function StationMap({
       attributionControl={false}
       reuseMaps
     >
+      {/* The reference lights its field from the top left and falls away to the bottom
+          right. That belongs only to the minimal view: over imagery or street detail the
+          same wash just dims the map. */}
+      {!option.detailed && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(125%_125%_at_12%_8%,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0)_42%,rgba(0,0,0,0.28)_100%)]"
+        />
+      )}
+
       <Source id="wattup-corridor" type="geojson" data={corridor}>
         <Layer
           id="wattup-corridor-line"

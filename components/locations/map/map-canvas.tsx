@@ -13,7 +13,7 @@ const StationMap = dynamic(
   () => import("@/components/locations/map/station-map").then((m) => m.StationMap),
   {
     ssr: false,
-    loading: () => <div className="h-full w-full animate-pulse bg-[#33383E]" />,
+    loading: () => <div className="h-full w-full animate-pulse bg-[#E8EDF4]" />,
   },
 );
 
@@ -37,23 +37,13 @@ interface MapCanvasProps {
  */
 export function MapCanvas({ mapboxToken, className, ...rest }: MapCanvasProps) {
   return (
-    <div className={`relative bg-[#3A3F45] ${className ?? ""}`}>
+    <div className={`relative bg-[#E8EDF4] ${className ?? ""}`}>
       {mapboxToken ? (
         <StationMap {...rest} mapboxToken={mapboxToken} className="h-full w-full" />
       ) : (
         <CaliforniaMap {...rest} className="h-full w-full" />
       )}
 
-      {/*
-        The reference lights its field from the top left and falls away to the bottom
-        right, about 40 luminance points across the frame. Flat colour reads noticeably
-        more clinical than the reference, and a map canvas cannot carry a gradient of its
-        own, so it goes over the top. It must not intercept clicks meant for the map.
-      */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(125%_125%_at_12%_8%,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0)_42%,rgba(0,0,0,0.28)_100%)]"
-      />
     </div>
   );
 }
