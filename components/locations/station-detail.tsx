@@ -182,7 +182,7 @@ export function StationDetail({ station, stations }: StationDetailProps) {
             <DetailRow label="Connector types" value="Being confirmed" muted />
             <DetailRow label="Pricing" value="Being confirmed" muted />
 
-            <div className="pt-6">
+            <div className="flex flex-col gap-3 pt-6">
               <a
                 href={directions}
                 target="_blank"
@@ -191,6 +191,14 @@ export function StationDetail({ station, stations }: StationDetailProps) {
               >
                 Get directions
               </a>
+              {/* The questions this page raises and does not answer, chiefly about
+                  connectors and pricing, are the ones the FAQ covers. */}
+              <Link
+                href="/faq"
+                className="flex w-full items-center justify-center rounded-full border border-black/15 px-5 py-3 text-[15px] font-semibold text-dark/70 transition-colors hover:border-dark/30 hover:text-dark"
+              >
+                Charging FAQs
+              </Link>
             </div>
           </div>
 
@@ -206,28 +214,103 @@ export function StationDetail({ station, stations }: StationDetailProps) {
         </div>
 
         {nearby.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-[20px] font-bold tracking-[-0.02em] text-dark">
+          <section className="mt-16 border-t border-black/10 pt-12">
+            <h2 className="text-[24px] font-bold tracking-[-0.02em] text-dark md:text-[28px]">
               Nearby WattUp locations
             </h2>
-            <ul className="mt-5 grid gap-4 md:grid-cols-3">
-              {nearby.map(({ entry, miles }) => (
-                <li key={entry.slug}>
-                  <Link
-                    href={`/locations/${entry.slug}`}
-                    className="flex h-full flex-col rounded-xl border border-black/10 bg-white p-5 transition-colors hover:border-primary/40"
-                  >
-                    <span className="text-[18px] font-bold tracking-[-0.01em] text-dark">
-                      {entry.city}
-                    </span>
-                    <span className="mt-1 text-[14px] text-dark/60">{entry.street}</span>
-                    <span className="mt-3 text-[14px] font-medium text-dark/45">
-                      {formatDistance(miles, "mi")} away &middot; {statusLabel(entry)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
+            <p className="mt-2 text-[15px] text-dark/55">
+              {/* Straight-line, not driving distance. Saying which avoids a figure that
+                  quietly disagrees with the driver's own map app. */}
+              The closest sites to {station.city}, measured in a straight line.
+            </p>
+
+            <ul className="mt-7 grid gap-4 md:grid-cols-3">
+              {nearby.map(({ entry, miles }) => {
+                const entryOpen = entry.status === "LIVE";
+                return (
+                  <li key={entry.slug}>
+                    <Link
+                      href={`/locations/${entry.slug}`}
+                      className="group flex h-full flex-col rounded-xl border border-black/10 bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-black/5"
+                    >
+                      <span className="flex items-center justify-between gap-3">
+                        {/* The distance leads: it is the reason to look at this card at
+                            all, and reading it should not mean reading the card. */}
+                        <span className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+                          {formatDistance(miles, "mi")} away
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${
+                            entryOpen
+                              ? "bg-primary/10 text-primary"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              entryOpen ? "bg-primary" : "bg-amber-500"
+                            }`}
+                          />
+                          {statusLabel(entry)}
+                        </span>
+                      </span>
+
+                      <span className="mt-4 text-[22px] font-bold leading-[115%] tracking-[-0.02em] text-dark">
+                        {entry.city}
+                      </span>
+                      <span className="mt-1.5 text-[14px] leading-[145%] text-dark/60">
+                        {entry.street}
+                        <br />
+                        {entry.city}, {entry.region} {entry.postalCode}
+                      </span>
+
+                      <span className="mt-5 flex items-center justify-between gap-3 border-t border-black/[0.07] pt-4 text-[13.5px] text-dark/55">
+                        <span>
+                          {entry.maxPowerKw}kW &middot; {entry.chargerCount} chargers
+                        </span>
+                        <span className="inline-flex items-center gap-1 font-semibold text-primary">
+                          View
+                          <svg
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                          >
+                            <path
+                              d="M3 8h9M8.5 4l4 4-4 4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
+
+            <div className="mt-8">
+              <Link
+                href="/locations#locations"
+                className="inline-flex items-center gap-2 text-[15px] font-semibold text-primary transition-opacity hover:opacity-70"
+              >
+                See all {stations.length} locations
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5">
+                  <path
+                    d="M3 8h9M8.5 4l4 4-4 4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           </section>
         )}
       </section>
