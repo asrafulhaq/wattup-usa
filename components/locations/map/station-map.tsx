@@ -9,6 +9,7 @@ import {
   type MapView,
 } from "@/lib/locations/map-views";
 import { statusLabel } from "@/lib/locations/public";
+import { smoothLine, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
 import type { LngLatBoundsLike } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -118,6 +119,7 @@ export function StationMap({
     const leads = stations
       .filter((station) => station.goLiveYear === 2026)
       .sort((a, b) => a.longitude - b.longitude);
+    const curve = smoothLine(leads.map((s) => [s.longitude, s.latitude] as Coord));
     return {
       type: "FeatureCollection" as const,
       features:
@@ -127,10 +129,7 @@ export function StationMap({
               {
                 type: "Feature" as const,
                 properties: {},
-                geometry: {
-                  type: "LineString" as const,
-                  coordinates: leads.map((s) => [s.longitude, s.latitude]),
-                },
+                geometry: { type: "LineString" as const, coordinates: curve },
               },
             ],
     };
@@ -232,6 +231,42 @@ export function StationMap({
     [onSelect],
   );
 
+  /**
+   * The halo under every marker.
+   *
+   * `circle-blur` fades the edge outward in the shader, so this costs one more circle
+   * layer rather than an image or a DOM element per station. The selected marker gets a
+   * wider, stronger halo, which is how the reference singles one out.
+   */
+  const glow: LayerProps = {
+    id: "wattup-glow",
+    type: "circle",
+    paint: {
+      "circle-radius": [
+        "case",
+        ["==", ["get", "slug"], selectedSlug ?? ""],
+        30,
+        ["==", ["get", "slug"], hoveredSlug ?? ""],
+        24,
+        ["==", ["get", "lead"], 1],
+        16,
+        11,
+      ],
+      "circle-color": ["case", ["==", ["get", "lead"], 1], ACCENT, MUTED_DOT],
+      "circle-blur": 1,
+      "circle-opacity": [
+        "case",
+        ["==", ["get", "slug"], selectedSlug ?? ""],
+        0.75,
+        ["==", ["get", "slug"], hoveredSlug ?? ""],
+        0.6,
+        ["==", ["get", "lead"], 1],
+        0.42,
+        0.28,
+      ],
+    },
+  };
+
   const dots: LayerProps = {
     id: DOTS_LAYER,
     type: "circle",
@@ -324,19 +359,34 @@ export function StationMap({
       )}
 
       <Source id="wattup-corridor" type="geojson" data={corridor}>
+        {/* Two passes make the glow: a wide, heavily blurred stroke underneath, then a
+            crisp thin one on top. A single blurred line reads as smudged rather than lit,
+            because there is no bright core for the halo to come off. */}
+        <Layer
+          id="wattup-corridor-glow"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{
+            "line-color": ACCENT,
+            "line-width": 12,
+            "line-blur": 12,
+            "line-opacity": 0.4,
+          }}
+        />
         <Layer
           id="wattup-corridor-line"
           type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
           paint={{
             "line-color": ACCENT,
-            "line-width": 1.6,
-            "line-opacity": 0.65,
-            "line-dasharray": [2, 2.5],
+            "line-width": 2.2,
+            "line-opacity": 0.95,
           }}
         />
       </Source>
 
       <Source id="wattup-stations" type="geojson" data={geojson}>
+        <Layer {...glow} />
         <Layer {...dots} />
         <Layer {...labels} />
       </Source>

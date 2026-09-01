@@ -2,6 +2,7 @@
 
 import { CA_COUNTIES } from "@/lib/locations/ca-geometry";
 import { project, type Point } from "@/lib/locations/projection";
+import { smoothPath, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
 import { useMemo, useState } from "react";
 
@@ -196,7 +197,9 @@ export function CaliforniaMap({
   const corridor = useMemo(() => {
     const leads = placed.filter((p) => p.isLead).sort((a, b) => a.point.x - b.point.x);
     if (leads.length < 2) return null;
-    return leads.map((p, i) => `${i === 0 ? "M" : "L"}${p.point.x} ${p.point.y}`).join(" ");
+    // A spline rather than straight segments, so the line leaves each site in a curve
+    // instead of hinging at it.
+    return smoothPath(leads.map(({ point }) => [point.x, point.y] as Coord));
   }, [placed]);
 
   const selected = placed.find((p) => p.station.slug === selectedSlug) ?? null;
@@ -240,6 +243,11 @@ export function CaliforniaMap({
       onClick={() => onSelect(null)}
     >
       <defs>
+        {/* The halo on the line is a blurred copy of it drawn underneath, which is the
+            SVG equivalent of the blurred stroke the WebGL map uses. */}
+        <filter id="wattup-line-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation={(0.004 * frame.width) / scale} />
+        </filter>
         <radialGradient id="wattup-marker-glow">
           <stop offset="0%" stopColor="#3B8CFF" stopOpacity="0.45" />
           <stop offset="55%" stopColor="#3B8CFF" stopOpacity="0.16" />
@@ -270,15 +278,27 @@ export function CaliforniaMap({
         ))}
 
         {corridor && (
-          <path
-            d={corridor}
-            fill="none"
-            stroke="#3B8CFF"
-            strokeOpacity={0.55}
-            strokeWidth={(CORRIDOR_WIDTH * unit) / scale}
-            strokeDasharray={`${(0.005 * unit) / scale} ${(0.005 * unit) / scale}`}
-            strokeLinecap="round"
-          />
+          <>
+            <path
+              d={corridor}
+              fill="none"
+              stroke="#3B8CFF"
+              strokeOpacity={0.45}
+              strokeWidth={(CORRIDOR_WIDTH * 7 * unit) / scale}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#wattup-line-glow)"
+            />
+            <path
+              d={corridor}
+              fill="none"
+              stroke="#3B8CFF"
+              strokeOpacity={0.95}
+              strokeWidth={(CORRIDOR_WIDTH * 1.6 * unit) / scale}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </>
         )}
 
         {placed.map(({ station, point, isLead }) => {
@@ -310,14 +330,16 @@ export function CaliforniaMap({
               onFocus={() => onHover(station.slug)}
               onBlur={() => onHover(null)}
             >
-              {active && (
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={(GLOW_RADIUS * unit) / scale}
-                  fill="url(#wattup-marker-glow)"
-                />
-              )}
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={
+                  ((active ? GLOW_RADIUS : GLOW_RADIUS * (isLead ? 0.6 : 0.45)) * unit) /
+                  scale
+                }
+                fill="url(#wattup-marker-glow)"
+                opacity={active ? 1 : isLead ? 0.7 : 0.45}
+              />
               <circle
                 cx={point.x}
                 cy={point.y}
