@@ -44,9 +44,16 @@ const ACTIVE_TWEEN_MS = 320;
 /** The halo's opacity, held steady so it never fades while a station is active. */
 const ACTIVE_GLOW_OPACITY = 0.6;
 
-/** Radii the active marker moves between, in pixels. */
-const ACTIVE_GLOW_FROM = 18;
-const ACTIVE_GLOW_TO = 52;
+/**
+ * The halo's radius, fixed.
+ *
+ * Animating this outward from a small value made the marker ripple rather than grow: the
+ * halo swelling is a much larger visual event than the dot scaling, and it reads as a
+ * pulse. It is simply larger now, and only the dot moves.
+ */
+const ACTIVE_GLOW_RADIUS = 34;
+
+/** Radii the active dot scales between, in pixels. */
 const ACTIVE_DOT_FROM = 5.5;
 const ACTIVE_DOT_TO = 9.5;
 
@@ -454,15 +461,17 @@ export function StationMap({
       const eased = easeInOut(value);
       if (!map.getLayer(ACTIVE_DOT_LAYER)) return;
       try {
-        map.setPaintProperty(
-          ACTIVE_GLOW_LAYER,
-          "circle-radius",
-          ACTIVE_GLOW_FROM + (ACTIVE_GLOW_TO - ACTIVE_GLOW_FROM) * eased,
-        );
+        // Only the dot scales. The halo holds its size and fades with the same curve, so
+        // the marker grows instead of rippling outward.
         map.setPaintProperty(
           ACTIVE_DOT_LAYER,
           "circle-radius",
           ACTIVE_DOT_FROM + (ACTIVE_DOT_TO - ACTIVE_DOT_FROM) * eased,
+        );
+        map.setPaintProperty(
+          ACTIVE_GLOW_LAYER,
+          "circle-opacity",
+          ACTIVE_GLOW_OPACITY * eased,
         );
       } catch {
         // The layers go away for a moment while a new basemap style loads.
@@ -655,11 +664,8 @@ export function StationMap({
           paint={{
             "circle-color": ACCENT,
             "circle-blur": 0.9,
-            "circle-radius": ACTIVE_GLOW_FROM,
-            // Held constant rather than animated. Fading it in made the halo wash out at
-            // exactly the moment the marker was meant to be emphasised; only the radius
-            // moves, and the filter removes the layer outright when nothing is active.
-            "circle-opacity": ACTIVE_GLOW_OPACITY,
+            "circle-radius": ACTIVE_GLOW_RADIUS,
+            "circle-opacity": 0,
           }}
         />
         <Layer
