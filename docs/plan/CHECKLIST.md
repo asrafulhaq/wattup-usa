@@ -18,7 +18,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ✅ **all merged to main** — nothing deployed yet (0.18) |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
-| 2 | The access gate | dev | 1 | ◐ 2a–2e merged; **2f running** — test member exists, real code in flight |
+| 2 | The access gate | dev | 1 | ✅ **built and verified end to end with real codes** (2.40–2.45); phase review pending |
 | 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
@@ -235,8 +235,8 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.41 Non-member: request-code → 200 identical body; Resend's API shows **zero** emails to that address before and after — nothing sent
 - [x] 2.42 **Timing closed by construction.** First cut measured member 1,110 ms vs non-member 3 ms (Better Auth's DB round trips, not Resend). Fixed by moving the membership decision *and* OTP issue into `after()` — the response has zero dependence on who asked. Re-measured: member 3.1/2.9/3.9/3.0/2.5 ms, non-member 2.8/2.7/2.6/2.1/2.3 ms
 - [x] 2.43 5 wrong attempts → 400 ×5, then the **correct** code → 400: the record is destroyed at the fifth attempt (`allowedAttempts: 5`), verified against a real code and an empty `proforma_verification` afterwards
-- [◐] 2.44 A used code cannot be reused → verified (same code again → 400). 10-minute expiry: tested with a shortened TTL below
-- [ ] 2.45 Requesting a second code invalidates the first
+- [x] 2.44 A used code cannot be reused (same code again → 400). Expiry: with `OTP_TTL_SECONDS=20` on the process, a real code verified 26 s after issue → 400
+- [x] 2.45 Two real codes requested back to back: the first → 400, the second → 200 (`resendStrategy: 'rotate'`)
 
 ---
 
