@@ -45,6 +45,33 @@ export function isAllowedFolder(value: unknown): value is string {
 }
 
 /**
+ * Is this public id one of ours, that is, does it sit directly inside one of the folders
+ * above? Deleting and moving are keyed on a public id supplied by the caller, and
+ * `DELETE_MEDIA` says a person may delete this site's media: it does not say they may
+ * delete anything at all that happens to live in the Cloudinary account.
+ *
+ * That distinction is not theoretical. The audit in docs/plan/CLOUDINARY-AUDIT.md found
+ * that this cloud is shared with other live products (finding F17): 1,360 of its 1,613
+ * assets belong to `islandtours`, `wp-migration` and `tripwheel`. Without this check a
+ * holder of `DELETE_MEDIA` could delete another product's media by passing its public id,
+ * and Cloudinary would happily do it.
+ *
+ * This is a containment boundary, not ownership: it does not say WHO uploaded an asset,
+ * only that the asset is inside this app's own folders. Per-asset ownership needs a media
+ * table that does not exist (checklist S.1.10), and this closes the reachable part of that
+ * residual without one.
+ */
+export function isOwnedPublicId(value: unknown): value is string {
+    if (typeof value !== 'string' || value.length === 0) return false;
+    // Reject anything that tries to climb out, and any absolute or protocol-ish form,
+    // before splitting: Cloudinary treats the public id as a path.
+    if (value.includes('..') || value.startsWith('/') || value.includes('://')) return false;
+    const slash = value.indexOf('/');
+    if (slash <= 0) return false; // a bare id sits at the account root, which is not ours
+    return ALLOWED_UPLOAD_FOLDERS.has(value.slice(0, slash));
+}
+
+/**
  * Largest upload accepted, in bytes. The REST route refuses a larger Content-Length
  * before it reads the body; the upload actions refuse a larger file after. Lives here
  * for the same reason as the folder list: a 'use server' module cannot export a constant.

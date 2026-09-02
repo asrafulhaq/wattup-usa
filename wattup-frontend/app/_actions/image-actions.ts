@@ -5,6 +5,7 @@ import {
     deleteImagesFromCloudinary,
     deleteSingleImageFromCloudinary,
     isAllowedFolder,
+    isOwnedPublicId,
     MAX_UPLOAD_BYTES,
     moveImageInCloudinary,
     uploadImageToCloudinary
@@ -85,11 +86,27 @@ export async function uploadMultipleImage(files: File[], options: { folder?: str
 }
 
 //delete multiple images
-// Any id is accepted: scoping deletes to media the caller owns needs an ownership model
-// that does not exist yet. DELETE_MEDIA is the gate.
+// DELETE_MEDIA is the gate, and isOwnedPublicId is the boundary: the permission says a
+// person may delete this site's media, not anything in a Cloudinary account this site
+// shares with other live products (finding F17). Ownership per asset still needs a media
+// table that does not exist, checklist S.1.10.
 export async function deleteImages(publicIds: string[]) {
     const authorised = await requirePermission(Permission.DELETE_MEDIA);
     if (!authorised) return UNAUTHORIZED;
+
+    if (!Array.isArray(publicIds) || publicIds.length === 0) {
+        return { success: false, error: 'No images given' };
+    }
+    // All or nothing: one foreign id fails the call rather than deleting the rest, so a
+    // caller cannot smuggle a foreign id in behind a batch of legitimate ones.
+    const foreign = publicIds.filter((id) => !isOwnedPublicId(id));
+    if (foreign.length > 0) {
+        console.warn('[image-actions] delete refused: public id outside this app\'s folders', {
+            count: foreign.length,
+            first: foreign[0],
+        });
+        return { success: false, error: 'Those images do not belong to this site' };
+    }
 
     try {
         const result = await deleteImagesFromCloudinary(publicIds);
@@ -107,6 +124,11 @@ export async function deleteImages(publicIds: string[]) {
 export async function deleteSingleImage(publicId: string) {
     const authorised = await requirePermission(Permission.DELETE_MEDIA);
     if (!authorised) return UNAUTHORIZED;
+
+    if (!isOwnedPublicId(publicId)) {
+        console.warn('[image-actions] delete refused: public id outside this app\'s folders', { publicId });
+        return { success: false, error: 'That image does not belong to this site' };
+    }
 
     try {
         const result = await deleteSingleImageFromCloudinary(publicId);
@@ -126,6 +148,13 @@ export async function moveImage(publicId: string, newFolder: string, userId?: st
     if (!authorised) return UNAUTHORIZED;
 
     if (!isAllowedFolder(newFolder)) return { success: false, error: 'Invalid folder' };
+
+    // A move reads the source and writes a copy, so a foreign source id would pull another
+    // product's asset into this site's folders. Same boundary as the deletes above.
+    if (!isOwnedPublicId(publicId)) {
+        console.warn('[image-actions] move refused: public id outside this app\'s folders', { publicId });
+        return { success: false, error: 'That image does not belong to this site' };
+    }
 
     try {
         const result = await moveImageInCloudinary(publicId, newFolder);
