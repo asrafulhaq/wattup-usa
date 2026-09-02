@@ -30,6 +30,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 **Answers needed from the client** — chase these in parallel, they block only what is listed:
 
 - [ ] **A.** Subdomain spelling: `hostproposal` confirmed in writing → blocks 6
+- [ ] **L. OTP rotation vs reuse (security review finding 2).** Any allowed request for a member's address rotates the code they hold (`resendStrategy: 'rotate'`, as the PRD implies and 2.45 verified). An attacker who knows the address and has many IPs can keep a member's code perpetually stale. The alternative is `storeOTP: 'encrypted'` + `resendStrategy: 'reuse'`: third-party requests re-send the same code instead of invalidating it, and the encrypted store is still unreadable without the app secret. It changes 2.45's behaviour and extends a code's life on resend. **Client decision.** → blocks nothing; recorded
 - [ ] **K. Apex SPF edit** (found in 2f): add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so Resend mail stops failing SPF and landing in Spam. Your DNS action; see runbook Part 3 and 6.6a
 - [ ] **B.** Vercel accounts — **deferred by the client.** Possibly a fresh Vercel for both projects. Revisit before 1.6 and 6.
 - [ ] **C.** ADR 0002 §6 permission matrix confirmed or amended → blocks 4a
@@ -203,7 +204,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.20 Allowlist re-checked at verify, before the session is issued
 - [x] 2.21 Real failure reason logged server-side with a correlation id, never returned
 - [x] 2.22 Sign-out is Better Auth's `POST /api/auth/sign-out` (reachable; only `email-otp`/`sign-in`/`sign-up` are closed) — the tool's link already targets it
-- [x] 2.23 `safeNext` same-site redirect check ported from the old middleware
+- [x] 2.23 **(hardened after the security review: control characters refused, then resolved through the URL parser and required to stay same-origin — `/%09/evil.com` used to pass)** `safeNext` same-site redirect check ported from the old middleware
 - [x] 2.24a Both gate routes require `content-type: application/json` — closes CSRF via `text/plain` form posts (added beyond spec)
 - [x] 2.24b Known, documented, accepted: the removed-between-request-and-verify branch returns the identical 400 but carries cookie-expiry `set-cookie` headers from the sign-out. Reachable only by someone holding a valid code for that user
 - [x] 2.24 Constant-time comparison retained where codes or tokens are compared
@@ -364,8 +365,8 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ## Phase 5 — Hardening and tests
 
-- [x] 5.1 Rate limit: 5 code requests per email per hour
-- [x] 5.2 **(verify-code too, since round 2)** Rate limit: 20 code requests per IP per hour
+- [x] 5.1 **(per address AND source since the security review — one IP could otherwise lock a known address out for an hour, silently; a global per-address ceiling of 20/h still bounds inbox flooding)** Rate limit: 5 code requests per email per hour
+- [x] 5.2 **(verify-code has its own bucket at 100/h since the security review — sharing request-code's had halved every NAT's capacity; IPv6 bucketed by /64)** Rate limit: 20 code requests per IP per hour
 - [x] 5.3 Rate limit: 60-second gap between sends to one address — a gap refusal does not consume the hourly budget
 - [x] 5.4 Verify attempts capped at 5 per code
 - [x] 5.5 A breach returns the **generic** response, never a distinct error

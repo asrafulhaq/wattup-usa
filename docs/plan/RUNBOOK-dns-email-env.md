@@ -155,6 +155,11 @@ Expect roughly this shape:
 > keys named `Wattup USA` and `Wattup`, created 18–19 May 2026, and its owner login is not known
 > to the team. Ask the client for the login (or to add a team member) before cutover, so key
 > rotation and dashboard checks are possible without going through a third party.
+>
+> **Key permission:** the shared key should be **`sending_access`**, not full access. Resend's
+> API returns the body of any sent message to a full-access key, which makes the key a
+> pro-forma sign-in credential for anyone who holds it (security review). A sending-only key
+> cannot retrieve sent mail. Set this when creating or rotating the key.
 
 ---
 
