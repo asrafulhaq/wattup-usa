@@ -268,6 +268,15 @@ since the Root Directory change means a fresh build:
 | `RESEND_API_KEY` | unchanged, keeps its own key |
 | `MAIL_FROM`, `MAIL_REPLY_TO` | unchanged |
 | Cloudinary, Mapbox | unchanged |
+| `CRON_SECRET` | **new, checklist 4b.8.** `openssl rand -hex 32`. Vercel sends it as `Authorization: Bearer` on every cron call and the purge route answers 401 to anything else, including every call while it is unset. Production is enough: Preview deployments run no crons. |
+| `ACTIVITY_LOG_RETENTION_DAYS` | **new, optional,** default `90`, a whole number of days. The client has not confirmed the number (open question F); leave it unset until they do. |
+
+### Cron
+
+`wattup-frontend/vercel.json` schedules `GET /api/cron/purge-activity-log` daily at 03:17 UTC; Vercel reads the file at deploy time, so the schedule changes with a deploy, never in the dashboard.
+Vercel calls the path with `Authorization: Bearer <CRON_SECRET>`; set the variable before the first deploy that carries the file, or every run answers 401 and nothing is ever purged.
+The route deletes `activity_log` rows older than `ACTIVITY_LOG_RETENTION_DAYS` and answers `{ deleted, retentionDays }`; until the phase 4b migration is applied it answers `{ deleted: 0, skipped: "table missing" }`, which is expected and not a failure.
+Check it ran under the project's **Settings → Cron Jobs** (last run and status); to trigger by hand, `curl -H "Authorization: Bearer $CRON_SECRET" https://wattupusa.com/api/cron/purge-activity-log`.
 
 ### Full environment inventory — for a move to a different Vercel account
 
@@ -292,6 +301,7 @@ Values are not recorded here. Read them from the current project's settings, or 
 | Analytics | `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`, `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` |
 | Consent | `NEXT_PUBLIC_COOKIEBOT_CBID`, `NEXT_PUBLIC_COOKIEYES_ID` |
 | App | `NEXT_PUBLIC_APP_URL` |
+| Cron | `CRON_SECRET`, `ACTIVITY_LOG_RETENTION_DAYS` (optional). Added by checklist 4b.8, not among the 25 above; see the Cron section |
 | **Unidentified** | `NEW_API_KEY`, `NEW_API_SECRET`, `NEW_CLOUD_NAME` |
 
 **Three things to settle during a move rather than after:**
