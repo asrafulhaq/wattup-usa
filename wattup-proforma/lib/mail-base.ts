@@ -10,8 +10,10 @@
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001';
 
-const LOGO_LIGHT_MODE = 'https://res.cloudinary.com/dsfms7jb4/image/upload/v1779187456/logo_dark_kxdk23.svg';
-const LOGO_DARK_MODE  = 'https://res.cloudinary.com/dsfms7jb4/image/upload/v1779187457/logo_vxmx1s.svg';
+// Logos are requested as PNG renditions (Cloudinary f_png) because Gmail and Outlook do
+// not render SVG in email; the underlying assets are unchanged.
+const LOGO_LIGHT_MODE = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320/v1779187456/logo_dark_kxdk23.png';
+const LOGO_DARK_MODE  = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320/v1779187457/logo_vxmx1s.png';
 
 export function baseTemplate(content: string): string {
     return `<!DOCTYPE html>
