@@ -1,5 +1,6 @@
 'use server';
 
+import { CONTACT_RATE_LIMITED_MESSAGE, checkContactRateLimit } from '@/lib/contact-rate-limit';
 import { sendMail } from '@/lib/email';
 import {
     driverInquiryConfirmation,
@@ -14,8 +15,18 @@ const CONTACT_EMAIL =
 type ActionResult = { success: true } | { error: string };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
+//
+// Both actions are public by design and send email, so each one is
+// rate-limited per client address before it does anything else (finding F7):
+// the counter is hit first so a caller sending garbage is throttled the same
+// as one sending valid data, and the refusal uses the ordinary failure shape.
+// The limiter is per instance on serverless; see lib/contact-rate-limit.ts.
 
 export async function submitDriverInquiry(data: DriverFormData): Promise<ActionResult> {
+    if (!(await checkContactRateLimit())) {
+        return { error: CONTACT_RATE_LIMITED_MESSAGE };
+    }
+
     const parsed = driverSchema.safeParse(data);
     if (!parsed.success) {
         return { error: parsed.error.errors[0]?.message ?? 'Invalid form data' };
@@ -43,6 +54,10 @@ export async function submitDriverInquiry(data: DriverFormData): Promise<ActionR
 }
 
 export async function submitHostInquiry(data: HostFormData): Promise<ActionResult> {
+    if (!(await checkContactRateLimit())) {
+        return { error: CONTACT_RATE_LIMITED_MESSAGE };
+    }
+
     const parsed = hostSchema.safeParse(data);
     if (!parsed.success) {
         return { error: parsed.error.errors[0]?.message ?? 'Invalid form data' };
