@@ -366,10 +366,10 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ### Roles page (decision C and F, 2026-09-03)
 
-- [ ] 4c.13 `dashboard/roles/page.tsx`: a role × permission matrix editing `role_permission`; gated by `MANAGE_PERMISSIONS` (client-adjustable itself)
-- [ ] 4c.14 `SUPER_ADMIN` row locked to every permission; a role cannot lose a permission the acting user is relying on to make the change
-- [ ] 4c.15 Every change writes `activity_log` `role_permission.changed` with actor, role, permission, direction
-- [ ] 4c.16 The pro-forma view and `getEffectivePermissions` pick the change up on the next request, no redeploy (verify live)
+- [x] 4c.13 `app/(dashboard)/dashboard/roles/page.tsx` with `components/dashboard/roles/roles-matrix.tsx`: a role by permission matrix over `role_permission`, gated by `MANAGE_PERMISSIONS`, sidebar link shown only to holders. The six inert permissions (two retired by answer I, four reserved drift values) are filtered out of what it offers, so the Reserved group disappears from the page: a toggle for a permission nothing reads would be a control that does nothing
+- [x] 4c.14 Three lockout guards in `setRolePermission`, each with a test proven to bite by disabling it: the `SUPER_ADMIN` row is refused in both directions; `MANAGE_PERMISSIONS` cannot be removed from the caller's own role; and it cannot be removed from the last role holding it, counted from `role_permission` rather than the in-code map, because this page exists to make the two differ
+- [x] 4c.15 Every accepted change writes one `role_permission.changed` row with the actor, and `meta: { role, permission, granted }`; asserted on the exact object, and a failed database write writes no row
+- [◐] 4c.16 By construction and proven for the underlying tables, not yet through this page's own UI: `getEffectivePermissions` reads `role_permission` per request and the `proforma_member` view resolves `ACCESS_PROFORMA` in SQL, and the live probe on 2026-09-02 showed a grant and a revoke changing membership on the very next query with no redeploy (4b.9). **Left to do: click a cell on the Roles page and re-check**, which needs a signed-in browser pass
 
 ---
 
