@@ -3,24 +3,30 @@
 
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
-import { getAdminSession } from './auth-actions';
+import { hasPermission, Permission } from '@/lib/permissions';
+import { getAdminSession, getSession } from './auth-actions';
 
-export async function getArticles(page = 1, pageSize = 10, status?: string) {
+/**
+ * The only rows a public read may return.
+ *
+ * Every read below that does not check a session applies this inside the Prisma query,
+ * never at the call site. These exports are 'use server' functions, which makes each one
+ * an HTTP endpoint anyone can call, so a filter the caller is trusted to pass is a filter
+ * that can be left out. lib/locations/server.ts applies the same rule with published: true.
+ */
+const PUBLISHED = { status: 'Published' } as const;
+
+export async function getArticles(page = 1, pageSize = 10) {
     'use cache';
     cacheLife('minutes');
     cacheTag('posts');
     try {
         const skip = (page - 1) * pageSize;
-        const where: any = {};
-        if (status) {
-            where.status = status;
-        }
-
         const articles = await prisma.posts.findMany({
             skip,
             take: pageSize,
             orderBy: [{ createdAt: 'desc' }],
-            where,
+            where: PUBLISHED,
         });
         return articles;
     } catch (error) {
@@ -29,31 +35,20 @@ export async function getArticles(page = 1, pageSize = 10, status?: string) {
     }
 }
 
-export async function getPaginatedArticles(
-    page = 1,
-    pageSize = 10,
-    status?: string
-) {
+export async function getPaginatedArticles(page = 1, pageSize = 10) {
     'use cache';
     cacheLife('minutes');
     cacheTag('posts');
     try {
         const skip = (page - 1) * pageSize;
-        const where: any = {};
-        if (status) {
-            where.status = status;
-        }
-
         const [articles, totalCount] = await Promise.all([
             prisma.posts.findMany({
                 skip,
                 take: pageSize,
                 orderBy: [{ createdAt: 'desc' }],
-                where,
+                where: PUBLISHED,
             }),
-            prisma.posts.count({
-                where,
-            }),
+            prisma.posts.count({ where: PUBLISHED }),
         ]);
 
         return {
@@ -72,8 +67,8 @@ export async function getArticleById(id: string) {
     cacheLife('minutes');
     cacheTag('posts', `post-${id}`);
     try {
-        const article = await prisma.posts.findUnique({
-            where: { id },
+        const article = await prisma.posts.findFirst({
+            where: { id, ...PUBLISHED },
         });
         return article;
     } catch (error) {
@@ -87,12 +82,74 @@ export async function getArticleBySlug(slug: string) {
     cacheLife('minutes');
     cacheTag('posts', `post-${slug}`);
     try {
-        const article = await prisma.posts.findUnique({
-            where: { slug },
+        const article = await prisma.posts.findFirst({
+            where: { slug, ...PUBLISHED },
         });
         return article;
     } catch (error) {
         console.error('Get Article By Slug Error:', error);
+        return null;
+    }
+}
+
+/**
+ * The dashboard's list: drafts included, for a signed-in user holding a post permission.
+ *
+ * Deliberately not 'use cache'. A cached result is keyed on the arguments, not on who is
+ * asking, so a cached function that checks a session would serve the first caller's answer
+ * to everyone after it: one signed-in request would put the drafts into the cache and the
+ * next anonymous request would read them back out. The session check and the query have to
+ * run together, on every call. Only the team reads this list, so the cost is not felt.
+ *
+ * Without a session, or without the permission, the caller gets exactly what the public
+ * site shows, by going through getPaginatedArticles, so there is one definition of
+ * "public" rather than two. The two refusals are indistinguishable on purpose.
+ */
+export async function getArticlesForDashboard(page = 1, pageSize = 10) {
+    const session = await getSession();
+    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
+    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+        return getPaginatedArticles(page, pageSize);
+    }
+
+    try {
+        const skip = (page - 1) * pageSize;
+        const [articles, totalCount] = await Promise.all([
+            prisma.posts.findMany({
+                skip,
+                take: pageSize,
+                orderBy: [{ createdAt: 'desc' }],
+            }),
+            prisma.posts.count(),
+        ]);
+
+        return {
+            articles,
+            hasNextPage: skip + articles.length < totalCount,
+            totalCount,
+        };
+    } catch (error) {
+        console.error('Get Articles For Dashboard Error:', error);
+        return { articles: [], hasNextPage: false, totalCount: 0 };
+    }
+}
+
+/**
+ * One article for the editor, draft or published, for a signed-in user holding a post
+ * permission.
+ * Uncached for the reason given on getArticlesForDashboard.
+ */
+export async function getArticleByIdForDashboard(id: string) {
+    const session = await getSession();
+    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
+    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+        return getArticleById(id);
+    }
+
+    try {
+        return await prisma.posts.findUnique({ where: { id } });
+    } catch (error) {
+        console.error('Get Article For Dashboard Error:', error);
         return null;
     }
 }
