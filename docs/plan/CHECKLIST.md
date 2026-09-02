@@ -172,14 +172,14 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ### 2a — Better Auth configuration
 
-- [ ] 2.1 `emailOTP` plugin added
-- [ ] 2.2 `storeOTP: 'hashed'` — **plugin default is `'plain'`, which violates the PRD**
-- [ ] 2.3 `expiresIn: 600` — plugin default is 300
-- [ ] 2.4 `allowedAttempts: 5` — plugin default is 3
-- [ ] 2.5 `disableSignUp: true` — otherwise sign-in **creates** users
-- [ ] 2.6 `emailAndPassword` disabled
-- [ ] 2.7 Session table mapped to `proforma_session`, not the shared `session`
-- [ ] 2.8 Distinct cookie prefix and a **different** `BETTER_AUTH_SECRET`
+- [x] 2.1 `emailOTP` plugin added
+- [x] 2.2 `storeOTP: 'hashed'` — **plugin default is `'plain'`, which violates the PRD**
+- [x] 2.3 `expiresIn: 600` — plugin default is 300
+- [x] 2.4 `allowedAttempts: 5` — plugin default is 3
+- [x] 2.5 `disableSignUp: true` — otherwise sign-in **creates** users
+- [x] 2.6 `emailAndPassword` disabled
+- [x] 2.7 Session table mapped to `proforma_session`, not the shared `session`
+- [x] 2.8 Distinct cookie prefix and a **different** `BETTER_AUTH_SECRET`
 - [x] 2.9 Fail closed: missing required env var → 503 with a plain-text reason
 
 ### 2b — Member directory
@@ -216,7 +216,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.28 Code input: `inputmode="numeric"`, `autocomplete="one-time-code"`
 - [x] 2.29 Leading zeros survive — code handled as a **string** throughout
 - [x] 2.30 Built on **wattup-frontend's design tokens** (copied by hand, light + dark blocks, referenced by name); wordmark renders before sign-in. Client instruction 2 Sep: one brand across both apps. **Scheme settled: `/admin` mounts no theme provider and is always light, so the gate is too** (client: design the login like the frontend's). Dark flip verified working with a temporary `dark` class, then reverted
-- [x] 2.31 Resend-code affordance respecting the 60-second gap
+- [◐] 2.31 Resend-code affordance — **code review: the cooldown starts only on resend, so the first click at 0 s is refused server-side on the gap and the form wipes the still-valid code; `changeAddress` also resets it.** Fix in the Phase 2+5a fix-up
 - [x] 2.32 Error states for expired and exhausted codes, using the one generic message
 
 ### 2e — Email
@@ -226,8 +226,8 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.35 Six digits as selectable text (`<code>`, 36px monospace, `#197dff` on `#eff6ff`), not an image
 - [x] 2.36 10-minute expiry and single use stated; "ignore if you did not request this" line present; subject `<code> is your WattUp sign-in code`
 - [ ] 2.37 `Reply-To` a monitored inbox *(needs answer E)*
-- [ ] 2.38 **The code appears in no log line, error body or analytics event**
-- [ ] 2.39 Emails in application logs are hashed or truncated
+- [x] 2.38 **The code appears in no log line, error body or analytics event**
+- [x] 2.39 Emails in application logs are hashed or truncated
 
 ### 2f — Verify the phase
 
