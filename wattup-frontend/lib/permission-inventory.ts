@@ -153,4 +153,9 @@ export const PERMISSION_INVENTORY: Readonly<Record<string, EndpointAccess>> = {
     'app/api/auth/[...all]/route.ts#POST': isPublic(
         'Better Auth\'s own handler: sign-in, session, password reset. Rate limited; sign-up disabled.'
     ),
+    'app/api/cron/purge-activity-log/route.ts#GET': isPublic(
+        'Vercel Cron, not a person: no session exists to check. Authorised instead by a ' +
+            'constant-time comparison against CRON_SECRET, which Vercel sends as a bearer ' +
+            'token, and it answers 401 with an empty body to anything else (checklist 4b.8).'
+    ),
 };

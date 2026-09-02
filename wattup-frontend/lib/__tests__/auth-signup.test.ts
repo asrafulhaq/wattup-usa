@@ -8,22 +8,44 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
  *      API call hits (no request object, so the hook below never runs).
  *   2. The before hook matching /sign-up/email, which the HTTP handler hits first.
  *
- * Neither reaches the database: the Prisma singleton and the mailer are stubbed with
- * objects that throw if anything touches them.
+ * Neither reaches a user, account or session row: the Prisma singleton is stubbed with
+ * an object that throws if anything but the rate limiter is touched, and the mailer
+ * with one that throws outright.
+ *
+ * The one model that IS reachable is `rateLimit`. Since checklist B.10 the limiter
+ * stores its counters in Postgres (`auth_rate_limit`), and on the HTTP path it runs
+ * before any route handler, so a sign-up attempt legitimately reads and writes that
+ * table before either layer below refuses it. Letting the stub serve it, rather than
+ * throwing, keeps the assertion pointed at what matters: no identity row is read and
+ * no mail is sent.
  */
 
-const untouchable = (name: string) =>
-    new Proxy(
-        {},
-        {
-            get(_target, prop) {
-                if (prop === 'then') return undefined;
-                throw new Error(`${name}.${String(prop)} was touched by a sign-up attempt`);
-            },
-        }
-    );
+const untouchable = (name: string, allow: Record<string, unknown> = {}) =>
+    new Proxy(allow, {
+        get(target, prop) {
+            if (prop === 'then') return undefined;
+            if (prop in target) return target[prop as string];
+            throw new Error(`${name}.${String(prop)} was touched by a sign-up attempt`);
+        },
+    });
 
-vi.mock('@/lib/prisma', () => ({ default: untouchable('prisma') }));
+// The limiter's own storage, in memory: findMany, create, findFirst, update, deleteMany
+// are the five calls better-auth/dist/api/rate-limiter makes against this model.
+const rateLimitRows: Record<string, unknown>[] = [];
+const rateLimit = {
+    findMany: async () => [...rateLimitRows],
+    findFirst: async () => rateLimitRows[0] ?? null,
+    create: async ({ data }: { data: Record<string, unknown> }) => {
+        const row = { id: `rl_${rateLimitRows.length + 1}`, ...data };
+        rateLimitRows.push(row);
+        return row;
+    },
+    update: async ({ data }: { data: Record<string, unknown> }) => ({ ...rateLimitRows[0], ...data }),
+    updateMany: async () => ({ count: 0 }),
+    deleteMany: async () => ({ count: 0 }),
+};
+
+vi.mock('@/lib/prisma', () => ({ default: untouchable('prisma', { rateLimit }) }));
 vi.mock('@/lib/email', () => ({
     sendMail: () => {
         throw new Error('sendMail was called by a sign-up attempt');
