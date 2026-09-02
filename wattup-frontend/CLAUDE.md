@@ -199,6 +199,7 @@ pnpm dev              # localhost:3000; log in at /admin
 pnpm lint
 pnpm build            # next build. Reads the database at build time; no longer writes (seed removed)
 pnpm db:seed          # one-off bootstrap, writes to DATABASE_URL  ← see the warning below
+pnpm seed:admins      # add/promote SUPER_ADMINs from ADMIN_EMAILS only; touches user + account, nothing else
 pnpm db:studio        # Prisma Studio
 pnpm db:push          # schema → database, no migration
 pnpm migrate:dev      # create a migration
