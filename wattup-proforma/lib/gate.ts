@@ -22,17 +22,12 @@ export function correlationId(): string {
 
 /**
  * Same-site absolute paths only, so the gate cannot be used as an open
- * redirect. '//host' is protocol-relative, and browsers read '/\host' the same
- * way. Anything else, including nothing at all, is the tool's front door.
- * Checklist 2.23. The producer (app/tool) and the consumer (verify-code, and
- * later the login page) share this one definition.
+ * redirect. Checklist 2.23. Defined in lib/safe-next.ts, a module with no
+ * imports, because the login form needs it in the browser and this module
+ * imports Prisma. Re-exported here so the server callers (app/tool and
+ * verify-code) keep one import for everything the gate does.
  */
-export function safeNext(raw: string | null | undefined): string {
-    if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) {
-        return '/tool/';
-    }
-    return raw;
-}
+export { safeNext } from '@/lib/safe-next';
 
 /**
  * The 503 for a missing required variable (lib/env.ts, checklist 2.9). Plain

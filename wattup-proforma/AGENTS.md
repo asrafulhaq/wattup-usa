@@ -78,6 +78,12 @@ application logs are masked; full addresses belong in `activity_log`.
 **Secrets are this app's own.** `BETTER_AUTH_SECRET` differs from the dashboard's, so rotating
 it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoint.
 
+**Design tokens are copied from wattup-frontend and must be kept in sync by hand.**
+`app/globals.css` is a copy of the frontend's token block and the four utilities its sign-in
+form uses; `app/layout.tsx` loads the same font the same way; the login form's classes are the
+frontend sign-in form's. Nothing is imported across the apps (ADR 0001 section 3). When the
+frontend's tokens change, change them here too, and say so in the commit.
+
 ## Layout
 
 ```
@@ -85,9 +91,15 @@ app/api/auth/[...all]/       Better Auth, with OTP paths closed
 app/api/gate/request-code/   POST: normalise, answer the same 200, then rate limit, directory and send in after()
 app/api/gate/verify-code/    POST: sign in server-side, re-check membership, one identical 400 for every failure
 app/tool/[[...path]]/        serves private/tool/ to current members only
+app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
+                             member straight on; login-form.tsx is the client form
+app/page.tsx                 redirects to /tool/, which bounces a signed-out person to /login
+app/layout.tsx               title, noindex, favicon, Plus Jakarta Sans via next/font; globals.css has
+                             the tokens, both copied by hand from wattup-frontend
 lib/auth.ts                  Better Auth config — read the comments before editing
 lib/gate.ts                  requireMember: the one place a gated request decides membership;
-                             also safeNext, correlationId and the gate's shared response headers
+                             also correlationId and the gate's shared response headers
+lib/safe-next.ts             safeNext, import-free so the browser can use it too; lib/gate.ts re-exports it
 lib/env.ts                   missingRequiredEnv: the 503 fail-closed check both gate routes run first
 lib/rate-limit.ts            checkRequestLimits: the phase 5 call site, a stub until then
 lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production

@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
+/*
+ * Copied from wattup-frontend/app/globals.css on 2026-09-02; keep in sync by hand.
+ * The apps share no code by design (ADR 0001 §3).
+ *
+ * What is copied: the light tokens on :root (the WattUp brand tokens and the
+ * shadcn taupe palette), the dark set (the .dark block, its custom variant and
+ * the prefers-color-scheme block), the @theme mapping, the body and base-layer
+ * rules, and the three text utilities the frontend's admin sign-in page is
+ * built from, so this app's one screen renders as a sibling of that one. The font
+ * smoothing lines come from wattup-frontend/styles/_variables.scss.
+ *
+ * The scheme is light by default, as the frontend's is. To make this app dark,
+ * add the `dark` class on <html> in app/layout.tsx; every element of the login
+ * screen is written against token names, never a literal colour, so nothing
+ * else changes. The frontend's .input-label and .input-field utilities are NOT
+ * copied: they are built on --dark, which the frontend's own .dark block leaves
+ * at #2d2d2d, so a screen built on them could not flip.
+ *
+ * Left out on purpose: the dashboard, animation, map and scrollbar rules, and
+ * the tw-animate-css, shadcn and SCSS imports, none of which is installed here.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    overflow-wrap: break-word;
+    text-size-adjust: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* --- WATTUP SPECIFIC TOKENS START --- */
+    /* Brand Colors — preserved, NOT overridden by shadcn preset */
+    --primary: #197dff;
+    --primary-hover: #1771e6;
+    --primary-light: #2f80ff;
+
+    /* Neutrals */
+    --dark: #2d2d2d;
+    --neutral-dark: #2d2d2d; /* Fixed alias — never mutated by dark mode */
+    --gray: #d4d4d4;
+    --gray-light: #f4f4f5;
+
+    /* Utility Colors */
+    --error: #c91e18;
+
+    /* Shadows */
+    --shadow-btn:
+        0px 27px 11px rgba(0, 0, 0, 0.01), 0px 15px 9px rgba(0, 0, 0, 0.02),
+        0px 7px 7px rgba(0, 0, 0, 0.05), 0px 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-icon: 0px 3.43173px 3.43173px rgba(0, 0, 0, 0.25);
+    /* --- WATTUP SPECIFIC TOKENS END --- */
+
+    /* Shadcn preset b4xFeBLg4O (taupe) palette — used by auth & dashboard UI */
+    --background: #ffffff;
+    --foreground: oklch(0.147 0.004 49.3);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.147 0.004 49.3);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.147 0.004 49.3);
+    --primary-foreground: #ffffff;
+    --secondary: oklch(0.96 0.002 17.2);
+    --secondary-foreground: oklch(0.214 0.009 43.1);
+    --muted: oklch(0.96 0.002 17.2);
+    --muted-foreground: oklch(0.547 0.021 43.1);
+    --accent: oklch(0.96 0.002 17.2);
+    --accent-foreground: oklch(0.214 0.009 43.1);
+    --destructive: var(--error);
+    --border: oklch(0.922 0.005 34.3);
+    --input: oklch(0.922 0.005 34.3);
+    --ring: var(--primary);
+    --radius: 0.75rem;
+
+    --text-description: rgba(17, 24, 39, 0.7);
+    --text-muted: rgba(17, 24, 39, 0.5);
+    --icon: #6b7280;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-sans);
+
+    /* --- WATTUP SPECIFIC TOKENS START --- */
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-light: var(--primary-light);
+
+    --color-dark: var(--dark);
+    --color-neutral-dark: var(
+        --neutral-dark
+    ); /* Always #2d2d2d — use text-neutral-dark for fixed dark text */
+    --color-gray: var(--gray);
+    --color-gray-light: var(--gray-light);
+    --color-error: var(--error);
+
+    --shadow-btn: var(--shadow-btn);
+    --shadow-icon: var(--shadow-icon);
+    /* --- WATTUP SPECIFIC TOKENS END --- */
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+
+    --color-text-description: var(--text-description);
+    --color-text-muted: var(--text-muted);
+    --color-icon: var(--icon);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+    :root {
+        /* --- WATTUP SPECIFIC TOKENS START --- */
+        /*    --dark: #ededed;
+        --gray: #3f3f46;
+        --gray-light: #27272a; */
+        /* --- WATTUP SPECIFIC TOKENS END --- */
+    }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
+    letter-spacing: -0.03em;
+}
+
+.dark {
+    /* --- WATTUP SPECIFIC TOKENS START --- */
+    --background: #393939;
+    --foreground: #ffffff;
+
+    /* Neutrals for Dark Mode */
+    /* --dark: #ededed;
+    --gray: #3f3f46;
+    --gray-light: #27272a; */
+
+    --card: oklch(0.214 0.009 43.1);
+    --card-foreground: oklch(0.986 0.002 67.8);
+    --popover: oklch(0.214 0.009 43.1);
+    --popover-foreground: oklch(0.986 0.002 67.8);
+    --primary: #197dff;
+    --primary-foreground: #ffffff;
+    --secondary: oklch(0.268 0.011 36.5);
+    --secondary-foreground: oklch(0.986 0.002 67.8);
+    --muted: oklch(0.268 0.011 36.5);
+    --muted-foreground: rgba(255, 255, 255, 0.5);
+    --accent: oklch(0.268 0.011 36.5);
+    --accent-foreground: oklch(0.986 0.002 67.8);
+    --destructive: var(--error);
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.15);
+    --ring: var(--primary);
+    /* --- WATTUP SPECIFIC TOKENS END --- */
+
+    --text-description: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --icon: #9ca3af;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    button {
+        @apply cursor-pointer;
+    }
+    body {
+        @apply bg-background text-foreground font-sans font-normal;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-sans font-bold;
+    }
+    html {
+        @apply font-sans;
+    }
+}
+
+@layer utilities {
+    .headline-3 {
+        @apply text-[40px] font-medium tracking-[-3%] leading-[110%];
+    }
+    .headline-white {
+        @apply text-[32px] md:text-[48px] font-semibold tracking-[-3%] leading-[110%] text-white;
+    }
+    .text-description {
+        @apply text-[16px] md:text-[20px] font-semibold leading-[130%] tracking-[-3%];
+    }
 }
