@@ -203,6 +203,7 @@ pnpm seed:admins      # add/promote SUPER_ADMINs from ADMIN_EMAILS only; touches
 pnpm db:studio        # Prisma Studio
 pnpm db:push          # schema → database, no migration
 pnpm migrate:dev      # create a migration
+pnpm exec tsx scripts/check-image-ids.ts   # HEAD-checks every lib/images/ URL; exits 1 on a new 404 (F18)
 ```
 
 `pnpm lint` and `pnpm build` must both pass before anything is considered done.
