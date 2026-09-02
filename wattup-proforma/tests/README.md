@@ -16,6 +16,7 @@ network, no email. `pnpm test` from this directory; `pnpm test:watch` while work
 | `auth/all-route.test.ts` | `/api/auth/*` is `get-session` and `sign-out` and nothing else, including the encoded and traversed spellings | ADR 0001 section 7 |
 | `lib/env.test.ts` | every required name, empty as missing, and the two numeric options | 2.9 |
 | `lib/member-directory.test.ts` | both directories, the missing-view branch, and production ignoring the env list | 2.12, 4b.4 |
+| `lib/activity-log.test.ts` | the row is written in full (`app: 'proforma'`, the full address, every field, explicit nulls); the user agent is cut at 512; a failed write never throws and logs the masked address with the correlation id; the missing table (P2021) is reported once per process | 4b.5, 4b.7 |
 
 ## How nothing real is reached
 
@@ -29,7 +30,7 @@ and `NODE_ENV` is Vitest's `test`.
 
 | Specifier | Replaced with | Lives in |
 |---|---|---|
-| `@/lib/prisma` | an object with only `user.findUnique`, `proformaMember.findUnique`, `$queryRaw`, `$executeRaw`, each a `vi.fn`. The raw methods reject by default with the same P2010 "relation does not exist" the real database raises until checklist 5.7b is applied, so anything reaching the Postgres limiter takes the documented fail-open path | `mocks/prisma.ts` |
+| `@/lib/prisma` | an object with only `user.findUnique`, `proformaMember.findUnique`, `activityLog.create`, `$queryRaw`, `$executeRaw`, each a `vi.fn`. `activityLog.create` resolves by default, and a test that scripts it to reject is asserting that the route's response did not change. The raw methods reject by default with the same P2010 "relation does not exist" the real database raises until checklist 5.7b is applied, so anything reaching the Postgres limiter takes the documented fail-open path | `mocks/prisma.ts` |
 | `@/lib/auth` | `auth.api.{getSession, sendVerificationOTP, signInEmailOTP, signOut}` as `vi.fn`, scripted per test | `mocks/auth.ts` |
 | `@/lib/member-directory` | the real module, with only `getMemberDirectory()` swapped for a function returning one scriptable `lookup` | `mocks/member-directory.ts` |
 | `@/lib/email` | `sendOtpEmail` as a `vi.fn`, and a copy of `maskEmail` | `mocks/email.ts` |
