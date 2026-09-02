@@ -1,8 +1,11 @@
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-// Logos are requested as PNG renditions (Cloudinary f_png) because Gmail and Outlook do
-// not render SVG in email; the underlying assets are unchanged.
-const LOGO_LIGHT_MODE = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320/v1779187456/logo_dark_kxdk23.png';
+// Logos are PNG renditions (Cloudinary f_png): Gmail and Outlook do not render SVG in email.
+// The default (light-mode) logo also carries its own white, rounded background (c_pad,b_white):
+// Gmail ignores prefers-color-scheme and darkens cell backgrounds itself, but never touches
+// images, so a self-backgrounded logo stays legible in both modes in every client. The
+// .logo-light/.logo-dark swap below still serves clients that honour the media query.
+const LOGO_LIGHT_MODE = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320,h_96,c_pad,b_white,r_16/v1779187456/logo_dark_kxdk23.png';
 const LOGO_DARK_MODE  = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320/v1779187457/logo_vxmx1s.png';
 
 export function baseTemplate(content: string): string {
