@@ -101,7 +101,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [ ] S.5.3 If break-glass — rotate the password, move it to the password manager, document the procedure
 - [ ] S.5.4 Remove `ADMIN_PASSWORD` from the deployed environment once the account exists
 - [ ] S.5.5 Verify on a real deploy that the account is no longer re-promoted — **also check the Vercel project's Build Command override**: if one was ever set to `next build && prisma db seed`, the `package.json` change is void and this cannot be seen from git
-- [ ] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them
+- [◐] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them. **Checked 3 Sep in the frontend `.env`:** all three present, and each is **different** from its `CLOUDINARY_*` counterpart (same length), so they are a second set of credentials, not copies. Nothing reads them (`lib/cloudinary.ts` reads `CLOUDINARY_*` only). **Operator half pending:** find which Cloudinary account they belong to, revoke or rotate, then delete them from Vercel and every `.env`
 - [ ] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does
 - [x] S.5.8 **Second super admin seeded:** `devripon.io@gmail.com` via the new `pnpm seed:admins` (`ADMIN_EMAILS`, uses `ADMIN_PASSWORD`, touches user + account only). `admin@wattup.com` untouched. Every check from here runs as this account
 
@@ -342,10 +342,10 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [x] 4b.5 `lib/activity-log.ts` + both gate routes write `code.requested`, `code.refused` (meta.reason: rate_limited_ip / not_member / banned / rate_limited_email / send_failed), `signin.success`, `signin.failed` (invalid_code / expired / attempts_exhausted / not_member / banned / rate_limited_ip / unknown, Better Auth's code in meta.code), each with IP (same `clientIp` the limiter keys on), user agent (≤512 chars) and the correlation id. **Every write is inside `after()`**; tests pin zero `create` calls at the moment each response exists, and byte-identical responses when the write rejects. Until the 4a migration lands the insert fails P2021, reported once and swallowed
 - [ ] 4b.6 Dashboard writes its own auth events to the same table
 - [x] 4b.7 Full email in the row; every log line the writer emits carries `maskEmail(email)` (asserted: the logged string holds the masked form, not the address)
-- [ ] 4b.8 90-day purge scheduled *(needs answer F)*
+- [◐] 4b.8 90-day purge scheduled *(needs answer F)*: `GET /api/cron/purge-activity-log` on `wattup-frontend`, daily 03:17 UTC from `vercel.json`, `CRON_SECRET` bearer compared in constant time, one parameterised DELETE on `activity_log.createdAt`, 200 `skipped` while the table is missing; 19 Vitest tests in `tests/api/purge-activity-log.test.ts` (401 paths issue no statement, exact SQL and parameter, P2010/P2021 skip reported once, malformed retention deletes nothing). Retention default 90, client answer F pending; `CRON_SECRET` not yet set in Vercel (runbook Part 5, Cron)
 - [ ] 4b.9 Verify: revoking `ACCESS_PROFORMA` blocks the **next** request, no redeploy
 - [ ] 4b.10 Verify: banning a user blocks an existing pro-forma session
-- [ ] 4b.11 CI guard fails a frontend migration touching `user`, `activity_log`, `proforma_*` or the view without a note
+- [x] 4b.11 CI guard fails a frontend migration touching `user`, `activity_log`, `proforma_*` or the view without a note: `wattup-frontend/scripts/check-shared-migrations.mjs` (plain Node) requires a `-- shared-surface: …` line when SQL outside comments mentions `"user"`, `activity_log` or `proforma_`. Red run: a scratchpad copy with a violating file exits 1 naming it, and an untracked probe in diff mode does the same; green once the line is added, and a mention only inside a comment passes. `--all` on the repo names the four pre-September `"user"` migrations; the three 2 Sep proforma migrations got their headers. Wired as the `shared-migrations` job in `.github/workflows/ci.yml` on pull requests (YAML parsed with js-yaml; not yet run on GitHub)
 
 ---
 
@@ -438,7 +438,7 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.4 **F6:** replace the hand-rolled scrypt verification in `auth-actions.updateEmail` with Better Auth's own credential check
 - [ ] B.5 **F6:** re-check this on every `better-auth` upgrade — it hardcodes the stored hash format
 - [x] B.6 **F7:** `lib/contact-rate-limit.ts`, 5 per address per 10 min in a bounded Map (500 keys, oldest window evicted), HMAC(BETTER_AUTH_SECRET) keys, IPv6 by /64 (copied from the pro-forma limiter, noted in file), fails open; both actions check it before validation. Proven by a direct-call script (6th hit refused, window reset, eviction, header parsing)
-- [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
+- [x] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades: `docs/plan/AUDIT-TRIAGE.md` (3 Sep). Frontend 83 advisories (106 findings, 0 critical), proforma 3; one reachable from code the app executes (`@tiptap/core` 3.22.5, upgrade to 3.30.4 in lockstep, pending), `prisma` 7.8.0 → 7.10.0 clears the 31 `@prisma/dev` rows, everything else is lint, build or CLI tooling and accepted. Nothing upgraded on that branch
 - [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
 - [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
@@ -485,6 +485,7 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
 | 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
 | 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
+| 28 | `chore/ops-cron-guard-ci` | `cffbd9c` | 4b.8 cron purge route + Vitest on the frontend (vitest 4.1.11, `test` script), 4b.11 migration guard + headers on the three proforma migrations, `.github/workflows/ci.yml`, B.7 `AUDIT-TRIAGE.md`, S.5.6 check, runbook Cron section; the checklist commit sits on top of that SHA. Gate in the worktree: frontend tsc clean, lint baseline 40 (0 in new files), 19 tests, `next build` 62/62; proforma lint clean, typecheck clean after `next typegen`, 256 tests. Workflow parsed, not yet run on GitHub |
 | 27 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
