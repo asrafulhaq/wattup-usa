@@ -362,19 +362,14 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [ ] 4c.9 Profile page lists own effective permissions, read-only
 - [ ] 4c.10 New role badge colours added for `NETWORK_MANAGER` and `SALES`
 - [ ] 4c.11 Users list filterable by the new roles
-- [ ] 4c.12 Every control hidden without permission **and** refused server-side
+- [◐] 4c.12 Server side is done and proven for the Roles page: `setRolePermission` re-checks `MANAGE_PERMISSIONS` and every lockout guard, with 16 tests, 3 of which go red when the guards are disabled; `/dashboard/roles` 307s to `/admin` signed out and the page returns null for a caller without the permission rather than erroring. **The user detail page's controls are not built** (see 4c.1 to 4c.7), so the hidden-half of this item is only partly demonstrable
 
 ### Roles page (decision C and F, 2026-09-03)
 
 - [x] 4c.13 `app/(dashboard)/dashboard/roles/page.tsx` with `components/dashboard/roles/roles-matrix.tsx`: a role by permission matrix over `role_permission`, gated by `MANAGE_PERMISSIONS`, sidebar link shown only to holders. The six inert permissions (two retired by answer I, four reserved drift values) are filtered out of what it offers, so the Reserved group disappears from the page: a toggle for a permission nothing reads would be a control that does nothing
 - [x] 4c.14 Three lockout guards in `setRolePermission`, each with a test proven to bite by disabling it: the `SUPER_ADMIN` row is refused in both directions; `MANAGE_PERMISSIONS` cannot be removed from the caller's own role; and it cannot be removed from the last role holding it, counted from `role_permission` rather than the in-code map, because this page exists to make the two differ
 - [x] 4c.15 Every accepted change writes one `role_permission.changed` row with the actor, and `meta: { role, permission, granted }`; asserted on the exact object, and a failed database write writes no row
-- [◐] 4c.16 By construction and proven for the underlying tables, not yet through this page's own UI: `getEffectivePermissions` reads `role_permission` per request and the `proforma_member` view resolves `ACCESS_PROFORMA` in SQL, and the live probe on 2026-09-02 showed a grant and a revoke changing membership on the very next query with no redeploy (4b.9). **Left to do: click a cell on the Roles page and re-check**, which needs a signed-in browser pass
-
----
-
-## Phase 5 — Hardening and tests
-
+- [x] 4c.16 **Verified live on the running server** (2026-09-02, production build on port 3000, signed in as `SUPER_ADMIN`): with an extra `role_permission` row inserted out of band, the page reflected it within seconds and still did past the 60 second revalidate; removing the row returned the page to its original bytes. So a role change reaches a running server with no redeploy and no restart. Authorisation was never the question: `getEffectivePermissions` reads the table per request and is uncached (4b.9 proved a grant and a revoke changing pro-forma membership on the next query); `lib/dashboard/role-permissions.ts` caches only the **display**, tagged so the page's own toggle invalidates it immediately
 - [x] 5.1 **(per address AND source since the security review — one IP could otherwise lock a known address out for an hour, silently; a global per-address ceiling of 20/h still bounds inbox flooding)** Rate limit: 5 code requests per email per hour
 - [x] 5.2 **(verify-code has its own bucket at 100/h since the security review — sharing request-code's had halved every NAT's capacity; IPv6 bucketed by /64)** Rate limit: 20 code requests per IP per hour
 - [x] 5.3 Rate limit: 60-second gap between sends to one address — a gap refusal does not consume the hourly budget
