@@ -19,6 +19,17 @@ export const REQUIRED_ENV = [
     'MAIL_FROM',
 ] as const;
 
+// Optional numerics. When set, they must be positive integers: `Number('6O0')`
+// is NaN, and NaN as a session lifetime is not a 503 by itself, it is a session
+// that never expires or never starts. Reported in the same 503.
+const POSITIVE_INT_ENV = ['SESSION_TTL_DAYS', 'OTP_TTL_SECONDS'] as const;
+
 export function missingRequiredEnv(): string[] {
-    return REQUIRED_ENV.filter((name) => !process.env[name]?.trim());
+    const missing: string[] = REQUIRED_ENV.filter((name) => !process.env[name]?.trim());
+    for (const name of POSITIVE_INT_ENV) {
+        const raw = process.env[name];
+        if (raw === undefined || raw.trim() === '') continue;
+        if (!/^[1-9]\d*$/.test(raw.trim())) missing.push(`${name} (must be a positive integer, got ${JSON.stringify(raw)})`);
+    }
+    return missing;
 }

@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import { isMissingTable } from '@/lib/rate-limit';
 
 /**
  * Who may open the Site Pro-Forma Builder. ADR 0001 sections 8 and 18.
@@ -93,8 +93,9 @@ export class DbMemberDirectory implements MemberDirectory {
             });
             return row ?? null;
         } catch (error) {
-            const missingView =
-                error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2021';
+            // P2021 from typed queries, P2010 + TableDoesNotExist/42P01 through the pg
+            // driver adapter: both mean "not migrated yet", and both report once.
+            const missingView = isMissingTable(error);
             if (!missingView || !missingViewReported) {
                 missingViewReported ||= missingView;
                 console.error(

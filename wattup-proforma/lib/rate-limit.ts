@@ -154,7 +154,13 @@ export class PrismaRateLimitStore implements RateLimitStore {
             RETURNING "count"`;
         const count = rows[0]?.count;
         if (typeof count !== 'number') throw new Error('[rate-limit] upsert returned no count');
-        await this.sweep();
+        try {
+            await this.sweep();
+        } catch (error) {
+            // The hit above already counted; a failing sweep must not undo that by
+            // throwing the store into fail-open.
+            console.warn('[rate-limit] sweep failed', { message: error instanceof Error ? error.message : String(error) });
+        }
         return count;
     }
 
@@ -185,6 +191,10 @@ type MemoryEntry = { count: number; windowStart: number; lastHit: number };
  * deployment. It is what carries the limits while Postgres cannot, and what
  * the tests drive; it is not where the limits live.
  */
+// Degraded mode only: bounded so a flood of distinct addresses cannot grow the
+// map without limit while the primary store is down. Oldest entries go first.
+const MEMORY_MAX_KEYS = 10_000;
+
 export class MemoryRateLimitStore implements RateLimitStore {
     private readonly entries = new Map<string, MemoryEntry>();
     private lastSweep = 0;
@@ -196,6 +206,10 @@ export class MemoryRateLimitStore implements RateLimitStore {
         this.sweep(now);
         const entry = this.entries.get(key);
         if (!entry || entry.windowStart + windowSeconds * 1000 <= now) {
+            if (this.entries.size >= MEMORY_MAX_KEYS) {
+                const oldest = this.entries.keys().next().value;
+                if (oldest !== undefined) this.entries.delete(oldest);
+            }
             this.entries.set(key, { count: 1, windowStart: now, lastHit: now });
             return 1;
         }
@@ -233,7 +247,8 @@ export class MemoryRateLimitStore implements RateLimitStore {
  */
 export class FailOpenStore implements RateLimitStore {
     private degradedUntil = 0;
-    private reported = false;
+    // Once per distinct failure, and again after ten minutes of the same one.
+    private reportedAt = new Map<string, number>();
 
     constructor(
         private readonly primary: RateLimitStore,
@@ -261,8 +276,10 @@ export class FailOpenStore implements RateLimitStore {
     }
 
     private report(error: unknown): void {
-        if (this.reported) return;
-        this.reported = true;
+        const message = error instanceof Error ? error.message : String(error);
+        const last = this.reportedAt.get(message);
+        if (last !== undefined && Date.now() - last < 10 * 60 * 1000) return;
+        this.reportedAt.set(message, Date.now());
         const cause = isMissingTable(error)
             ? 'The proforma_rate_limit table does not exist: wattup-frontend applies the ' +
               '20260902200000_proforma_rate_limit migration, and this app never migrates.'
@@ -282,7 +299,7 @@ export class FailOpenStore implements RateLimitStore {
  * database: P2021 from the typed client, and P2010 with a driver adapter cause
  * of kind TableDoesNotExist (SQLSTATE 42P01) from $queryRaw.
  */
-function isMissingTable(error: unknown): boolean {
+export function isMissingTable(error: unknown): boolean {
     if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
     if (error.code === 'P2021') return true;
     if (error.code !== 'P2010') return false;

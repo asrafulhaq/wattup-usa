@@ -79,14 +79,20 @@ export const auth = betterAuth({
                 // Whether this is called at all is decided by the member directory
                 // check in that route, before Better Auth is involved. Never log `otp`.
                 const { maskEmail, sendOtpEmail } = await import('@/lib/email');
-                after(() =>
+                const send = () =>
                     sendOtpEmail({ email, otp, type }).catch((error: unknown) => {
                         console.error('[mail] OTP send failed', {
                             to: maskEmail(email),
                             message: error instanceof Error ? error.message : String(error),
                         });
-                    }),
-                );
+                    });
+                try {
+                    after(send);
+                } catch {
+                    // Outside a request context (a script, a seed) after() throws.
+                    // Send inline rather than lose the code silently.
+                    await send();
+                }
             },
         }),
 
@@ -101,7 +107,13 @@ export const auth = betterAuth({
         database: { generateId: false },
     },
 
-    trustedOrigins: [process.env.BETTER_AUTH_URL ?? 'http://localhost:3001'],
+    trustedOrigins: [
+        process.env.BETTER_AUTH_URL ?? 'http://localhost:3001',
+        // Vercel preview deployments serve from a per-deploy host. The gate routes
+        // check origin against the request's own host, but the tool's sign-out
+        // POST goes through Better Auth's check and must pass here too.
+        ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    ],
 });
 
 export type Session = typeof auth.$Infer.Session;

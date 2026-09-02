@@ -120,6 +120,10 @@ export function LoginForm({ next }: { next: string }) {
     const [pending, setPending] = useState(false);
     const [failure, setFailure] = useState<string | null>(null);
     const [cooldown, setCooldown] = useState(0);
+    // The address a code was last requested for, and when. The 60 s gap is a
+    // server rule (lib/rate-limit.ts); this keeps the client from asking for a
+    // code the server would refuse, and from wiping a code that is still good.
+    const lastSentRef = useRef<{ address: string; at: number } | null>(null);
 
     const emailRef = useRef<HTMLInputElement>(null);
     const codeRef = useRef<HTMLInputElement>(null);
@@ -145,6 +149,19 @@ export function LoginForm({ next }: { next: string }) {
         if (pending) return;
         const address = email.trim();
 
+        // Same address, inside the gap: the server would refuse the send anyway.
+        // Go straight to step 2 with the remaining cooldown and the code intact.
+        const last = lastSentRef.current;
+        const remaining = last && last.address === address
+            ? RESEND_GAP_SECONDS - Math.floor((Date.now() - last.at) / 1000)
+            : 0;
+        if (remaining > 0) {
+            setEmail(address);
+            setCooldown(remaining);
+            setStep('code');
+            return;
+        }
+
         setPending(true);
         setFailure(null);
         const reply = await postJson('/api/gate/request-code', { email: address });
@@ -154,9 +171,12 @@ export function LoginForm({ next }: { next: string }) {
             setFailure(SOMETHING_WRONG);
             return;
         }
-        // A 200 is the only answer the route gives, member or not. On to step 2.
+        // A 200 is the only answer the route gives, member or not. On to step 2,
+        // with the resend cooldown already running from this first send.
+        lastSentRef.current = { address, at: Date.now() };
         setEmail(address);
         setCode('');
+        setCooldown(RESEND_GAP_SECONDS);
         setStep('code');
     }
 
@@ -172,8 +192,10 @@ export function LoginForm({ next }: { next: string }) {
             setFailure(SOMETHING_WRONG);
             return;
         }
+        lastSentRef.current = { address: email, at: Date.now() };
         setCooldown(RESEND_GAP_SECONDS);
-        setCode('');
+        // The field is left alone: a new code is on its way, but the old one
+        // is not necessarily wrong yet and the member may still be reading it.
         codeRef.current?.focus();
     }
 
@@ -210,7 +232,7 @@ export function LoginForm({ next }: { next: string }) {
         setStep('email');
         setCode('');
         setFailure(null);
-        setCooldown(0);
+        // The cooldown belongs to the address, not the step; it keeps counting.
     }
 
     // Always mounted, so assistive technology is already listening when a
@@ -268,6 +290,7 @@ export function LoginForm({ next }: { next: string }) {
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
                             aria-describedby={failure ? errorId : undefined}
+                            aria-invalid={failure ? true : undefined}
                             className={FIELD}
                         />
                         {errorRegion}
