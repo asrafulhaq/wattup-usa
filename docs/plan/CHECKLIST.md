@@ -29,16 +29,16 @@ having intended to do it. If an item is half done, say which half in the Notes c
 
 **Answers needed from the client** — chase these in parallel, they block only what is listed:
 
-- [ ] **A.** Subdomain spelling: `hostproposal` confirmed in writing → blocks 6
-- [ ] **L. OTP rotation vs reuse (security review finding 2).** Any allowed request for a member's address rotates the code they hold (`resendStrategy: 'rotate'`, as the PRD implies and 2.45 verified). An attacker who knows the address and has many IPs can keep a member's code perpetually stale. The alternative is `storeOTP: 'encrypted'` + `resendStrategy: 'reuse'`: third-party requests re-send the same code instead of invalidating it, and the encrypted store is still unreadable without the app secret. It changes 2.45's behaviour and extends a code's life on resend. **Client decision.** → blocks nothing; recorded
-- [ ] **K. Apex SPF edit** (found in 2f): add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so Resend mail stops failing SPF and landing in Spam. Your DNS action; see runbook Part 3 and 6.6a
-- [ ] **B.** Vercel accounts — **deferred by the client.** Possibly a fresh Vercel for both projects. Revisit before 1.6 and 6.
-- [ ] **C.** ADR 0002 §6 permission matrix confirmed or amended → blocks 4a
-- [ ] **D.** New role names: `NETWORK_MANAGER`, `SALES` → blocks 4a
-- [ ] **E.** Monitored `Reply-To` address for code emails → blocks 6
-- [ ] **F.** Activity log retention (90 days proposed) and who may read it → blocks 4b
-- [ ] **I.** `EDIT_OWN_POST` / `DELETE_OWN_POST` — add an `authorId` relation to `Posts`, or drop the two permissions? Recommend dropping. → blocks 4a
-- [ ] **J. Resend account ownership.** Both apps send through one Resend account whose owner login is unknown to us. What is known: domain `wattupusa.com` verified 2026-05-18 19:58 UTC, API keys `Wattup USA` (2026-05-18 20:09) and `Wattup` (2026-05-19 09:40), region us-east-1; the integration commit landed the next morning. The API exposes no owner and the dashboard needs a login. **Ask the client to provide the account's login email (or transfer/add a team member) so the key can be rotated and the SPF fix verified from the dashboard.** → blocks 6 (cutover ownership), and any key rotation
+- [x] **A.** Subdomain: **decided 2026-09-03**: the app derives its host from `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_URL` only (verified: no hard-coded host in `wattup-proforma` code), and the default name is **`proforma`** (`proforma.wattupusa.com`); the PRD's `hostproposal` stays available by setting the env. Runbook Part 0a
+- [x] **L. OTP rotation vs reuse.** **Decided 2026-09-03** (client: do what is most secure): keep `resendStrategy: 'rotate'` with the keyed HMAC store (2.37a). Reasons: a code is single-use per issue and never re-sent; the store stays irreversible without the app secret (`'encrypted'` + `'reuse'` would make every stored code decryptable by anyone holding `BETTER_AUTH_SECRET` and extend a code's life on every third-party resend); the nuisance case (a stranger forcing a member's code to rotate) is bounded by the 60 s per-address gap and 20/h per address, and the member can always use the newest code in their inbox. No code change
+- [◐] **K. Apex SPF edit** (client-owned, 2026-09-03: \"will be fixed\"; runbook Part 0a and 6.6a; verify after) (found in 2f): add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so Resend mail stops failing SPF and landing in Spam. Your DNS action; see runbook Part 3 and 6.6a
+- [◐] **B.** Vercel and deployment: **client does it** (2026-09-03). Nothing here depends on it except the push itself; every step is in the runbook (Part 0a operator list, Part 2, Part 5). Root Directory (0.18), Ignored Build Step (0.19, 1.7), the pro-forma project (1.6), domains (6.4) and env (6.8) are the operator's checklist
+- [x] **C.** Matrix: **decided 2026-09-03**: seed the ADR 0002 §6 matrix as recommended (EDITOR keeps `DELETE_ANY_POST`, behaviour preserving); the client adjusts role defaults **from the dashboard**, so 4c gains a Roles page editing `role_permission` (4c.13 to 4c.16)
+- [x] **D.** `NETWORK_MANAGER` and `SALES` **confirmed 2026-09-03**
+- [x] **E.** No `Reply-To`: **decided 2026-09-03**, the code email is `noreply` on purpose and that is fine. 2.37 closed
+- [x] **F.** **Decided 2026-09-03**: `VIEW_ACTIVITY_LOG` defaults to `ADMIN` (and `SUPER_ADMIN`) and an admin can give it to any role from the dashboard Roles page (4c.13). Retention stays the proposed 90 days, configurable by `ACTIVITY_LOG_RETENTION_DAYS` (4b.8)
+- [x] **I.** **Decided 2026-09-03**: drop `EDIT_OWN_POST` / `DELETE_OWN_POST` as ADR 0002 §7 recommends. `Posts.author` stays free text. The two enum values are retired (removed from code and seeds, kept in the database enum like the reserved four; 4a.14)
+- [◐] **J. Resend account ownership.** (client-owned, 2026-09-03: \"will be fixed later\"; runbook Part 0a) Both apps send through one Resend account whose owner login is unknown to us. What is known: domain `wattupusa.com` verified 2026-05-18 19:58 UTC, API keys `Wattup USA` (2026-05-18 20:09) and `Wattup` (2026-05-19 09:40), region us-east-1; the integration commit landed the next morning. The API exposes no owner and the dashboard needs a login. **Ask the client to provide the account's login email (or transfer/add a team member) so the key can be rotated and the SPF fix verified from the dashboard.** → blocks 6 (cutover ownership), and any key rotation
 - [x] **G.** ~~Is `COLLABORATOR` still in use~~ → **removed; client confirms nobody holds it.** Verify with the count query at 4a.24 before migrating.
 - [x] **H.** ~~Default role~~ → **no implicit default; role is an explicit choice at creation.**
 
@@ -227,7 +227,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.34 OTP template: HTML **and** plain text, on the frontend's mail base (`lib/mail-base.ts`, a whole-file copy of the frontend's `lib/mail/base.ts`) — rendered documents identical to the reset-password mail except the body cell
 - [x] 2.35 Six digits as selectable text (`<code>`, 36px monospace, `#197dff` on `#eff6ff`), not an image
 - [x] 2.36 10-minute expiry and single use stated; "ignore if you did not request this" line present; subject `<code> is your WattUp sign-in code`
-- [ ] 2.37 `Reply-To` a monitored inbox *(needs answer E)*
+- [x] 2.37 No `Reply-To` by decision E (2026-09-03): the sender is `noreply` and that is intended
 - [x] 2.37a OTP storage is a **keyed HMAC** under `BETTER_AUTH_SECRET`, not Better Auth's unkeyed `'hashed'`: a reader of the shared database cannot crack a six-digit space back to a live code (security review, Low)
 - [x] 2.37b `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` are now required: production can no longer silently fall back to `localhost:3001` for `baseURL`, `trustedOrigins` and the email logo link
 - [x] 2.38 **The code appears in no log line, error body or analytics event**
@@ -364,6 +364,13 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [ ] 4c.11 Users list filterable by the new roles
 - [ ] 4c.12 Every control hidden without permission **and** refused server-side
 
+### Roles page (decision C and F, 2026-09-03)
+
+- [ ] 4c.13 `dashboard/roles/page.tsx`: a role × permission matrix editing `role_permission`; gated by `MANAGE_PERMISSIONS` (client-adjustable itself)
+- [ ] 4c.14 `SUPER_ADMIN` row locked to every permission; a role cannot lose a permission the acting user is relying on to make the change
+- [ ] 4c.15 Every change writes `activity_log` `role_permission.changed` with actor, role, permission, direction
+- [ ] 4c.16 The pro-forma view and `getEffectivePermissions` pick the change up on the next request, no redeploy (verify live)
+
 ---
 
 ## Phase 5 — Hardening and tests
@@ -489,7 +496,7 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
 | 27 | `feat/email-dark-mode` | `bdf61ed` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
 | 28 | `fix/auth-actions-credential-check` | `fd1cc02` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
-| 27 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 29 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 
