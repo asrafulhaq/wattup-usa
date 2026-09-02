@@ -1,0 +1,89 @@
+// wattup-proforma — a deliberately narrow, read-mostly schema.
+//
+// wattup-frontend OWNS the database schema and is the only app that migrates it.
+// This file mirrors just the tables this app touches. It must never be the source
+// of a migration: there is no `migrate` or `db push` script in package.json, and
+// prisma.config.ts declares no migrations path. See ADR 0001 section 5.
+//
+// Model names are Better Auth's defaults so its Prisma adapter finds them; the
+// @@map directives point them at this app's own tables, so a session minted here
+// is not a dashboard session. See ADR 0001 section 6.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// SHARED with wattup-frontend. Read only from this app.
+///
+/// Deliberately narrow: `role` and `bio` are omitted so this app does not have to
+/// declare the Role enum and cannot drift from it. Nothing here ever writes to
+/// this table — Better Auth runs with disableSignUp, so no user is created.
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean
+  image         String?
+  banned        Boolean?
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("user")
+}
+
+/// This app's own sessions. NOT the dashboard's `session` table.
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("proforma_session")
+}
+
+/// Required by Better Auth's core schema. Unused in practice: this app has no
+/// password and no OAuth provider, so no rows are expected.
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("proforma_account")
+}
+
+/// Where the one-time codes live, hashed. Better Auth writes and reads this.
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("proforma_verification")
+}

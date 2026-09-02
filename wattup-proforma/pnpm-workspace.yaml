@@ -1,0 +1,7 @@
+# Not a workspace root: no `packages:` key, deliberately.
+# Each app in this repo installs independently so either can be lifted out.
+# This file only carries pnpm's build-script allowlist.
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - esbuild
+  - prisma
