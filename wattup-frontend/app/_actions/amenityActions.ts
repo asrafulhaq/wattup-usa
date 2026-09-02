@@ -6,7 +6,7 @@ import prisma from '@/lib/prisma';
 import { amenitySchema } from '@/lib/validations/location';
 import { Prisma } from '@prisma/client';
 import { updateTag } from 'next/cache';
-import { sessionWith, UNAUTHORIZED } from './permission-guard';
+import { requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
 
 /**
  * The amenity catalogue, managed from the dashboard.
@@ -18,7 +18,7 @@ import { sessionWith, UNAUTHORIZED } from './permission-guard';
  */
 
 export async function createAmenity(raw: unknown) {
-    const session = await sessionWith(Permission.MANAGE_AMENITIES);
+    const session = await requirePermission(Permission.MANAGE_AMENITIES);
     if (!session) return UNAUTHORIZED;
 
     const parsed = amenitySchema.safeParse(raw);
@@ -53,7 +53,7 @@ export async function createAmenity(raw: unknown) {
  * says so beside the field.
  */
 export async function updateAmenity(id: string, raw: unknown) {
-    const session = await sessionWith(Permission.MANAGE_AMENITIES);
+    const session = await requirePermission(Permission.MANAGE_AMENITIES);
     if (!session) return UNAUTHORIZED;
 
     const parsed = amenitySchema.safeParse(raw);
@@ -87,7 +87,7 @@ export async function updateAmenity(id: string, raw: unknown) {
  * this exists as well as delete, which does not.
  */
 export async function setAmenityActive(id: string, active: boolean) {
-    const session = await sessionWith(Permission.MANAGE_AMENITIES);
+    const session = await requirePermission(Permission.MANAGE_AMENITIES);
     if (!session) return UNAUTHORIZED;
 
     try {
@@ -102,7 +102,7 @@ export async function setAmenityActive(id: string, active: boolean) {
 
 /** Persists a drag reorder as one transaction, so a half applied order is impossible. */
 export async function reorderAmenities(ids: string[]) {
-    const session = await sessionWith(Permission.MANAGE_AMENITIES);
+    const session = await requirePermission(Permission.MANAGE_AMENITIES);
     if (!session) return UNAUTHORIZED;
 
     if (ids.length === 0) return { success: true as const };
@@ -135,7 +135,7 @@ export async function reorderAmenities(ids: string[]) {
  * alternative.
  */
 export async function deleteAmenity(id: string) {
-    const session = await sessionWith(Permission.MANAGE_AMENITIES);
+    const session = await requirePermission(Permission.MANAGE_AMENITIES);
     if (!session) return UNAUTHORIZED;
 
     try {

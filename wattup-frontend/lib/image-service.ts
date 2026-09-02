@@ -44,6 +44,13 @@ export function isAllowedFolder(value: unknown): value is string {
     return typeof value === 'string' && ALLOWED_UPLOAD_FOLDERS.has(value);
 }
 
+/**
+ * Largest upload accepted, in bytes. The REST route refuses a larger Content-Length
+ * before it reads the body; the upload actions refuse a larger file after. Lives here
+ * for the same reason as the folder list: a 'use server' module cannot export a constant.
+ */
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 function getOptimizedUrl(url: string): string {
     return url.replace('/upload/', '/upload/f_auto,q_auto/');
 }

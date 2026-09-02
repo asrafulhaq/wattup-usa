@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
+import { requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
+import { hasPermission, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
-import { hasRoleDefault, Permission } from '@/lib/permissions';
-import { getAdminSession, getSession } from './auth-actions';
 
 /**
  * The only rows a public read may return.
@@ -15,6 +15,18 @@ import { getAdminSession, getSession } from './auth-actions';
  * that can be left out. lib/locations/server.ts applies the same rule with published: true.
  */
 const PUBLISHED = { status: 'Published' } as const;
+
+/**
+ * Every write below gates itself on a post permission resolved for this request
+ * (finding F3, checklist 4a.13): CREATE_POST to create or duplicate, EDIT_ANY_POST to
+ * edit, DELETE_ANY_POST to delete, PUBLISH_POST to change status. The *_OWN_POST pair
+ * is deliberately not checked: Posts.author is free text with no relation to User, so
+ * "own" cannot be evaluated (ADR 0002 section 7, client ask I).
+ *
+ * A create or edit that would publish is a publish, whatever endpoint it arrives on, so
+ * those two also require PUBLISH_POST when the incoming status is Published.
+ */
+const PUBLISHING = 'Published';
 
 export async function getArticles(page = 1, pageSize = 10) {
     'use cache';
@@ -93,7 +105,7 @@ export async function getArticleBySlug(slug: string) {
 }
 
 /**
- * The dashboard's list: drafts included, for a signed-in user holding a post permission.
+ * The dashboard's list: drafts included, for a signed-in user holding CREATE_POST.
  *
  * Deliberately not 'use cache'. A cached result is keyed on the arguments, not on who is
  * asking, so a cached function that checks a session would serve the first caller's answer
@@ -106,9 +118,8 @@ export async function getArticleBySlug(slug: string) {
  * "public" rather than two. The two refusals are indistinguishable on purpose.
  */
 export async function getArticlesForDashboard(page = 1, pageSize = 10) {
-    const session = await getSession();
-    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
-    if (!session || !hasRoleDefault(session.role, Permission.CREATE_POST)) {
+    const authorised = await requirePermission(Permission.CREATE_POST);
+    if (!authorised) {
         return getPaginatedArticles(page, pageSize);
     }
 
@@ -135,14 +146,12 @@ export async function getArticlesForDashboard(page = 1, pageSize = 10) {
 }
 
 /**
- * One article for the editor, draft or published, for a signed-in user holding a post
- * permission.
- * Uncached for the reason given on getArticlesForDashboard.
+ * One article for the editor, draft or published, for a signed-in user holding
+ * CREATE_POST. Uncached for the reason given on getArticlesForDashboard.
  */
 export async function getArticleByIdForDashboard(id: string) {
-    const session = await getSession();
-    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
-    if (!session || !hasRoleDefault(session.role, Permission.CREATE_POST)) {
+    const authorised = await requirePermission(Permission.CREATE_POST);
+    if (!authorised) {
         return getArticleById(id);
     }
 
@@ -155,8 +164,11 @@ export async function getArticleByIdForDashboard(id: string) {
 }
 
 export async function createArticle(data: any) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.CREATE_POST);
+    if (!authorised) return UNAUTHORIZED;
+    if (data?.status === PUBLISHING && !hasPermission(authorised.permissions, Permission.PUBLISH_POST)) {
+        return { success: false, error: 'You do not have permission to publish. Save it as a draft.' };
+    }
     try {
         const slug =
             data.slug ||
@@ -172,7 +184,7 @@ export async function createArticle(data: any) {
                 publishedAt:
                     data.publishedAt instanceof Date
                         ? data.publishedAt
-                        : data.status === 'Published'
+                        : data.status === PUBLISHING
                           ? new Date()
                           : null,
             },
@@ -205,8 +217,11 @@ export async function createArticle(data: any) {
 }
 
 export async function updateArticle(id: string, data: any) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.EDIT_ANY_POST);
+    if (!authorised) return UNAUTHORIZED;
+    if (data?.status === PUBLISHING && !hasPermission(authorised.permissions, Permission.PUBLISH_POST)) {
+        return { success: false, error: 'You do not have permission to publish. Save it as a draft.' };
+    }
     try {
         const slug =
             data.slug ||
@@ -251,8 +266,8 @@ export async function updateArticle(id: string, data: any) {
 }
 
 export async function deleteArticle(id: string) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.DELETE_ANY_POST);
+    if (!authorised) return UNAUTHORIZED;
     try {
         await prisma.posts.delete({
             where: { id },
@@ -267,14 +282,14 @@ export async function deleteArticle(id: string) {
 
 
 export async function updateArticleStatus(id: string, status: string) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.PUBLISH_POST);
+    if (!authorised) return UNAUTHORIZED;
     try {
         await prisma.posts.update({
             where: { id },
             data: {
                 status,
-                publishedAt: status === 'Published' ? new Date() : null,
+                publishedAt: status === PUBLISHING ? new Date() : null,
             },
         });
         updateTag('posts');
@@ -287,8 +302,8 @@ export async function updateArticleStatus(id: string, status: string) {
 }
 
 export async function duplicateArticle(id: string) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.CREATE_POST);
+    if (!authorised) return UNAUTHORIZED;
     try {
         const article = await prisma.posts.findUnique({
             where: { id },
@@ -322,6 +337,9 @@ export async function duplicateArticle(id: string) {
 export async function searchArticles(query: string) {
     'use cache';
     cacheLife('minutes');
+    // Tagged with the rest of the post reads (backlog B.8), so a publish or unpublish
+    // shows in search suggestions at the same moment it shows in the list.
+    cacheTag('posts');
     try {
         const articles = await prisma.posts.findMany({
             where: {
@@ -329,7 +347,7 @@ export async function searchArticles(query: string) {
                     { title: { contains: query, mode: 'insensitive' } },
                     /* { content: { contains: query, mode: 'insensitive' } }, */
                 ],
-                status: 'Published',
+                status: PUBLISHING,
             },
             take: 10, // Limit results for suggestions
         });
@@ -339,4 +357,3 @@ export async function searchArticles(query: string) {
         return [];
     }
 }
-

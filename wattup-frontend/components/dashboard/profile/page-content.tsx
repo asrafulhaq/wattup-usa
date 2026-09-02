@@ -1,14 +1,15 @@
-import { getSession } from '@/app/_actions/auth-actions';
 import { getSocialLinks } from '@/app/_actions/userActions';
-import { hasRoleDefault, Permission } from '@/lib/permissions';
+import { getSessionPermissions } from '@/lib/permission-guard';
+import { hasPermission, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import CredentialsUpdate from './credentials-update';
 import PersonalInformation from './personal-information';
 import SocialLinks from './social-links';
 
 const PageContent = async () => {
-    const session = await getSession();
-    if (!session) return null;
+    const authorised = await getSessionPermissions();
+    if (!authorised) return null;
+    const { session, permissions } = authorised;
 
     const [user, socialLinks] = await Promise.all([
         prisma.user.findUnique({
@@ -23,10 +24,7 @@ const PageContent = async () => {
         getSocialLinks(session.id),
     ]);
 
-    const canManageSocialLinks = hasRoleDefault(
-        session.role,
-        Permission.MANAGE_SOCIAL_LINKS
-    );
+    const canManageSocialLinks = hasPermission(permissions, Permission.MANAGE_SOCIAL_LINKS);
 
     return (
         <div className='flex flex-col gap-6 w-full'>

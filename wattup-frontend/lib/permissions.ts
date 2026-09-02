@@ -196,20 +196,6 @@ export function hasPermission(
     return permissions?.has(permission) ?? false;
 }
 
-/**
- * TRANSITIONAL. Answers from the in-code default map rather than the database, so a
- * per-user grant or revoke is invisible to it. It exists only so the call sites that
- * predate resolution keep compiling until each is moved to hasPermission with a
- * resolved set; the branch that moves them deletes this. Do not add a caller.
- */
-export function hasRoleDefault(
-    role: Role | string | null | undefined,
-    permission: Permission
-): boolean {
-    if (!role) return false;
-    return ROLE_PERMISSIONS[role as Role]?.includes(permission) ?? false;
-}
-
 export function isRole(value: unknown): value is Role {
     return typeof value === 'string' && Object.hasOwn(ROLE_RANK, value);
 }

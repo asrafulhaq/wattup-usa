@@ -1,4 +1,3 @@
-import { getSession } from '@/app/_actions/auth-actions';
 import { SessionEnded } from '@/components/dashboard/session-state';
 import { EmptyState } from '@/components/dashboard/ui/empty-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
@@ -8,7 +7,8 @@ import { StatCard } from '@/components/dashboard/ui/stat-card';
 import { StatusPill } from '@/components/dashboard/ui/status-pill';
 import { OverviewPageSkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getOverviewStats } from '@/lib/dashboard/overview';
-import { hasRoleDefault, Permission } from '@/lib/permissions';
+import { getSessionPermissions } from '@/lib/permission-guard';
+import { hasPermission, Permission } from '@/lib/permissions';
 import {
     ArrowUpRight,
     BatteryCharging,
@@ -27,13 +27,13 @@ export const metadata = {
 };
 
 async function Overview() {
-    const session = await getSession();
+    const authorised = await getSessionPermissions();
     // Deliberately not a redirect to /admin. proxy.ts sends anyone holding a session
     // cookie from /admin back to /dashboard, so redirecting here on a cookie the server
     // rejects put the two in a loop that reloaded the page until the tab was closed.
-    if (!session) return <SessionEnded />;
+    if (!authorised) return <SessionEnded />;
 
-    const canSeeNetwork = hasRoleDefault(session.role, Permission.MANAGE_LOCATIONS);
+    const canSeeNetwork = hasPermission(authorised.permissions, Permission.VIEW_LOCATIONS);
     const stats = canSeeNetwork ? await getOverviewStats() : null;
 
     return (

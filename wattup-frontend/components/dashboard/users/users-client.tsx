@@ -37,13 +37,12 @@ import {
 import {
     ASSIGNABLE_ROLES,
     canManageRole,
-    hasRoleDefault,
+    hasPermission,
     Permission,
     ROLE_BADGE_CLASSES,
     ROLE_LABELS,
     Role,
 } from '@/lib/permissions';
-import { useSession } from '@/lib/auth-client';
 import { formatDistanceToNow } from 'date-fns';
 import {
     Ban,
@@ -62,25 +61,28 @@ import { InviteUserDialog } from './invite-user-dialog';
 interface Props {
     users: ManagedUser[];
     total: number;
+    /**
+     * The caller's resolved set and identity, from the server page. What this draws is
+     * presentation; every action behind a control resolves the set again for itself.
+     */
+    permissions: Permission[];
+    currentUser: { id: string; role: Role | string };
 }
 
 type PendingRoleChange = { userId: string; role: Role; userName: string };
 
-export function UsersClient({ users, total }: Props) {
+export function UsersClient({ users, total, permissions, currentUser }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const { data: session } = useSession();
-    const currentUserId = session?.user?.id ?? '';
-    const currentUserRole = (session?.user as { role?: string })?.role ?? '';
+    const currentUserId = currentUser.id;
+    const currentUserRole = currentUser.role;
     const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
 
-    const canInvite = hasRoleDefault(currentUserRole, Permission.INVITE_USERS);
-    const canChangeRole = hasRoleDefault(
-        currentUserRole,
-        Permission.CHANGE_USER_ROLE
-    );
-    const canBan = hasRoleDefault(currentUserRole, Permission.BAN_USERS);
-    const canDelete = hasRoleDefault(currentUserRole, Permission.DELETE_USERS);
+    const permissionSet = new Set<Permission>(permissions);
+    const canInvite = hasPermission(permissionSet, Permission.INVITE_USERS);
+    const canChangeRole = hasPermission(permissionSet, Permission.CHANGE_USER_ROLE);
+    const canBan = hasPermission(permissionSet, Permission.BAN_USERS);
+    const canDelete = hasPermission(permissionSet, Permission.DELETE_USERS);
 
     const refresh = () => router.refresh();
 
@@ -134,7 +136,7 @@ export function UsersClient({ users, total }: Props) {
                 <p className='text-[13.5px] text-dash-muted'>
                     {total} {total === 1 ? 'member' : 'members'} in total
                 </p>
-                {canInvite && <InviteUserDialog onSuccess={refresh} />}
+                {canInvite && <InviteUserDialog actorRole={currentUserRole} onSuccess={refresh} />}
             </div>
 
             <div className='dash-card overflow-hidden'>

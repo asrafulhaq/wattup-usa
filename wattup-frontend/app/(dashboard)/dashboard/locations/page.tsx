@@ -1,29 +1,31 @@
-import { getSession } from '@/app/_actions/auth-actions';
 import { LocationsClient } from '@/components/dashboard/locations/locations-client';
 import { NoAccess } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { LocationsBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getDashboardLocations } from '@/lib/locations/dashboard';
-import { hasRoleDefault, Permission } from '@/lib/permissions';
+import { getSessionPermissions } from '@/lib/permission-guard';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 async function LocationsTable() {
-    const [locations, session] = await Promise.all([
+    const [locations, authorised] = await Promise.all([
         getDashboardLocations(),
-        getSession(),
+        getSessionPermissions(),
     ]);
 
     // The read returns an empty list to a caller without the permission, so this is
     // about saying why rather than showing an empty table that looks like a bug.
-    if (!hasRoleDefault(session?.role, Permission.MANAGE_LOCATIONS)) {
-        return <NoAccess what='charging locations' role={session?.role} />;
+    // VIEW_LOCATIONS opens the list; the controls inside it are gated one by one.
+    if (!hasPermission(authorised?.permissions, Permission.VIEW_LOCATIONS)) {
+        return <NoAccess what='charging locations' role={authorised?.session.role} />;
     }
 
     return (
         <LocationsClient
             locations={locations}
-            canDelete={hasRoleDefault(session?.role, Permission.DELETE_LOCATIONS)}
+            canManage={hasPermission(authorised?.permissions, Permission.MANAGE_LOCATIONS)}
+            canDelete={hasPermission(authorised?.permissions, Permission.DELETE_LOCATIONS)}
         />
     );
 }

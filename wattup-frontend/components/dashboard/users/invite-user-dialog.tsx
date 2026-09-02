@@ -9,7 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { ASSIGNABLE_ROLES, ROLE_LABELS, Role } from '@/lib/permissions';
+import { ASSIGNABLE_ROLES, canManageRole, ROLE_LABELS, Role } from '@/lib/permissions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, Eye, EyeOff, Loader2, RefreshCw, UserPlus } from 'lucide-react';
 import { useState, useTransition } from 'react';
@@ -60,10 +60,13 @@ function generateStrongPassword(length = 16): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
+    /** The caller's role: the list offers only roles it outranks, as createUser insists. */
+    actorRole: string;
     onSuccess?: () => void;
 }
 
-export function InviteUserDialog({ onSuccess }: Props) {
+export function InviteUserDialog({ actorRole, onSuccess }: Props) {
+    const offeredRoles = ASSIGNABLE_ROLES.filter(role => canManageRole(actorRole, role));
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [showPassword, setShowPassword] = useState(false);
@@ -247,7 +250,7 @@ export function InviteUserDialog({ onSuccess }: Props) {
                             <option value='' disabled>
                                 Choose a role
                             </option>
-                            {ASSIGNABLE_ROLES.map(role => (
+                            {offeredRoles.map(role => (
                                 <option key={role} value={role}>
                                     {ROLE_LABELS[role]}
                                 </option>

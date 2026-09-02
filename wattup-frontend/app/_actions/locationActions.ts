@@ -6,7 +6,7 @@ import { locationSchema, slugify, type LocationInput } from '@/lib/validations/l
 import { LOCATIONS_TAG } from '@/lib/locations/server';
 import { Prisma } from '@prisma/client';
 import { updateTag } from 'next/cache';
-import { sessionWith, UNAUTHORIZED } from './permission-guard';
+import { requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
 
 /**
  * Dashboard writes for the charging network.
@@ -98,7 +98,7 @@ function connectorRows(input: LocationInput) {
 }
 
 export async function createLocation(raw: unknown) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     const parsed = locationSchema.safeParse(raw);
@@ -143,7 +143,7 @@ export async function createLocation(raw: unknown) {
 }
 
 export async function updateLocation(id: string, raw: unknown) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     const parsed = locationSchema.safeParse(raw);
@@ -197,7 +197,7 @@ export async function updateLocation(id: string, raw: unknown) {
 }
 
 export async function setLocationPublished(id: string, published: boolean) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     try {
@@ -218,7 +218,7 @@ export async function setLocationPublished(id: string, published: boolean) {
  * with a deletion by cascade and do not come back.
  */
 export async function deleteLocation(id: string) {
-    const session = await sessionWith(Permission.DELETE_LOCATIONS);
+    const session = await requirePermission(Permission.DELETE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     try {
@@ -251,7 +251,7 @@ export interface GeocodeResult {
 export async function geocodeLocationAddress(
     address: string
 ): Promise<{ success: true; result: GeocodeResult } | { success: false; error: string }> {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     const query = address.trim();
@@ -302,7 +302,7 @@ export async function geocodeLocationAddress(
 
 /** Offered by the form so a name does not have to be slugified by hand. */
 export async function suggestLocationSlug(name: string, city: string) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return UNAUTHORIZED;
 
     const base = slugify([city, name].filter(Boolean).join(' ')) || 'location';

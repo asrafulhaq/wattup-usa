@@ -5,7 +5,6 @@ import {
     ASSIGNABLE_ROLES,
     canManageRole,
     hasPermission,
-    hasRoleDefault,
     isPermission,
     isRole,
     NO_PERMISSIONS,
@@ -104,15 +103,6 @@ describe('hasPermission', () => {
         expect(hasPermission(null, Permission.VIEW_LOCATIONS)).toBe(false);
         expect(hasPermission(undefined, Permission.VIEW_LOCATIONS)).toBe(false);
         expect(hasPermission(NO_PERMISSIONS, Permission.VIEW_LOCATIONS)).toBe(false);
-    });
-});
-
-describe('hasRoleDefault (transitional)', () => {
-    it('answers from the in-code map and refuses unknown roles', () => {
-        expect(hasRoleDefault(Role.SALES, Permission.ACCESS_PROFORMA)).toBe(true);
-        expect(hasRoleDefault(Role.SALES, Permission.MANAGE_LOCATIONS)).toBe(false);
-        expect(hasRoleDefault('COLLABORATOR', Permission.CREATE_POST)).toBe(false);
-        expect(hasRoleDefault(null, Permission.CREATE_POST)).toBe(false);
     });
 });
 

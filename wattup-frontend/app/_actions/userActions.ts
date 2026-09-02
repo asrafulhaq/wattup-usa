@@ -6,11 +6,11 @@ import {
     deleteSingleImageFromCloudinary,
     uploadImageToCloudinary,
 } from '@/lib/image-service';
-import { hasRoleDefault, Permission } from '@/lib/permissions';
+import { getSessionPermissions, requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
+import { Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
 import { headers } from 'next/headers';
-import { getAdminSession, getSession } from './auth-actions';
 
 // ─── Public / CMS helpers ─────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ export async function getPublicAuthorSocialLinks() {
     cacheTag('public-author-social-links');
     try {
         const owner = await prisma.user.findFirst({
-            where: { role: 'SUPER_ADMIN' as any },
+            where: { role: 'SUPER_ADMIN' },
             select: { id: true },
         });
         if (!owner) return [];
@@ -58,6 +58,14 @@ export async function getSocialLinks(userId: string) {
     }
 }
 
+/**
+ * Edits the site's author profile, the Profile row shown on press releases.
+ *
+ * Finding F5 (checklist 4a.39): the id is required and must name an existing row.
+ * The old upsert with a 'default-profile-id' fallback let an omitted id write to a
+ * shared magic row and an invented id create a new one. This is an update, and a
+ * missing row is an error.
+ */
 export async function updateUserInformationById(
     id: string,
     data: {
@@ -67,8 +75,12 @@ export async function updateUserInformationById(
         image?: { url: string; public_id: string } | string | null;
     }
 ) {
-    const session = await getAdminSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await requirePermission(Permission.MANAGE_SITE_SETTINGS);
+    if (!authorised) return UNAUTHORIZED;
+
+    if (typeof id !== 'string' || id.trim() === '') {
+        return { success: false, error: 'A profile id is required' };
+    }
 
     try {
         const updatePayload: Record<string, any> = {};
@@ -77,21 +89,17 @@ export async function updateUserInformationById(
         if (data.about !== undefined) updatePayload.about = data.about;
         if (data.image !== undefined) updatePayload.image = data.image;
 
-        const profile = await prisma.profile.upsert({
-            where: { id: id || 'default-profile-id' },
-            update: updatePayload,
-            create: {
-                id: id || 'default-profile-id',
-                name: data.name ?? '',
-                bio: data.bio ?? '',
-                about: data.about ?? '',
-                image: data.image as any,
-            },
+        const profile = await prisma.profile.update({
+            where: { id },
+            data: updatePayload,
         });
 
         updateTag('profile');
         return { success: true, data: profile };
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.code === 'P2025') {
+            return { success: false, error: 'Profile not found' };
+        }
         console.error('Error updating profile information:', error);
         return { success: false, error: 'Failed to update profile' };
     }
@@ -100,11 +108,9 @@ export async function updateUserInformationById(
 export async function updateSocialLinks(
     links: { name: string; url: string }[]
 ) {
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
-    if (!hasRoleDefault(session.role, Permission.MANAGE_SOCIAL_LINKS)) {
-        return { success: false, error: 'Insufficient permissions' };
-    }
+    const authorised = await requirePermission(Permission.MANAGE_SOCIAL_LINKS);
+    if (!authorised) return UNAUTHORIZED;
+    const { session } = authorised;
 
     try {
         await prisma.socialLink.deleteMany({ where: { userId: session.id } });
@@ -122,6 +128,9 @@ export async function updateSocialLinks(
 }
 
 // ─── Per-user profile (each user manages their own account) ──────────────────
+//
+// Self-scoped: these need a session and act only on the caller's own row. No
+// permission applies, because a signed-in user may always edit their own account.
 
 /**
  * Updates the current user's name and bio via Better Auth.
@@ -131,8 +140,8 @@ export async function updateCurrentUserProfile(data: {
     name?: string;
     bio?: string;
 }) {
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await getSessionPermissions();
+    if (!authorised) return UNAUTHORIZED;
 
     if (!data.name && data.bio === undefined) {
         return { success: false, error: 'No fields to update' };
@@ -159,17 +168,18 @@ export async function updateCurrentUserPhoto(data: {
     url: string;
     publicId: string;
 }) {
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await getSessionPermissions();
+    if (!authorised) return UNAUTHORIZED;
+    const { session } = authorised;
 
     try {
-        // Update image URL via Better Auth — this also refreshes the session cookie
+        // Update image URL via Better Auth: this also refreshes the session cookie
         await auth.api.updateUser({
             body: { image: data.url },
             headers: await headers(),
         });
 
-        // imagePublicId is an internal field — update directly via Prisma
+        // imagePublicId is an internal field, updated directly via Prisma
         await prisma.user.update({
             where: { id: session.id },
             data: { imagePublicId: data.publicId },
@@ -185,8 +195,8 @@ export async function updateCurrentUserPhoto(data: {
 // ─── Cloudinary helpers ───────────────────────────────────────────────────────
 
 export async function uploadProfilePhoto(formData: FormData) {
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await getSessionPermissions();
+    if (!authorised) return UNAUTHORIZED;
 
     const file = formData.get('file') as File;
     if (!file) return { success: false, error: 'No file provided' };
@@ -202,9 +212,24 @@ export async function uploadProfilePhoto(formData: FormData) {
     }
 }
 
+/**
+ * Removes the caller's OWN current photo and nothing else: the id must match the one
+ * stored on their row. Before this, any signed-in user could delete any Cloudinary asset
+ * by id through here (finding F1's residual), which is DELETE_MEDIA's job, not a
+ * profile's.
+ */
 export async function removeProfilePhoto(publicId: string) {
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Unauthorized' };
+    const authorised = await getSessionPermissions();
+    if (!authorised) return UNAUTHORIZED;
+    const { session } = authorised;
+
+    const me = await prisma.user.findUnique({
+        where: { id: session.id },
+        select: { imagePublicId: true },
+    });
+    if (!publicId || !me?.imagePublicId || me.imagePublicId !== publicId) {
+        return { success: false, error: 'That is not your current profile photo' };
+    }
 
     try {
         await deleteSingleImageFromCloudinary(publicId);
