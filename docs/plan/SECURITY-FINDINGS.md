@@ -19,6 +19,7 @@ that work, and F1 and F2 are live on production now.**
 | F5 | `updateUserInformationById` upserts arbitrary profile rows | Low | 4a |
 | F11 | CSP depends on `'unsafe-inline'` | Low, accepted | backlog |
 | F12 | Cloudinary API key exposed to the browser unnecessarily | Low | backlog |
+| F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
 | F6 | Hand-rolled scrypt verification in `updateEmail` | Low | backlog |
 | F7 | Public contact forms have no rate limiting | Low | backlog |
 
@@ -383,6 +384,29 @@ genuinely unsafe.
 
 ---
 
+## F16 — Dashboard cookie cache outlives sign-out and ban · Low
+
+**Found** during the signed-in walkthrough (checklist 0.17), on 2026-09-03.
+
+`wattup-frontend/lib/auth.ts` enables Better Auth's `cookieCache` with a 5 minute `maxAge`, and
+`proxy.ts` decides the redirect from cookie **presence** only (no database read, by design).
+So a `session_data` cookie that was copied before sign-out keeps rendering dashboard **pages**
+for up to five minutes after the session row is gone: `/dashboard` and `/api/auth/get-session`
+both answered 200 to replayed cookies after a successful sign-out. The normal path is fine: sign-out
+clears both cookies and the next request 307s to `/admin`.
+
+**Reach.** Reads only. Every server action resolves the session fresh (ADR 0001 D13), so a
+revoked session cannot write. It needs a cookie captured while the session was live, which
+already implies a bigger problem. Compare the pro-forma app, where the same class was closed with
+`disableCookieCache: true` on every gated request (checklist 3.13).
+
+**Fix options**, for the backlog (B.15): pass `disableCookieCache: true` in the dashboard's
+`getSession()` for page shells as the pro-forma gate does (one extra DB read per page render), or
+shorten `maxAge` to 60 s, or accept and record. Recommend the first: the dashboard is low
+traffic and the pro-forma app already pays this cost.
+
+---
+
 ## F13 — The seed re-creates an unremovable SUPER_ADMIN on every build · **High**
 
 `package.json` runs the seed as part of the production build:
@@ -460,6 +484,6 @@ others: articles, media, and dependency currency.
 
 **Phase 4a**, where the permission plumbing is already being rebuilt: F3, F4, F5, F10.
 
-**Backlog:** F6, F7, F11, F12. F11 is the highest-value of these and closes F4's root cause.
+**Backlog:** F6, F7, F11, F12, F16. F11 is the highest-value of these and closes F4's root cause.
 
 Nothing here blocks the pro-forma work except F8, and the pro-forma work blocks none of it.
