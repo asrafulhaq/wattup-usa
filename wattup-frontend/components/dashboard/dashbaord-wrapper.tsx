@@ -25,6 +25,10 @@ async function SidebarWrapper() {
             showUsers={hasPermission(permissions, Permission.VIEW_USERS)}
             showSettings={hasPermission(permissions, Permission.MANAGE_SITE_SETTINGS)}
             showLocations={hasPermission(permissions, Permission.VIEW_LOCATIONS)}
+            // Role defaults, editable since ADR 0002 section 10. MANAGE_PERMISSIONS is
+            // SUPER_ADMIN only by seed, so for everyone else the entry is not drawn at
+            // all; /dashboard/roles answers NoAccess to a direct visit regardless.
+            showRoles={hasPermission(permissions, Permission.MANAGE_PERMISSIONS)}
             user={{
                 name: session.name,
                 email: session.email,

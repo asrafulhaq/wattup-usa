@@ -103,6 +103,19 @@ export function UsersBodySkeleton() {
     );
 }
 
+// ── Roles ────────────────────────────────────────────────────────────────────
+/** Permission, then one column per role: five of them, all the same width. */
+export function RolesBodySkeleton() {
+    return (
+        <div className='flex flex-col gap-4'>
+            {/* 21 permission rows plus seven group headings, so the footnote below the
+                table lands where it will actually land. */}
+            <SkeletonTableCard columns={[3, 1, 1, 1, 1, 1]} rows={28} leading='none' />
+            <Skeleton className='h-3 w-[520px]' />
+        </div>
+    );
+}
+
 // ── Settings ─────────────────────────────────────────────────────────────────
 export function SettingsBodySkeleton() {
     return (

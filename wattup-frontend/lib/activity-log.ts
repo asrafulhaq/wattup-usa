@@ -24,11 +24,16 @@ export type ActivityEvent =
     | 'permission.granted'
     | 'permission.revoked'
     | 'role.changed'
+    | 'role_permission.changed'
     | 'user.banned'
     | 'user.unbanned'
     | 'user.created'
     | 'user.deleted'
-    | 'settings.updated';
+    | 'settings.updated'
+    // The dashboard's own sign-ins (checklist 4b.6), written from lib/auth.ts. The
+    // pro-forma app writes the same two event names with app = 'proforma'.
+    | 'signin.success'
+    | 'signin.failed';
 
 export interface ActivityEntry {
     event: ActivityEvent;
@@ -54,18 +59,27 @@ export interface RequestContext {
 }
 
 /**
+ * The address and user agent carried by one set of request headers. Split out from
+ * requestContext so a caller that already holds the headers, such as the Better Auth
+ * sign-in hook in lib/auth.ts, reads them the same way rather than parsing
+ * x-forwarded-for a second time with its own rules.
+ */
+export function contextFromHeaders(h: Pick<Headers, 'get'>): RequestContext {
+    const forwarded = h.get('x-forwarded-for');
+    const ipAddress = forwarded ? forwarded.split(',')[0].trim() : h.get('x-real-ip');
+    return {
+        ipAddress: ipAddress || null,
+        userAgent: h.get('user-agent') || null,
+    };
+}
+
+/**
  * The client address and user agent of the current request, when there is one. Outside
  * a request scope (a script, a test) headers() throws, and that is simply "unknown".
  */
 export async function requestContext(): Promise<RequestContext> {
     try {
-        const h = await headers();
-        const forwarded = h.get('x-forwarded-for');
-        const ipAddress = forwarded ? forwarded.split(',')[0].trim() : h.get('x-real-ip');
-        return {
-            ipAddress: ipAddress || null,
-            userAgent: h.get('user-agent') || null,
-        };
+        return contextFromHeaders(await headers());
     } catch {
         return { ipAddress: null, userAgent: null };
     }
@@ -109,7 +123,14 @@ export async function writeActivity(
     }
 }
 
-/** Records one event. Never throws; see the module comment. */
-export async function logActivity(entry: ActivityEntry): Promise<void> {
-    await writeActivity(prisma, entry, await requestContext());
+/**
+ * Records one event. Never throws; see the module comment.
+ *
+ * `context` is optional and exists for one caller: Better Auth's sign-in hook already
+ * holds the request's headers and runs where next/headers() is not guaranteed to be in
+ * scope, so it passes what it has rather than losing the address and user agent of the
+ * very requests this event is worth recording for.
+ */
+export async function logActivity(entry: ActivityEntry, context?: RequestContext): Promise<void> {
+    await writeActivity(prisma, entry, context ?? (await requestContext()));
 }

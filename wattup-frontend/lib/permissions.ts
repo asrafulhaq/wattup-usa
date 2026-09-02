@@ -307,6 +307,8 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
 export interface PermissionGroup {
     key: string;
     label: string;
+    /** One line under the group heading, saying what the group is about. */
+    description: string;
     /** Shown under the group heading when the whole group needs a caveat. */
     note?: string;
     permissions: readonly Permission[];
@@ -321,6 +323,7 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     {
         key: 'content',
         label: 'Content',
+        description: 'Press releases and articles on the public site.',
         permissions: [
             Permission.CREATE_POST,
             Permission.EDIT_ANY_POST,
@@ -333,6 +336,7 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     {
         key: 'network',
         label: 'Charging network',
+        description: 'Charging sites, their connectors, and the amenity catalogue.',
         permissions: [
             Permission.VIEW_LOCATIONS,
             Permission.MANAGE_LOCATIONS,
@@ -343,6 +347,7 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     {
         key: 'users',
         label: 'User management',
+        description: 'Who can sign in, and what each of them may change.',
         permissions: [
             Permission.VIEW_USERS,
             Permission.INVITE_USERS,
@@ -356,28 +361,33 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     {
         key: 'site',
         label: 'Site management',
+        description: 'Settings that affect every public page, injected scripts included.',
         note: 'Whoever holds site settings can inject JavaScript into every public page.',
         permissions: [Permission.MANAGE_SITE_SETTINGS, Permission.MANAGE_SOCIAL_LINKS],
     },
     {
         key: 'media',
         label: 'Media',
+        description: "Images in this site's own Cloudinary folders.",
         permissions: [Permission.UPLOAD_MEDIA, Permission.DELETE_MEDIA],
     },
     {
         key: 'audit',
         label: 'Audit',
+        description: 'The activity and sign-in log, from both applications.',
         permissions: [Permission.VIEW_ACTIVITY_LOG],
     },
     {
         key: 'proforma',
         label: 'Pro-forma builder',
+        description: 'The Site Pro-Forma Builder on its own subdomain.',
         note: 'Granting this lets the person sign in at the pro-forma site on their next request.',
         permissions: [Permission.ACCESS_PROFORMA],
     },
     {
         key: 'reserved',
         label: 'Reserved',
+        description: 'Values the database carries that no code reads. Shown for completeness, never editable.',
         note: 'The database has carried these since May and Postgres cannot drop an enum value.',
         permissions: [
             Permission.DELETE_ANY_MEDIA,
@@ -405,4 +415,30 @@ export const INERT_PERMISSIONS: readonly Permission[] = [
 
 export function isInertPermission(permission: Permission): boolean {
     return INERT_PERMISSIONS.includes(permission);
+}
+
+// ─── Aliases the Roles page reads ─────────────────────────────────────────────
+//
+// The user detail page and the Roles page were built at the same time and named the
+// same two ideas differently: which permissions are real, and what to call one on
+// screen. Rather than keep both vocabularies, these derive from the definitions above,
+// so there is still one list and one label per permission.
+
+/** The permissions the Roles page offers, that is, everything the code actually reads. */
+export const EDITABLE_PERMISSIONS: readonly Permission[] = ALL_PERMISSIONS.filter(
+    (permission) => !isInertPermission(permission)
+);
+
+/**
+ * True for a permission the Roles page may toggle. False for anything outside the enum
+ * and for the inert ones, so the server action refuses a hand-crafted request for one
+ * rather than writing a row nothing will ever read.
+ */
+export function isEditablePermission(value: unknown): value is Permission {
+    return isPermission(value) && !isInertPermission(value);
+}
+
+/** The readable name for one permission. */
+export function permissionLabel(permission: Permission): string {
+    return PERMISSION_LABELS[permission] ?? permission;
 }
