@@ -75,6 +75,19 @@ view that `wattup-frontend` owns. Never reimplement permission resolution here.
 **Codes never appear** in a log line, an error body or an analytics event. Emails in
 application logs are masked; full addresses belong in `activity_log`.
 
+**The audit trail is `activity_log`, written by `lib/activity-log.ts`, and only from inside
+`after()`.** Four events (`code.requested`, `code.refused`, `signin.success`, `signin.failed`),
+each with the client IP, the user agent and the request's correlation id, and `meta.reason`
+on a refusal. The row holds the FULL address, because the dashboard searches it (ADR 0001
+section 9); every application log line masks it. A write never runs on the response path,
+where its latency and its failure would both be observable, and `logActivity` never throws:
+the table is `wattup-frontend`'s, may not exist yet, and a lost row is a log line, never a
+different response.
+
+**`PROFORMA_ALLOWLIST` is honoured outside production only.** In production
+`getMemberDirectory()` ignores it even when set, warns once, and answers from the view, so an
+env list can never bypass a revocation made in the dashboard (checklist 4b.4).
+
 **Secrets are this app's own.** `BETTER_AUTH_SECRET` differs from the dashboard's, so rotating
 it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoint.
 
@@ -89,9 +102,9 @@ frontend's tokens change, change them here too, and say so in the commit.
 ```
 app/api/auth/[...all]/       Better Auth, with OTP paths closed
 app/api/gate/request-code/   POST: origin check, normalise, answer the same 200, then in after(): IP limit,
-                             directory, address limits, send
+                             directory, address limits, send, and last the activity_log row
 app/api/gate/verify-code/    POST: origin check, sign in server-side, re-check membership, one identical 400
-                             for every failure
+                             for every failure; the activity_log row is scheduled with after()
 app/robots.ts                /robots.txt, disallow all; next.config.ts carries the header backstop
 app/tool/[[...path]]/        serves private/tool/ to current members only
 app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
@@ -106,10 +119,13 @@ lib/safe-next.ts             safeNext, import-free so the browser can use it too
 lib/env.ts                   missingRequiredEnv: the 503 fail-closed check both gate routes run first
 lib/rate-limit.ts            checkIpLimit and checkEmailLimits: the PRD's three limits on hashed keys, in
                              Postgres, failing OPEN to memory (ADR 0001 section 10); read its header first
-lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
+lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST outside production, the proforma_member view
+                             in production, where the env list is ignored even when set
+lib/activity-log.ts          logActivity: the four audit events into activity_log, full address, never throws,
+                             called only from inside after(); clientUserAgent and activityContext
 lib/prisma.ts                Prisma client, pooled
 lib/email.ts                 Resend + the OTP template; maskEmail for logs
-prisma/schema.prisma         narrow mirror, never migrated from here
+prisma/schema.prisma         narrow mirror, never migrated from here; activity_log is the one table it writes
 private/tool/                the untouched calculator (phase 3)
 ```
 

@@ -8,8 +8,8 @@ import { isMissingTable } from '@/lib/rate-limit';
  * One interface, two implementations, chosen by environment:
  *
  *   EnvMemberDirectory   PROFORMA_ALLOWLIST, a comma-separated list of addresses.
- *                        Local development and a break-glass fallback. Never
- *                        production: see getMemberDirectory.
+ *                        Local development only. In production it is ignored
+ *                        even when set: see getMemberDirectory (checklist 4b.4).
  *   DbMemberDirectory    the `proforma_member` SQL view that wattup-frontend
  *                        owns, which resolves ACCESS_PROFORMA in SQL so this app
  *                        never reimplements permission resolution. Production.

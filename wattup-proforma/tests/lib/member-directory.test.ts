@@ -84,8 +84,8 @@ describe('getMemberDirectory: which one answers (checklist 4b.4)', () => {
         return vi.importActual<typeof import('@/lib/member-directory')>('@/lib/member-directory');
     }
 
-    it('outside production, a set PROFORMA_ALLOWLIST answers', async () => {
-        vi.stubEnv('NODE_ENV', 'test');
+    it.each(['development', 'test'])('outside production (NODE_ENV=%s), a set PROFORMA_ALLOWLIST answers, with no warning', async (env) => {
+        vi.stubEnv('NODE_ENV', env);
         vi.stubEnv('PROFORMA_ALLOWLIST', 'alice@example.com');
         const { getMemberDirectory } = await fresh();
 
@@ -93,6 +93,7 @@ describe('getMemberDirectory: which one answers (checklist 4b.4)', () => {
 
         expect(directory.constructor.name).toBe('EnvMemberDirectory');
         await expect(directory.lookup('Alice@Example.com')).resolves.toMatchObject({ active: true });
+        expect(console.warn).not.toHaveBeenCalled();
     });
 
     it('with no allowlist, the view answers', async () => {
@@ -103,12 +104,29 @@ describe('getMemberDirectory: which one answers (checklist 4b.4)', () => {
         expect(getMemberDirectory().constructor.name).toBe('DbMemberDirectory');
     });
 
-    it('in production the allowlist is IGNORED even when set, and shouted about', async () => {
+    it('in production the allowlist is IGNORED even when set, shouted about once, and the view answers every call', async () => {
         vi.stubEnv('NODE_ENV', 'production');
         vi.stubEnv('PROFORMA_ALLOWLIST', 'alice@example.com');
         const { getMemberDirectory } = await fresh();
 
-        expect(getMemberDirectory().constructor.name).toBe('DbMemberDirectory');
+        const first = getMemberDirectory();
+        const second = getMemberDirectory();
+
+        expect(first.constructor.name).toBe('DbMemberDirectory');
+        expect(second).toBe(first);
+        expect(console.warn).toHaveBeenCalledTimes(1);
         expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('IGNORED'));
+        // The listed address is not a member by virtue of the list: the view
+        // (here the fake client, which knows nobody) is the only answer.
+        await expect(first.lookup('alice@example.com')).resolves.toBeNull();
+    });
+
+    it('in production with no allowlist, the view answers and nothing is warned about', async () => {
+        vi.stubEnv('NODE_ENV', 'production');
+        vi.stubEnv('PROFORMA_ALLOWLIST', '');
+        const { getMemberDirectory } = await fresh();
+
+        expect(getMemberDirectory().constructor.name).toBe('DbMemberDirectory');
+        expect(console.warn).not.toHaveBeenCalled();
     });
 });

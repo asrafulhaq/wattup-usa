@@ -10,6 +10,10 @@
  *
  * An empty string counts as missing. `RESEND_API_KEY=` in a .env file is the
  * commonest way for a variable to be "set" and useless.
+ *
+ * PROFORMA_ALLOWLIST is neither required nor checked here: it is honoured
+ * outside production only, and in production it is ignored with a warning
+ * (lib/member-directory.ts getMemberDirectory, checklist 4b.4).
  */
 
 export const REQUIRED_ENV = [
