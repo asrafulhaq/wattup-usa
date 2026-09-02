@@ -24,32 +24,10 @@ export async function logout() {
 }
 
 /**
- * Returns session only for ADMIN role users.
- * Used to protect admin-only server actions and pages.
- */
-export async function getAdminSession() {
-    try {
-        const session = await getCachedSession();
-
-        if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN')) {
-            return null;
-        }
-
-        return {
-            id: session.user.id,
-            email: session.user.email,
-            role: session.user.role as string,
-            name: session.user.name,
-            image: session.user.image,
-        };
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Returns session for any authenticated user regardless of role.
- * Used to protect dashboard pages accessible by all roles.
+ * Returns session for any authenticated user regardless of role: identity only, never
+ * an authorisation answer. lib/permission-guard.ts builds on this to resolve what the
+ * caller may do. (getAdminSession, the role-gated variant, is gone: every module that
+ * used it now checks a permission.)
  */
 export async function getSession() {
     try {

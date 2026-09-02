@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { sessionWith } from '@/app/_actions/permission-guard';
+import { requirePermission } from '@/lib/permission-guard';
 import { Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag } from 'next/cache';
@@ -62,7 +62,7 @@ async function readUsers(pageSize: number) {
 export async function getDashboardUsers(
     pageSize = 50
 ): Promise<{ users: ManagedUser[]; total: number }> {
-    const session = await sessionWith(Permission.VIEW_USERS);
+    const session = await requirePermission(Permission.VIEW_USERS);
     if (!session) return { users: [], total: 0 };
     return readUsers(pageSize);
 }

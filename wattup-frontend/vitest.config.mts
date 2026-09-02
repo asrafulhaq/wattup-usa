@@ -1,26 +1,29 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { defineConfig } from 'vitest/config';
 
+const root = fileURLToPath(new URL('.', import.meta.url));
+
 /**
- * Unit suite for the dashboard app. No database, no network: every module that
- * would reach one is replaced with vi.mock inside the test that needs it.
+ * Unit tests for the parts of this app that decide who may do what. Run with
+ * `pnpm test`. Tests live in `__tests__` folders beside the code they cover.
  *
- * Node environment: the subjects are server actions and plain functions. The
- * `@` alias matches tsconfig.json, so a mock registered against '@/lib/auth'
- * intercepts the same specifier the application imports. `.next` and
- * `node_modules` are excluded by name so nothing a build emits can be picked up
- * as a test.
+ * Nothing here touches a database: the resolver is tested against a stub client and
+ * the modules that import the Prisma singleton mock it.
  */
 export default defineConfig({
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('.', import.meta.url)),
+            '@': root,
+            // `import 'server-only'` throws outside a React Server Components build,
+            // which is exactly the guard it exists to be. The stub makes it a no-op
+            // under Vitest so server modules can be imported by a test.
+            'server-only': path.resolve(root, 'test/stubs/server-only.ts'),
         },
     },
     test: {
         environment: 'node',
-        include: ['tests/**/*.test.ts'],
+        include: ['**/__tests__/**/*.test.ts', 'tests/**/*.test.ts'],
         exclude: ['**/node_modules/**', '**/.next/**'],
     },
 });

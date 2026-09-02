@@ -1,29 +1,29 @@
-import { getSession } from '@/app/_actions/auth-actions';
 import { AmenitiesClient } from '@/components/dashboard/locations/amenities-client';
 import { NoAccess } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { AmenitiesBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getDashboardAmenities } from '@/lib/locations/dashboard';
+import { getSessionPermissions } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 async function AmenitiesTable() {
-    const [amenities, session] = await Promise.all([
+    const [amenities, authorised] = await Promise.all([
         getDashboardAmenities(),
-        getSession(),
+        getSessionPermissions(),
     ]);
 
-    if (!hasPermission(session?.role, Permission.MANAGE_LOCATIONS)) {
-        return <NoAccess what='charging locations' role={session?.role} />;
+    if (!hasPermission(authorised?.permissions, Permission.VIEW_LOCATIONS)) {
+        return <NoAccess what='charging locations' role={authorised?.session.role} />;
     }
 
-    // Viewing the catalogue comes with MANAGE_LOCATIONS, since assigning amenities to a
-    // site needs to show them. Changing the catalogue itself is the stricter permission.
+    // Viewing the catalogue comes with VIEW_LOCATIONS, since reading a site means
+    // reading its amenities. Changing the catalogue itself is the stricter permission.
     return (
         <AmenitiesClient
             amenities={amenities}
-            canManage={hasPermission(session?.role, Permission.MANAGE_AMENITIES)}
+            canManage={hasPermission(authorised?.permissions, Permission.MANAGE_AMENITIES)}
         />
     );
 }

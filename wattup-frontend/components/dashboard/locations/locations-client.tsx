@@ -28,6 +28,8 @@ import { STATUS_OPTIONS } from './status';
 
 interface Props {
     locations: DashboardLocation[];
+    /** MANAGE_LOCATIONS: may add sites and change what the public map shows. */
+    canManage: boolean;
     canDelete: boolean;
 }
 
@@ -43,7 +45,7 @@ const VISIBILITY_OPTIONS: { value: VisibilityFilter; label: string }[] = [
 /** Twenty a page, so the whole 2026 build fits on the first one. */
 const PAGE_SIZE = 20;
 
-export function LocationsClient({ locations, canDelete }: Props) {
+export function LocationsClient({ locations, canManage, canDelete }: Props) {
     const router = useRouter();
     const [, startTransition] = useTransition();
     const [status, setStatus] = useState<StatusFilter>('ALL');
@@ -169,34 +171,40 @@ export function LocationsClient({ locations, canDelete }: Props) {
                                 setPagination(p => ({ ...p, pageIndex: 0 }));
                             }}
                         />
-                        <Link
-                            href='/dashboard/locations/create'
-                            className='flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-medium text-white transition-colors hover:bg-primary-hover'>
-                            <IconPlus className='size-4' />
-                            Add location
-                        </Link>
+                        {canManage && (
+                            <Link
+                                href='/dashboard/locations/create'
+                                className='flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-medium text-white transition-colors hover:bg-primary-hover'>
+                                <IconPlus className='size-4' />
+                                Add location
+                            </Link>
+                        )}
                     </div>
                 }
-                batchActions={(selected, clearSelection) => (
-                    <>
-                        <BatchButton
-                            icon={Eye}
-                            onClick={() => {
-                                setPublished(selected, true);
-                                clearSelection();
-                            }}>
-                            Show on the site
-                        </BatchButton>
-                        <BatchButton
-                            icon={EyeOff}
-                            onClick={() => {
-                                setPublished(selected, false);
-                                clearSelection();
-                            }}>
-                            Hide
-                        </BatchButton>
-                    </>
-                )}
+                batchActions={
+                    canManage
+                        ? (selected, clearSelection) => (
+                              <>
+                                  <BatchButton
+                                      icon={Eye}
+                                      onClick={() => {
+                                          setPublished(selected, true);
+                                          clearSelection();
+                                      }}>
+                                      Show on the site
+                                  </BatchButton>
+                                  <BatchButton
+                                      icon={EyeOff}
+                                      onClick={() => {
+                                          setPublished(selected, false);
+                                          clearSelection();
+                                      }}>
+                                      Hide
+                                  </BatchButton>
+                              </>
+                          )
+                        : undefined
+                }
             />
 
             <p className='text-[12.5px] text-dash-muted'>

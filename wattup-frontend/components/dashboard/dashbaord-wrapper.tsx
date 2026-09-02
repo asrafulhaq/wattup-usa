@@ -5,23 +5,26 @@ import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
 import { RequireSession } from '@/components/dashboard/require-session';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { getSessionPermissions } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
 import React, { Suspense } from 'react';
 
 async function SidebarWrapper() {
-    const session = await getSession();
+    const authorised = await getSessionPermissions();
 
     // Nothing rather than a signed-in looking shell. Without this a rejected session
     // still drew the logo, an empty nav and a user card reading "Admin" with no email,
     // which is the part that made the screen look broken rather than signed out.
-    if (!session) return null;
+    if (!authorised) return null;
+    const { session, permissions } = authorised;
 
+    // What the nav shows is presentation: each page and each action checks again.
     return (
         <AppSidebar
             variant='inset'
-            showUsers={hasPermission(session.role, Permission.VIEW_USERS)}
-            showSettings={hasPermission(session.role, Permission.MANAGE_SITE_SETTINGS)}
-            showLocations={hasPermission(session.role, Permission.MANAGE_LOCATIONS)}
+            showUsers={hasPermission(permissions, Permission.VIEW_USERS)}
+            showSettings={hasPermission(permissions, Permission.MANAGE_SITE_SETTINGS)}
+            showLocations={hasPermission(permissions, Permission.VIEW_LOCATIONS)}
             user={{
                 name: session.name,
                 email: session.email,

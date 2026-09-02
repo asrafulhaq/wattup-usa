@@ -1,9 +1,9 @@
-import { getSession } from '@/app/_actions/auth-actions';
 import PageContent from '@/components/dashboard/settings/page-content';
 import { NoAccess } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { SettingsBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
+import { getSessionPermissions } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
@@ -13,11 +13,11 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-    const session = await getSession();
+    const authorised = await getSessionPermissions();
     // Not a redirect: dropping someone on another screen with nothing said is the
     // behaviour that made this dashboard feel broken.
-    if (!hasPermission(session?.role, Permission.MANAGE_SITE_SETTINGS)) {
-        return <NoAccess what='site settings' role={session?.role} />;
+    if (!hasPermission(authorised?.permissions, Permission.MANAGE_SITE_SETTINGS)) {
+        return <NoAccess what='site settings' role={authorised?.session.role} />;
     }
 
     return (

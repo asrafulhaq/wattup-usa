@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/app/_actions/auth-actions";
 import { uploadSingleImage } from "@/app/_actions/image-actions";
-import { isAllowedFolder } from "@/lib/image-service";
+import { isAllowedFolder, MAX_UPLOAD_BYTES } from "@/lib/image-service";
+import { requirePermission } from "@/lib/permission-guard";
+import { Permission } from "@/lib/permissions";
 
 /**
  * True when the request came from one of this site's own pages.
@@ -27,14 +28,24 @@ function isSameOrigin(request: Request): boolean {
 }
 
 export async function POST(request: Request) {
-  // Any signed-in user for now; the UPLOAD_MEDIA permission tightens this in phase 4a.
-  const session = await getSession();
-  if (!session) {
+  // UPLOAD_MEDIA, resolved for this request (checklist 4a.16). The action below checks
+  // it again; the check here is what keeps an unauthorised body from being read at all.
+  const authorised = await requirePermission(Permission.UPLOAD_MEDIA);
+  if (!authorised) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Refused before the body is buffered (backlog B.9). A missing Content-Length is
+  // refused too: a browser always sends it for a multipart POST, and a client that
+  // withholds it is not one this route serves. The action re-checks the file's own
+  // size, so a lying header buys nothing.
+  const declared = Number(request.headers.get("content-length"));
+  if (!Number.isFinite(declared) || declared <= 0 || declared > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: "Upload is larger than 10 MB" }, { status: 413 });
   }
 
   try {

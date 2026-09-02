@@ -56,7 +56,11 @@ components/
 lib/
   auth.ts         Better Auth server config
   auth-client.ts  Better Auth React client
-  permissions.ts  Role, Permission, ROLE_PERMISSIONS map, hasPermission()
+  permissions.ts  Role, ROLE_RANK, Permission, the ROLE_PERMISSIONS matrix, hasPermission(set)
+  permissions-server.ts  getEffectivePermissions(userId): the resolved set, once per request
+  permission-guard.ts    requirePermission(permission), getSessionPermissions(), UNAUTHORIZED
+  permission-inventory.ts every endpoint and what it takes to call it; a test enforces it
+  activity-log.ts logActivity(entry): the audit writer, never throws
   prisma.ts       Prisma singleton
   email.ts        Resend sendMail()
   mail/           email templates: base, contact, invite-user, reset-password
@@ -66,7 +70,7 @@ lib/
   images/         13 modules of Cloudinary URL constants, one per marketing page
   validations/    zod schemas: contact, location
 prisma/
-  schema.prisma   16 models, 4 enums. THE schema — this app owns it.
+  schema.prisma   19 models, 4 enums, 1 view (proforma_member). THE schema — this app owns it.
   migrations/     this app is the only one that runs them
   seed.ts         super admin + amenity catalogue
 data.tsx          45 exports of marketing page copy and slide data (57 KB)
@@ -132,30 +136,41 @@ id is discoverable in the client bundle. Hiding a control in the UI is presentat
 protection.
 
 ```ts
-import { sessionWith, UNAUTHORIZED } from '@/app/_actions/permission-guard';
+import { requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
 
 export async function updateLocation(id: string, raw: unknown) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
-    if (!session) return UNAUTHORIZED;
+    const authorised = await requirePermission(Permission.MANAGE_LOCATIONS);
+    if (!authorised) return UNAUTHORIZED;
     …
 }
 ```
 
-- **`sessionWith(permission)`** is the guard. It is deliberately not exported from a
-  `'use server'` module, which would make the guard itself an endpoint.
-- **`getAdminSession()` is not a permission check.** It returns a session only for `ADMIN` and
-  `SUPER_ADMIN`. Modules still using it are role-gated no matter what the permission map says.
-  `postActions.ts`, `settingsActions.ts` and `userActions.ts` do this. **Do not copy it.**
+- **`requirePermission(permission)`** is the guard. It resolves the caller's permissions from
+  the database on this request and returns `{ session, permissions }` or null. It lives in
+  `lib/`, deliberately not in a `'use server'` module, which would make the guard itself an
+  endpoint. `getSessionPermissions()` is the same pair with no permission asked, for pages
+  deciding what to draw and for the few actions scoped to the caller's own account.
+- **A role decides nothing on its own.** The authority is the resolved set: role defaults from
+  `role_permission`, minus `user_permission` revokes (never for `SUPER_ADMIN`), plus grants.
+  `lib/permissions-server.ts` resolves it once per request; `lib/permissions.ts` keeps the
+  in-code `ROLE_PERMISSIONS` matrix that the migration seeded, and a test proves the two agree.
+  `hasPermission(set, permission)` is synchronous and takes that set, never a role.
 - A page-level `hasPermission()` check controls rendering. The action behind it still needs its
-  own guard. Both, always.
-- **Roles live in two places that must change together:** the `Role` enum in
-  `prisma/schema.prisma`, and the static `createAccessControl` map in `lib/auth.ts`. A role
-  present in one and not the other fails silently in admin-plugin calls.
-- Public registration is blocked by a `before` hook in `lib/auth.ts` matching
-  `/sign-up/email`. It is a string comparison, and it is load-bearing.
+  own guard. Both, always. `lib/permission-inventory.ts` lists every endpoint with its
+  permission or an explicit reason it has none, and `pnpm test` fails on an export that is
+  not in it or an entry the code does not back.
+- **Roles live in three places that must change together:** the `Role` enum in
+  `prisma/schema.prisma`, `Role` and `ROLE_RANK` in `lib/permissions.ts`, and a seed row per
+  permission in a migration. Better Auth's `createAccessControl` map in `lib/auth.ts` is
+  derived from `ROLE_PERMISSIONS`, so it follows.
+- Public registration is closed twice: `emailAndPassword.disableSignUp` in `lib/auth.ts`, and
+  the `before` hook matching `/sign-up/email` under it.
+- Every permission change and every user change writes an `activity_log` row through
+  `lib/activity-log.ts`, which never throws and masks addresses in its own error line.
 
-Current roles: `SUPER_ADMIN`, `ADMIN`, `EDITOR`, `COLLABORATOR`. 18 permissions in the
-`Permission` enum. **This is being redesigned** — see `docs/adr/0002-roles-and-permissions.md`.
+Current roles, ranked: `SUPER_ADMIN` 100, `ADMIN` 80, `NETWORK_MANAGER` 60, `EDITOR` 50,
+`SALES` 40. There is no default role. 27 values in the `Permission` enum, four of them
+reserved and unused. The matrix is `docs/adr/0002-roles-and-permissions.md` section 6.
 
 ---
 
@@ -197,6 +212,7 @@ not be able to widen it by passing an argument.
 ```bash
 pnpm dev              # localhost:3000; log in at /admin
 pnpm lint
+pnpm test             # Vitest: permissions, resolution, guards, audit rows, endpoint inventory
 pnpm build            # next build. Reads the database at build time; no longer writes (seed removed)
 pnpm db:seed          # one-off bootstrap, writes to DATABASE_URL  ← see the warning below
 pnpm seed:admins      # add/promote SUPER_ADMINs from ADMIN_EMAILS only; touches user + account, nothing else
@@ -238,7 +254,7 @@ write here:
 | **F2** | ✅ fixed on `main`: public reads filter `Published` inside the query; dashboard reads need `CREATE_POST` and are uncached. |
 | **F13** | The seed resurrected an unremovable `SUPER_ADMIN` on every build. The build no longer runs it; whether the account should exist at all is still open. |
 | **F9** | ✅ fixed on `main`: explicit `rateLimit` block, five custom rules. **F14** (forms bypassed it via server actions) also fixed: forms use `authClient`, bypass actions deleted. |
-| **F3** | Six post permissions defined but never enforced. |
+| **F3** | ✅ fixed on the `feat/rbac-*` branches: every article action gates on its own permission; `EDIT_OWN_POST` / `DELETE_OWN_POST` stay in the enum unused pending ADR 0002 §7. **F4** and **F5** fixed there too. |
 
 Decisions and the tracked plan:
 

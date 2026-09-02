@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { sessionWith } from '@/app/_actions/permission-guard';
+import { requirePermission } from '@/lib/permission-guard';
 import { Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag } from 'next/cache';
@@ -185,17 +185,21 @@ async function readLocationForEdit(
 
 // ── Permission checked entry points ──────────────────────────────────────────
 
+// Reads need VIEW_LOCATIONS (checklist 4a.17), which is what lets a SALES user see the
+// network without being able to change it; the edit loader stays on MANAGE_LOCATIONS
+// because the form it feeds is a write.
+
 /** The list behind /dashboard/locations. Empty for a caller without the permission. */
 export async function getDashboardLocations(): Promise<DashboardLocation[]> {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
-    if (!session) return [];
+    const authorised = await requirePermission(Permission.VIEW_LOCATIONS);
+    if (!authorised) return [];
     return readDashboardLocations();
 }
 
 /** The whole catalogue, inactive entries included. The public read filters those out. */
 export async function getDashboardAmenities(): Promise<DashboardAmenity[]> {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
-    if (!session) return [];
+    const authorised = await requirePermission(Permission.VIEW_LOCATIONS);
+    if (!authorised) return [];
     return readDashboardAmenities();
 }
 
@@ -206,7 +210,7 @@ export async function getDashboardAmenities(): Promise<DashboardAmenity[]> {
  * and their notice address, several of which are private homes.
  */
 export async function getLocationForEdit(id: string) {
-    const session = await sessionWith(Permission.MANAGE_LOCATIONS);
+    const session = await requirePermission(Permission.MANAGE_LOCATIONS);
     if (!session) return null;
     return readLocationForEdit(id);
 }

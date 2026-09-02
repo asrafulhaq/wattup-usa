@@ -9,7 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { ASSIGNABLE_ROLES, ROLE_LABELS, Role } from '@/lib/permissions';
+import { ASSIGNABLE_ROLES, canManageRole, ROLE_LABELS, Role } from '@/lib/permissions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, Eye, EyeOff, Loader2, RefreshCw, UserPlus } from 'lucide-react';
 import { useState, useTransition } from 'react';
@@ -17,11 +17,16 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+// The same list the select renders, so a role cannot be offered that the schema then
+// refuses. z.enum wants a non-empty tuple; ASSIGNABLE_ROLES is that list.
+const ASSIGNABLE = ASSIGNABLE_ROLES as unknown as [Role, ...Role[]];
+
 const schema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
-    role: z.enum([Role.ADMIN, Role.EDITOR, Role.COLLABORATOR]),
+    // No default (ADR 0002 section 4.2, checklist 4a.29): the admin chooses.
+    role: z.enum(ASSIGNABLE, { message: 'Choose a role' }),
     sendInviteEmail: z.boolean(),
 });
 
@@ -55,10 +60,13 @@ function generateStrongPassword(length = 16): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
+    /** The caller's role: the list offers only roles it outranks, as createUser insists. */
+    actorRole: string;
     onSuccess?: () => void;
 }
 
-export function InviteUserDialog({ onSuccess }: Props) {
+export function InviteUserDialog({ actorRole, onSuccess }: Props) {
+    const offeredRoles = ASSIGNABLE_ROLES.filter(role => canManageRole(actorRole, role));
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [showPassword, setShowPassword] = useState(false);
@@ -73,7 +81,6 @@ export function InviteUserDialog({ onSuccess }: Props) {
     } = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
-            role: Role.COLLABORATOR,
             sendInviteEmail: true,
         },
     });
@@ -238,8 +245,12 @@ export function InviteUserDialog({ onSuccess }: Props) {
                         </label>
                         <select
                             className='input-field bg-white'
+                            defaultValue=''
                             {...register('role')}>
-                            {ASSIGNABLE_ROLES.map(role => (
+                            <option value='' disabled>
+                                Choose a role
+                            </option>
+                            {offeredRoles.map(role => (
                                 <option key={role} value={role}>
                                     {ROLE_LABELS[role]}
                                 </option>
