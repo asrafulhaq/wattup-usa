@@ -52,7 +52,9 @@ const prisma = new PrismaClient({
 // primary account already exists and takes the promote branch.)
 const seedAuth = betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
-    emailAndPassword: { enabled: true },
+    // No auto sign-in: a seed has no browser to hand a session to, and skipping it
+    // keeps this to two inserts (user, credential account).
+    emailAndPassword: { enabled: true, autoSignIn: false },
     plugins: [admin({ defaultRole: 'COLLABORATOR' })],
 });
 
