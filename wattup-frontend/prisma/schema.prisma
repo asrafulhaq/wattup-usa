@@ -208,6 +208,21 @@ model ProformaVerification {
   @@map("proforma_verification")
 }
 
+/// The pro-forma gate's rate-limit counters (ADR 0001 section 10, checklist 5.1 to
+/// 5.7): one row per key, a fixed window of `count` hits from `windowStart`, and
+/// `lastHit` for the 60 second gap between sends. `key` is `kind:` plus an HMAC of
+/// the address or IP under the pro-forma app's secret, never the raw value, so the
+/// table identifies nobody. wattup-proforma reads and writes it with one raw upsert
+/// and sweeps rows older than every window; nothing in this app touches it.
+model ProformaRateLimit {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+  lastHit     DateTime
+
+  @@map("proforma_rate_limit")
+}
+
 model Profile {
   id        String   @id @default(uuid())
   name      String   @default("")
