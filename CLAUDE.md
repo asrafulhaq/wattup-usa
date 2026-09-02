@@ -55,7 +55,7 @@ wattup/
 
 ## Before starting anything
 
-`docs/plan/SECURITY-FINDINGS.md` lists 14 findings. **Phase S is complete on `main` — F1, F2, F8, F9, F13, F14 all fixed — but nothing is deployed yet:** push is gated on the Vercel Root Directory change (checklist 0.18).
+`docs/plan/SECURITY-FINDINGS.md` lists 16 findings, F15 and F16 added since the audit, 7 fixed. **Phase S is complete on `main` — F1, F2, F8, F9, F13, F14 all fixed — but nothing is deployed yet:** push is gated on the Vercel Root Directory change (checklist 0.18).
 F8 (the dependency upgrade) is done on both apps: `next` 16.3.4, `better-auth` 1.7.2.
 
 **`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` is
