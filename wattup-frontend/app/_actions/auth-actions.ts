@@ -71,8 +71,9 @@ export async function getSession() {
 
 /**
  * Updates user email using Better Auth.
- * Verifies current password via Better Auth changePassword as a pre-check,
- * then calls changeEmail which sends a verification link.
+ * Confirms the current password through Better Auth itself (see
+ * verifyCurrentPassword below), then calls changeEmail, which sends the
+ * verification link.
  */
 export async function updateEmail(formData: FormData) {
     const currentPassword = formData.get('currentPassword') as string | null;
@@ -87,55 +88,12 @@ export async function updateEmail(formData: FormData) {
         const session = await getCachedSession();
         if (!session) return { success: false, error: 'Not authenticated' };
 
-        // Verify the current password by checking against the stored credential hash.
-        // We use verifyPassword from Better Auth's internal ctx via a dummy changePassword
-        // that we know won't change anything if we feed the same password.
-        // More robustly: query the account credential record and verify the hash.
-        const prisma = (await import('@/lib/prisma')).default;
-        const account = await prisma.account.findFirst({
-            where: {
-                userId: session.user.id,
-                providerId: 'credential',
-            },
-            select: { password: true },
-        });
-
-        if (!account?.password) {
-            return { success: false, error: 'No password set on this account' };
-        }
-
-        // Use the same scrypt verifier that Better Auth uses internally
-        const { timingSafeEqual } = await import('crypto');
-        const { scrypt } = await import('crypto');
-        const [N, r, p, salt, storedKey] = account.password.split(':');
-
-        if (!salt || !storedKey) {
-            return { success: false, error: 'Invalid credential format' };
-        }
-
-        const verified = await new Promise<boolean>((resolve, reject) => {
-            scrypt(
-                currentPassword,
-                salt,
-                64,
-                { N: Number(N), r: Number(r), p: Number(p) },
-                (err, derivedKey) => {
-                    if (err) return reject(err);
-                    try {
-                        const stored = Buffer.from(storedKey, 'hex');
-                        resolve(timingSafeEqual(derivedKey, stored));
-                    } catch {
-                        resolve(false);
-                    }
-                }
-            );
-        });
-
+        const verified = await verifyCurrentPassword(currentPassword, h);
         if (!verified) {
             return { success: false, error: 'Incorrect current password' };
         }
 
-        // Password confirmed — request email change (Better Auth sends verification email)
+        // Password confirmed. Request the email change; Better Auth sends the verification email.
         await auth.api.changeEmail({
             body: { newEmail },
             headers: h,
@@ -155,6 +113,66 @@ export async function updateEmail(formData: FormData) {
     }
 }
 
+/**
+ * Confirms the signed-in user's current password with Better Auth's own
+ * server-scoped verify-password endpoint. Finding F6, checklist B.4 and B.5.
+ *
+ * The previous implementation read the credential row itself, split the stored
+ * string on ':' into scrypt cost parameters, salt and key, and re-derived the
+ * hash with node:crypto. That tied this action to the serialisation Better Auth
+ * happens to use today. Any future version that changes it, whether a different
+ * KDF, a different separator or a versioned prefix, would have made every
+ * password check here fail silently or throw, with nothing at compile time to
+ * say so. B.5 asked for a re-check on every upgrade for exactly that reason;
+ * with the parse gone there is nothing left to re-check.
+ *
+ * auth.api.verifyPassword is the library's answer to this question. It resolves
+ * the session from the request headers (sensitiveSessionMiddleware, so the
+ * cookie cache is bypassed), finds the credential account for that user, and
+ * compares through ctx.context.password.verify, the same verifier that sign-in
+ * and change-password use, so a custom hasher configured under
+ * emailAndPassword.password would be honoured as well. The stored hash never
+ * leaves Better Auth. The endpoint is metadata.scope "server", so it is not
+ * routed under /api/auth and cannot be used as a password oracle from outside,
+ * and unlike a signInEmail probe it mints no session.
+ *
+ * Alternatives considered: verifyPassword from better-auth/crypto would still
+ * have this module reading the hash out of the account table and would skip a
+ * custom verifier; changeEmail on 1.7.2 takes no password, so it cannot stand in
+ * as the check.
+ *
+ * Returns false only for INVALID_PASSWORD. Anything else (no session, the
+ * database being unreachable) is rethrown so updateEmail's catch reports it the
+ * way it always has.
+ */
+async function verifyCurrentPassword(
+    password: string,
+    h: Awaited<ReturnType<typeof headers>>
+): Promise<boolean> {
+    try {
+        const { status } = await auth.api.verifyPassword({
+            body: { password },
+            headers: h,
+        });
+        return status === true;
+    } catch (error) {
+        if (isInvalidPasswordError(error)) return false;
+        throw error;
+    }
+}
+
+/**
+ * True for the APIError verify-password throws on a wrong password. Read from
+ * body.code, the shape every Better Auth APIError carries and the field the
+ * catch in updateEmail already reads, rather than by instanceof, so it does not
+ * depend on which copy of the error class a bundle happens to load.
+ */
+function isInvalidPasswordError(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null) return false;
+    const body: unknown = (error as { body?: unknown }).body;
+    if (typeof body !== 'object' || body === null) return false;
+    return (body as { code?: unknown }).code === 'INVALID_PASSWORD';
+}
 
 /**
  * Updates user password using Better Auth.
