@@ -167,6 +167,13 @@ export async function updateLocation(id: string, raw: unknown) {
   the `before` hook matching `/sign-up/email` under it.
 - Every permission change and every user change writes an `activity_log` row through
   `lib/activity-log.ts`, which never throws and masks addresses in its own error line.
+  own guard. Both, always.
+- **Roles live in two places that must change together:** the `Role` enum in
+  `prisma/schema.prisma`, and the static `createAccessControl` map in `lib/auth.ts`. A role
+  present in one and not the other fails silently in admin-plugin calls.
+- Public registration is blocked by a `before` hook in `lib/auth.ts` matching
+  `/sign-up/email`. It is a string comparison, and it is load-bearing.
+- **The auth rate limiter is database-backed:** `rateLimit.storage: 'database'` in `lib/auth.ts` keeps its counters in the `auth_rate_limit` table (the `RateLimit` model), so every serverless instance shares one count; `scripts/rate-limit-storage-check.ts` proves the wiring without a database.
 
 Current roles, ranked: `SUPER_ADMIN` 100, `ADMIN` 80, `NETWORK_MANAGER` 60, `EDITOR` 50,
 `SALES` 40. There is no default role. 27 values in the `Permission` enum, four of them
