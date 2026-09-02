@@ -438,7 +438,7 @@ Follow [RUNBOOK-dns-email-env.md](RUNBOOK-dns-email-env.md). *(needs answers A, 
 - [ ] 6.10 Team told: **everyone is signed out at cutover** (cookie name changed)
 - [◐] 6.11 OTP email in Gmail: **logo was broken — SVG `<img>`, which Gmail/Outlook refuse; fixed with Cloudinary `f_png` renditions in both apps' mail bases** (also fixes the dashboard's reset/invite mail). Spam placement: SPF fix pending (K). Outlook render still to check
 - [x] 6.12 `SITE_PASSWORD` does not exist in this repository (grep over both apps, 2026-09-03): the shared-password gate lived only in the old deployment, which 6.14 retires. Nothing to delete here
-- [ ] 6.13 `DEPLOY.md` and `README.md` updated: subdomain, the new gate, the build step
+- [x] 6.13 `wattup-proforma/DEPLOY.md` and `wattup-proforma/README.md` written: subdomain, the new gate, the build step, the migration order (naming `20260903100000_rbac_permissions`, applied, and the pending `20260903110000_auth_rate_limit`), and the frontend's new `CRON_SECRET` / `ACTIVITY_LOG_RETENTION_DAYS`
 - [ ] 6.14 Old password-gated deployment retired
 - [ ] 6.15 **Two weeks later:** subdomain absent from Google's index
 
@@ -513,6 +513,7 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 27 | `feat/email-dark-mode` | `bdf61ed` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
 | 28 | `fix/auth-actions-credential-check` | `fd1cc02` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
 | 29 | `chore/cloudinary-audit` | `17446dd` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
+| 31 | `docs/proforma-readme-deploy` | `83b8618` | 6.13: `wattup-proforma/README.md` and `DEPLOY.md` written, docs only, no code changes |
 | 30 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 | 25 | `feat/rbac-1-schema` | `91bf5f2` | schema + hand-written migration: five roles, 27 permissions, role_permission / user_permission / activity_log, proforma_member view; executed on a scratch DB; tsc 0, lint = main baseline, next build 0 |
 | 26 | `feat/rbac-2-resolution` | `8c85366` | database-resolved PermissionSet, ranked roles, derived Better Auth AC, disableSignUp, Vitest (64 tests); tsc 0, lint = baseline, test 64/64, build 0 |
