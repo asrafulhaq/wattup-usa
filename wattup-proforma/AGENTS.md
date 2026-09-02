@@ -88,8 +88,11 @@ frontend's tokens change, change them here too, and say so in the commit.
 
 ```
 app/api/auth/[...all]/       Better Auth, with OTP paths closed
-app/api/gate/request-code/   POST: normalise, answer the same 200, then rate limit, directory and send in after()
-app/api/gate/verify-code/    POST: sign in server-side, re-check membership, one identical 400 for every failure
+app/api/gate/request-code/   POST: origin check, normalise, answer the same 200, then in after(): IP limit,
+                             directory, address limits, send
+app/api/gate/verify-code/    POST: origin check, sign in server-side, re-check membership, one identical 400
+                             for every failure
+app/robots.ts                /robots.txt, disallow all; next.config.ts carries the header backstop
 app/tool/[[...path]]/        serves private/tool/ to current members only
 app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
                              member straight on; login-form.tsx is the client form
@@ -98,10 +101,11 @@ app/layout.tsx               title, noindex, favicon, Plus Jakarta Sans via next
                              the tokens, both copied by hand from wattup-frontend
 lib/auth.ts                  Better Auth config — read the comments before editing
 lib/gate.ts                  requireMember: the one place a gated request decides membership;
-                             also correlationId and the gate's shared response headers
+                             also correlationId, isSameOrigin, and the gate's shared response headers
 lib/safe-next.ts             safeNext, import-free so the browser can use it too; lib/gate.ts re-exports it
 lib/env.ts                   missingRequiredEnv: the 503 fail-closed check both gate routes run first
-lib/rate-limit.ts            checkRequestLimits: the phase 5 call site, a stub until then
+lib/rate-limit.ts            checkIpLimit and checkEmailLimits: the PRD's three limits on hashed keys, in
+                             Postgres, failing OPEN to memory (ADR 0001 section 10); read its header first
 lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
 lib/prisma.ts                Prisma client, pooled
 lib/email.ts                 Resend + the OTP template; maskEmail for logs

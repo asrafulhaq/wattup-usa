@@ -100,6 +100,25 @@ model Verification {
   @@map("proforma_verification")
 }
 
+/// The gate's rate-limit counters (lib/rate-limit.ts): one row per hashed key, a
+/// fixed window of `count` hits from `windowStart`, and `lastHit` for the gap between
+/// sends. Read AND written from this app, through one raw upsert so the window reset
+/// and the increment are a single statement. Declared by wattup-frontend, which is
+/// the app that applies the migration.
+///
+/// NOT YET APPLIED. Until the 20260902200000_proforma_rate_limit migration has run,
+/// every query against it fails and the limiter carries on in memory (ADR 0001
+/// section 10: the limiter fails open). Mirrored here so `prisma validate` and the
+/// generated client know the shape; the raw SQL names the table directly.
+model ProformaRateLimit {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+  lastHit     DateTime
+
+  @@map("proforma_rate_limit")
+}
+
 /// The `proforma_member` SQL VIEW that wattup-frontend owns (ADR 0001 section 18):
 /// one row per user who currently holds ACCESS_PROFORMA and is not banned. It is
 /// the single definition of who may sign in here, resolved in SQL so this app never

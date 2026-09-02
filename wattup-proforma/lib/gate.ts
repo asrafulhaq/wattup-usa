@@ -45,6 +45,81 @@ export function serviceUnavailable(missing: string[]): Response {
 }
 
 /**
+ * Whether a POST came from this site. Checklist 5.8.
+ *
+ * The browser sets Origin on every fetch() POST and on every cross-site form
+ * post, and a page cannot change or remove it; Referer is the fallback for a
+ * client that sends no Origin. The comparison is against the request's OWN
+ * host, x-forwarded-host first (the platform sets it, and it is the host the
+ * browser saw) then Host, never a fixed list, so a Vercel preview URL passes
+ * its own check with no configuration. Hosts are compared exactly, port
+ * included, after lowercasing.
+ *
+ * Neither header present is a refusal. A same-origin fetch always carries one
+ * of them, so only a non-browser client, or a browser stripped of both, gets
+ * here, and nothing that reaches the gate without saying where it came from
+ * is owed an answer. `Origin: null` (an opaque origin: a sandboxed frame, a
+ * redirect across sites) fails to parse and is refused with it.
+ *
+ * One trap, recorded so it is not rediscovered: Referrer-Policy: no-referrer
+ * (next.config.ts) nulls the Origin of a form NAVIGATION post, but not of a
+ * fetch() in cors mode, which is the default and what app/login sends.
+ */
+export function isSameOrigin(headers: Headers): boolean {
+    const own = ownHost(headers);
+    if (!own) return false;
+    const origin = headers.get('origin');
+    if (origin !== null) return hostOf(origin) === own;
+    const referer = headers.get('referer');
+    if (referer !== null) return hostOf(referer) === own;
+    return false;
+}
+
+/** The fields worth logging when isSameOrigin says no. The Referer is reduced to its host. */
+export function describeOrigin(headers: Headers): { host: string | null; origin: string | null; referer: string | null } {
+    const referer = headers.get('referer');
+    return {
+        host: ownHost(headers),
+        origin: headers.get('origin'),
+        referer: referer === null ? null : hostOf(referer),
+    };
+}
+
+function ownHost(headers: Headers): string | null {
+    const forwarded = headers.get('x-forwarded-host')?.split(',')[0]?.trim().toLowerCase();
+    if (forwarded) return forwarded;
+    const host = headers.get('host')?.trim().toLowerCase();
+    return host || null;
+}
+
+function hostOf(url: string): string | null {
+    try {
+        return new URL(url).host.toLowerCase();
+    } catch {
+        return null;
+    }
+}
+
+// Serialised once, so every refusal returns these exact bytes.
+const FORBIDDEN_BODY = JSON.stringify({ message: 'Forbidden' });
+
+/**
+ * The 403 for a request that is not from this site. It is the one answer
+ * either gate route gives that is not its generic one, and it turns on where
+ * the request came from, never on the address or code it carried.
+ */
+export function forbidden(id: string): Response {
+    return new Response(FORBIDDEN_BODY, {
+        status: 403,
+        headers: {
+            ...GATE_RESPONSE_HEADERS,
+            'content-type': 'application/json; charset=utf-8',
+            'x-correlation-id': id,
+        },
+    });
+}
+
+/**
  * The loggable shape of a failure. Better Auth throws better-call APIErrors,
  * which carry a status name and a body with a code such as INVALID_OTP; those
  * are the fields worth keeping. Duck-typed rather than instanceof, so this file
