@@ -49,9 +49,11 @@ body **and timing**. Every `verify-code` failure — wrong code, expired, never 
 exhausted, member removed mid-flow — returns one identical response. The real reason is logged
 with a correlation id, never returned.
 
-**The email is sent after the response, never awaited on the response path.** Use `after()`
-from `next/server`. A Resend round trip is hundreds of milliseconds and would make the member
-branch measurably slower than the non-member one.
+**The membership decision, and the email, happen after the response, never on the response
+path.** Use `after()` from `next/server`. A Resend round trip is hundreds of milliseconds, and
+Better Auth's own database round trips for a member measured 1.1 s against 3 ms for a
+non-member; either would make the member branch measurably slower. `request-code` answers
+from the request alone and decides in `after()`.
 
 **Four `emailOTP` defaults are wrong here and are overridden in `lib/auth.ts`:**
 `storeOTP: 'hashed'` (default `'plain'` stores codes in clear), `expiresIn: 600` (default 300),
@@ -80,7 +82,7 @@ it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoi
 
 ```
 app/api/auth/[...all]/       Better Auth, with OTP paths closed
-app/api/gate/request-code/   POST: normalise, rate limit, directory, send (in after()), always the same 200
+app/api/gate/request-code/   POST: normalise, answer the same 200, then rate limit, directory and send in after()
 app/api/gate/verify-code/    POST: sign in server-side, re-check membership, one identical 400 for every failure
 app/tool/[[...path]]/        serves private/tool/ to current members only
 lib/auth.ts                  Better Auth config — read the comments before editing

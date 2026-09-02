@@ -5,14 +5,15 @@
  * limits on request-code, the 60 second gap between codes for one address, a
  * per-address cap on verify attempts beyond Better Auth's own allowedAttempts,
  * and where the counters live, which is the Upstash question in ADR section 15.
- * None of that exists yet. What exists is the call site, so the routes already
- * run their checks in the order ADR section 7 fixes:
+ * None of that exists yet. What exists is the call site, so request-code
+ * already runs its checks in the order ADR section 7 fixes, all of them after
+ * the response has gone out:
  *
- *   normalise -> rate limit -> directory -> Better Auth -> generic response
+ *   normalise -> generic response -> after(): rate limit -> directory -> Better Auth
  *
- * On `allowed: false` a route falls through to its generic response having sent
- * nothing, exactly as it does for a non-member. A caller never learns which of
- * the two it was.
+ * On `allowed: false` nothing is sent, exactly as for a non-member. A caller
+ * has already received the generic response and never learns which of the two
+ * it was.
  */
 
 export type RequestLimitInput = {

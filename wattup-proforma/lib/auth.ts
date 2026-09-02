@@ -72,7 +72,9 @@ export const auth = betterAuth({
                 // scheduled with Next's after(): this callback returns as soon as the
                 // work is queued, and the mail goes out once the response has been
                 // sent. after() is request scoped, and this callback only ever runs
-                // inside a request, from app/api/gate/request-code through auth.api.
+                // inside a request, from app/api/gate/request-code through auth.api;
+                // that route itself calls Better Auth from inside after(), and after()
+                // nests (next/dist/docs, functions/after.md).
                 //
                 // Whether this is called at all is decided by the member directory
                 // check in that route, before Better Auth is involved. Never log `otp`.
