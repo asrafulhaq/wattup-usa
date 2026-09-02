@@ -380,12 +380,12 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [x] 5.8 Origin/Referer check on both POST endpoints, accepting the request's own host so previews work
 - [x] 5.9 `noindex` robots header and `no-store` cache header on every response
 - [x] 5.10 `robots.txt` disallows all
-- [ ] 5.11 **Automated test:** member and non-member responses byte-identical, both endpoints
-- [ ] 5.12 **Automated test:** unauthenticated `model.js` returns no JavaScript
-- [ ] 5.13 **Automated test:** revocation refuses an existing session
-- [ ] 5.14 **Automated test:** 5 attempts, 10-minute expiry, no reuse
+- [x] 5.11 `tests/gate/request-code.test.ts`, `verify-code.test.ts`: member, non-member, banned, malformed, removed-mid-flow all `toEqual` after correlation-id normalisation; nothing decided before the response (directory/limits/send have zero calls when the response exists). Mutation proof: moving the lookup before `after()` fails 5 tests
+- [x] 5.12 `tests/tool/tool-route.test.ts`: signed-out `model.js` → redirect with no body; traversal, encoded slashes, non-allowlisted extensions → 404; frame headers on every gated response
+- [x] 5.13 `tests/lib/require-member.test.ts` + verify-code: `getSession` called with `disableCookieCache: true`; banned and directory-removed sessions refused; removed-mid-flow signs out the just-issued `wup.session_token` (wire-level set-cookie expiry is an `it.todo`, it lives in the `nextCookies` after-hook)
+- [x] 5.14 Our side pinned in `tests/lib/auth-config.test.ts`: `allowedAttempts` 5, `expiresIn` 600 / `OTP_TTL_SECONDS`, `resendStrategy: 'rotate'`, `disableSignUp`, HMAC `storeOTP`, deferred send. Better Auth's own four behaviours are `it.todo`s citing the live proofs in 2.43–2.45
 - [ ] 5.15 Decide the EVpin proxy question — recommendation: first-party `api/evpin-fetch`, repoint `EVPIN_READERS`
-- [ ] 5.16 `pnpm lint`, `pnpm typecheck`, tests and `pnpm build` green in **both** apps
+- [x] 5.16 Pro-forma on main after the 5b merge: `pnpm test` 219 passed / 5 todo, `typecheck` clean, `lint` clean, `next build` ok. Frontend on main after the sweep merge: `tsc` clean, lint at the pre-existing 40, build 61/61 (Vitest arrives with 4a)
 
 ### Review gate
 
@@ -483,7 +483,8 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
 | 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
 | 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
-| 25 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
+| 26 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 
