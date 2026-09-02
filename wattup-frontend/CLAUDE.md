@@ -187,7 +187,8 @@ not be able to widen it by passing an argument.
 ```bash
 pnpm dev              # localhost:3000; log in at /admin
 pnpm lint
-pnpm build            # next build && prisma db seed  ← see the warning below
+pnpm build            # next build. Safe to run locally: it no longer runs the seed
+pnpm db:seed          # one-off bootstrap, writes to DATABASE_URL  ← see the warning below
 pnpm db:studio        # Prisma Studio
 pnpm db:push          # schema → database, no migration
 pnpm migrate:dev      # create a migration
@@ -202,9 +203,12 @@ pnpm migrate:dev      # create a migration
 1. **Middleware is `proxy.ts`, not `middleware.ts`.** Next 16 renamed it.
 2. **`pnpm-workspace.yaml` exists but this is not a workspace.** It has no `packages:` key and
    carries only `onlyBuiltDependencies`. The two apps in this repo install independently.
-3. **`prisma db seed` runs on every production build.** It force-promotes `ADMIN_EMAIL` to
-   `SUPER_ADMIN` and recreates the account from `ADMIN_PASSWORD` if missing, so that account
-   cannot be demoted or deleted through the dashboard. Finding F13.
+3. **`prisma/seed.ts` is a one-off bootstrap, run by hand with `pnpm db:seed`, never by the
+   build.** It used to run on every production build (finding F13). It still force-promotes
+   `ADMIN_EMAIL` to `SUPER_ADMIN` and recreates the account from `ADMIN_PASSWORD` if
+   missing, and it writes to whatever `DATABASE_URL` points at, so running it against
+   production is a deliberate, production-affecting action. Whether that break-glass
+   account should exist at all is still an open question for the client.
 4. **No `src/` directory.** Everything is at the app root.
 5. **`Posts.status` is a string**, not an enum. `'Draft'` and `'Published'`, spelled exactly so.
 6. **There is no user detail page.** `/dashboard/users` lists users but rows do not open.
@@ -221,7 +225,7 @@ write here:
 | **F1** | `app/api/upload-image/route.ts` and all six exports of `image-actions.ts` have **no auth at all**. Live. |
 | **F8** | `next` needs ≥ 16.2.11, `better-auth` needs ≥ 1.6.22. Both have middleware-bypass / account-takeover advisories. |
 | **F2** | Article reads leak drafts. |
-| **F13** | The build seed resurrects an unremovable `SUPER_ADMIN`. |
+| **F13** | The seed resurrected an unremovable `SUPER_ADMIN` on every build. The build no longer runs it; whether the account should exist at all is still open. |
 | **F9** | No `rateLimit` config in `lib/auth.ts`. |
 | **F3** | Six post permissions defined but never enforced. |
 

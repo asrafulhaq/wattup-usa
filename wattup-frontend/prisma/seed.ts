@@ -2,13 +2,26 @@
  * Seed script — the super admin user, the amenity catalogue, and the signed locations.
  * Run with: pnpm db:seed
  *
+ * ONE-TIME BOOTSTRAP. Run it by hand, once, against a fresh database. It must never be
+ * wired into a build or deploy step: it was, until finding F13, and every production
+ * deploy then re-asserted everything below against the live database.
+ *
+ * What it does to the super admin on every run:
+ *   - if ADMIN_EMAIL already exists, that user is force-promoted back to SUPER_ADMIN, so
+ *     the account cannot be demoted or deleted through the dashboard while this keeps
+ *     being run;
+ *   - if ADMIN_EMAIL does not exist, the account is recreated from ADMIN_PASSWORD.
+ * Once the account exists, remove ADMIN_PASSWORD from the deployed environment: left
+ * there it is a permanently valid credential. Whether this break-glass account should
+ * exist at all is the client's decision and is tracked separately from F13.
+ *
  * The super admin user is seeded via Better Auth's API so the password is
  * properly hashed with scrypt and all auth tables are populated correctly.
  *
- * CREATE ONLY, for everything below the user. `pnpm build` runs this script, so a seed
- * that updated existing rows would silently revert the client's dashboard edits on every
- * deploy. Rows that already exist are counted and left alone; a row that should be
- * refreshed from the sheet is deleted in the dashboard first.
+ * CREATE ONLY, for everything below the user. Nothing stops someone re-running this by
+ * hand against a live database, so a seed that updated existing rows would silently
+ * revert the client's dashboard edits. Rows that already exist are counted and left
+ * alone; a row that should be refreshed from the sheet is deleted in the dashboard first.
  *
  * The one thing that reaches an existing row is the restrooms backfill at the bottom,
  * and it is scoped so it cannot argue with a curated site. See seedDefaultAmenities.
@@ -111,7 +124,8 @@ async function seed() {
  * dashboard, which is where they are then assigned per site.
  *
  * Nothing existing is touched. Label, icon, sort order and the active switch belong to
- * the dashboard once the row exists, and this script runs on every build.
+ * the dashboard once the row exists, and this script may be re-run by hand against a
+ * live database.
  */
 async function seedAmenities() {
     const existing = new Set(
@@ -168,14 +182,14 @@ const DEFAULT_AMENITY_SLUG = 'restrooms';
 /**
  * Backfills the default onto sites that have no amenities recorded at all.
  *
- * Deliberately not "add restrooms wherever it is missing". This script runs on every
- * build, so that version would re-add the amenity the next time anyone deploys, and a
- * client who had removed it from a site would watch it come back with no explanation.
- * Scoping it to sites with nothing recorded means it fills in the untouched ones and
- * never argues with a site somebody has actually curated.
+ * Deliberately not "add restrooms wherever it is missing". This script can be re-run by
+ * hand against a live database, so that version would re-add the amenity the next time
+ * anyone ran it, and a client who had removed it from a site would watch it come back
+ * with no explanation. Scoping it to sites with nothing recorded means it fills in the
+ * untouched ones and never argues with a site somebody has actually curated.
  *
  * The one case it still overrides is a site stripped back to zero amenities on purpose.
- * That is a narrow, deliberate trade for being able to run this on every deploy.
+ * That is a narrow, deliberate trade for being safe to re-run.
  */
 async function seedDefaultAmenities() {
     const amenity = await prisma.amenity.findUnique({
