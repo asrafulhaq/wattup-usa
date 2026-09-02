@@ -131,7 +131,7 @@ export function LoginForm({ next }: { next: string }) {
     }, [step]);
 
     // The resend cooldown, one second at a time. Client side only: the server's
-    // real gap limit is phase 5, and this is the affordance that respects it.
+    // real gap limit is enforced server-side in lib/rate-limit.ts (checklist 5.3), and this is the affordance that respects it.
     useEffect(() => {
         if (cooldown <= 0) return;
         const timer = window.setTimeout(() => setCooldown((seconds) => seconds - 1), 1000);
