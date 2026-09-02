@@ -17,7 +17,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 |:--:|---|:--:|---|:--:|
 | S | Security fixes: F1, F8, F2, F9, F13 | dev | — | ☐ not started |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
-| 1 | Scaffold `wattup-proforma` | dev | 0 | ☐ not started |
+| 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
 | 2 | The access gate | dev | 1 | ☐ not started |
 | 3 | Mount the tool behind it | dev | 2 | ☐ not started |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
@@ -128,23 +128,32 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ## Phase 1 — Scaffold `wattup-proforma`
 
-- [ ] 1.1 `pnpm create next-app@latest wattup-proforma …` from the repo root
-- [ ] 1.2 **No nested `.git`** — `ls -a wattup-proforma | grep '^\.git$'` prints nothing
-- [ ] 1.3 Generator boilerplate trimmed; own `pnpm-workspace.yaml` written
-- [ ] 1.4 Own `pnpm-lock.yaml` exists; **no root `package.json`**
-- [ ] 1.5 Committed separately
+- [x] 1.1 `pnpm create next-app@latest wattup-proforma …` from the repo root
+- [x] 1.2 **No nested `.git`** — `ls -a wattup-proforma | grep '^\.git$'` prints nothing
+- [x] 1.3 Generator boilerplate trimmed; own `pnpm-workspace.yaml` written
+- [x] 1.4 Own `pnpm-lock.yaml` exists; **no root `package.json`**
+- [x] 1.5 Committed separately
 - [ ] 1.6 Second Vercel project created, Root Directory `wattup-proforma` *(deferred: client may move both projects to a fresh Vercel — see answer B)*
 - [ ] 1.7 Ignored Build Step set on the pro-forma project
 - [ ] 1.8 Deploys green to its `.vercel.app` URL
-- [ ] 1.9 Prisma added; schema holds only `user` (narrow), `proforma_session`, `proforma_verification`
-- [ ] 1.10 **No `migrate` or `db push` script in `package.json`** — the frontend owns the schema
-- [ ] 1.11 `DATABASE_URL` uses the **pooled** connection string
-- [ ] 1.12 Better Auth skeleton boots; `/api/auth` responds
-- [ ] 1.13 Lift-out test: copy the folder elsewhere, `pnpm install && pnpm build` passes
+- [x] 1.9 Prisma added; schema holds only `user` (narrow), `proforma_session`, `proforma_verification`
+- [x] 1.10 **No `migrate` or `db push` script in `package.json`** — the frontend owns the schema
+- [x] 1.11 `DATABASE_URL` uses the **pooled** connection string
+- [x] 1.12 Better Auth skeleton boots; `/api/auth/get-session` returns 200, and `email-otp` / `sign-in` / `sign-up` already return **404** (ADR 0001 §7 enforced from day one)
+- [x] 1.13 Lift-out test: copied outside the repo, installed from its own lockfile, built clean
 
 ---
 
 ## Phase 2 — The access gate
+
+> **Blocked on a database migration that only `wattup-frontend` can make.** Better Auth needs
+> `proforma_session`, `proforma_account` and `proforma_verification` to exist. Per ADR 0001 §5
+> the frontend owns the schema, so those three models must be added to
+> `wattup-frontend/prisma/schema.prisma` and migrated from there. It is additive — three new
+> tables, nothing existing touched — but it writes to the shared Neon database, so it needs a
+> deliberate go-ahead. Tracked as 2.0 below.
+
+- [ ] 2.0 `proforma_session`, `proforma_account`, `proforma_verification` added to the frontend schema and migrated **(needs approval — writes to the shared database)**
 
 **The riskiest phase.** Deliberately built and tested before DNS exists, against
 `PROFORMA_ALLOWLIST` rather than the database.
