@@ -76,6 +76,12 @@ application logs are masked; full addresses belong in `activity_log`.
 **Secrets are this app's own.** `BETTER_AUTH_SECRET` differs from the dashboard's, so rotating
 it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoint.
 
+**Design tokens are copied from wattup-frontend and must be kept in sync by hand.**
+`app/globals.css` is a copy of the frontend's token block and the four utilities its sign-in
+form uses; `app/layout.tsx` loads the same font the same way; the login form's classes are the
+frontend sign-in form's. Nothing is imported across the apps (ADR 0001 section 3). When the
+frontend's tokens change, change them here too, and say so in the commit.
+
 ## Layout
 
 ```
@@ -86,7 +92,8 @@ app/tool/[[...path]]/        serves private/tool/ to current members only
 app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
                              member straight on; login-form.tsx is the client form
 app/page.tsx                 redirects to /tool/, which bounces a signed-out person to /login
-app/layout.tsx               title, noindex, favicon, Satoshi from fontshare; globals.css has the palette
+app/layout.tsx               title, noindex, favicon, Plus Jakarta Sans via next/font; globals.css has
+                             the tokens, both copied by hand from wattup-frontend
 lib/auth.ts                  Better Auth config — read the comments before editing
 lib/gate.ts                  requireMember: the one place a gated request decides membership;
                              also correlationId and the gate's shared response headers
