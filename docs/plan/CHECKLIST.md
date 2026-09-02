@@ -116,7 +116,8 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 0.13 `git status --short | grep -c node_modules` prints 0
 - [x] 0.14 Branch `chore/monorepo-restructure`, move committed alone
 - [x] 0.15 `git log --follow` on a moved file shows real history
-- [x] 0.16 `pnpm install && pnpm prisma generate && pnpm build` passes in `wattup-frontend/`
+- [x] 0.16 `pnpm install` + `pnpm exec next build` pass in `wattup-frontend/` (**not** `pnpm build` — it seeds the remote database)
+- [x] 0.16a Outer directory renamed `wattup-frontend` → `wattup`; git, pnpm symlinks and the build all verified from the new path
 - [◐] 0.17 `pnpm dev` — server boots, `.env` read, `/`, `/locations`, `/press-release`, `/admin` all 200, `/dashboard` 307s to `/admin?callbackUrl=%2Fdashboard`. **Signed-in dashboard walkthrough still to do by hand.**
 - [ ] 0.18 Vercel Root Directory → `wattup-frontend` **saved before pushing** *(on whichever account holds the project at that time)*
 - [ ] 0.19 Ignored Build Step set on the frontend project

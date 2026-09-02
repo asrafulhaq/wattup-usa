@@ -56,7 +56,7 @@ after this lands, so tell them before you merge.
 ## Step 1 — Safety net
 
 ```bash
-cd "/Users/devripon/devripon/Final & Running Project/wattup-frontend"
+cd "/Users/devripon/devripon/Final & Running Project/wattup"
 
 # Commit the docs written so far so the tree is clean
 git add docs/
@@ -430,7 +430,7 @@ before merging. If Root Directory was not saved, the preview fails — that is t
 From the repository root, after the restructure PR is merged:
 
 ```bash
-cd "/Users/devripon/devripon/Final & Running Project/wattup-frontend"   # the repo root
+cd "/Users/devripon/devripon/Final & Running Project/wattup"   # the repo root
 git checkout main && git pull
 
 pnpm create next-app@latest wattup-proforma \
@@ -513,6 +513,25 @@ runbook.
 > **Before creating it, answer open question B in ADR 0001:** which Vercel account or team owns
 > this project. If it is not the one that already holds `wattupusa.com`, adding the subdomain
 > later will require a `_vercel` TXT verification record that the PRD's DNS table omits.
+
+---
+
+## Step 11 — Rename the outer folder (done)
+
+The repository directory was still called `wattup-frontend`, giving the confusing path
+`wattup-frontend/wattup-frontend/`. Renamed to match the layout:
+
+```bash
+cd "/Users/devripon/devripon/Final & Running Project"
+mv wattup-frontend wattup
+```
+
+Git is unaffected — `.git` moves with the directory, and branches, tags and remotes are
+untouched. pnpm is unaffected too: its `node_modules` symlinks are relative, so they still
+resolve and `pnpm exec next build` passes from the new path without reinstalling.
+
+**Anything holding the old path needs reopening**: editor windows, terminals, and any tool
+that keyed state to the old directory name.
 
 ---
 
