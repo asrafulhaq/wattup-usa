@@ -151,6 +151,13 @@ Expect roughly this shape:
 
 ---
 
+> **Account ownership (open question J):** the Resend account holding `wattupusa.com` has API
+> keys named `Wattup USA` and `Wattup`, created 18–19 May 2026, and its owner login is not known
+> to the team. Ask the client for the login (or to add a team member) before cutover, so key
+> rotation and dashboard checks are possible without going through a third party.
+
+---
+
 ## Part 4 — Squarespace: create the records
 
 Squarespace → **Settings → Domains →** `wattupusa.com` **→ DNS Settings → Custom Records**.
