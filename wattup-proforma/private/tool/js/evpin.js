@@ -1,28 +1,40 @@
 /* EVpin site-report import.
    Two paths, same parser:
-     1. paste a shareable report URL  -> fetched through a CORS-open text reader
+     1. paste a shareable report URL  -> fetched by this site, see below
      2. paste the report text itself  -> parsed directly (works for login-walled reports)
    Only fields the report actually states are returned. Nothing is invented. */
 
-const EVPIN_READERS = [
-  u => 'https://r.jina.ai/' + u,
-  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-  u => u
-];
+/* THE ONE EDIT EVER MADE TO private/tool/. Checklist 5.15, ADR 0001.
+
+   This used to read the pasted URL through r.jina.ai and api.allorigins.win,
+   two unaffiliated services, so a landlord's confidential report URL and its
+   whole contents passed through companies WattUp has no agreement with. It now
+   goes to this site's own /api/tool/evpin-fetch, which is members only and
+   fetches only https EVpin hosts that resolve to public addresses.
+
+   Everything below the parser line is untouched, as is the paste-the-text-
+   yourself path. To revert, restore the EVPIN_READERS array from git history:
+   nothing else here changed. */
+const EVPIN_FETCH_ENDPOINT = '/api/tool/evpin-fetch';
 
 async function evpinFetchText(url) {
   const tried = [];
-  for (const mk of EVPIN_READERS) {
-    const target = mk(url);
-    try {
-      const r = await fetch(target, { headers: { 'Accept': 'text/plain, text/html, */*' } });
-      if (!r.ok) { tried.push(r.status + ' from ' + new URL(target).host); continue; }
-      const txt = await r.text();
-      if (txt && txt.length > 200) return { text: txt, via: new URL(target).host };
-      tried.push('empty body from ' + new URL(target).host);
-    } catch (e) {
-      tried.push('blocked at ' + (function () { try { return new URL(target).host; } catch (x) { return 'target'; } })());
+  try {
+    const r = await fetch(EVPIN_FETCH_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ url: url })
+    });
+    if (!r.ok) {
+      tried.push(r.status === 403 ? 'not signed in' : r.status + ' from this site');
+    } else {
+      const data = await r.json();
+      const txt = data && data.text;
+      if (txt && txt.length > 200) return { text: txt, via: (data && data.via) || 'evpin.com' };
+      tried.push('empty body from ' + ((data && data.via) || 'evpin.com'));
     }
+  } catch (e) {
+    tried.push('blocked at this site');
   }
   throw new Error('Could not read that link (' + tried.join('; ') + ')');
 }

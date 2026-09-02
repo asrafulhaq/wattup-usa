@@ -40,7 +40,13 @@ import { clientIp, isMissingTable } from '@/lib/rate-limit';
  * a real fault.
  */
 
-export type ActivityEvent = 'code.requested' | 'code.refused' | 'signin.success' | 'signin.failed';
+export type ActivityEvent =
+    | 'code.requested'
+    | 'code.refused'
+    | 'signin.success'
+    | 'signin.failed'
+    /** A member imported an EVpin report through app/api/tool/evpin-fetch (checklist 5.15). */
+    | 'tool.evpin_fetch';
 
 /** Why request-code sent nothing. The names are the branches of decideAndSend, in order. */
 export type CodeRefusedReason = 'rate_limited_ip' | 'not_member' | 'banned' | 'rate_limited_email' | 'send_failed';

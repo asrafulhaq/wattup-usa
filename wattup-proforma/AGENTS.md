@@ -27,7 +27,15 @@ replacing a shared password.
 and four JavaScript files: `model.js` (the financial model, ported from Python and verified to
 the cent), `doc.js` (renders the six-page document), `evpin.js` (parses EVpin site reports),
 `app.js` (form, live preview, JSON import/export, print). No framework, no server, no stored
-state — everything typed lives in the browser tab. **Do not modify these files.**
+state — everything typed lives in the browser tab. **Do not modify these files, with one
+recorded exception.**
+
+> **The exception:** `evpin.js`'s `EVPIN_READERS` array and `evpinFetchText`, replaced by a
+> call to `/api/tool/evpin-fetch` (checklist 5.15). The tool used to send a pasted report URL
+> to `r.jina.ai` and `api.allorigins.win`, so a landlord's confidential report travelled
+> through two companies WattUp has no agreement with. The parser below that function, the
+> paste-the-text-yourself path, and every other file are untouched. To revert, restore the
+> array from git history.
 
 **The gate** — everything else in this app.
 
@@ -102,6 +110,8 @@ frontend's tokens change, change them here too, and say so in the commit.
 
 ```
 app/api/auth/[...all]/       Better Auth, with OTP paths closed
+app/api/tool/evpin-fetch/    POST: members only, the first-party reader for EVpin report URLs. Sixteen
+                             guards, of which the host allowlist is the primary one; read its header
 app/api/gate/request-code/   POST: origin check, normalise, answer the same 200, then in after(): IP limit,
                              directory, address limits, send, and last the activity_log row
 app/api/gate/verify-code/    POST: origin check, sign in server-side, re-check membership, one identical 400
