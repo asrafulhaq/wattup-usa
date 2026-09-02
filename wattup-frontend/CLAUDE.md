@@ -1,3 +1,13 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 # wattup-frontend
 
 The **wattupusa.com** public marketing site and the internal team dashboard, in one Next.js
@@ -13,10 +23,10 @@ charging network, press releases, users and site settings.
 
 | | |
 |---|---|
-| Framework | Next.js **16.1.6**, App Router, React 19.2 |
+| Framework | Next.js **16.3.4**, App Router, React 19.2 |
 | Language | TypeScript, strict |
 | Database | PostgreSQL via **Prisma 7** with `@prisma/adapter-pg` |
-| Auth | **Better Auth 1.6.x** with the `admin` plugin, Prisma adapter |
+| Auth | **Better Auth 1.7.2** with the `admin` plugin, Prisma adapter |
 | Styling | Tailwind **v4**, shadcn/ui over Radix, some SCSS in `styles/` |
 | Editor | TipTap 3 (extensive — `components/tiptap-*`) |
 | Media | Cloudinary (`next-cloudinary`), signed server-side uploads |
@@ -223,7 +233,7 @@ write here:
 | | |
 |---|---|
 | **F1** | ✅ fixed on `main`: session + origin + folder allowlist on the route; session on all six actions; `publicId`/`overwrite` never forwarded. Residual: delete-by-any-id → 4a. |
-| **F8** | `next` needs ≥ 16.2.11, `better-auth` needs ≥ 1.6.22. Both have middleware-bypass / account-takeover advisories. |
+| **F8** | ✅ fixed on `main`: `next` 16.3.4, `better-auth` 1.7.2, no code changes. Audit 152 → 109, 0 critical. |
 | **F2** | ✅ fixed on `main`: public reads filter `Published` inside the query; dashboard reads need `CREATE_POST` and are uncached. |
 | **F13** | The seed resurrected an unremovable `SUPER_ADMIN` on every build. The build no longer runs it; whether the account should exist at all is still open. |
 | **F9** | ✅ fixed on `main`: explicit `rateLimit` block, five custom rules. **F14** (forms bypassed it via server actions) also fixed: forms use `authClient`, bypass actions deleted. |

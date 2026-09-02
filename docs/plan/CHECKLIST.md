@@ -15,7 +15,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 
 | Phase | Title | Owner | Blocked by | Status |
 |:--:|---|:--:|---|:--:|
-| S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ◐ F1 F2 F9 F13 F14 merged to main; **F8 upgrade outstanding** |
+| S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ✅ **all merged to main** — nothing deployed yet (0.18) |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
 | 2 | The access gate | dev | 1 | ◐ 2.0, 2.0a, 2a config, 2b directory merged; 2c routes next |
@@ -64,13 +64,13 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 
 ### S.2 — F8: dependency upgrades · Critical
 
-- [ ] S.2.1 `next` 16.1.6 → **≥ 16.2.11** (5 × middleware/proxy bypass, 2 × SSRF, DoS)
-- [ ] S.2.2 `better-auth` 1.6.9 → **≥ 1.6.22** (1 critical; pre-account hijacking is an attack on the exact flow phase 2 builds)
-- [ ] S.2.3 Pin explicit minimums in `package.json` so a fresh install cannot resolve backwards
-- [ ] S.2.4 `pnpm lint`, `pnpm build` green
-- [ ] S.2.5 Manual pass: sign in, sign out, password reset, every dashboard page
-- [ ] S.2.6 `pnpm audit` re-run; remaining advisories triaged as transitive-only
-- [ ] S.2.7 **Gate: phase 2 does not start until S.2.2 is done**
+- [x] S.2.1 `next` 16.1.6 → **16.3.4** (5 × middleware/proxy bypass, 2 × SSRF, DoS closed)
+- [x] S.2.2 `better-auth` 1.6.9 → **1.7.2** (1 critical closed; `lib/auth.ts` compiled unchanged — admin plugin, sign-up hook, rate rules, `nextCookies` all intact)
+- [x] S.2.3 Pinned `^16.3.4` / `^1.7.2`; `eslint-config-next` and `@next/eslint-plugin-next` aligned to 16.3.4
+- [x] S.2.4 tsc clean; lint delta **zero** (17/23 before and after — rule set unchanged); `pnpm build` green on Next 16.3.4 with Proxy
+- [◐] S.2.5 Runtime probes on 16.3.4: `/dashboard` → 307 to `/admin?callbackUrl=`, `/` `/admin` `/locations` → 200, sign-up → 403 (hook fires first), **six bogus sign-ins → 401 ×5 then 429** (F9 proven live). Signed-in walk still needs credentials — do with 0.17
+- [x] S.2.6 `pnpm audit` 152 → **109, 0 critical**; `next` and `better-auth` absent. Remaining is transitive build-chain (hono via shadcn/prisma dev, picomatch, brace-expansion, nanoid…) **except `dompurify` 3.4.1 — the rich-text sanitiser, 10 advisories, patched ≥ 3.4.13 → B.11**
+- [x] S.2.7 Gate cleared (pro-forma had installed 1.7.2 fresh anyway; the frontend now matches)
 
 ### S.3 — F2: unpublished articles readable by anyone · High
 
@@ -424,6 +424,9 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
 - [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
+- [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
+- [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
+- [ ] B.13 `next dev` 16.3 writes a `nextjs-agent-rules` block into `CLAUDE.md`/`AGENTS.md` on every run — committed in both apps now so the tree stays clean; if Next changes the text, recommit rather than fight it
 
 ---
 

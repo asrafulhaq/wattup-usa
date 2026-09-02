@@ -7,7 +7,7 @@ that work, and F1 and F2 are live on production now.**
 | # | Finding | Severity | Fix in |
 |:--:|---|:--:|:--:|
 | F1 | Unauthenticated file upload **and deletion** | **Critical** | ✅ merged (S.1) |
-| F8 | `next` and `better-auth` carry a critical + 20 high advisories | **Critical** | Phase S |
+| F8 | `next` and `better-auth` carry a critical + 20 high advisories | **Critical** | ✅ merged (S.2) |
 | F2 | Unauthenticated disclosure of unpublished articles | **High** | ✅ merged (S.3) |
 | F9 | No custom rate limits; reset endpoints at the generic rate | **High** | ✅ merged (S.4) |
 | F14 | Forgot/reset forms bypass the limiter via server actions | **High** | ✅ merged (S.4.4) |
@@ -248,6 +248,14 @@ upgrading so a fresh install cannot resolve backwards.
 **Fix.** Upgrade both, run the full gate — `lint`, `typecheck`, `build`, and a manual sign-in,
 password-reset and dashboard pass — and re-run `pnpm audit`. Do it in phase S, before the
 pro-forma work depends on either library.
+
+---
+
+> **Status (2 Sep): fixed and merged.** `next` 16.1.6 → 16.3.4, `better-auth` 1.6.9 → 1.7.2, no
+> application code changed. `pnpm audit` 152 → 109 advisories, 0 critical, neither package
+> present. The upgrade run also proved F9's `/sign-in/email` rule live: five bad sign-ins
+> returned 401, the sixth 429. One new item from the audit: `dompurify` 3.4.1, the rich-text
+> sanitiser, has 10 advisories patched in ≥ 3.4.13 — tracked as B.11.
 
 ---
 

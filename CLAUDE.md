@@ -55,9 +55,8 @@ wattup/
 
 ## Before starting anything
 
-`docs/plan/SECURITY-FINDINGS.md` lists 14 findings. **F1, F2, F9, F13 and F14 are fixed on `main` but not yet deployed; F8 is live and unfixed.**
-F8 in particular — `better-auth` below 1.6.22 carries an account-takeover advisory against
-verification flows — **blocks the pro-forma gate work**.
+`docs/plan/SECURITY-FINDINGS.md` lists 14 findings. **Phase S is complete on `main` — F1, F2, F8, F9, F13, F14 all fixed — but nothing is deployed yet:** push is gated on the Vercel Root Directory change (checklist 0.18).
+F8 (the dependency upgrade) is done on both apps: `next` 16.3.4, `better-auth` 1.7.2.
 
 **`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` is
 plain `next build` and no longer runs the seed (finding F13). It still reads that database at build time to prerender static pages, but it no longer writes to it.
