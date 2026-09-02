@@ -1,3 +1,4 @@
+-- shared-surface: creates proforma_session, proforma_account and proforma_verification, each with a foreign key to "user"; wattup-proforma's Better Auth adapter maps its Session, Account and Verification models onto these tables, so their columns must match its prisma/schema.prisma mirror.
 -- CreateTable
 CREATE TABLE "proforma_session" (
     "id" TEXT NOT NULL,
