@@ -7,9 +7,21 @@ import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
 // Deduplicates auth.api.getSession calls within the same request render tree.
+//
+// disableCookieCache is what closes finding F16. lib/auth.ts keeps a five minute signed
+// cookie cache of the session, and proxy.ts decides the dashboard redirect from cookie
+// PRESENCE alone, by design, since it may not touch the database. Together those meant a
+// session_data cookie captured while a session was live kept rendering dashboard pages
+// for up to five minutes after the session was revoked or the account banned. Reads only,
+// because every action resolves permissions from the database anyway, but a revoked
+// session should stop working when it is revoked and not a few minutes later.
+//
+// The cost is one session read per request render tree, not per call: React's cache()
+// below already collapses the many callers of getSession into one. wattup-proforma pays
+// exactly this on every gated request for the same reason (checklist 3.13).
 const getCachedSession = cache(async () => {
     const h = await headers();
-    return auth.api.getSession({ headers: h });
+    return auth.api.getSession({ headers: h, query: { disableCookieCache: true } });
 });
 
 /**

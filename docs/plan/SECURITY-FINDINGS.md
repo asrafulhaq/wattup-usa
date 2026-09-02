@@ -19,7 +19,7 @@ that work, and F1 and F2 are live on production now.**
 | F5 | `updateUserInformationById` upserts arbitrary profile rows | Low | 4a |
 | F11 | CSP depends on `'unsafe-inline'` | Low, accepted | backlog |
 | F12 | Cloudinary API key exposed to the browser unnecessarily | Low | ✅ merged (B.3) |
-| F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
+| F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | ✅ merged (B.15) |
 | F17 | The Cloudinary cloud is shared with other products and its secret is in use outside this repo | Medium | operator (runbook Part 0a) |
 | F18 | Eleven image ids referenced by the marketing site do not exist in the Cloudinary account, three on live pages | Low | ✅ fixed (B.16), 4/11; 7 left |
 | F6 | Hand-rolled scrypt verification in `updateEmail` | Low | ✅ merged (B.4) |
@@ -392,7 +392,14 @@ genuinely unsafe.
 
 ---
 
-## F16 — Dashboard cookie cache outlives sign-out and ban · Low
+## F16 — Dashboard cookie cache outlives sign-out and ban · Low · ✅ fixed
+
+> **Fixed 2026-09-02** (`main`): `getSession()` passes `disableCookieCache: true`, so every
+> dashboard page and the permission guard read the session row rather than the signed cookie.
+> Verified on the production build by replaying a copy of the pre-sign-out cookies: the page
+> came back with none of the user data it carries for a live session. It still answers 200
+> rather than redirecting, because `proxy.ts` decides on cookie presence and must not touch
+> the database; the shell renders empty.
 
 **Found** during the signed-in walkthrough (checklist 0.17), on 2026-09-03.
 
