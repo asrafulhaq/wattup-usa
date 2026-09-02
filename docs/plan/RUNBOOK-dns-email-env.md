@@ -29,6 +29,7 @@ These are yours, not the code's. Nothing in the repository depends on them excep
 | J | Resend account owner login: obtain it (or be added as a team member) so the key can be rotated and the sending domain checked from the dashboard | Part 3 |
 | K | Apex SPF: add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so code emails stop failing SPF and landing in Spam | Part 3, 6.6a |
 | E | No `Reply-To`: the sender is `noreply` by decision; nothing to set up | Part 3 |
+| F17 | Cloudinary: the cloud is shared with other products and the secret is deployed elsewhere. Give WattUp its own cloud, move its assets, point `CLOUDINARY_*` at it, rotate the old key and secret. See `docs/plan/CLOUDINARY-AUDIT.md` section 4 | Part 5 |
 
 ---
 

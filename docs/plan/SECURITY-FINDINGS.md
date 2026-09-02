@@ -20,6 +20,8 @@ that work, and F1 and F2 are live on production now.**
 | F11 | CSP depends on `'unsafe-inline'` | Low, accepted | backlog |
 | F12 | Cloudinary API key exposed to the browser unnecessarily | Low | ✅ merged (B.3) |
 | F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
+| F17 | The Cloudinary cloud is shared with other products and its secret is in use outside this repo | Medium | operator (runbook Part 0a) |
+| F18 | Eleven image ids referenced by the marketing site do not exist in the Cloudinary account, three on live pages | Low | B.16 |
 | F6 | Hand-rolled scrypt verification in `updateEmail` | Low | ✅ merged (B.4) |
 | F7 | Public contact forms have no rate limiting | Low | ✅ merged (B.6) |
 
@@ -410,6 +412,33 @@ already implies a bigger problem. Compare the pro-forma app, where the same clas
 `getSession()` for page shells as the pro-forma gate does (one extra DB read per page render), or
 shorten `maxAge` to 60 s, or accept and record. Recommend the first: the dashboard is low
 traffic and the pro-forma app already pays this cost.
+
+---
+
+## F17 — The Cloudinary cloud is shared and its secret is in use elsewhere · Medium
+
+**Found** by the read-only audit of 2026-09-03 (`docs/plan/CLOUDINARY-AUDIT.md`, checklist S.1.7).
+
+Of 1,613 assets, 1,360 belong to folders no commit in this repository has ever named
+(`islandtours`, `wp-migration`, `tripwheel`, `team-members`, `estimator-avatars`), and the newest
+of them landed on 2026-09-02, after the F1 fix. So `CLOUDINARY_API_SECRET` is deployed in at least
+one other product, and whoever holds that deployment can read, overwrite or delete WattUp's media.
+Credits are at 93 % of the plan this cycle, mostly from the other products' bandwidth.
+
+**Fix**, operator work: give WattUp its own Cloudinary cloud (or sub-account), move its 253 assets
+there, point `CLOUDINARY_*` at it, and rotate the old key and secret. Until then, treat every
+Cloudinary credential as shared. The audit's section 4 lists what to keep, review and delete; the
+app itself deletes nothing.
+
+---
+
+## F18 — Eleven referenced image ids do not exist in the account · Low
+
+**Found** by the same audit. `lib/images/*.ts` names eleven public ids that the Admin API does not
+return; three are used by live pages: the Open Graph image in `app/layout.tsx` (`hero1Md`), the
+about page (`corePrincipals`) and the drivers hero fallback (`forDriverPageHero`). The delivery
+URLs therefore 404 and the pages render without those images. Not a security issue; a content
+defect surfaced by a security audit, tracked as B.16.
 
 ---
 
