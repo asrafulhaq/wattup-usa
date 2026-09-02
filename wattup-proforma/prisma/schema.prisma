@@ -74,11 +74,16 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
+  // Better Auth ≥ 1.7 supplies an issuer on every account (synthetic for credential
+  // and OAuth providers without one). Nullable so rows created before the upgrade
+  // keep loading; Better Auth fills it on every insert. Finding F15.
+  issuer                String?
   createdAt             DateTime
   updatedAt             DateTime
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([issuer, accountId])
 
   @@map("proforma_account")
 }
