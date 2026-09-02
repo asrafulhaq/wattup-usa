@@ -255,3 +255,154 @@ export const ALL_ROLES: readonly Role[] = [
     Role.EDITOR,
     Role.SALES,
 ];
+
+// ─── Permission display ───────────────────────────────────────────────────────
+//
+// Labels and grouping for the two screens that show a permission set: the user detail
+// page (checklist 4c.4, 4c.5) and the profile page (4c.9). Pure, so a client component
+// and a test can both read them.
+
+/**
+ * One readable name per permission. Written out rather than title-cased from the enum
+ * value, because "Manage amenities" says nothing about the amenity catalogue and
+ * "Access proforma" reads as a typo.
+ */
+export const PERMISSION_LABELS: Record<Permission, string> = {
+    [Permission.CREATE_POST]: 'Write press releases',
+    [Permission.EDIT_ANY_POST]: 'Edit any press release',
+    [Permission.DELETE_ANY_POST]: 'Delete any press release',
+    [Permission.PUBLISH_POST]: 'Publish press releases',
+    [Permission.EDIT_OWN_POST]: 'Edit own press release',
+    [Permission.DELETE_OWN_POST]: 'Delete own press release',
+
+    [Permission.VIEW_LOCATIONS]: 'See the charging network',
+    [Permission.MANAGE_LOCATIONS]: 'Add and edit charging sites',
+    [Permission.DELETE_LOCATIONS]: 'Delete charging sites',
+    [Permission.MANAGE_AMENITIES]: 'Manage the amenity catalogue',
+
+    [Permission.VIEW_USERS]: 'See the team list',
+    [Permission.INVITE_USERS]: 'Invite team members',
+    [Permission.EDIT_USERS]: 'Edit team members',
+    [Permission.CHANGE_USER_ROLE]: 'Change a role',
+    [Permission.DELETE_USERS]: 'Delete an account',
+    [Permission.BAN_USERS]: 'Ban and unban',
+    [Permission.MANAGE_PERMISSIONS]: 'Grant and revoke permissions',
+
+    [Permission.MANAGE_SITE_SETTINGS]: 'Change site settings and injected scripts',
+    [Permission.MANAGE_SOCIAL_LINKS]: 'Change the social links',
+
+    [Permission.UPLOAD_MEDIA]: 'Upload images',
+    [Permission.DELETE_MEDIA]: 'Delete images',
+
+    [Permission.VIEW_ACTIVITY_LOG]: 'Read the activity log',
+
+    [Permission.ACCESS_PROFORMA]: 'Open the pro-forma builder',
+
+    [Permission.DELETE_ANY_MEDIA]: 'Delete any image',
+    [Permission.DELETE_OWN_MEDIA]: 'Delete own image',
+    [Permission.MANAGE_PROFILE]: 'Manage the author profile',
+    [Permission.VIEW_ANALYTICS]: 'View analytics',
+};
+
+export interface PermissionGroup {
+    key: string;
+    label: string;
+    /** Shown under the group heading when the whole group needs a caveat. */
+    note?: string;
+    permissions: readonly Permission[];
+}
+
+/**
+ * The same eight groups this file declares Permission in, in the same order. A screen
+ * that regrouped them would drift the first time a permission moved, so
+ * lib/__tests__/permissions.test.ts holds every value to exactly one group.
+ */
+export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
+    {
+        key: 'content',
+        label: 'Content',
+        permissions: [
+            Permission.CREATE_POST,
+            Permission.EDIT_ANY_POST,
+            Permission.DELETE_ANY_POST,
+            Permission.PUBLISH_POST,
+            Permission.EDIT_OWN_POST,
+            Permission.DELETE_OWN_POST,
+        ],
+    },
+    {
+        key: 'network',
+        label: 'Charging network',
+        permissions: [
+            Permission.VIEW_LOCATIONS,
+            Permission.MANAGE_LOCATIONS,
+            Permission.DELETE_LOCATIONS,
+            Permission.MANAGE_AMENITIES,
+        ],
+    },
+    {
+        key: 'users',
+        label: 'User management',
+        permissions: [
+            Permission.VIEW_USERS,
+            Permission.INVITE_USERS,
+            Permission.EDIT_USERS,
+            Permission.CHANGE_USER_ROLE,
+            Permission.DELETE_USERS,
+            Permission.BAN_USERS,
+            Permission.MANAGE_PERMISSIONS,
+        ],
+    },
+    {
+        key: 'site',
+        label: 'Site management',
+        note: 'Whoever holds site settings can inject JavaScript into every public page.',
+        permissions: [Permission.MANAGE_SITE_SETTINGS, Permission.MANAGE_SOCIAL_LINKS],
+    },
+    {
+        key: 'media',
+        label: 'Media',
+        permissions: [Permission.UPLOAD_MEDIA, Permission.DELETE_MEDIA],
+    },
+    {
+        key: 'audit',
+        label: 'Audit',
+        permissions: [Permission.VIEW_ACTIVITY_LOG],
+    },
+    {
+        key: 'proforma',
+        label: 'Pro-forma builder',
+        note: 'Granting this lets the person sign in at the pro-forma site on their next request.',
+        permissions: [Permission.ACCESS_PROFORMA],
+    },
+    {
+        key: 'reserved',
+        label: 'Reserved',
+        note: 'The database has carried these since May and Postgres cannot drop an enum value.',
+        permissions: [
+            Permission.DELETE_ANY_MEDIA,
+            Permission.DELETE_OWN_MEDIA,
+            Permission.MANAGE_PROFILE,
+            Permission.VIEW_ANALYTICS,
+        ],
+    },
+];
+
+/**
+ * Permissions nothing in this app checks: the two own-post values retired by the
+ * client's decision I, and the four reserved ones. A screen listing every value of the
+ * enum has to say which of them do nothing, or somebody grants one and wonders why it
+ * changed nothing.
+ */
+export const INERT_PERMISSIONS: readonly Permission[] = [
+    Permission.EDIT_OWN_POST,
+    Permission.DELETE_OWN_POST,
+    Permission.DELETE_ANY_MEDIA,
+    Permission.DELETE_OWN_MEDIA,
+    Permission.MANAGE_PROFILE,
+    Permission.VIEW_ANALYTICS,
+];
+
+export function isInertPermission(permission: Permission): boolean {
+    return INERT_PERMISSIONS.includes(permission);
+}

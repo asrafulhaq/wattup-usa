@@ -5,10 +5,14 @@ import {
     ASSIGNABLE_ROLES,
     canManageRole,
     hasPermission,
+    INERT_PERMISSIONS,
+    isInertPermission,
     isPermission,
     isRole,
     NO_PERMISSIONS,
     Permission,
+    PERMISSION_GROUPS,
+    PERMISSION_LABELS,
     Role,
     ROLE_BADGE_CLASSES,
     ROLE_LABELS,
@@ -148,6 +152,86 @@ describe('ROLE_PERMISSIONS', () => {
             const list = ROLE_PERMISSIONS[role];
             expect(new Set(list).size).toBe(list.length);
             for (const permission of list) expect(isPermission(permission)).toBe(true);
+        }
+    });
+});
+
+describe('PERMISSION_GROUPS', () => {
+    const grouped = PERMISSION_GROUPS.flatMap(group => group.permissions);
+
+    it('holds every permission exactly once, so a screen that renders the groups renders them all', () => {
+        expect([...grouped].sort()).toEqual([...ALL_PERMISSIONS].sort());
+        expect(new Set(grouped).size).toBe(ALL_PERMISSIONS.length);
+    });
+
+    it('follows the order lib/permissions.ts declares Permission in', () => {
+        expect(PERMISSION_GROUPS.map(group => group.key)).toEqual([
+            'content',
+            'network',
+            'users',
+            'site',
+            'media',
+            'audit',
+            'proforma',
+            'reserved',
+        ]);
+    });
+
+    it('every group has a unique key and a label', () => {
+        const keys = PERMISSION_GROUPS.map(group => group.key);
+        expect(new Set(keys).size).toBe(keys.length);
+        for (const group of PERMISSION_GROUPS) {
+            expect(group.label).toBeTruthy();
+            expect(group.permissions.length).toBeGreaterThan(0);
+        }
+    });
+});
+
+describe('PERMISSION_LABELS', () => {
+    it('names every permission, with no two sharing a name', () => {
+        const labels = ALL_PERMISSIONS.map(permission => PERMISSION_LABELS[permission]);
+        for (const label of labels) expect(label).toBeTruthy();
+        expect(new Set(labels).size).toBe(ALL_PERMISSIONS.length);
+    });
+});
+
+describe('INERT_PERMISSIONS', () => {
+    it('is the two retired own-post values and the four reserved ones, and nothing else', () => {
+        expect([...INERT_PERMISSIONS].sort()).toEqual(
+            [
+                Permission.EDIT_OWN_POST,
+                Permission.DELETE_OWN_POST,
+                Permission.DELETE_ANY_MEDIA,
+                Permission.DELETE_OWN_MEDIA,
+                Permission.MANAGE_PROFILE,
+                Permission.VIEW_ANALYTICS,
+            ].sort()
+        );
+    });
+
+    it('isInertPermission answers for every value of the enum', () => {
+        expect(isInertPermission(Permission.EDIT_OWN_POST)).toBe(true);
+        expect(isInertPermission(Permission.VIEW_ANALYTICS)).toBe(true);
+        expect(isInertPermission(Permission.MANAGE_LOCATIONS)).toBe(false);
+        expect(isInertPermission(Permission.ACCESS_PROFORMA)).toBe(false);
+        for (const permission of ALL_PERMISSIONS) {
+            expect(isInertPermission(permission)).toBe(INERT_PERMISSIONS.includes(permission));
+        }
+    });
+
+    it('no role holds an inert permission by default, apart from SUPER_ADMIN which holds all of them', () => {
+        for (const role of ALL_ROLES) {
+            if (role === Role.SUPER_ADMIN) continue;
+            for (const permission of INERT_PERMISSIONS) {
+                // EDIT_OWN_POST and DELETE_OWN_POST are still in the in-code map for
+                // ADMIN and EDITOR, retired but not yet removed from it. That is the
+                // one exception, and it is spelled out rather than left implicit.
+                const retiredOwnPost =
+                    permission === Permission.EDIT_OWN_POST ||
+                    permission === Permission.DELETE_OWN_POST;
+                if (retiredOwnPost) continue;
+                expect(ROLE_PERMISSIONS[role]).not.toContain(permission);
+            }
         }
     });
 });
