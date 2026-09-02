@@ -59,6 +59,8 @@ wattup/
 F8 in particular — `better-auth` below 1.6.22 carries an account-takeover advisory against
 verification flows — **blocks the pro-forma gate work**.
 
-**`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` runs
-`prisma db seed` as part of the build, so building locally writes to that database. Use
-`pnpm exec next build` to verify a build without touching it.
+**`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` is
+plain `next build` and is safe to run locally: it no longer runs the seed (finding F13).
+`pnpm db:seed` still writes to that database — it force-promotes `ADMIN_EMAIL` to
+`SUPER_ADMIN` and recreates it from `ADMIN_PASSWORD` — so treat it as a deliberate,
+production-affecting action, never a routine step.
