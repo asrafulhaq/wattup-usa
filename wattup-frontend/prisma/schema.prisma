@@ -82,6 +82,10 @@ model User {
   sessions Session[]
   accounts Account[]
 
+  // Pro-forma app (wattup-proforma). Its sessions are never dashboard sessions.
+  proformaSessions ProformaSession[]
+  proformaAccounts ProformaAccount[]
+
   @@map("user")
 }
 
@@ -131,6 +135,67 @@ model Verification {
   updatedAt  DateTime? @updatedAt
 
   @@map("verification")
+}
+
+// ─── Pro-forma app (wattup-proforma) ──────────────────────────────────────────
+//
+// Owned HERE, used THERE. wattup-proforma maps Better Auth's default model names
+// (Session, Account, Verification) onto these tables, so a session minted by a
+// six digit code on hostproposal.wattupusa.com is structurally not a dashboard
+// session. See docs/adr/0001-proforma-access-architecture.md section 6.
+//
+// wattup-proforma never migrates. If a column here changes, change
+// wattup-proforma/prisma/schema.prisma in the same PR, or its client drifts.
+
+model ProformaSession {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("proforma_session")
+}
+
+/// Required by Better Auth's core schema. The pro-forma app has no password and no
+/// OAuth provider, so no rows are expected in practice.
+model ProformaAccount {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("proforma_account")
+}
+
+/// One-time codes live here, hashed (storeOTP: 'hashed' in the pro-forma app).
+model ProformaVerification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
+  @@map("proforma_verification")
 }
 
 model Profile {
