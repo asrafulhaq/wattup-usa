@@ -100,9 +100,13 @@ export const auth = betterAuth({
         customRules: {
             // Password guessing against a known address.
             '/sign-in/email': { window: 60, max: 5 },
-            // Password reset used as an email bomb. Better Auth has renamed
-            // this endpoint across versions; both names are pinned so an
-            // upgrade cannot silently drop the rule.
+            // Password reset used as an email bomb. Better Auth renamed this
+            // endpoint from /forget-password to /request-password-reset. On
+            // 1.7.2 only /request-password-reset exists in the core routes
+            // (dist/api/routes/password.mjs); the old name survives only in
+            // the email-otp plugin, which this app does not use. The old key
+            // is kept deliberately: a dead key is harmless, and it means a
+            // downgrade cannot silently drop the rule.
             '/forget-password': { window: 300, max: 3 },
             '/request-password-reset': { window: 300, max: 3 },
             // Token guessing against a live reset link.
