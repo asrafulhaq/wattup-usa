@@ -211,14 +211,14 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [ ] 2.27 Copy does not imply a code is definitely coming
 - [ ] 2.28 Code input: `inputmode="numeric"`, `autocomplete="one-time-code"`
 - [ ] 2.29 Leading zeros survive — code handled as a **string** throughout
-- [ ] 2.30 Dark theme matching the existing gate; wordmark renders before sign-in
+- [ ] 2.30 Built on **wattup-frontend's design tokens** (copied by hand, light + dark blocks, referenced by name); wordmark renders before sign-in. Client instruction 2 Sep: one brand across both apps. **Scheme — light / system (as the frontend) / forced dark (as the PRD assumed) — to be confirmed with the client from a screenshot; one-line switch either way**
 - [ ] 2.31 Resend-code affordance respecting the 60-second gap
 - [ ] 2.32 Error states for expired and exhausted codes, using the one generic message
 
 ### 2e — Email
 
-- [ ] 2.33 Own Resend client in `wattup-proforma` (copied, not imported — ADR 0001 §12)
-- [ ] 2.34 OTP template: HTML **and** plain text
+- [x] 2.33 Own Resend client in `wattup-proforma` (copied, not imported); **same key and apex sender as the frontend** by client decision — ADR D10 superseded, runbook Part 3 void
+- [ ] 2.34 OTP template: HTML **and** plain text, on the frontend's mail base (`lib/mail/base.ts` copied) — not the old dark gate palette
 - [ ] 2.35 Six digits as selectable text, not an image
 - [ ] 2.36 10-minute expiry stated; "ignore if you did not request this" line present
 - [ ] 2.37 `Reply-To` a monitored inbox *(needs answer E)*
@@ -397,7 +397,7 @@ Follow [RUNBOOK-dns-email-env.md](RUNBOOK-dns-email-env.md). *(needs answers A, 
 - [ ] 6.2 Squarespace confirmed authoritative; CAA checked; existing records snapshotted
 - [ ] 6.3 Secrets generated and stored in the password manager
 - [ ] 6.4 Vercel domain added; **CNAME copied from the pro-forma project's own screen**
-- [ ] 6.5 Resend domain added and verified; records taken from the dashboard, not the PRD
+- [x] 6.5 ~~Resend domain added and verified~~ — **not needed**: the frontend's apex sender is already verified and is shared
 - [ ] 6.6 DNS records created; **nothing existing edited or deleted**
 - [ ] 6.7 Apex, `www` and MX verified unchanged against the snapshot
 - [ ] 6.8 Production env vars set, then **redeployed** — Vercel bakes them at build time

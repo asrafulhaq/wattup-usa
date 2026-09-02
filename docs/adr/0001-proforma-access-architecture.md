@@ -569,6 +569,13 @@ byte-identical.
 
 ### D10 — Email
 
+> **Superseded in part, 2 Sep 2026 (client decision):** the pro-forma app uses **the same
+> Resend API key and the same verified apex sender (`noreply@wattupusa.com`) as
+> `wattup-frontend`**. The separate key and the `send.wattupusa.com` subdomain below are not
+> being built; the runbook's Part 3 and the DNS rows for `send` are void. What survives: the
+> code is still copied, not imported, and the OTP email content requirements are unchanged.
+> The email is styled on the frontend's mail base, not "the dark login screen" the PRD assumed.
+
 Pro-forma gets its **own** Resend client and templates rather than importing
 `wattup-frontend/lib/email.ts`, per D1's no-shared-code rule. The file is 30 lines; copying
 it is cheaper than the coupling.
@@ -695,6 +702,8 @@ Changed, with the reason:
 | Static files gated by matcher | Files outside `public/` | Removes the "matcher wrong, site open" failure mode. |
 | Phase 1 env list, Phase 2 API | Phase 2 first; env list is dev/fallback | The data is already local. |
 | Flat member list, `active` bool | `ACCESS_PROFORMA` permission via a SQL view | Client requires per-user permission control. |
+| Send subdomain, separate Resend key | Frontend's key and apex sender | Client decision, 2 Sep. One account, one verified domain. |
+| Login screen keeps the old dark gate look; email "matches the dark login screen" | Login and email built on **wattup-frontend's design tokens** (copied by hand) | Client requires one brand across both apps. Colour scheme (light / system / forced dark) still to be confirmed with the client — the PRD assumed dark. |
 
 Added beyond the PRD, at the client's request, all inside `wattup-frontend`: database-backed
 role defaults and per-user permission overrides (§17), a user detail page with permission

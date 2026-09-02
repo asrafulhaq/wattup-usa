@@ -107,6 +107,12 @@ Store both in your password manager before pasting them into Vercel. A lost
 
 ## Part 3 — Resend: the sending domain
 
+> **VOID as of 2 Sep 2026.** The client decided the pro-forma app uses the frontend's existing
+> Resend key and its already-verified apex sender `noreply@wattupusa.com`. **Do not add
+> `send.wattupusa.com` to Resend and do not create rows 2–6 in Part 4.** Only the
+> `hostproposal` CNAME (row 1), the `_vercel` TXT if asked (row 7), and the `_dmarc` check
+> (row 8) remain. Kept below for the record.
+
 Sending is from the subdomain `send.wattupusa.com`, **never the apex**. This is required, not a
 preference: only one SPF record is permitted per domain, and an apex SPF does not cover
 subdomains. Using a subdomain means none of this touches the SPF record that authenticates
@@ -206,8 +212,8 @@ Tick all three environments — Production, Preview, Development — unless note
 | `DATABASE_URL` | the **pooled** connection string | Not the direct one. Two serverless apps on one Postgres multiply connections. |
 | `BETTER_AUTH_SECRET` | from part 1 | **Different from the dashboard's.** |
 | `BETTER_AUTH_URL` | `https://hostproposal.wattupusa.com` | Preview: leave Vercel's URL. |
-| `RESEND_API_KEY` | the sending-only key from part 3 | |
-| `MAIL_FROM` | `WattUp <proposals@send.wattupusa.com>` | Must be on the send subdomain. |
+| `RESEND_API_KEY` | **identical to the frontend's** | Client decision, 2 Sep. |
+| `MAIL_FROM` | `WattUp <noreply@wattupusa.com>` | **Identical to the frontend's.** Apex sender, already verified. |
 | `MAIL_REPLY_TO` | a **monitored** inbox | Not no-reply. Open question D. |
 | `PROFORMA_ALLOWLIST` | comma-separated emails | **Preview and Development only.** Never set in Production — it bypasses the database check. |
 | `SESSION_TTL_DAYS` | `7` | Optional, this is the default. |
