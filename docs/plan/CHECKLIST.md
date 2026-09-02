@@ -23,7 +23,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
 | 4c | Dashboard UI | dev | 4a, 4b | ☐ not started |
-| 5 | Hardening and tests | dev | 2 | ◐ 5a merged (limits, origin, headers, robots); migration pending; 5b tests next |
+| 5 | Hardening and tests | dev | 2 | ◐ 5a + review round 2 merged; migration pending; security review + 5b tests next |
 | 6 | Cutover | client + dev | all | ☐ not started |
 | B | Security backlog (F6, F7, F11, F12) | dev | — | ☐ not started |
 
@@ -194,7 +194,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 > Better Auth's OTP endpoints are **never** exposed to the browser. See ADR 0001 §7.
 
-- [x] 2.14 Better Auth's OTP routes confirmed unreachable from outside
+- [x] 2.14 **(allowlist since round 2: exactly `/get-session` and `/sign-out`; `update-user` etc. → 404)** Better Auth's OTP routes confirmed unreachable from outside
 - [x] 2.15 `POST /api/gate/request-code` — normalise, rate limit, look up, send, always 200
 - [x] 2.16 One generic body regardless of outcome, member or not
 - [x] 2.17 Email sent **after** the response via `after()` — and so is the decision itself (rate-limit stub → directory → OTP issue), nested `after()` for the Resend send. Proven in the dev log: the member's `passed to Better Auth` line lands ~1 s after its `200` line
@@ -216,7 +216,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.28 Code input: `inputmode="numeric"`, `autocomplete="one-time-code"`
 - [x] 2.29 Leading zeros survive — code handled as a **string** throughout
 - [x] 2.30 Built on **wattup-frontend's design tokens** (copied by hand, light + dark blocks, referenced by name); wordmark renders before sign-in. Client instruction 2 Sep: one brand across both apps. **Scheme settled: `/admin` mounts no theme provider and is always light, so the gate is too** (client: design the login like the frontend's). Dark flip verified working with a temporary `dark` class, then reverted
-- [◐] 2.31 Resend-code affordance — **code review: the cooldown starts only on resend, so the first click at 0 s is refused server-side on the gap and the form wipes the still-valid code; `changeAddress` also resets it.** Fix in the Phase 2+5a fix-up
+- [x] 2.31 Resend-code affordance respecting the 60-second gap — cooldown starts on the **first** send, resend keeps the field, same-address re-submit inside the gap goes to step 2 with the remaining cooldown (code review round 2)
 - [x] 2.32 Error states for expired and exhausted codes, using the one generic message
 
 ### 2e — Email
@@ -365,7 +365,7 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 ## Phase 5 — Hardening and tests
 
 - [x] 5.1 Rate limit: 5 code requests per email per hour
-- [x] 5.2 Rate limit: 20 code requests per IP per hour
+- [x] 5.2 **(verify-code too, since round 2)** Rate limit: 20 code requests per IP per hour
 - [x] 5.3 Rate limit: 60-second gap between sends to one address — a gap refusal does not consume the hourly budget
 - [x] 5.4 Verify attempts capped at 5 per code
 - [x] 5.5 A breach returns the **generic** response, never a distinct error
