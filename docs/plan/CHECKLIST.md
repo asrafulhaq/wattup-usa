@@ -18,7 +18,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ✅ **all merged to main** — nothing deployed yet (0.18) |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
-| 2 | The access gate | dev | 1 | ◐ 2a–2e merged; **2f blocked on F15 migration + the second admin** |
+| 2 | The access gate | dev | 1 | ◐ 2a–2e merged; **2f running** — test member exists, real code in flight |
 | 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
@@ -98,6 +98,8 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [ ] S.5.4 Remove `ADMIN_PASSWORD` from the deployed environment once the account exists
 - [ ] S.5.5 Verify on a real deploy that the account is no longer re-promoted — **also check the Vercel project's Build Command override**: if one was ever set to `next build && prisma db seed`, the `package.json` change is void and this cannot be seen from git
 - [ ] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them
+- [ ] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does
+- [x] S.5.8 **Second super admin seeded:** `devripon.io@gmail.com` via the new `pnpm seed:admins` (`ADMIN_EMAILS`, uses `ADMIN_PASSWORD`, touches user + account only). `admin@wattup.com` untouched. Every check from here runs as this account
 
 - [◐] S.6 Each fix merged to `main` as its own branch (F1 ×2 commits, F2 ×2, F9 ×2, F13, F14). **Not deployed** — push is gated on the Vercel Root Directory change (0.18)
 
@@ -227,7 +229,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ### 2f — Verify the phase
 
-- [ ] 2.40 Member: code arrives, signs in
+- [◐] 2.40 Member: request-code for `devripon.io@gmail.com` → 200 generic, decision ran in `after()` (log line after the response), Resend accepted the send; **code relay and sign-in pending**
 - [ ] 2.41 Non-member: no email, and the response is byte-identical
 - [x] 2.42 **Timing closed by construction.** First cut measured member 1,110 ms vs non-member 3 ms (Better Auth's DB round trips, not Resend). Fixed by moving the membership decision *and* OTP issue into `after()` — the response has zero dependence on who asked. Re-measured: member 3.1/2.9/3.9/3.0/2.5 ms, non-member 2.8/2.7/2.6/2.1/2.3 ms
 - [ ] 2.43 5 wrong attempts invalidates the code
