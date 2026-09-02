@@ -6,7 +6,7 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { resetPassword } from '@/app/_actions/auth-actions';
+import { authClient } from '@/lib/auth-client';
 
 const schema = z
     .object({
@@ -45,15 +45,18 @@ export function ResetPasswordForm() {
         }
         startTransition(async () => {
             setServerError('');
-            const data = new FormData();
-            data.append('token', token);
-            data.append('password', values.password);
-            const result = await resetPassword(data);
-            if (result.success) {
+            // Submits over HTTP to Better Auth's /reset-password route so the rate
+            // limiter in lib/auth.ts applies to token guessing, which a server action
+            // calling auth.api directly would bypass.
+            const { error } = await authClient.resetPassword({
+                newPassword: values.password,
+                token,
+            });
+            if (error) {
+                setServerError('Failed to reset password');
+            } else {
                 setDone(true);
                 setTimeout(() => router.replace('/admin'), 2500);
-            } else {
-                setServerError(result.error || 'Failed to reset password. The link may have expired.');
             }
         });
     };
