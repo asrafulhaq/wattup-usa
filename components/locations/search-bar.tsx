@@ -1,6 +1,7 @@
 "use client";
 
 import { FilterTray } from "@/components/locations/filter-tray";
+import type { AmenityOption } from "@/lib/locations/amenities";
 import { geocode, reverseGeocode } from "@/lib/locations/geocode";
 import { statusLabel } from "@/lib/locations/public";
 import {
@@ -25,6 +26,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
 interface SearchBarProps {
   stations: PublicStation[];
+  /** The active amenity catalogue, for the filter tray. */
+  amenities: AmenityOption[];
   filters: StationFilters;
   mapboxToken: string | null;
   onChange: (next: Partial<StationFilters>) => void;
@@ -71,6 +74,7 @@ function usePanel(open: boolean) {
  */
 export function SearchBar({
   stations,
+  amenities,
   filters,
   mapboxToken,
   onChange,
@@ -473,6 +477,7 @@ export function SearchBar({
           >
             <FilterTray
               stations={stations}
+              amenities={amenities}
               filters={filters}
               onChange={onChange}
               onReset={onReset}

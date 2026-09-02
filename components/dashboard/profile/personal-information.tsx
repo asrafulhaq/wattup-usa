@@ -8,11 +8,16 @@ import {
 } from '@/app/_actions/userActions';
 import { AnimatedProgress } from '@/components/common/animate-progress';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { IconDeviceFloppy } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { UploadIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -145,18 +150,22 @@ const PersonalInformation = ({ user }: PersonalInformationProps) => {
     };
 
     return (
-        <Card className='shadow-none border-border'>
-            <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-                <CardTitle className='text-lg font-medium'>
-                    Personal Information
-                </CardTitle>
+        <Card className='dash-card shadow-none'>
+            <CardHeader className='flex flex-row flex-wrap items-start justify-between gap-4'>
+                <div>
+                    <CardTitle className='text-[15px] font-semibold text-dash-heading'>
+                        Personal Information
+                    </CardTitle>
+                    <CardDescription className='mt-1'>
+                        Your name and photo, shown on any article you publish.
+                    </CardDescription>
+                </div>
                 <Button
                     size='sm'
+                    variant='outline'
                     onClick={handleSave}
-                    disabled={isSaving || uploading}
-                    className='px-6 gap-2'>
-                    <IconDeviceFloppy size={22} />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    disabled={isSaving || uploading}>
+                    {isSaving ? 'Saving...' : 'Save'}
                 </Button>
             </CardHeader>
             <CardContent className='space-y-6'>

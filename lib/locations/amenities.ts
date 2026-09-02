@@ -1,64 +1,119 @@
 import {
   Accessibility,
   Armchair,
+  Baby,
   BedDouble,
+  Bike,
+  Camera,
   CarFront,
+  CircleDot,
+  Clock,
+  Coffee,
   CupSoda,
+  Dumbbell,
+  Fuel,
   Lightbulb,
   Package,
   PawPrint,
-  Sandwich,
+  Plug,
+  ShieldCheck,
   ShoppingBag,
+  ShowerHead,
+  Sandwich,
   Store,
   Toilet,
+  TreePine,
+  Truck,
   Umbrella,
   Utensils,
   Wifi,
   type LucideIcon,
 } from "lucide-react";
 
-export interface Amenity {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-}
+/**
+ * The icon registry.
+ *
+ * The amenity catalogue lives in the database so the client can rename, reorder and
+ * disable entries without a deploy. An icon cannot: a React component is not a column
+ * value. So a row stores a key from this map, and the resolution happens here, in one
+ * place, for the filter tray, the station card, the detail page and the dashboard alike.
+ *
+ * Adding a key here is what gives the dashboard's icon picker a new option. Removing one
+ * is safe: rows pointing at it fall back rather than crash.
+ */
+export const AMENITY_ICONS = {
+  accessibility: Accessibility,
+  armchair: Armchair,
+  baby: Baby,
+  "bed-double": BedDouble,
+  bike: Bike,
+  camera: Camera,
+  "car-front": CarFront,
+  clock: Clock,
+  coffee: Coffee,
+  "cup-soda": CupSoda,
+  dot: CircleDot,
+  dumbbell: Dumbbell,
+  fuel: Fuel,
+  lightbulb: Lightbulb,
+  package: Package,
+  "paw-print": PawPrint,
+  plug: Plug,
+  sandwich: Sandwich,
+  "shield-check": ShieldCheck,
+  "shopping-bag": ShoppingBag,
+  "shower-head": ShowerHead,
+  store: Store,
+  toilet: Toilet,
+  "tree-pine": TreePine,
+  truck: Truck,
+  umbrella: Umbrella,
+  utensils: Utensils,
+  wifi: Wifi,
+} as const satisfies Record<string, LucideIcon>;
+
+export type AmenityIconKey = keyof typeof AMENITY_ICONS;
+
+/** Sorted, for the dashboard's icon picker. */
+export const AMENITY_ICON_KEYS = Object.keys(AMENITY_ICONS).sort() as AmenityIconKey[];
 
 /**
- * The amenity catalogue.
+ * An amenity's id.
  *
- * Modelled on the facilities the reference network lists, minus its brand specific
- * entries: "Casey's Pizza" is a tenant of theirs, not a facility type, so it becomes
- * Food. A few additions cover what a driver waiting twenty minutes actually looks for.
- *
- * This is the full set the seed uploads, so every option exists in the database before
- * anyone opens the dashboard. Which amenities a given site has is then assigned there,
- * per location, rather than being edited in code.
- *
- * The icon travels with the entry so the filter, the station card and the dashboard all
- * draw the same amenity the same way, rather than each keeping its own lookup table.
+ * A plain string, not a union of the entries we happen to ship. The catalogue is rows a
+ * person can add to, so a literal type here would be a promise the database cannot keep.
+ * Validation is against the catalogue that was actually loaded, not against this type.
  */
-export const AMENITIES = [
-  { id: "restrooms", label: "Restrooms", icon: Toilet },
-  { id: "food", label: "Food", icon: Sandwich },
-  { id: "restaurant", label: "Restaurant", icon: Utensils },
-  { id: "beverages", label: "Beverages", icon: CupSoda },
-  { id: "market", label: "Market", icon: Store },
-  { id: "shopping", label: "Shopping", icon: ShoppingBag },
-  { id: "lounge", label: "Lounge", icon: Armchair },
-  { id: "wifi", label: "Wi-Fi", icon: Wifi },
-  { id: "hotel", label: "Hotel", icon: BedDouble },
-  { id: "car_wash", label: "Car Wash", icon: CarFront },
-  { id: "vending", label: "Vending Machine", icon: Package },
-  { id: "pet_friendly", label: "Pet Friendly", icon: PawPrint },
-  { id: "covered", label: "Covered Parking", icon: Umbrella },
-  { id: "lighting", label: "Lit at Night", icon: Lightbulb },
-  { id: "accessible", label: "Step-free Access", icon: Accessibility },
-] as const satisfies readonly Amenity[];
+export type AmenityId = string;
 
-export type AmenityId = (typeof AMENITIES)[number]["id"];
+/**
+ * One catalogue entry as it crosses to the browser.
+ *
+ * `icon` is the registry key rather than the component, because this is passed from a
+ * server component to a client one and a function does not serialise.
+ */
+export interface AmenityOption {
+  id: AmenityId;
+  label: string;
+  icon: string;
+}
 
-export const AMENITY_IDS: AmenityId[] = AMENITIES.map((amenity) => amenity.id);
+/** Resolves a stored key to a component, falling back rather than throwing. */
+export function amenityIcon(key: string): LucideIcon {
+  return AMENITY_ICONS[key as AmenityIconKey] ?? CircleDot;
+}
 
-export function amenityLabel(id: AmenityId): string {
-  return AMENITIES.find((amenity) => amenity.id === id)?.label ?? id;
+export function amenityLabel(
+  id: AmenityId,
+  catalogue: readonly AmenityOption[],
+): string {
+  return catalogue.find((amenity) => amenity.id === id)?.label ?? id;
+}
+
+/** The catalogue entries a station has, in catalogue order. */
+export function stationAmenities(
+  ids: readonly AmenityId[],
+  catalogue: readonly AmenityOption[],
+): AmenityOption[] {
+  return catalogue.filter((amenity) => ids.includes(amenity.id));
 }

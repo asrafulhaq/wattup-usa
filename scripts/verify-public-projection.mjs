@@ -2,6 +2,9 @@
  * Checks that no private value from the signed-locations sheet survives the projection
  * in lib/locations/public.ts.
  *
+ * Runs against the seed input rather than the database: this asserts the boundary in
+ * the code, which is what a reviewer needs to trust, and it needs no connection.
+ *
  * The full record is deliberately kept intact so we can decide later what to expose.
  * That decision is only safe if widening it stays deliberate, so this asserts the
  * current boundary: every private value must be absent from the public shape.
@@ -21,14 +24,22 @@ const PRIVATE_FIELDS = [
   'signedNumber',
 ];
 
-const src = readFileSync('lib/locations/data.ts', 'utf8');
-const records = JSON.parse(src.slice(src.indexOf('= [') + 2, src.lastIndexOf(']') + 1));
+const src = readFileSync('prisma/seed-data/locations.ts', 'utf8');
+// Anchor past the '=', not on the declaration: the type annotation carries a '[' of its
+// own in SeedLocation[], and starting from that parses the annotation as the array.
+const assignment = src.match(/export const SEED_LOCATIONS[^=]*=\s*/);
+if (!assignment) throw new Error('SEED_LOCATIONS not found in prisma/seed-data/locations.ts');
+const start = assignment.index + assignment[0].length;
+const records = JSON.parse(src.slice(start, src.lastIndexOf(']') + 1));
 
-// mirrors lib/locations/public.ts
+// mirrors lib/locations/public.ts. amenities, pricePerKwh and connectors are in this
+// list but absent from the seed input: the sheet does not own them, the dashboard does.
 const PUBLIC_KEYS = [
   'slug', 'name', 'street', 'city', 'region', 'postalCode', 'country',
   'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'county', 'countyFips',
   'maxPowerKw', 'amenities', 'pricePerKwh', 'connectors', 'chargerCount',
+  // Search and social. Public by definition: these exist to be crawled.
+  'metaTitle', 'metaDescription', 'imageUrl', 'noIndex', 'updatedAt',
 ];
 const toPublic = (r) => Object.fromEntries(PUBLIC_KEYS.map((k) => [k, r[k]]));
 

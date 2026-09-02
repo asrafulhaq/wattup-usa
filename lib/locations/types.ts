@@ -13,15 +13,23 @@ export interface StationConnector {
   count: number;
 }
 
-/** Sites are funded per install year. Both years are in the data, told apart by this. */
-export type GoLiveYear = 2026 | 2027;
+/**
+ * Funded install year.
+ *
+ * A number, not a union of the two years currently signed. The dashboard sets this per
+ * site, so pinning it to 2026 | 2027 would be a type that stops being true the first
+ * time someone types 2028.
+ */
+export type GoLiveYear = number;
 
 /**
- * Every column of the signed-locations sheet, plus what we derive from it.
+ * A location row in full, sheet columns included.
  *
  * SERVER ONLY. `company`, `noticeAddress`, `apn`, `siteScore` and `salesRep` are
  * private; several notice addresses are residential. Use PublicStation in anything the
- * browser loads.
+ * browser loads. Rows come from the database through ./server; the shape is kept so the
+ * projection in ./public, and the script that proves it, did not have to change when the
+ * source did.
  */
 export interface StationRecord {
   // derived
@@ -46,7 +54,10 @@ export interface StationRecord {
   countyFips: string;
   /** Peak charging speed in kW. 310 across the network, per the client's spec. */
   maxPowerKw: number;
-  /** Amenities present on site. Assigned in the dashboard, empty until surveyed. */
+  /**
+   * Amenity ids present on site, assigned in the dashboard. Ids of catalogue rows, so
+   * rendering a label or an icon needs the catalogue too: see ./amenities.
+   */
   amenities: AmenityId[];
   /**
    * Price per kWh in USD, before tax. Null until a tariff is set.
@@ -59,6 +70,18 @@ export interface StationRecord {
   pricePerKwh: number | null;
   /** Connector types and counts. Empty until the build is specified per site. */
   connectors: StationConnector[];
+
+  // ── Search and social. Public by definition: they exist to be crawled. ─────
+  /** Overrides the generated page title. Null falls back to the generated one. */
+  metaTitle: string | null;
+  /** Overrides the generated meta description. Null falls back to the generated one. */
+  metaDescription: string | null;
+  /** Photograph of the site, used for the social card and schema.org `image`. */
+  imageUrl: string | null;
+  /** Keeps the page out of search results and out of the sitemap. */
+  noIndex: boolean;
+  /** Last edit, ISO 8601. Drives lastmod in the sitemap. */
+  updatedAt: string;
 
   // straight from the sheet
   signedNumber: number | null;
@@ -106,6 +129,11 @@ export type PublicStation = Pick<
   | "pricePerKwh"
   | "connectors"
   | "chargerCount"
+  | "metaTitle"
+  | "metaDescription"
+  | "imageUrl"
+  | "noIndex"
+  | "updatedAt"
 >;
 
 /** A station with its distance from the active search point, in miles. */

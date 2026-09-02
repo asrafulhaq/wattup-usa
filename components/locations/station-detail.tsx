@@ -1,23 +1,41 @@
 import { MapCanvasClient } from "@/components/locations/map/map-canvas-client";
-import { AMENITIES } from "@/lib/locations/amenities";
+import {
+  amenityIcon,
+  stationAmenities,
+  type AmenityOption,
+} from "@/lib/locations/amenities";
 import { formatDistance, haversineMiles } from "@/lib/locations/distance";
-import { formatConnectors, formatPrice, statusLabel } from "@/lib/locations/public";
+import {
+  formatConnectors,
+  formatPrice,
+  metaDescriptionFor,
+  statusLabel,
+} from "@/lib/locations/public";
 import { getMapboxToken } from "@/lib/locations/server";
 import type { PublicStation } from "@/lib/locations/types";
+import { safeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
+
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_APP_URL || "https://wattupusa.com"
+).replace(/\/$/, "");
 
 interface StationDetailProps {
   station: PublicStation;
   stations: PublicStation[];
+  /** The active amenity catalogue, for resolving the site's ids to labels and icons. */
+  amenities: AmenityOption[];
 }
 
 /** How many other sites to suggest at the foot of the page. */
 const NEARBY_COUNT = 3;
 
-export function StationDetail({ station, stations }: StationDetailProps) {
-  const amenities = AMENITIES.filter((amenity) =>
-    station.amenities.includes(amenity.id),
-  );
+export function StationDetail({
+  station,
+  stations,
+  amenities: catalogue,
+}: StationDetailProps) {
+  const amenities = stationAmenities(station.amenities, catalogue);
   const isOpen = station.status === "LIVE";
   const price = formatPrice(station);
   const connectors = formatConnectors(station);
@@ -42,13 +60,20 @@ export function StationDetail({ station, stations }: StationDetailProps) {
    * Structured data for the station.
    *
    * Emitted from the same fields the page renders, so the two cannot drift. Only what is
-   * true goes in: there is no price, no opening hours and no rating here, and inventing
-   * any of them to fill the schema would be a lie a search engine repeats.
+   * true goes in: a site with no tariff carries no price, one with no connectors
+   * specified carries no connector list, and nothing here carries opening hours or a
+   * rating, because inventing either to fill the schema is a lie a search engine repeats
+   * and then shows to a driver.
    */
+  const url = `${SITE_URL}/locations/${station.slug}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ElectricVehicleChargingStation",
+    "@id": url,
     name: station.name,
+    description: metaDescriptionFor(station),
+    url,
     address: {
       "@type": "PostalAddress",
       streetAddress: station.street,
@@ -62,22 +87,98 @@ export function StationDetail({ station, stations }: StationDetailProps) {
       latitude: station.latitude,
       longitude: station.longitude,
     },
+    areaServed: {
+      "@type": "AdministrativeArea",
+      name: station.county ? `${station.county} County` : station.region,
+    },
     brand: { "@type": "Brand", name: "WattUp USA" },
-    url: `https://wattupusa.com/locations/${station.slug}`,
+    provider: { "@type": "Organization", name: "WattUp USA", url: SITE_URL },
+    hasMap: directions,
+    ...(station.imageUrl ? { image: [station.imageUrl] } : {}),
+    // Peak output per connector, which is the number a driver is choosing on.
+    ...(station.maxPowerKw
+      ? {
+          additionalProperty: [
+            {
+              "@type": "PropertyValue",
+              name: "Maximum charging power",
+              value: station.maxPowerKw,
+              unitCode: "KWT",
+            },
+            {
+              "@type": "PropertyValue",
+              name: "Charging bays",
+              value: station.chargerCount,
+            },
+          ],
+        }
+      : {}),
+    ...(connectors ? { connectorType: station.connectors.map((c) => c.type) } : {}),
+    ...(price
+      ? {
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: station.pricePerKwh,
+            priceCurrency: "USD",
+            unitCode: "KWH",
+          },
+        }
+      : {}),
+    ...(amenities.length > 0
+      ? {
+          amenityFeature: amenities.map((amenity) => ({
+            "@type": "LocationFeatureSpecification",
+            name: amenity.label,
+            value: true,
+          })),
+        }
+      : {}),
+  };
+
+  /**
+   * Breadcrumbs.
+   *
+   * Google renders these in place of the raw URL in a result, which on a path like
+   * /locations/redlands-1405-w-colton-ave is the difference between a readable trail and
+   * a slug nobody reads.
+   */
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Charging locations",
+        item: `${SITE_URL}/locations`,
+      },
+      { "@type": "ListItem", position: 3, name: station.name, item: url },
+    ],
   };
 
   return (
     <main className="w-full bg-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbLd) }}
       />
 
       {/* Hero. Dark, so the page opens on the same ground the minimal map uses. */}
       <section className="w-full bg-[#3A3F45] pb-14 pt-28 md:pb-20 md:pt-36">
         <div className="mx-auto w-full max-w-[1440px] px-4 md:px-10">
+          {/* Carries the station back with it.
+
+              `sel` is the same parameter the finder writes when a marker is clicked, so
+              the map opens framed on this site with its card out and its marker lit,
+              rather than dropping the reader back at the whole network with nothing
+              selected and no trace of where they had been. */}
           <Link
-            href="/locations#locations"
+            href={`/locations?sel=${encodeURIComponent(station.slug)}#locations`}
             className="inline-flex items-center gap-1.5 text-[14px] font-medium text-white/60 transition-colors hover:text-white"
           >
             &larr; All locations
@@ -157,15 +258,18 @@ export function StationDetail({ station, stations }: StationDetailProps) {
               </h2>
               {amenities.length > 0 ? (
                 <ul className="mt-4 flex flex-col gap-3">
-                  {amenities.map((amenity) => (
-                    <li
-                      key={amenity.id}
-                      className="flex items-center gap-3 text-[16px] text-dark"
-                    >
-                      <amenity.icon aria-hidden="true" className="h-5 w-5 text-dark/50" />
-                      {amenity.label}
-                    </li>
-                  ))}
+                  {amenities.map((amenity) => {
+                    const Icon = amenityIcon(amenity.icon);
+                    return (
+                      <li
+                        key={amenity.id}
+                        className="flex items-center gap-3 text-[16px] text-dark"
+                      >
+                        <Icon aria-hidden="true" className="h-5 w-5 text-dark/50" />
+                        {amenity.label}
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 /* Said plainly rather than left blank: an empty heading reads as a page
@@ -216,8 +320,12 @@ export function StationDetail({ station, stations }: StationDetailProps) {
           {/* Matched to the finder's map, so moving between the two does not feel like
               moving between two different products. */}
           <div className="overflow-hidden rounded-lg bg-[#E8EDF4]">
+            {/* The whole network, with this station selected: the same view the finder
+                shows, so arriving here from a map card is continuous with what it was
+                just showing rather than a lone dot on an empty basemap. */}
             <MapCanvasClient
-              stations={[station]}
+              stations={stations}
+              selectedSlug={station.slug}
               mapboxToken={getMapboxToken()}
               className="h-[520px] w-full md:h-[780px]"
             />

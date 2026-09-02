@@ -25,6 +25,10 @@ interface MapCanvasProps {
   onHover: (slug: string | null) => void;
   mapboxToken: string | null;
   className?: string;
+  /** Passed through to the real map. The SVG fallback has no camera to move. */
+  focusZoom?: number;
+  /** Off where the selection is fixed by the route, so the marker is derived, not animated. */
+  animateSelection?: boolean;
 }
 
 /**
@@ -35,11 +39,23 @@ interface MapCanvasProps {
  * back to the inline SVG, which needs no network and no WebGL. That keeps a missing or
  * rate limited token from leaving a blank rectangle on the page.
  */
-export function MapCanvas({ mapboxToken, className, ...rest }: MapCanvasProps) {
+export function MapCanvas({
+  mapboxToken,
+  className,
+  focusZoom,
+  animateSelection,
+  ...rest
+}: MapCanvasProps) {
   return (
     <div className={`relative bg-[#E8EDF4] ${className ?? ""}`}>
       {mapboxToken ? (
-        <StationMap {...rest} mapboxToken={mapboxToken} className="h-full w-full" />
+        <StationMap
+          {...rest}
+          focusZoom={focusZoom}
+          animateSelection={animateSelection}
+          mapboxToken={mapboxToken}
+          className="h-full w-full"
+        />
       ) : (
         <CaliforniaMap {...rest} className="h-full w-full" />
       )}

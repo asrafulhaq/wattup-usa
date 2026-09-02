@@ -1,19 +1,21 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
+/**
+ * The transition between dashboard screens.
+ *
+ * Keyed on the pathname so React remounts the subtree on navigation and the CSS
+ * animation replays. See .wattup-page-enter in globals.css for why this is a keyframe
+ * rather than framer-motion: the previous version could leave the whole page body at
+ * opacity 0, and a blank dashboard is a worse failure than an unanimated one.
+ */
 export function DashboardFadeIn({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     return (
-        <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
-            style={{ width: '100%' }}>
+        <div key={pathname} className='wattup-page-enter w-full'>
             {children}
-        </motion.div>
+        </div>
     );
 }

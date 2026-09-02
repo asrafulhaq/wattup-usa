@@ -6,15 +6,19 @@ import { WattupButton } from "@/components/ui/wattup-button";
 import { homeImageUrls } from "@/lib/images/home";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef } from "react";
 
-import { cities } from "@/data";
+import type { NetworkCity } from "@/lib/locations/network";
 
 function ExpandingUsDriversInner({
   isLocationsPage,
+  cities,
 }: {
   isLocationsPage: boolean;
+  cities: NetworkCity[];
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -88,19 +92,32 @@ function ExpandingUsDriversInner({
               className="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-10 md:gap-y-20 w-full"
             >
               {visibleCities.map((city, idx) => (
-                <div
-                  key={`${city.name}-${idx}`}
-                  className={`city-item flex-col gap-2 md:gap-4 ${!showAll && idx >= 6 ? "hidden md:flex" : "flex"}`}
+                <Link
+                  key={`${city.name}-${city.region}`}
+                  href={city.href}
+                  // A city with one site goes to that site; a city with several goes to
+                  // the finder filtered to it. Either way the reader is one tap from the
+                  // thing the section is advertising, which it was not before.
+                  aria-label={
+                    city.siteCount === 1
+                      ? `${city.name}, ${city.county}: ${city.detail}, ${city.status}`
+                      : `${city.name}: ${city.siteCount} locations`
+                  }
+                  className={`city-item group flex-col gap-2 md:gap-4 ${!showAll && idx >= 6 ? "hidden md:flex" : "flex"}`}
                 >
-                  <h3 className="text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark">
+                  <h3 className="flex items-center gap-1.5 text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark transition-colors group-hover:text-primary">
                     {city.name}
+                    <ArrowUpRight className="size-4 shrink-0 opacity-0 transition-all duration-200 md:size-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
                   </h3>
                   <div className="flex flex-col gap-y-2 text-[16px] md:text-[20px] text-dark leading-[120%]">
+                    {city.county && (
+                      <span className="text-dark/60">{city.county}</span>
+                    )}
                     <span>{city.capacity}</span>
-                    <span>{city.stationName}</span>
+                    <span>{city.detail}</span>
                     <span>{city.status}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </FadeUp>
@@ -118,7 +135,7 @@ function ExpandingUsDriversInner({
               )
             ) : (
               <WattupButton
-                href="/locations?showAll=true#locations"
+                href="/locations#locations"
                 className="w-full md:w-auto mb-8"
               >
                 View All Locations
@@ -132,13 +149,19 @@ function ExpandingUsDriversInner({
 }
 
 export function ExpandingUsDrivers({
+  cities,
   isLocationsPage = false,
 }: {
+  /** Read from the database on the server. See lib/locations/network.ts. */
+  cities: NetworkCity[];
   isLocationsPage?: boolean;
 }) {
   return (
     <Suspense fallback={null}>
-      <ExpandingUsDriversInner isLocationsPage={isLocationsPage} />
+      <ExpandingUsDriversInner
+        isLocationsPage={isLocationsPage}
+        cities={cities}
+      />
     </Suspense>
   );
 }

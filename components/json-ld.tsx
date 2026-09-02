@@ -1,10 +1,19 @@
+import { safeJsonLd } from '@/lib/safe-json-ld';
+
 type JsonLdSchema = Record<string, unknown>;
 
+/**
+ * The organisation, website and service schema.
+ *
+ * Fed from SiteSettings, which the dashboard edits, so the values here are as
+ * user-controlled as any other stored content. See lib/safe-json-ld for why plain
+ * JSON.stringify into an innerHTML script body is unsafe.
+ */
 export function JsonLd({ schema }: { schema: JsonLdSchema }) {
     return (
         <script
             type='application/ld+json'
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
         />
     );
 }

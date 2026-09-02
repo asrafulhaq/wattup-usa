@@ -1,4 +1,4 @@
-import type { GoLiveYear, PublicStation, StationRecord } from "./types";
+import type { PublicStation, StationRecord, StationStatus } from "./types";
 
 /**
  * The single place that decides what leaves the server.
@@ -23,6 +23,7 @@ import type { GoLiveYear, PublicStation, StationRecord } from "./types";
  *   switchgearCount       operational detail, means nothing to a driver
  *   switchgearOrderedDate superseded by goLiveYear
  *   addressRaw            unparsed duplicate of street/city/postalCode
+ *   imagePublicId         Cloudinary handle, only needed server side to delete an image
  */
 export function toPublicStation(record: StationRecord): PublicStation {
   return {
@@ -45,6 +46,11 @@ export function toPublicStation(record: StationRecord): PublicStation {
     pricePerKwh: record.pricePerKwh,
     connectors: record.connectors,
     chargerCount: record.chargerCount,
+    metaTitle: record.metaTitle,
+    metaDescription: record.metaDescription,
+    imageUrl: record.imageUrl,
+    noIndex: record.noIndex,
+    updatedAt: record.updatedAt,
   };
 }
 
@@ -53,24 +59,22 @@ export function toPublicStation(record: StationRecord): PublicStation {
  *
  * Driven by status rather than by the install year. A year is a project milestone; a
  * visitor only wants to know whether they can charge there.
+ *
+ * Split in two so the dashboard, which holds a bare status rather than a whole station,
+ * says exactly what the public site says rather than keeping its own wording.
  */
-export function statusLabel(station: PublicStation): string {
-  if (station.status === "LIVE") return "Open";
-  if (station.status === "UNDER_CONSTRUCTION") return "Under construction";
+export function statusLabelFor(status: StationStatus): string {
+  if (status === "LIVE") return "Open";
+  if (status === "UNDER_CONSTRUCTION") return "Under construction";
   return "Coming soon";
+}
+
+export function statusLabel(station: PublicStation): string {
+  return statusLabelFor(station.status);
 }
 
 export function formatAddress(station: PublicStation): string {
   return `${station.street}, ${station.city}, ${station.region} ${station.postalCode}`;
-}
-
-export function stationsByYear(
-  stations: PublicStation[],
-): Record<GoLiveYear, PublicStation[]> {
-  return {
-    2026: stations.filter((s) => s.goLiveYear === 2026),
-    2027: stations.filter((s) => s.goLiveYear === 2027),
-  };
 }
 
 /** "$0.39/kWh plus tax", or null when no tariff has been set for the site. */
@@ -85,4 +89,47 @@ export function formatConnectors(station: PublicStation): string | null {
   return station.connectors
     .map((connector) => `${connector.count} ${connector.type}`)
     .join(" \u00b7 ");
+}
+
+/**
+ * The generated page title and description.
+ *
+ * Shared by the station page's generateMetadata and by the dashboard's search preview.
+ * If the dashboard built its own version, the preview would show one thing and Google
+ * another, and the person editing would have no way to know which was real.
+ *
+ * Structural input rather than PublicStation, so the dashboard form can pass what it is
+ * holding mid-edit without first constructing a whole station.
+ */
+export interface StationMetaInput {
+  street: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  maxPowerKw: number;
+  chargerCount: number;
+  status: StationStatus;
+}
+
+export function defaultMetaTitle(station: StationMetaInput): string {
+  return `EV Charging on ${station.street}, ${station.city} | WattUp USA`;
+}
+
+export function defaultMetaDescription(station: StationMetaInput): string {
+  const address = `${station.street}, ${station.city}, ${station.region} ${station.postalCode}`;
+  const bays = station.chargerCount === 1 ? "charger" : "chargers";
+  return `${station.maxPowerKw}kW ultra fast EV charging with ${station.chargerCount} ${bays} at ${address}. ${statusLabelFor(station.status)}.`;
+}
+
+/** The override when there is one, otherwise the generated value. */
+export function metaTitleFor(
+  station: StationMetaInput & { metaTitle?: string | null },
+): string {
+  return station.metaTitle?.trim() || defaultMetaTitle(station);
+}
+
+export function metaDescriptionFor(
+  station: StationMetaInput & { metaDescription?: string | null },
+): string {
+  return station.metaDescription?.trim() || defaultMetaDescription(station);
 }

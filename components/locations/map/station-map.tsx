@@ -11,7 +11,11 @@ import {
 import { statusLabel } from "@/lib/locations/public";
 import { orderByProximity, smoothLine, type Coord } from "@/lib/locations/smooth-line";
 import type { PublicStation } from "@/lib/locations/types";
-import type { ExpressionSpecification, LngLatBoundsLike } from "mapbox-gl";
+import type {
+  ExpressionSpecification,
+  LngLatBoundsLike,
+  Map as MapboxMap,
+} from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Map, {
   AttributionControl,
@@ -25,6 +29,31 @@ import Map, {
 interface StationMapProps {
   stations: PublicStation[];
   selectedSlug: string | null;
+  /**
+   * How close to fly when a station is selected.
+   *
+   * The finder wants the network zoom: near enough to read the selected site, far enough
+   * that its neighbours and the corridor between them stay on screen. A station page
+   * wants the opposite, because the page is already about one site and the map is the
+   * only thing on it that can show where the forecourt actually is. That distinction is
+   * only worth making now the coordinates are geocoded to street level; against the old
+   * postcode centroids a close zoom would have pointed confidently at the wrong place.
+   */
+  focusZoom?: number;
+  /**
+   * Whether to animate the selected marker in.
+   *
+   * On the finder, yes: the selection changes as someone clicks around, and growing the
+   * marker is what shows which one they just picked.
+   *
+   * On a station page, no. The selection is fixed at mount and derived from the route,
+   * so there is nothing to animate between. Worse, the tween's first frame paints the
+   * marker at its inactive value, overwriting the resting state the layer was declared
+   * with; if that animation is then interrupted the marker is simply left switched off.
+   * That is the race behind a glow that only appeared after a reload. With no tween the
+   * declared state stands on its own and there is no moment it can be wrong.
+   */
+  animateSelection?: boolean;
   hoveredSlug: string | null;
   onSelect: (slug: string | null) => void;
   onHover: (slug: string | null) => void;
@@ -36,6 +65,9 @@ const DOTS_LAYER = "wattup-dots";
 const LABELS_LAYER = "wattup-labels";
 const PULSE_LAYER = "wattup-corridor-pulse";
 const ACTIVE_RIPPLE_LAYER = "wattup-active-ripple";
+/** Browsing the network: the selected site plus its neighbours and the corridor. */
+const NETWORK_ZOOM = 10.5;
+
 const ACTIVE_GLOW_LAYER = "wattup-active-glow";
 const ACTIVE_DOT_LAYER = "wattup-active-dot";
 const HOVER_DOT_LAYER = "wattup-hover-dot";
@@ -90,6 +122,27 @@ const ACTIVE_DOT_TO = 9.5;
 
 /** Eased at both ends, so growing in and falling away are equally soft. */
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+/**
+ * Whether a layer is on the map right now.
+ *
+ * `map.getLayer` reads straight through `map.style`, which is absent both before the
+ * first style arrives and after the map has been torn down, so it throws on a map that
+ * merely has nothing rather than returning nothing. Two moments make that reachable:
+ * a basemap swap, and an unmount, since React re-runs passive effects when it
+ * reconnects a tree and by then the page's map is already gone.
+ *
+ * Every read of a layer goes through here, so a frame loop or an effect firing at the
+ * edges of a map's life finds it absent instead of crashing the page.
+ */
+function hasLayer(map: MapboxMap | undefined, id: string): map is MapboxMap {
+  if (!map?.style) return false;
+  try {
+    return Boolean(map.getLayer(id));
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Eased at both ends, so growing in and falling away are equally soft.
@@ -206,6 +259,8 @@ const PLACE_LABELS =
 export function StationMap({
   stations,
   selectedSlug,
+  focusZoom = NETWORK_ZOOM,
+  animateSelection = true,
   hoveredSlug,
   onSelect,
   onHover,
@@ -213,10 +268,49 @@ export function StationMap({
   className,
 }: StationMapProps) {
   const mapRef = useRef<MapRef>(null);
+  /**
+   * Whether the map has finished loading.
+   *
+   * Every effect below reaches for `mapRef.current?.getMap()`, which is null until the
+   * map mounts. On the finder that never showed, because selection changes come from a
+   * click long after load and the effect re-runs then. On a station page the selection
+   * is fixed at mount: the effects ran once against a null map, bailed out, and had no
+   * dependency that would ever change to bring them back. The marker stayed inert and
+   * the camera never moved. This is the dependency that brings them back.
+   */
+  const [mapReady, setMapReady] = useState(false);
+
+  /**
+   * Whether the marker layers exist yet.
+   *
+   * Loading the map is not the same event as having its layers. react-map-gl adds them
+   * as children, after load, and `paintIfPresent` deliberately skips a layer that is not
+   * there rather than letting Mapbox throw. So a tween that runs on load alone paints
+   * nothing at all and never runs again.
+   *
+   * That gap is invisible on a hard load, where the layers happen to be in place by the
+   * time the effect runs, and reliably open on a client side navigation from /locations,
+   * where the marker arrived inert. `styledata` is the event that fires as layers are
+   * added, and it fires again after a basemap swap, which is the other moment every
+   * layer is recreated.
+   */
+  const [layersReady, setLayersReady] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
   /** Where each marker state's animation currently sits, 0 to 1. */
   const hoverProgress = useRef(0);
   const selectProgress = useRef(0);
+
+  /**
+   * The latest paint appliers, reachable from checkReady.
+   *
+   * checkReady is passed to <Map> as an event prop and is deliberately dependency free,
+   * so it cannot close over applySelection/applyHover directly: those are defined below
+   * it and change identity whenever their own dependencies do. Refs give it the current
+   * pair without making the whole callback churn on every render.
+   */
+  const applySelectionRef = useRef<(eased: number) => void>(() => {});
+  const applyHoverRef = useRef<(eased: number) => void>(() => {});
+  const animateSelectionRef = useRef(true);
   /** The station each tween was last for, so a change of marker restarts the growth. */
   const previousHover = useRef<string | null>(null);
   const previousSelected = useRef<string | null>(null);
@@ -292,8 +386,10 @@ export function StationMap({
     let [south, north] = trim(stations.map((s) => s.latitude));
 
     // A single station, or several at one point, gives a box with no area, and fitting
-    // one of those pins the camera at maximum zoom over a blank tile. Padding it out to
-    // roughly five miles gives a view with the surrounding streets in it.
+    // one of those pins the camera at maximum zoom over a blank tile, so the box is
+    // padded out to something with streets in it.
+    //
+    // Roughly five miles, which puts the surrounding streets in frame.
     const MIN_SPAN = 0.08;
     if (east - west < MIN_SPAN) {
       const midpoint = (east + west) / 2;
@@ -411,26 +507,70 @@ export function StationMap({
     };
   }, [applyStyle]);
 
+  /**
+   * Marks the map usable once its marker layers actually exist.
+   *
+   * Driven by the Map's own events rather than by an effect that reaches for
+   * `mapRef.current`: on a client side navigation from /locations, `load` does not fire
+   * on the new instance at all, so anything hung off it never runs. `styledata` and
+   * `idle` both do, and both fire again after a basemap swap, which is the other moment
+   * every layer is recreated.
+   */
+  const checkReady = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    setMapReady(true);
+
+    const present = hasLayer(map, ACTIVE_DOT_LAYER);
+    setLayersReady(present);
+    if (!present) return;
+
+    // Re-assert whatever the tween last painted. Layers are recreated at the paint
+    // values declared in JSX every time the style settles, which silently undoes a
+    // completed tween: the marker was painted correctly and then reset to a plain dot a
+    // moment later, with no dependency left to change and bring the tween back.
+    //
+    // Idempotent by design. Mid-tween this repaints the current frame and the animation
+    // carries on; after one it repaints the final value.
+    // Only where the tween owns these values. Without a tween, selectProgress is 0 and
+    // re-asserting it would paint the marker inactive over the resting state the layer
+    // declares, which is the very thing this is supposed to protect.
+    if (animateSelectionRef.current) {
+      applySelectionRef.current(easeInOut(selectProgress.current));
+    }
+    applyHoverRef.current(easeInOut(hoverProgress.current));
+  }, []);
+
   const onLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
     // resize first: the map can mount before its container has been laid out, and a fit
     // computed against the wrong size lands at the wrong zoom.
     map.resize();
-    map.fitBounds(bounds, { padding: 56, duration: 0 });
+    // Only frame the whole set when nothing is selected. On a station page the selection
+    // effect has usually started its flyTo by the time `load` arrives, and a fitBounds
+    // with duration 0 snapped the camera back on top of it: the map ended up framing the
+    // padded bounds instead of the station, every time.
+    if (!selectedSlug) {
+      map.fitBounds(bounds, { padding: 56, duration: 0 });
+    }
     applyStyle();
-  }, [bounds, applyStyle]);
+    checkReady();
+  }, [bounds, applyStyle, checkReady, selectedSlug]);
 
   // Selecting from the strip or the list should move the map, not just recolour a dot.
+  // Gated on mapReady so a selection that is already set at mount, which is every
+  // station page, still moves the camera once there is a camera to move.
   useEffect(() => {
+    if (!mapReady) return;
     const station = stations.find((s) => s.slug === selectedSlug);
     if (!station) return;
     mapRef.current?.getMap().flyTo({
       center: [station.longitude, station.latitude],
-      zoom: 10.5,
+      zoom: focusZoom,
       duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900,
     });
-  }, [selectedSlug, stations]);
+  }, [selectedSlug, stations, mapReady, focusZoom]);
 
   /**
    * Reads the slug off a hit feature.
@@ -469,7 +609,7 @@ export function StationMap({
       lastPaint = now;
 
       const map = mapRef.current?.getMap();
-      if (!map?.getLayer(PULSE_LAYER)) return;
+      if (!hasLayer(map, PULSE_LAYER)) return;
       const head = ((now - started) % PULSE_DURATION_MS) / PULSE_DURATION_MS;
       try {
         map.setPaintProperty(PULSE_LAYER, "line-gradient", pulseGradient(head));
@@ -495,7 +635,13 @@ export function StationMap({
     const shell = shellRef.current;
     if (!shell) return;
 
-    const observer = new ResizeObserver(() => mapRef.current?.getMap()?.resize());
+    // Guarded on the style for the same reason paintIfPresent is: re-observing fires an
+    // immediate callback, and React re-runs this effect when it reconnects the tree,
+    // which can be after the map it belongs to has been removed.
+    const observer = new ResizeObserver(() => {
+      const map = mapRef.current?.getMap();
+      if (map?.style) map.resize();
+    });
     observer.observe(shell);
     return () => observer.disconnect();
   }, []);
@@ -517,10 +663,19 @@ export function StationMap({
     progress: React.RefObject<number>,
     previous: React.RefObject<string | null>,
     apply: (eased: number) => void,
+    /**
+     * Passed in rather than closed over.
+     *
+     * It is component state either way, but exhaustive-deps cannot tell that from inside
+     * a hook declared in the component body and reads it as an outer scope value, which
+     * it then reports as an invalid dependency. As a parameter it is unambiguous, and the
+     * effect genuinely does need to re-run when the map arrives.
+     */
+    ready: boolean,
   ) => {
     useEffect(() => {
       const map = mapRef.current?.getMap();
-      if (!map) return;
+      if (!map || !ready) return;
 
       const target = slug ? 1 : 0;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -567,7 +722,9 @@ export function StationMap({
       };
       // option.style is a dependency because switching basemap recreates every layer at
       // the paint values declared in JSX, which are the start of the tween.
-    }, [slug, apply, previous, progress]);
+      // ready is one because a station page's selection never changes: without it the
+      // effect runs once against a map that does not exist yet and never again.
+    }, [slug, apply, previous, progress, ready]);
   };
 
   // Hover only scales the dot. Selection is what adds the halo, so the two states read
@@ -578,13 +735,19 @@ export function StationMap({
    * Layers are added by react-map-gl as children, which happens after the map itself is
    * ready. Returning to this page remounted the map and ran the effects below before the
    * layers were back, and Mapbox throws on an unknown layer rather than ignoring it. The
-   * same gap opens for a moment whenever the basemap style is swapped.
+   * same gap opens for a moment whenever the basemap style is swapped, and again once
+   * the map has been removed: the caller below re-runs whenever React reconnects this
+   * tree, which happens after the page it belonged to has gone.
    */
   const paintIfPresent = useCallback(
     (layer: string, property: "circle-radius" | "circle-opacity", value: number) => {
       const map = mapRef.current?.getMap();
-      if (!map?.getLayer(layer)) return;
-      map.setPaintProperty(layer, property, value);
+      if (!hasLayer(map, layer)) return;
+      try {
+        map.setPaintProperty(layer, property, value);
+      } catch {
+        // The layer can go between the check above and this call while a style loads.
+      }
     },
     [],
   );
@@ -618,8 +781,18 @@ export function StationMap({
     [paintIfPresent],
   );
 
-  useMarkerTween(hoveredSlug, hoverProgress, previousHover, applyHover);
-  useMarkerTween(selectedSlug, selectProgress, previousSelected, applySelection);
+  applySelectionRef.current = applySelection;
+  applyHoverRef.current = applyHover;
+  animateSelectionRef.current = animateSelection;
+
+  useMarkerTween(hoveredSlug, hoverProgress, previousHover, applyHover, layersReady);
+  useMarkerTween(
+    selectedSlug,
+    selectProgress,
+    previousSelected,
+    applySelection,
+    layersReady && animateSelection,
+  );
 
   // Re-apply after a basemap change, which recreates every layer at its declared paint.
   useEffect(() => {
@@ -652,7 +825,7 @@ export function StationMap({
       lastPaint = now;
 
       const map = mapRef.current?.getMap();
-      if (!map?.getLayer(ACTIVE_RIPPLE_LAYER)) return;
+      if (!hasLayer(map, ACTIVE_RIPPLE_LAYER)) return;
       const t = ((now - started) % RIPPLE_MS) / RIPPLE_MS;
       try {
         map.setPaintProperty(
@@ -745,6 +918,10 @@ export function StationMap({
       mapStyle={option.style}
       style={{ width: "100%", height: "100%" }}
       onLoad={onLoad}
+      // load alone is not enough: it does not fire for the instance created by a client
+      // side navigation, and even when it does the marker layers are added after it.
+      onStyleData={checkReady}
+      onIdle={checkReady}
       onClick={onClick}
       onMouseMove={(event) => onHover(slugAt(event))}
       onMouseLeave={() => onHover(null)}
@@ -757,7 +934,22 @@ export function StationMap({
       // Disabled here so the compact control below can replace it, not to remove the
       // credit: Mapbox's terms require attribution to stay visible.
       attributionControl={false}
-      reuseMaps
+      // Deliberately not reuseMaps.
+      //
+      // It handed the station page the very map the finder had been using, layers and
+      // all. Clicking a card re-renders the finder first, without `sel` in the URL, so
+      // it deselects its marker; the station page then mounted onto that map and got a
+      // dot with no halo and no ripple, while a hard load of the same URL was correct.
+      //
+      // Remounting does not put it right. react-map-gl's Layer sees its id already in
+      // the style and takes the update path, which diffs the new props against the
+      // previous ones: on a first render those are the same object, so every comparison
+      // says unchanged and nothing at all is written. Source behaves the same way, so
+      // the station data was inherited too. Anything that differs between the two pages
+      // is silently the other page's value.
+      //
+      // A fresh map per page costs an init we would rather not pay. Carrying one page's
+      // state into another and being wrong about it costs more.
     >
       {/* The reference lights its field from the top left and falls away to the bottom
           right. That belongs only to the minimal view: over imagery or street detail the
@@ -832,6 +1024,8 @@ export function StationMap({
           filter={["==", ["get", "slug"], hoveredSlug ?? "\u0000"]}
           paint={{
             "circle-color": TIER_COLOR,
+            // Hover is always animated, on both pages, so this stays at the resting size
+            // and the tween grows it.
             "circle-radius": ACTIVE_DOT_FROM,
             "circle-stroke-width": 2.5,
             "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
@@ -862,7 +1056,16 @@ export function StationMap({
             "circle-color": TIER_COLOR,
             "circle-blur": 0.9,
             "circle-radius": ACTIVE_GLOW_RADIUS,
-            "circle-opacity": 0,
+            // Declared at the value the selection should already have, not at zero.
+            //
+            // Mapbox recreates every layer at these values whenever the style settles,
+            // which silently undid whatever the tween had painted. Declaring the resting
+            // state here makes the correct appearance the thing that survives, and
+            // leaves the tween as the animation between states rather than the only
+            // thing that ever produces one. A station page, where the selection is fixed
+            // at mount and the tween has no later event to re-run on, is then right
+            // whether the tween fires or not.
+            "circle-opacity": selectedSlug ? ACTIVE_GLOW_OPACITY : 0,
           }}
         />
         <Layer
@@ -874,7 +1077,9 @@ export function StationMap({
             // treatment made it read as a different kind of thing rather than as the
             // same marker singled out.
             "circle-color": TIER_COLOR,
-            "circle-radius": ACTIVE_DOT_FROM,
+            // Declared at the selected size, like the glow above, so a page whose
+            // selection comes from the route is correct without waiting on a tween.
+            "circle-radius": selectedSlug ? ACTIVE_DOT_TO : ACTIVE_DOT_FROM,
             "circle-stroke-width": 2.5,
             "circle-stroke-color": option.detailed ? "#FFFFFF" : WATER_COLOR,
             "circle-opacity": 1,

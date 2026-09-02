@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -13,6 +13,21 @@ enum Role {
   ADMIN
   EDITOR
   COLLABORATOR
+}
+
+// Build state of a charging site. A driver reads this as "can I charge here today",
+// so it is kept separate from goLiveYear, which is a project milestone.
+enum StationStatus {
+  LIVE
+  UNDER_CONSTRUCTION
+  PLANNED
+}
+
+enum ConnectorType {
+  CCS1
+  NACS
+  CCS2
+  CHAdeMO
 }
 
 // Permission enum is used for type-safe RBAC in application code.
@@ -37,27 +52,32 @@ enum Permission {
   CHANGE_USER_ROLE
   DELETE_USERS
   BAN_USERS
+
+  // Charging network
+  MANAGE_LOCATIONS
+  DELETE_LOCATIONS
+  MANAGE_AMENITIES
 }
 
 // ─── Better Auth Core Models ──────────────────────────────────────────────────
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  bio           String?   @default("")
+  bio           String?  @default("")
   imagePublicId String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  role          Role      @default(COLLABORATOR)
+  role Role @default(COLLABORATOR)
 
   // Better Auth admin plugin fields
-  banned        Boolean?  @default(false)
-  banReason     String?
-  banExpires    DateTime?
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   sessions Session[]
   accounts Account[]
@@ -66,13 +86,13 @@ model User {
 }
 
 model Session {
-  id             String   @id @default(cuid())
-  expiresAt      DateTime
-  token          String   @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  ipAddress      String?
-  userAgent      String?
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
 
   // admin plugin
   impersonatedBy String?
@@ -121,6 +141,7 @@ model Profile {
   about     String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@index([id])
 }
 
@@ -131,24 +152,26 @@ model SocialLink {
   url       String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@index([userId])
 }
 
 model Posts {
-  id         String    @id @default(uuid())
-  title      String
-  slug       String?   @unique @default("")
-  content    String?   @default("")
-  image      String?   @default("")
-  imageAlt  String?   @default("")
-  author     String?   @default("")
-  authorUrl  String?   @default("")
-  featured   Boolean   @default(false)
+  id            String    @id @default(uuid())
+  title         String
+  slug          String?   @unique @default("")
+  content       String?   @default("")
+  image         String?   @default("")
+  imageAlt      String?   @default("")
+  author        String?   @default("")
+  authorUrl     String?   @default("")
+  featured      Boolean   @default(false)
   featuredImage Json?
-  status     String    @default("Draft")
-  publishedAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
+  status        String    @default("Draft")
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
   @@index([id])
   @@index([slug])
   @@index([status])
@@ -156,7 +179,7 @@ model Posts {
 }
 
 model SiteSettings {
-  id                     String   @id @default("singleton")
+  id String @id @default("singleton")
 
   // Google Tracking
   googleAnalyticsId      String?
@@ -164,28 +187,162 @@ model SiteSettings {
   googleSiteVerification String?
 
   // Meta / Facebook
-  metaPixelId            String?
+  metaPixelId String?
 
   // Custom Script Injection (raw HTML)
-  headScripts            String?
-  bodyStartScripts       String?
-  bodyEndScripts         String?
+  headScripts      String?
+  bodyStartScripts String?
+  bodyEndScripts   String?
 
   // AEO / Organization Schema
-  orgName                String?
-  orgDescription         String?
-  orgUrl                 String?
-  orgPhone               String?
-  orgEmail               String?
-  orgAddress             String?
-  orgLogoUrl             String?
-  orgTwitter             String?
-  orgLinkedin            String?
-  orgFacebook            String?
-  orgInstagram           String?
+  orgName        String?
+  orgDescription String?
+  orgUrl         String?
+  orgPhone       String?
+  orgEmail       String?
+  orgAddress     String?
+  orgLogoUrl     String?
+  orgTwitter     String?
+  orgLinkedin    String?
+  orgFacebook    String?
+  orgInstagram   String?
 
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+// ─── Charging network ─────────────────────────────────────────────────────────
+
+/// A signed charging site.
+///
+/// Holds every column of the signed-locations sheet. The lower block is private:
+/// `company`, `noticeAddress` (several are residential), `apn`, `siteScore`, `salesRep`
+/// and the deal notes. lib/locations/public.ts is the single place that decides what
+/// leaves the server, and it is the only thing that may widen this.
+model Location {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  // ── Public ────────────────────────────────────────────────────────────────
+  name         String
+  street       String
+  city         String
+  /// State for US sites, region elsewhere.
+  region       String
+  postalCode   String
+  /// ISO-3166 alpha-2.
+  country      String        @default("US")
+  latitude     Float
+  longitude    Float
+  /// Market registry key, so Singapore is rows rather than a refactor.
+  market       String        @default("us-ca")
+  status       StationStatus @default(PLANNED)
+  /// Funded install year. Int rather than an enum: the dashboard may set 2028.
+  goLiveYear   Int
+  county       String        @default("")
+  countyFips   String        @default("")
+  /// Peak charging speed in kW. 310 across the network, per the client's spec.
+  maxPowerKw   Int           @default(310)
+  chargerCount Int           @default(0)
+  /// USD per kWh before tax. Decimal, not Float: a tariff is money.
+  /// Null until a tariff is set, which reads as "Being confirmed" on the site.
+  pricePerKwh  Decimal?      @db.Decimal(8, 4)
+
+  /// Hides the site from the public finder without deleting the record.
+  published Boolean @default(true)
+
+  // ── Search and social ─────────────────────────────────────────────────────
+  /// Overrides the generated <title>. Blank falls back to the generated one, which is
+  /// usually better: it is built from the address and stays correct when that changes.
+  metaTitle       String?
+  /// Overrides the generated meta description. Same fallback rule.
+  metaDescription String?
+  /// Photograph of the site. Used as the social share image and as schema.org `image`.
+  imageUrl        String?
+  /// Cloudinary public id for imageUrl, so a replaced image can be cleaned up.
+  imagePublicId   String?
+  /// Keeps the page out of search results while leaving it reachable by link.
+  noIndex         Boolean @default(false)
+
+  // ── Private. Never projected to the browser. ──────────────────────────────
+  signedNumber          Int?
+  initialNotes          String  @default("")
+  pipelineRef           String  @default("")
+  /// Property owner's legal entity.
+  company               String  @default("")
+  /// The address exactly as the sheet writes it, before parsing.
+  addressRaw            String  @default("")
+  /// Owner's address for legal notices. Often a home.
+  noticeAddress         String  @default("")
+  /// Assessor's parcel number.
+  apn                   String  @default("")
+  /// Internal site score out of 5. Not a customer review.
+  siteScore             Float?
+  switchgearCount       Int?
+  switchgearOrderedDate String?
+  salesRep              String  @default("")
+
+  amenities  LocationAmenity[]
+  connectors LocationConnector[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, status])
+  @@index([published, noIndex])
+  @@index([city])
+  @@index([goLiveYear])
+  @@map("location")
+}
+
+/// The amenity catalogue, seeded whole so every option exists before anyone opens
+/// the dashboard. `icon` is a registry key resolved in lib/locations/amenities.ts:
+/// a React component cannot be stored in a column.
+model Amenity {
+  id    String @id @default(cuid())
+  /// Stable key used in URLs and filter state. Not the display label.
+  slug  String @unique
+  label String
+  icon  String @default("dot")
+
+  sortOrder Int     @default(0)
+  /// Turns the amenity off across the whole network without unassigning it
+  /// from any site, so switching it back on restores what was there.
+  active    Boolean @default(true)
+
+  locations LocationAmenity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+  @@map("amenity")
+}
+
+model LocationAmenity {
+  locationId String
+  amenityId  String
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([locationId, amenityId])
+  @@index([amenityId])
+  @@map("location_amenity")
+}
+
+/// Connector types and counts for one site. A row per type rather than JSON, so
+/// "how many NACS across the network" stays a query.
+model LocationConnector {
+  id         String        @id @default(cuid())
+  locationId String
+  type       ConnectorType
+  count      Int           @default(0)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, type])
+  @@map("location_connector")
 }

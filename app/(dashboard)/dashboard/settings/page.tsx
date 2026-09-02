@@ -1,8 +1,10 @@
 import { getSession } from '@/app/_actions/auth-actions';
 import PageContent from '@/components/dashboard/settings/page-content';
-import { SettingsSkeleton } from '@/components/skeletons/settings-skeleton';
+import { NoAccess } from '@/components/dashboard/session-state';
+import { PageHeader } from '@/components/dashboard/ui/page-header';
+import { PageShell } from '@/components/dashboard/ui/page-shell';
+import { SettingsBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { hasPermission, Permission } from '@/lib/permissions';
-import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -12,16 +14,21 @@ export const metadata = {
 
 export default async function SettingsPage() {
     const session = await getSession();
+    // Not a redirect: dropping someone on another screen with nothing said is the
+    // behaviour that made this dashboard feel broken.
     if (!hasPermission(session?.role, Permission.MANAGE_SITE_SETTINGS)) {
-        redirect('/dashboard');
+        return <NoAccess what='site settings' role={session?.role} />;
     }
 
     return (
-        <div className='flex w-full flex-col gap-6 p-4 pt-0'>
-            <Suspense fallback={<SettingsSkeleton />}>
+        <PageShell>
+            <PageHeader
+                title='Settings'
+                description='Tracking codes, organisation schema, and scripts injected into every page of the public site.'
+            />
+            <Suspense fallback={<SettingsBodySkeleton />}>
                 <PageContent />
             </Suspense>
-        </div>
+        </PageShell>
     );
 }
-

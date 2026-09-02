@@ -5,7 +5,7 @@ import { SearchBar } from "@/components/locations/search-bar";
 import { StationCard } from "@/components/locations/station-card";
 import { StationStrip } from "@/components/locations/station-strip";
 import { FadeUp } from "@/components/ui/fade-up";
-import { AMENITY_IDS, type AmenityId } from "@/lib/locations/amenities";
+import type { AmenityOption } from "@/lib/locations/amenities";
 import { haversineMiles } from "@/lib/locations/distance";
 import {
   applyFilters,
@@ -28,6 +28,13 @@ const CARD_EXIT_MS = 180;
 
 interface StationFinderProps {
   stations: PublicStation[];
+  /**
+   * The active amenity catalogue, read from the database on the server.
+   *
+   * Passed in rather than imported so a label renamed in the dashboard shows here
+   * without a deploy, and so an amenity switched off there disappears from the filter.
+   */
+  amenities: AmenityOption[];
   mapboxToken: string | null;
 }
 
@@ -37,14 +44,19 @@ interface StationFinderProps {
  * State lives there rather than in component state so the back button works, a link is
  * shareable, and support can send a customer straight to a station.
  */
-function parseFilters(params: URLSearchParams): StationFilters {
+function parseFilters(
+  params: URLSearchParams,
+  catalogue: readonly AmenityOption[],
+): StationFilters {
   const near = params.get("near");
   const [lat, lon] = (near ?? "").split(",").map(Number);
   const radius = Number(params.get("radius"));
+  // Any four digit year, not a hardcoded pair: install years are set per site in the
+  // dashboard, so 2028 must survive a round trip through the URL.
   const years = (params.get("years") ?? "")
     .split(",")
     .map(Number)
-    .filter((y) => y === 2026 || y === 2027);
+    .filter((y) => Number.isInteger(y) && y >= 2000 && y <= 2100);
 
   return {
     query: params.get("q") ?? "",
@@ -57,21 +69,28 @@ function parseFilters(params: URLSearchParams): StationFilters {
       : null,
     years,
     minChargers: Number(params.get("min")) || 0,
+    // Validated against the catalogue that actually loaded, not a compiled in list. An
+    // amenity deleted or switched off in the dashboard drops out of the URL rather than
+    // filtering every station away.
     amenities: (params.get("amenities") ?? "")
       .split(",")
-      .filter((id): id is AmenityId => AMENITY_IDS.includes(id as AmenityId)),
+      .filter((id) => catalogue.some((amenity) => amenity.id === id)),
   };
 }
 
-function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
+function StationFinderInner({
+  stations,
+  amenities,
+  mapboxToken,
+}: StationFinderProps) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   const urlFilters = useMemo(
-    () => parseFilters(new URLSearchParams(params.toString())),
-    [params],
+    () => parseFilters(new URLSearchParams(params.toString()), amenities),
+    [params, amenities],
   );
 
   /**
@@ -264,6 +283,7 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
         <FadeUp delay={0.15} className="relative z-30 mt-8 md:mt-10">
           <SearchBar
             stations={stations}
+            amenities={amenities}
             filters={filters}
             mapboxToken={mapboxToken}
             onChange={onFiltersChange}
@@ -356,7 +376,11 @@ function StationFinderInner({ stations, mapboxToken }: StationFinderProps) {
                   closing ? "wattup-card-exit" : "wattup-card-enter"
                 }`}
               >
-                <StationCard station={cardStation} onClose={closeCard} />
+                <StationCard
+                  station={cardStation}
+                  amenities={amenities}
+                  onClose={closeCard}
+                />
               </div>
             </div>
           )}

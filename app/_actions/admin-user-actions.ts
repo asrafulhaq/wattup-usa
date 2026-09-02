@@ -98,38 +98,6 @@ export async function listUsers(options?: {
     }
 }
 
-// ─── Cached-safe data fetch (no auth — caller must verify before use) ─────────
-
-export async function fetchUsersData(pageSize = 50): Promise<{ users: ManagedUser[]; total: number }> {
-    const [rows, total] = await Promise.all([
-        prisma.user.findMany({
-            orderBy: { createdAt: 'desc' },
-            take: pageSize,
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                banned: true,
-                banReason: true,
-                banExpires: true,
-                emailVerified: true,
-                image: true,
-                createdAt: true,
-            },
-        }),
-        prisma.user.count(),
-    ]);
-
-    return {
-        users: rows.map(u => ({
-            ...u,
-            banned: u.banned ?? false,
-        })) as unknown as ManagedUser[],
-        total,
-    };
-}
-
 // ─── Create (invite) user ─────────────────────────────────────────────────────
 
 export async function createUser(data: {

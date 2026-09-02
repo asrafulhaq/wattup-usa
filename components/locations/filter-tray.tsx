@@ -1,22 +1,45 @@
 "use client";
 
-import { AMENITIES } from "@/lib/locations/amenities";
+import { amenityIcon, type AmenityOption } from "@/lib/locations/amenities";
 import { countWith, type StationFilters } from "@/lib/locations/filters";
 import type { PublicStation } from "@/lib/locations/types";
+import { useMemo } from "react";
 
 interface FilterTrayProps {
   stations: PublicStation[];
+  /** The active amenity catalogue, read from the database. */
+  amenities: AmenityOption[];
   filters: StationFilters;
   onChange: (next: Partial<StationFilters>) => void;
   onReset: () => void;
 }
 
-/** The year is what the filter stores; the label is what it means to a visitor. */
-const AVAILABILITY = [
-  { year: 2026, label: "Open" },
-  { year: 2027, label: "Coming soon" },
-] as const;
 const CHARGER_STEPS = [4, 6, 8] as const;
+
+/**
+ * The availability options, derived from the sites actually present.
+ *
+ * The year is what the filter stores; the label is what it means to a visitor. Both come
+ * from the data rather than from a hardcoded pair, because install years are set per site
+ * in the dashboard and a fixed list silently drops a site the moment one is set to 2028.
+ *
+ * A year whose sites are all open reads "Open", one where none are reads "Coming soon",
+ * and a year that is part way through reads as the year itself, which is never wrong.
+ */
+function availabilityOptions(stations: PublicStation[]) {
+  const years = [...new Set(stations.map((station) => station.goLiveYear))].sort(
+    (a, b) => a - b,
+  );
+
+  return years.map((year) => {
+    const inYear = stations.filter((station) => station.goLiveYear === year);
+    const open = inYear.filter((station) => station.status === "LIVE").length;
+
+    if (open === inYear.length) return { year, label: "Open" };
+    if (open === 0) return { year, label: "Coming soon" };
+    return { year, label: String(year) };
+  });
+}
 
 /**
  * The filter panel that drops out of the search bar.
@@ -25,10 +48,18 @@ const CHARGER_STEPS = [4, 6, 8] as const;
  * checkboxes, but without a count a visitor cannot tell which choice empties the list
  * until they have already made it.
  *
- * Amenities are in the reference and deliberately absent here: we hold no amenity data
- * for any site yet. The section is built to take them without a layout change.
+ * The amenity catalogue is passed in rather than imported: the client edits it in the
+ * dashboard, so a renamed label has to reach here without a deploy.
  */
-export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayProps) {
+export function FilterTray({
+  stations,
+  amenities,
+  filters,
+  onChange,
+  onReset,
+}: FilterTrayProps) {
+  const availability = useMemo(() => availabilityOptions(stations), [stations]);
+
   return (
     <div className="max-h-[70vh] w-[400px] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-black/10 bg-white p-5 shadow-2xl shadow-black/10">
       <div className="flex items-center justify-between">
@@ -43,7 +74,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
       </div>
 
       <div className="mt-3 flex flex-col gap-2">
-        {AVAILABILITY.map(({ year, label }) => {
+        {availability.map(({ year, label }) => {
           const checked = filters.years.includes(year);
           const count = countWith(stations, filters, { years: [year] });
           return (
@@ -99,9 +130,10 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
           nothing to say why. A count of zero is information, not a reason to take the
           control away. */}
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
-        {AMENITIES.map((amenity) => {
+        {amenities.map((amenity) => {
           const checked = filters.amenities.includes(amenity.id);
           const count = countWith(stations, filters, { amenities: [amenity.id] });
+          const Icon = amenityIcon(amenity.icon);
           return (
             <label
               key={amenity.id}
@@ -123,7 +155,7 @@ export function FilterTray({ stations, filters, onChange, onReset }: FilterTrayP
                   }
                   className="h-4 w-4 shrink-0 accent-primary"
                 />
-                <amenity.icon
+                <Icon
                   aria-hidden="true"
                   className={`h-4 w-4 shrink-0 ${checked ? "text-primary" : "text-dark/45"}`}
                 />

@@ -1,10 +1,15 @@
 'use client';
 import { updateSocialLinks } from '@/app/_actions/userActions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -55,18 +60,22 @@ const SocialLinks = ({ initialLinks }: SocialLinksProps) => {
     };
 
     return (
-        <Card className='shadow-none border-border'>
-            <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-                <CardTitle className='text-lg font-medium'>
-                    Social Links
-                </CardTitle>
+        <Card className='dash-card shadow-none'>
+            <CardHeader className='flex flex-row flex-wrap items-start justify-between gap-4'>
+                <div>
+                    <CardTitle className='text-[15px] font-semibold text-dash-heading'>
+                        Social Links
+                    </CardTitle>
+                    <CardDescription className='mt-1'>
+                        Shown beside your name on articles you publish.
+                    </CardDescription>
+                </div>
                 <Button
                     size='sm'
+                    variant='outline'
                     onClick={handleSave}
-                    disabled={isSaving}
-                    className='gap-2 px-6'>
-                    <IconDeviceFloppy size={22} />
-                    {isSaving ? 'Saving...' : 'Save Links'}
+                    disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save'}
                 </Button>
             </CardHeader>
             <CardContent className='space-y-4'>

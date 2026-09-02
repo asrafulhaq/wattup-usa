@@ -4,8 +4,14 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const contentSecurityPolicy = [
     "default-src 'self'",
-    // 'unsafe-inline' is required: the GTM loader, JSON-LD, and admin-injected
-    // scripts are inline; 'unsafe-eval' is dev-only for React Fast Refresh
+    // 'unsafe-inline' is required: the GTM loader and admin-injected scripts are
+    // inline; 'unsafe-eval' is dev-only for React Fast Refresh.
+    //
+    // JSON-LD is NOT a reason, though this comment used to say it was.
+    // <script type="application/ld+json"> is a data block, never executed, and not
+    // subject to script-src at all. Keeping it on the list made 'unsafe-inline' look
+    // more load-bearing than it is, which is how a directive stops getting revisited.
+    // Removing it needs a nonce for the two real reasons above.
     // CMP domains cover both supported vendors: CookieYes (cdn-cookieyes.com,
     // log.cookieyes.com) and Cookiebot (consent.cookiebot.com, consentcdn.cookiebot.com)
     `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://cdn-cookieyes.com https://consent.cookiebot.com https://consentcdn.cookiebot.com`,
@@ -50,6 +56,23 @@ const nextConfig: NextConfig = {
     experimental: {
         serverActions: {
             bodySizeLimit: '10mb',
+        },
+        /**
+         * Reuse a page segment the router already has, instead of refetching it.
+         *
+         * Since Next 15 the client router cache does not reuse page segments across
+         * <Link> navigations at all: the default dynamic stale time is 0, so every
+         * sidebar click re-requested the RSC payload and showed a loading state for a
+         * screen the browser had rendered seconds earlier.
+         *
+         * Safe with the dashboard's writes because a Server Action calling updateTag,
+         * revalidateTag or revalidatePath clears the whole client cache immediately,
+         * bypassing these times. So an edit is still visible at once, and merely moving
+         * around is free.
+         */
+        staleTimes: {
+            dynamic: 30,
+            static: 180,
         },
     },
     cacheComponents: true,

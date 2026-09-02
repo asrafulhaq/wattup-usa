@@ -1,19 +1,24 @@
+import PageContent from '@/components/dashboard/profile/page-content';
+import { PageHeader } from '@/components/dashboard/ui/page-header';
+import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { ProfileSkeleton } from '@/components/skeletons/profile-skeleton';
 import { Suspense } from 'react';
-import PageTitle from '../../../../components/dashboard/page-title';
-import PageContent from '../../../../components/dashboard/profile/page-content';
+
+export const metadata = {
+    title: 'Profile | WattUp Dashboard',
+    description: 'Your account, photo and sign-in details.',
+};
 
 export default async function ProfilePage() {
     return (
-        <div className='flex w-full flex-col gap-6 p-4 pt-0 '>
-            <div className='flex items-center justify-between w-full'>
-                <PageTitle title='Profile Settings' />
-            </div>
-
+        <PageShell>
+            <PageHeader
+                title='Profile'
+                description='Your name, photo and sign-in details. These show on any article you publish.'
+            />
             <Suspense fallback={<ProfileSkeleton />}>
                 <PageContent />
             </Suspense>
-        </div>
+        </PageShell>
     );
 }
-
