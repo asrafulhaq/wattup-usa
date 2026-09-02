@@ -23,7 +23,7 @@ const ASSIGNABLE = ASSIGNABLE_ROLES as unknown as [Role, ...Role[]];
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Invalid email address'),
+    email: z.email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     // No default (ADR 0002 section 4.2, checklist 4a.29): the admin chooses.
     role: z.enum(ASSIGNABLE, { message: 'Choose a role' }),

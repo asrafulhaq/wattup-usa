@@ -29,7 +29,7 @@ export async function submitDriverInquiry(data: DriverFormData): Promise<ActionR
 
     const parsed = driverSchema.safeParse(data);
     if (!parsed.success) {
-        return { error: parsed.error.errors[0]?.message ?? 'Invalid form data' };
+        return { error: parsed.error.issues[0]?.message ?? 'Invalid form data' };
     }
 
     const { name, email, message } = parsed.data;
@@ -60,7 +60,7 @@ export async function submitHostInquiry(data: HostFormData): Promise<ActionResul
 
     const parsed = hostSchema.safeParse(data);
     if (!parsed.success) {
-        return { error: parsed.error.errors[0]?.message ?? 'Invalid form data' };
+        return { error: parsed.error.issues[0]?.message ?? 'Invalid form data' };
     }
 
     const { companyName, location, parkingSpaces, contactInfo } = parsed.data;

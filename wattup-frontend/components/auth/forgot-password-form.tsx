@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const schema = z.object({
-    email: z.string().email('Please enter a valid email address'),
+    email: z.email('Please enter a valid email address'),
 });
 
 type Values = z.infer<typeof schema>;
