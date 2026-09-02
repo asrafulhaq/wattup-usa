@@ -102,7 +102,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [ ] S.5.4 Remove `ADMIN_PASSWORD` from the deployed environment once the account exists
 - [ ] S.5.5 Verify on a real deploy that the account is no longer re-promoted — **also check the Vercel project's Build Command override**: if one was ever set to `next build && prisma db seed`, the `package.json` change is void and this cannot be seen from git
 - [ ] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them
-- [ ] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does
+- [x] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does: seed.ts and seed-admins.ts create through `auth.api.createUser` with `role: 'SUPER_ADMIN'` and no defaultRole anywhere (`feat/rbac-5-seed`); `tsc` and `eslint` clean; not run
 - [x] S.5.8 **Second super admin seeded:** `devripon.io@gmail.com` via the new `pnpm seed:admins` (`ADMIN_EMAILS`, uses `ADMIN_PASSWORD`, touches user + account only). `admin@wattup.com` untouched. Every check from here runs as this account
 
 - [◐] S.6 Each fix merged to `main` as its own branch (F1 ×2 commits, F2 ×2, F9 ×2, F13, F14). **Not deployed** — push is gated on the Vercel Root Directory change (0.18)
@@ -270,51 +270,51 @@ entirely inside `wattup-frontend`. Its own branch, its own PR. *(needs answers C
 
 ### Schema
 
-- [ ] 4a.1 `role_permission` and `user_permission` models added
-- [ ] 4a.2 5 new permissions: `VIEW_LOCATIONS`, `MANAGE_PERMISSIONS`, `UPLOAD_MEDIA`, `DELETE_MEDIA`, `VIEW_ACTIVITY_LOG`, `ACCESS_PROFORMA`
-- [ ] 4a.3 2 new roles: `NETWORK_MANAGER`, `SALES`
-- [ ] 4a.4 Seed migration populates `role_permission` from ADR 0002 §6
-- [ ] 4a.5 Migration verified **behaviour-preserving** for the three surviving roles
+- [x] 4a.1 `role_permission` and `user_permission` models added: `RolePermission` and `UserPermission` in `prisma/schema.prisma`, tables `role_permission` and `user_permission` in `20260903100000_rbac_permissions/migration.sql`
+- [x] 4a.2 5 new permissions: `VIEW_LOCATIONS`, `MANAGE_PERMISSIONS`, `UPLOAD_MEDIA`, `DELETE_MEDIA`, `VIEW_ACTIVITY_LOG`, `ACCESS_PROFORMA`: six values added to the `Permission` enum (schema and migration part 3); `migrate diff` live vs schema now empty apart from that migration
+- [x] 4a.3 2 new roles: `NETWORK_MANAGER`, `SALES`: `Role` enum recreated as SUPER_ADMIN, ADMIN, NETWORK_MANAGER, EDITOR, SALES (migration part 2); executed on a local scratch DB loaded with the live schema
+- [x] 4a.4 Seed migration populates `role_permission` from ADR 0002 §6: migration part 5 inserts 70 `role_permission` rows (27/22/7/12/2); `lib/__tests__/role-permission-seed.test.ts` parses the SQL and holds it to `ROLE_PERMISSIONS` row for row
+- [x] 4a.5 Migration verified **behaviour-preserving** for the three surviving roles: `role-permission-seed.test.ts` › "keeps every permission it held before 4a" passes for SUPER_ADMIN, ADMIN, EDITOR against a verbatim copy of the pre-4a map; EDITOR keeps DELETE_ANY_POST (departs from ADR 0002 §6, flagged)
 
 ### Remove `COLLABORATOR` (ADR 0002 §4.1, §4.2)
 
-- [ ] 4a.24 **Hard gate:** `SELECT count(*) FROM "user" WHERE role = 'COLLABORATOR';` returns **0**. If not, stop and reassign first.
-- [ ] 4a.25 Enum recreated — PostgreSQL has no `DROP VALUE`. Follow the pattern in `20260518120000_rbac_roles_permissions/migration.sql`
-- [ ] 4a.26 `@default(COLLABORATOR)` **removed** from `User.role`, not repointed
-- [ ] 4a.27 `lib/permissions.ts`: `Role`, `ROLE_PERMISSIONS`, `ROLE_LABELS`, `ROLE_BADGE_CLASSES`, `ASSIGNABLE_ROLES`, `ALL_ROLES` — 7 sites
-- [ ] 4a.28 `lib/auth.ts`: `collaboratorAc`, `additionalFields.role.defaultValue`, `admin({ defaultRole })`, `roles` map
-- [ ] 4a.29 `invite-user-dialog.tsx`: `z.enum` list, and **no preselected role**
-- [ ] 4a.30 `createUser` requires an explicit validated role, no fallback
-- [ ] 4a.31 Warning logged if the unreachable `defaultRole` ever fires
-- [ ] 4a.32 Verify: creating a user without a role is refused, not silently defaulted
+- [x] 4a.24 **Hard gate:** `SELECT count(*) FROM "user" WHERE role = 'COLLABORATOR';` returns **0**. If not, stop and reassign first.: the count is the migration's first statement, a DO block that raises `COLLABORATOR still assigned, reassign first`; proven on a scratch DB holding one such user (refused, nothing changed); live count confirmed 0
+- [x] 4a.25 Enum recreated — PostgreSQL has no `DROP VALUE`. Follow the pattern in `20260518120000_rbac_roles_permissions/migration.sql`: migration part 2 follows the 20260518 shape; applied on the scratch DB, `Role` has the five values
+- [x] 4a.26 `@default(COLLABORATOR)` **removed** from `User.role`, not repointed: `role Role` with no default in the schema; migration drops the default and does not restore it; scratch insert without a role refused with a not-null violation
+- [x] 4a.27 `lib/permissions.ts`: `Role`, `ROLE_PERMISSIONS`, `ROLE_LABELS`, `ROLE_BADGE_CLASSES`, `ASSIGNABLE_ROLES`, `ALL_ROLES` — 7 sites: `lib/permissions.ts`: five roles, `ROLE_RANK`, the ADR 0002 §6 matrix, labels, badges, `ASSIGNABLE_ROLES`, `ALL_ROLES`; `permissions.test.ts` 13 tests
+- [x] 4a.28 `lib/auth.ts`: `collaboratorAc`, `additionalFields.role.defaultValue`, `admin({ defaultRole })`, `roles` map: `lib/auth.ts`: no collaboratorAc, no `defaultValue`, `defaultRole: 'UNASSIGNED'` (not an enum value), `roles` map derived from `ROLE_PERMISSIONS`, `adminRoles` (the real option name)
+- [x] 4a.29 `invite-user-dialog.tsx`: `z.enum` list, and **no preselected role**: `z.enum(ASSIGNABLE_ROLES, { message: 'Choose a role' })`, no `defaultValues.role`, a disabled placeholder option; the list is filtered by `canManageRole(actorRole, role)`
+- [x] 4a.30 `createUser` requires an explicit validated role, no fallback: `createUser` refuses a role outside `ASSIGNABLE_ROLES` or one the caller does not outrank, before Better Auth is touched; `admin-user-actions.test.ts` › createUser
+- [x] 4a.31 Warning logged if the unreachable `defaultRole` ever fires: `databaseHooks.user.create.before` in `lib/auth.ts` logs `[auth] refused to create a user without an explicit role` (masked email) and throws BAD_REQUEST
+- [x] 4a.32 Verify: creating a user without a role is refused, not silently defaulted: `admin-user-actions.test.ts` › "refuses a missing role, before touching Better Auth" and "refuses a role that is not assignable" pass
 
 ### Resolution
 
-- [ ] 4a.6 `getEffectivePermissions(userId)`: role defaults − revokes + grants
-- [ ] 4a.7 `hasPermission(set, permission)` stays **synchronous**; only arg 1 changes
-- [ ] 4a.8 All 27 call sites migrated
-- [ ] 4a.9 Resolved once per request, not per call
-- [ ] 4a.10 Server actions and the pro-forma gate resolve **fresh**, never from cookie cache
-- [ ] 4a.11 Explicit numeric ranks replace `canManageRole`'s array-position comparison
-- [ ] 4a.12 Better Auth's `createAccessControl` map updated for the new roles
+- [x] 4a.6 `getEffectivePermissions(userId)`: role defaults − revokes + grants: `lib/permissions-server.ts` `resolvePermissions` / `getEffectivePermissions`; `permissions-server.test.ts` 11 tests assert the exact queries and the grant, revoke, SUPER_ADMIN, unknown, banned and missing-table cases
+- [x] 4a.7 `hasPermission(set, permission)` stays **synchronous**; only arg 1 changes: `hasPermission(permissions: PermissionSet | null | undefined, permission)`; sync; 21 call sites on pages and components
+- [x] 4a.8 All 27 call sites migrated: 40 `requirePermission(Permission.X)` sites in actions, the route and the two server-only readers; 21 `hasPermission(set, X)` sites; `sessionWith`, `hasRoleDefault` and `getAdminSession` deleted; grep for a role-based check returns nothing
+- [x] 4a.9 Resolved once per request, not per call: `getEffectivePermissions` is wrapped in React `cache()`; one query per user per request
+- [x] 4a.10 Server actions and the pro-forma gate resolve **fresh**, never from cookie cache: `requirePermission` takes only the id from the session and queries `role_permission` + `user_permission` every request; `permission-guard.test.ts` › "does not read the role off the session to decide" (pro-forma gate reads the view: 4b)
+- [x] 4a.11 Explicit numeric ranks replace `canManageRole`'s array-position comparison: `ROLE_RANK` 100/80/60/50/40; `canManageRole` compares ranks; the full 25-row table in `permissions.test.ts`
+- [x] 4a.12 Better Auth's `createAccessControl` map updated for the new roles: `accessFor(role)` in `lib/auth.ts` derives each role's admin-plugin statements from `ROLE_PERMISSIONS`; five roles in the map
 
 ### Close the enforcement gaps (F3 — ADR 0002 §2.1)
 
-- [ ] 4a.13 **F3:** all 10 actions in `postActions.ts` gated by permission, not `getAdminSession()`
-- [ ] 4a.14 **F3 — decision needed:** `Posts.author` is free text with **no `authorId` relation**, so ownership cannot be checked. Either add the relation + backfill, or drop `EDIT_OWN_POST` / `DELETE_OWN_POST` from the enum. ADR 0002 §7 recommends dropping them.
-- [ ] 4a.15 `settingsActions.ts` gated by `MANAGE_SITE_SETTINGS`
-- [ ] 4a.16 `image-actions.ts` and the upload route tightened to `UPLOAD_MEDIA` / `DELETE_MEDIA` (from S.1)
-- [ ] 4a.17 `VIEW_LOCATIONS` added to network read paths
+- [x] 4a.13 **F3:** all 10 actions in `postActions.ts` gated by permission, not `getAdminSession()`: 12 exports in `postActions.ts`: 5 public reads (filtered in the query), 2 dashboard reads on CREATE_POST, create/duplicate CREATE_POST, update EDIT_ANY_POST, delete DELETE_ANY_POST, status PUBLISH_POST; a create or edit whose status is Published also needs PUBLISH_POST
+- [◐] 4a.14 **F3 — decision needed:** `Posts.author` is free text with **no `authorId` relation**, so ownership cannot be checked. Either add the relation + backfill, or drop `EDIT_OWN_POST` / `DELETE_OWN_POST` from the enum. ADR 0002 §7 recommends dropping them.: the code half: own-post ownership is deliberately not built, `EDIT_OWN_POST` / `DELETE_OWN_POST` stay in the enum unused with a comment pointing at ADR 0002 §7 (client ask I); the decision half (add the relation, or retire them) is the client's
+- [x] 4a.15 `settingsActions.ts` gated by `MANAGE_SITE_SETTINGS`: `updateSiteSettings` on `requirePermission(Permission.MANAGE_SITE_SETTINGS)`; writes only the known columns
+- [x] 4a.16 `image-actions.ts` and the upload route tightened to `UPLOAD_MEDIA` / `DELETE_MEDIA` (from S.1): uploads and `moveImage` on UPLOAD_MEDIA, deletes and `cleanupOldDrafts` on DELETE_MEDIA; the route checks UPLOAD_MEDIA before reading the body and refuses Content-Length over 10 MB (B.9)
+- [x] 4a.17 `VIEW_LOCATIONS` added to network read paths: `getDashboardLocations`, `getDashboardAmenities`, the overview stats, the locations and amenities pages and the sidebar entry on VIEW_LOCATIONS; `getLocationForEdit`, create/edit pages and all writes stay on MANAGE_LOCATIONS
 - [ ] 4a.18 Verify: an `EDITOR` can now actually create and publish an article
 - [ ] 4a.19 Verify: a `COLLABORATOR` can edit their own draft and **not** someone else's
 
 ### Guards
 
-- [ ] 4a.20 A user cannot edit their own permissions
-- [ ] 4a.21 `SUPER_ADMIN` permissions cannot be revoked by override
-- [ ] 4a.22 `MANAGE_PERMISSIONS` is `SUPER_ADMIN` only
-- [ ] 4a.23 Every permission change writes an `activity_log` row: actor, target, permission, direction
-- [ ] 4a.41 **Reconcile schema drift found during 2.0:** the live `Permission` enum has 22 values, `main` has 17 — the DB carries `UPLOAD_MEDIA`, `DELETE_ANY_MEDIA`, `DELETE_OWN_MEDIA`, `MANAGE_PROFILE`, `VIEW_ANALYTICS` never committed; `SocialLink` has a redundant index on its PK. No column uses `Permission`, so inert, but `migrate dev` will refuse until reconciled. Three of the five are wanted here anyway — add them to the schema rather than drop them
+- [x] 4a.20 A user cannot edit their own permissions: `setPermissionOverride` refuses `session.id === userId`; `admin-user-actions.test.ts` › "refuses editing your own permissions"
+- [x] 4a.21 `SUPER_ADMIN` permissions cannot be revoked by override: the resolver ignores a revoke for SUPER_ADMIN and the override actions refuse any SUPER_ADMIN target; the view carries `u.role <> 'SUPER_ADMIN'` on the revoke branch; tests in `permissions-server.test.ts` and `admin-user-actions.test.ts`; proven on the scratch view (u_super with a revoke row still listed)
+- [x] 4a.22 `MANAGE_PERMISSIONS` is `SUPER_ADMIN` only: seeded for SUPER_ADMIN only (migration part 5, `ROLE_PERMISSIONS`); `permissions.test.ts` › "MANAGE_PERMISSIONS is SUPER_ADMIN only"
+- [x] 4a.23 Every permission change writes an `activity_log` row: actor, target, permission, direction: `lib/activity-log.ts` `logActivity`; `permission.granted` / `permission.revoked` rows with actor, target, `meta: { permission }`; the exact row asserted in `admin-user-actions.test.ts` › happy path
+- [x] 4a.41 **Reconcile schema drift found during 2.0:** the live `Permission` enum has 22 values, `main` has 17 — the DB carries `UPLOAD_MEDIA`, `DELETE_ANY_MEDIA`, `DELETE_OWN_MEDIA`, `MANAGE_PROFILE`, `VIEW_ANALYTICS` never committed; `SocialLink` has a redundant index on its PK. No column uses `Permission`, so inert, but `migrate dev` will refuse until reconciled. Three of the five are wanted here anyway — add them to the schema rather than drop them: the five drift values are in the schema (four marked reserved), `SocialLink_id_idx` dropped by the migration; `migrate diff --from-config-datasource --to-schema` against the live DB emits exactly the new migration's DDL and nothing else
 
 ### Completeness — every action gated, proven not assumed
 
@@ -322,26 +322,26 @@ Client requirement: **all role and permission gates enforce on every action.** C
 asserted mechanically, because a hand-audit of 54 actions decays the moment someone adds the
 55th.
 
-- [ ] 4a.33 Inventory every exported server action → the permission it requires, or an explicit `PUBLIC` / `SELF_SCOPED` marking with a reason
-- [ ] 4a.34 The inventory lives in the repo, next to `permission-guard.ts`, not in a doc
-- [ ] 4a.35 **Automated test** enumerating every `'use server'` export and failing on any not present in the inventory
-- [ ] 4a.36 Same coverage test for `app/api/**/route.ts` handlers
-- [ ] 4a.37 Verify the test actually fails: add a dummy unguarded action, confirm red, remove it
-- [ ] 4a.38 F4: `updateSiteSettings` gated on `MANAGE_SITE_SETTINGS`; consider narrowing it to `SUPER_ADMIN` — arbitrary site-wide script injection
-- [ ] 4a.39 F5: `updateUserInformationById` requires a real id; drop the `'default-profile-id'` fallback and the `create` branch
-- [ ] 4a.40 F10: use Better Auth's built-in `disableSignUp`; keep the hook as a second layer; add a test asserting sign-up is refused
+- [x] 4a.33 Inventory every exported server action → the permission it requires, or an explicit `PUBLIC` / `SELF_SCOPED` marking with a reason: `lib/permission-inventory.ts`: 59 entries, 37 with a permission, 14 PUBLIC, 7 SELF_SCOPED, 1 SESSION_ONLY, each with a reason
+- [x] 4a.34 The inventory lives in the repo, next to `permission-guard.ts`, not in a doc: `lib/permission-inventory.ts` beside `lib/permission-guard.ts`
+- [x] 4a.35 **Automated test** enumerating every `'use server'` export and failing on any not present in the inventory: `lib/__tests__/permission-inventory.test.ts` walks `app/` and `lib/` for files opening with `'use server'`, parses exports with the TypeScript compiler, fails on any export missing from the inventory and any stale entry, and checks each permission entry against a `requirePermission(Permission.X)` call in its source
+- [x] 4a.36 Same coverage test for `app/api/**/route.ts` handlers: same test: every `app/**/route.ts` contributes its exported HTTP methods, including the destructured `export const { GET, POST }` of the auth route
+- [x] 4a.37 Verify the test actually fails: add a dummy unguarded action, confirm red, remove it: done: a dummy `wipeEverything` export appended to `locationActions.ts` failed the suite naming `app/_actions/locationActions.ts#wipeEverything`; removed, 6/6 green (output in the PR body)
+- [x] 4a.38 F4: `updateSiteSettings` gated on `MANAGE_SITE_SETTINGS`; consider narrowing it to `SUPER_ADMIN` — arbitrary site-wide script injection: gated on MANAGE_SITE_SETTINGS; a CHANGE to `headScripts`, `bodyStartScripts` or `bodyEndScripts` is refused unless `session.role === SUPER_ADMIN`; every save logs `settings.updated` with the changed field names
+- [x] 4a.39 F5: `updateUserInformationById` requires a real id; drop the `'default-profile-id'` fallback and the `create` branch: `updateUserInformationById` requires a non-empty id, uses `prisma.profile.update` (P2025 → "Profile not found"), no fallback id, no create branch; gated on MANAGE_SITE_SETTINGS
+- [x] 4a.40 F10: use Better Auth's built-in `disableSignUp`; keep the hook as a second layer; add a test asserting sign-up is refused: `emailAndPassword.disableSignUp: true` plus the hook; `lib/__tests__/auth-signup.test.ts` proves each layer refuses with the database untouched
 
 ---
 
 ## Phase 4b — Activity log and member view
 
-- [ ] 4b.1 `ActivityLog` model + migration; indexed on `[app, createdAt]` and `[email, createdAt]`
-- [ ] 4b.2 `proforma_member` SQL view created in the same migration
+- [x] 4b.1 `ActivityLog` model + migration; indexed on `[app, createdAt]` and `[email, createdAt]`: `ActivityLog` model and the `activity_log` table in the same migration; ADR 0001 §9 columns plus `actorUserId`, `actorEmail`, `correlationId`; indexes `[app, createdAt]`, `[email, createdAt]`, `[userId, createdAt]`, `[actorUserId, createdAt]`
+- [x] 4b.2 `proforma_member` SQL view created in the same migration: migration part 7 creates `proforma_member` (id, `lower(email)`, name, active) with the SUPER_ADMIN guard on the revoke branch; verified on the scratch DB: grant, revoke, ban and lowercase all behave; `wattup-proforma`'s `ProformaMember` model matches column for column
 - [ ] 4b.3 `DbMemberDirectory` reads the view; `EnvMemberDirectory` becomes dev-only
 - [ ] 4b.4 **`PROFORMA_ALLOWLIST` unset in Production**
 - [ ] 4b.5 Pro-forma writes `code.requested`, `signin.success`, `signin.failed` with IP and user agent
-- [ ] 4b.6 Dashboard writes its own auth events to the same table
-- [ ] 4b.7 Full email stored in `activity_log`; hashed in application logs — the PRD contradiction, resolved
+- [◐] 4b.6 Dashboard writes its own auth events to the same table: the dashboard writes user.created, role.changed, user.banned, user.unbanned, user.deleted, permission.granted, permission.revoked and settings.updated; its own sign-in events (signin.success / signin.failed from the Better Auth handler) are not written yet
+- [x] 4b.7 Full email stored in `activity_log`; hashed in application logs — the PRD contradiction, resolved: full address in `activity_log.email` / `actorEmail`; `maskEmail` in `lib/activity-log.ts` and `lib/auth.ts` for every application log line; `activity-log.test.ts` asserts the failure report masks both addresses
 - [ ] 4b.8 90-day purge scheduled *(needs answer F)*
 - [ ] 4b.9 Verify: revoking `ACCESS_PROFORMA` blocks the **next** request, no redeploy
 - [ ] 4b.10 Verify: banning a user blocks an existing pro-forma session
@@ -439,8 +439,8 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.5 **F6:** re-check this on every `better-auth` upgrade — it hardcodes the stored hash format
 - [ ] B.6 **F7:** rate-limit `submitDriverInquiry` and `submitHostInquiry`; reuse the phase 5 limiter
 - [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
-- [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
-- [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
+- [x] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review): `searchArticles` carries `cacheTag('posts')`
+- [x] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand: the route refuses a Content-Length over `MAX_UPLOAD_BYTES` (10 MB) before reading the body and the actions refuse an oversized file; `revalidatePath('/')` removed from all six media actions (an upload changes no page until the record embedding it is saved, which invalidates its own tag)
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
 - [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
@@ -482,6 +482,11 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
 | 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
 | 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
+| 25 | `feat/rbac-1-schema` | `91bf5f2` | schema + hand-written migration: five roles, 27 permissions, role_permission / user_permission / activity_log, proforma_member view; executed on a scratch DB; tsc 0, lint = main baseline, next build 0 |
+| 26 | `feat/rbac-2-resolution` | `8c85366` | database-resolved PermissionSet, ranked roles, derived Better Auth AC, disableSignUp, Vitest (64 tests); tsc 0, lint = baseline, test 64/64, build 0 |
+| 27 | `feat/rbac-3-gates` | `0346331` | every action, route and page on requirePermission / the resolved set; F3, F4, F5, B.8, B.9; grant/revoke + activity_log; tsc 0, lint = baseline, test 91/91, build 0 |
+| 28 | `feat/rbac-4-completeness` | `4d13a8f` | endpoint inventory (59) + TypeScript-parsed coverage test, red/green verified; tsc 0, lint = baseline, test 97/97, build 0 |
+| 29 | `feat/rbac-5-seed` | `3e5ce2a` | seeds create with an explicit role, removed role retired, CLAUDE.md updated; docs commit on top; tsc 0, lint = baseline, test 97/97, build 0 |
 | 24 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
