@@ -9,18 +9,16 @@
  *
  * For every address in ADMIN_EMAILS (comma separated):
  *   - if the user exists and is not SUPER_ADMIN, it is promoted;
- *   - if the user does not exist, it is created through Better Auth with a
- *     random password that is never printed or stored anywhere but the hash,
- *     marked emailVerified, and promoted. The person then sets their own
- *     password with "Forgot password" on /admin.
+ *   - if the user does not exist, it is created through Better Auth with
+ *     ADMIN_PASSWORD (the same password as the primary account, by the
+ *     client's instruction), marked emailVerified, and promoted.
  *
- * The primary account (ADMIN_EMAIL / ADMIN_PASSWORD) is seed.ts's concern and
- * is not read here. Like seed.ts, this writes to whatever DATABASE_URL points at:
+ * The primary account (ADMIN_EMAIL) itself is seed.ts's concern and is not
+ * touched here; only its password is reused. Like seed.ts, this writes to whatever DATABASE_URL points at:
  * a deliberate, production-affecting action, never a build step.
  */
 
 import 'dotenv/config';
-import { randomBytes } from 'node:crypto';
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
@@ -37,20 +35,25 @@ if (emails.length === 0) {
     console.error('❌  ADMIN_EMAILS must list at least one address (comma separated).');
     process.exit(1);
 }
-if (!process.env.DATABASE_URL || !process.env.BETTER_AUTH_SECRET) {
-    console.error('❌  DATABASE_URL and BETTER_AUTH_SECRET must be set.');
+if (!process.env.DATABASE_URL || !process.env.BETTER_AUTH_SECRET || !process.env.ADMIN_PASSWORD) {
+    console.error('❌  DATABASE_URL, BETTER_AUTH_SECRET and ADMIN_PASSWORD must be set.');
     process.exit(1);
 }
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const prisma = new PrismaClient({
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
-// Same shape as seed.ts: Better Auth does the password hashing.
+// Better Auth does the password hashing. The admin plugin's own default role is
+// the literal "user", which the Prisma Role enum has not contained since the RBAC
+// migration renamed it, so a valid enum value is supplied or the insert is refused.
+// (seed.ts has the same latent bug on its create path; it only survives because the
+// primary account already exists and takes the promote branch.)
 const seedAuth = betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     emailAndPassword: { enabled: true },
-    plugins: [admin()],
+    plugins: [admin({ defaultRole: 'COLLABORATOR' })],
 });
 
 /** "devripon.io@x" -> "Devripon". Placeholder; the person edits it on their profile. */
@@ -75,12 +78,8 @@ async function ensureSuperAdmin(email: string): Promise<void> {
         return;
     }
 
-    // 32 random bytes, base64url: long enough that nobody will guess it and nobody
-    // needs to know it. The person sets a real one with "Forgot password".
-    const password = randomBytes(32).toString('base64url');
-
     const result = await seedAuth.api.signUpEmail({
-        body: { email, password, name: displayName(email) },
+        body: { email, password: ADMIN_PASSWORD, name: displayName(email) },
     });
     if (!result?.user?.id) {
         console.error(`❌  ${email}: Better Auth did not return a user.`);
@@ -91,7 +90,7 @@ async function ensureSuperAdmin(email: string): Promise<void> {
         where: { id: result.user.id },
         data: { role: 'SUPER_ADMIN', emailVerified: true },
     });
-    console.log(`✅  ${email}: created as SUPER_ADMIN. Set a password with "Forgot password" on /admin.`);
+    console.log(`✅  ${email}: created as SUPER_ADMIN with ADMIN_PASSWORD.`);
 }
 
 async function main() {
