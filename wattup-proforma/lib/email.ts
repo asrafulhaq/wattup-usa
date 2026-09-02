@@ -83,7 +83,7 @@ export function otpTemplate(otp: string): { subject: string; html: string; text:
         ${heading('Your sign-in code')}
         ${paragraph('Enter this code to sign in to the WattUp Site Pro-Forma Builder.')}
         ${codePanel(otp)}
-        ${muted('This code expires in <strong style="color:rgba(17,24,39,0.65);">10 minutes</strong> and can be used once. If you did not request this code, you can ignore this email.')}
+        ${muted('This code expires in <strong class="muted-strong" style="color:#646973;">10 minutes</strong> and can be used once. If you did not request this code, you can ignore this email.')}
     `;
 
     return { subject, html: baseTemplate(body), text };
@@ -94,18 +94,20 @@ export function otpTemplate(otp: string): { subject: string; html: string; text:
  * mail: the #f4f4f5 panel with an uppercase label, and the value as a blue <code>
  * pill on #eff6ff. Text, never an image, so it can be selected and copied; monospaced
  * and letter-spaced so it reads at a glance. The pill's right padding is the left
- * padding minus one letter-space (0.2em of 36px), so the digits sit centred.
+ * padding minus one letter-space (0.2em of 36px), so the digits sit centred. The
+ * panel, panel-label, code and muted-strong classes are the hooks the base's dark
+ * rules restyle (lib/mail-base.ts explains the palette).
  */
 function codePanel(otp: string): string {
-    return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f4f5;border:1px solid #e8e8e8;border-radius:10px;margin:24px 0 0;overflow:hidden;">
+    return `<table class="panel" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f4f5;border:1px solid #e8e8e8;border-radius:10px;margin:24px 0 0;overflow:hidden;">
           <tr>
             <td align="center" style="padding:20px 20px 0;">
-              <p style="margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:rgba(45,45,45,0.4);letter-spacing:0.06em;text-transform:uppercase;">One-time code</p>
+              <p class="panel-label" style="margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:#a4a4a5;letter-spacing:0.06em;text-transform:uppercase;">One-time code</p>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding:12px 20px 24px;">
-              <code style="display:inline-block;font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:700;color:#197dff;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 17px 12px 24px;letter-spacing:0.2em;line-height:1;">${otp}</code>
+              <code class="code" style="display:inline-block;font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:700;color:#197dff;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 17px 12px 24px;letter-spacing:0.2em;line-height:1;">${otp}</code>
             </td>
           </tr>
         </table>`;

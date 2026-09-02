@@ -1,11 +1,67 @@
 /**
- * Copied from wattup-frontend/lib/mail/base.ts on 2026-09-02; keep in sync by hand.
+ * Copied from wattup-frontend/lib/mail/base.ts on 2026-09-03; keep in sync by hand.
  *
  * A copy, not an import: the two apps share no code (ADR 0001 section 3), and the
  * client's instruction of 2 Sep 2026 is that every pro-forma surface uses
  * wattup-frontend's design exactly. To resync, diff this file against the original.
  * The only intended differences are this comment and the APP_URL fallback, which
  * is this app's port (as in lib/auth-client.ts) rather than the dashboard's.
+ */
+
+/**
+ * The HTML wrapper and text helpers behind every email this app sends.
+ *
+ * Dark mode, and why it is built this way (checklist B.14). Three groups of clients,
+ * three mechanisms:
+ *
+ * 1. Clients that honour `prefers-color-scheme` (Apple Mail, iOS Mail and the others
+ *    that read the media query) only do so when the mail opts in with both
+ *    `<meta name="color-scheme">` and `<meta name="supported-color-schemes">` plus the
+ *    matching `:root` declaration. Without the metas Apple Mail keeps the light
+ *    rendering; with the metas but without a complete dark block it would have left
+ *    #2d2d2d text on the darkened cards. The block therefore restyles every element
+ *    that carries a colour, including the ones the templates add (panels, code pills,
+ *    links, strong text), which is why the templates carry class names.
+ *
+ * 2. Outlook.com and the Outlook apps do not read the media query. They recolour the
+ *    mail themselves and tag the elements they touched with `data-ogsc` (colour) and
+ *    `data-ogsb` (background). Every dark rule is emitted a second time under
+ *    `[data-ogsc] .x, [data-ogsb] .x` so those clients get this palette instead of
+ *    their own guess. darkCss() emits both forms from one list so they cannot drift.
+ *
+ * 3. Gmail (web, Android, iOS) ignores `prefers-color-scheme` entirely and, in its
+ *    dark theme, inverts the light rendering on its own. The light rendering is built
+ *    to survive that: the card is the `--card` token (white) but nothing on it is pure
+ *    black, so an inversion gives light grey on near black rather than glaring white
+ *    on black; every text colour is a solid hex, never an rgba() over white, because
+ *    an inverting client composites alpha against the background it just flipped (a
+ *    45% grey over a near black card vanishes) and Outlook desktop drops rgba()
+ *    altogether and falls back to black; and both logos are PNGs that carry their own
+ *    background, because no client inverts images.
+ *
+ * Palette. Light values are the app's :root tokens; dark values are the `.dark` block
+ * in app/globals.css, converted to hex because no mail client renders oklch() or
+ * var(). Alpha tokens are composited over the surface they sit on.
+ *
+ *   surface  token               light     dark
+ *   canvas   --background         #f4f4f5   #393939
+ *   card     --card               #ffffff   #1d1816   oklch(0.214 0.009 43.1)
+ *   panel    --muted              #f4f4f5   #2b2422   oklch(0.268 0.011 36.5)
+ *   heading  --card-foreground    #2d2d2d   #fbfaf9   oklch(0.986 0.002 67.8)
+ *   body     --text-description   #6c6c6c   #bbbab9   70% white over the card
+ *   muted    --text-muted         #a1a1a1   #8e8c8b   50% white over the card
+ *   border   --border             #e8e8e8   #342f2d   10% white over the card
+ *   link     --primary(-light)    #197dff   #2f80ff   4.7:1 on the card; #197dff is 4.5:1
+ *   button   --primary            #197dff   #197dff   white label in both
+ *   pill     primary tint         #eff6ff   #283143   15% primary over the panel
+ *
+ * The one-time code and the invitation password sit in the pill. In dark mode the
+ * digits are --card-foreground on the tinted pill (12.5:1) rather than the brand blue
+ * (3.5:1): a code has to be readable at a glance, and the blue survives in the pill's
+ * border, the label above it and the button below.
+ *
+ * The light muted grey (#a1a1a1, 2.6:1 on white) is the site's text-dark/45, kept as
+ * it is: raising it is a design decision, not a rendering one.
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001';
@@ -18,6 +74,58 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001';
 const LOGO_LIGHT_MODE = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320,h_96,c_pad,b_white,r_16/v1779187456/logo_dark_kxdk23.png';
 const LOGO_DARK_MODE  = 'https://res.cloudinary.com/dsfms7jb4/image/upload/f_png,w_320/v1779187457/logo_vxmx1s.png';
 
+/*
+ * The dark rules, one list, emitted twice by darkCss(): inside the media query for the
+ * clients that honour it, and under the Outlook.com attribute selectors. Every
+ * declaration is made !important because it has to beat an inline light style.
+ * Add a class here whenever a template introduces an element with a colour; the
+ * render script's coverage check fails otherwise.
+ */
+const DARK_RULES: ReadonlyArray<readonly [selector: string, declarations: string]> = [
+    ['.logo-light', 'display:none;max-height:0;overflow:hidden'],
+    ['.logo-dark', 'display:block'],
+    ['body, .email-canvas', 'background-color:#393939'],
+    ['.email-card', 'box-shadow:0 1px 3px rgba(0,0,0,0.4)'],
+    ['.accent-row', 'background-color:#197dff'],
+    ['.header-cell, .body-cell', 'background-color:#1d1816;border-color:#342f2d'],
+    ['.footer-cell', 'background-color:#2b2422;border-color:#342f2d'],
+    ['.heading, .text-strong, .panel-value', 'color:#fbfaf9'],
+    ['.paragraph, .muted-strong', 'color:#bbbab9'],
+    ['.muted, .footer-text', 'color:#8e8c8b'],
+    ['.link', 'color:#2f80ff'],
+    ['.button-cell, .button', 'background-color:#197dff;color:#ffffff'],
+    ['.panel', 'background-color:#2b2422;border-color:#403a38'],
+    ['.panel-label', 'color:#959291'],
+    ['.panel-divider', 'border-color:#403a38'],
+    ['.code, .badge', 'background-color:#283143;border-color:#25436f;color:#fbfaf9'],
+];
+
+function darkCss(): string {
+    const important = (declarations: string): string =>
+        declarations
+            .split(';')
+            .filter(Boolean)
+            .map((declaration) => `${declaration.trim()} !important`)
+            .join('; ');
+
+    const media = DARK_RULES
+        .map(([selector, declarations]) => `      ${selector} { ${important(declarations)}; }`)
+        .join('\n');
+
+    const outlook = DARK_RULES
+        .map(([selector, declarations]) => {
+            const prefixed = selector
+                .split(',')
+                .map((single) => single.trim())
+                .flatMap((single) => [`[data-ogsc] ${single}`, `[data-ogsb] ${single}`])
+                .join(', ');
+            return `    ${prefixed} { ${important(declarations)}; }`;
+        })
+        .join('\n');
+
+    return `@media (prefers-color-scheme: dark) {\n${media}\n    }\n${outlook}`;
+}
+
 export function baseTemplate(content: string): string {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -25,9 +133,12 @@ export function baseTemplate(content: string): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
   <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
     * { box-sizing: border-box; }
 
     /* ── Mobile ──────────────────────────────────────────────────────────── */
@@ -41,22 +152,18 @@ export function baseTemplate(content: string): string {
       .footer-cell { padding: 16px 20px !important; }
     }
 
-    /* ── Dark mode — swap logos + darken chrome ──────────────────────────── */
-    @media (prefers-color-scheme: dark) {
-      .logo-light  { display: none   !important; max-height: 0 !important; overflow: hidden !important; }
-      .logo-dark   { display: block  !important; }
-      .header-cell { background-color: #1d1d1d !important; border-color: #333 !important; }
-      .body-cell   { background-color: #262626 !important; border-color: #333 !important; }
-      .footer-cell { background-color: #1d1d1d !important; border-color: #333 !important; }
-    }
+    /* ── Light: pin the logo swap for clients that report a scheme ───────── */
     @media (prefers-color-scheme: light) {
       .logo-light  { display: block !important; }
       .logo-dark   { display: none  !important; max-height: 0 !important; overflow: hidden !important; }
     }
+
+    /* ── Dark: the media query, then the same rules for Outlook.com ──────── */
+    ${darkCss()}
   </style>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f4f4f5;min-width:100%;">
+  <table class="email-canvas" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f4f4f5;min-width:100%;">
     <tr>
       <td class="outer-wrap" align="center" style="padding:48px 16px 40px;">
 
@@ -80,7 +187,7 @@ export function baseTemplate(content: string): string {
                   height="28"
                   style="display:block;height:28px;width:auto;border:0;"
                 />
-                <!-- Dark mode logo (light/white colored) — hidden by default -->
+                <!-- Dark mode logo (light/white colored), hidden by default -->
                 <img
                   class="logo-dark"
                   src="${LOGO_DARK_MODE}"
@@ -102,7 +209,7 @@ export function baseTemplate(content: string): string {
           <!-- ── Footer ─────────────────────────────────────────────── -->
           <tr>
             <td class="footer-cell footer-row" style="background:#f4f4f5;border-top:1px solid #ebebeb;border-radius:0 0 12px 12px;padding:20px 40px;border-left:1px solid #e8e8e8;border-right:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8;">
-              <p style="margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:12px;font-weight:400;color:rgba(45,45,45,0.45);line-height:1.6;letter-spacing:-0.01em;text-align:center;">
+              <p class="footer-text" style="margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:12px;font-weight:400;color:#a1a1a1;line-height:1.6;letter-spacing:-0.01em;text-align:center;">
                 &copy; ${new Date().getFullYear()} WattUp USA. All rights reserved.<br/>
                 This email was sent by WattUp. Please do not reply to this email.
               </p>
@@ -124,22 +231,22 @@ export function baseTemplate(content: string): string {
    text-[28px] font-bold leading-[110%] tracking-[-3%] text-dark (#2d2d2d)
 */
 export function heading(text: string): string {
-    return `<h1 style="margin:0 0 16px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:28px;font-weight:700;color:#2d2d2d;letter-spacing:-0.03em;line-height:110%;">${text}</h1>`;
+    return `<h1 class="heading" style="margin:0 0 16px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:28px;font-weight:700;color:#2d2d2d;letter-spacing:-0.03em;line-height:110%;">${text}</h1>`;
 }
 
 /* ── paragraph ────────────────────────────────────────────────────────────────
    Matches contact page body:
-   text-[16px] font-normal leading-[130%] tracking-[-3%] text-dark/70
+   text-[16px] font-normal leading-[130%] tracking-[-3%] text-dark/70, as the solid #6c6c6c
 */
 export function paragraph(text: string): string {
-    return `<p style="margin:0 0 16px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:16px;font-weight:400;color:rgba(45,45,45,0.7);line-height:130%;letter-spacing:-0.03em;">${text}</p>`;
+    return `<p class="paragraph" style="margin:0 0 16px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:16px;font-weight:400;color:#6c6c6c;line-height:130%;letter-spacing:-0.03em;">${text}</p>`;
 }
 
 /* ── muted ────────────────────────────────────────────────────────────────────
-   Fine print / disclaimers — rgba(45,45,45,0.45)
+   Fine print and disclaimers: text-dark/45, as the solid #a1a1a1
 */
 export function muted(text: string): string {
-    return `<p style="margin:24px 0 0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:13px;font-weight:400;color:rgba(45,45,45,0.45);line-height:1.6;letter-spacing:-0.02em;">${text}</p>`;
+    return `<p class="muted" style="margin:24px 0 0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:13px;font-weight:400;color:#a1a1a1;line-height:1.6;letter-spacing:-0.02em;">${text}</p>`;
 }
 
 /* ── button ───────────────────────────────────────────────────────────────────
@@ -149,9 +256,9 @@ export function muted(text: string): string {
 export function button(label: string, href: string): string {
     return `<table cellpadding="0" cellspacing="0" role="presentation" style="margin:28px 0 0;">
       <tr>
-        <td style="border-radius:10px;background:#197dff;">
+        <td class="button-cell" style="border-radius:10px;background:#197dff;">
           <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${href}" style="height:56px;mso-wrap-style:none;" arcsize="18%" stroke="f" fillcolor="#197dff"><v:textbox inset="0px,0px,0px,0px"><center style="color:#ffffff;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;"><![endif]-->
-          <a href="${href}" style="display:inline-block;padding:16px 32px;background:#197dff;color:#ffffff;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;letter-spacing:-0.02em;white-space:nowrap;line-height:1;">
+          <a class="button" href="${href}" style="display:inline-block;padding:16px 32px;background:#197dff;color:#ffffff;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;letter-spacing:-0.02em;white-space:nowrap;line-height:1;">
             ${label}
           </a>
           <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
@@ -161,8 +268,8 @@ export function button(label: string, href: string): string {
 }
 
 /* ── badge ────────────────────────────────────────────────────────────────────
-   Inline role/category pill — blue accent
+   Inline role/category pill, blue accent
 */
 export function badge(text: string): string {
-    return `<span style="display:inline-block;padding:3px 10px;background:#eff6ff;color:#197dff;border:1px solid #bfdbfe;border-radius:100px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;letter-spacing:-0.01em;">${text}</span>`;
+    return `<span class="badge" style="display:inline-block;padding:3px 10px;background:#eff6ff;color:#197dff;border:1px solid #bfdbfe;border-radius:100px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;letter-spacing:-0.01em;">${text}</span>`;
 }
