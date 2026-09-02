@@ -1,10 +1,11 @@
+import { contextFromHeaders, logActivity, maskEmail as maskForLog } from '@/lib/activity-log';
 import { sendMail } from '@/lib/email';
 import { resetPasswordTemplate } from '@/lib/mail/reset-password';
 import { ALL_ROLES, isRole, Permission, Role, ROLE_PERMISSIONS } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { APIError } from 'better-auth/api';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { admin } from 'better-auth/plugins';
 import { createAccessControl } from 'better-auth/plugins/access';
@@ -102,6 +103,16 @@ function maskEmail(email: unknown): string {
     const at = email.indexOf('@');
     if (at <= 0) return '***';
     return `${email[0]}***${email.slice(at)}`;
+}
+
+/**
+ * The address and user agent of the request a Better Auth hook is running inside, or
+ * null when there is no request (a script, a seed). One reader for both audit hooks, so
+ * a success and a refusal from the same client record the same address.
+ */
+function requestContextOf(context: unknown): { ipAddress: string | null; userAgent: string | null } | null {
+    const request = (context as { request?: Request } | null | undefined)?.request;
+    return request ? contextFromHeaders(request.headers) : null;
 }
 
 export const auth = betterAuth({
@@ -218,6 +229,51 @@ export const auth = betterAuth({
         nextCookies(), // required for Next.js server component cookie support
     ],
     databaseHooks: {
+        session: {
+            create: {
+                /**
+                 * Every successful sign-in, into the same activity_log the pro-forma app
+                 * writes to (checklist 4b.6). A session row IS a successful sign-in, and
+                 * it already carries the address and user agent Better Auth recorded, so
+                 * this hook needs no request of its own and cannot disagree with the
+                 * session it is describing.
+                 *
+                 * Awaited rather than deferred: this is the audit trail for
+                 * authentication, and logActivity never throws, so the cost is one insert
+                 * and the failure mode is a log line rather than a failed sign-in.
+                 */
+                after: async (session, endpointContext) => {
+                    try {
+                    const userId = (session as { userId?: unknown }).userId;
+                    if (typeof userId !== 'string') return;
+                    const user = await prisma.user
+                        .findUnique({ where: { id: userId }, select: { email: true } })
+                        .catch(() => null);
+                    if (!user) return;
+                    await logActivity(
+                        {
+                            event: 'signin.success',
+                            target: { id: userId, email: user.email },
+                        },
+                        // Prefer the request's own headers, read the same way the
+                        // refusal path reads them. Better Auth stores the address on the
+                        // session in its expanded form, so taking it from there wrote
+                        // 0000:0000:...:0001 next to the ::1 a failed sign-in recorded:
+                        // one address, two spellings, in a table a person reads down.
+                        // The session's values remain the fallback for a session created
+                        // outside a request.
+                        requestContextOf(endpointContext) ?? {
+                            ipAddress: (session as { ipAddress?: string | null }).ipAddress ?? null,
+                            userAgent: (session as { userAgent?: string | null }).userAgent ?? null,
+                        }
+                    );
+                    } catch (error) {
+                        // An audit hook must never be the reason a sign-in fails.
+                        console.error('[auth] signin.success audit failed', error);
+                    }
+                },
+            },
+        },
         user: {
             create: {
                 /**
@@ -259,6 +315,58 @@ export const auth = betterAuth({
                 });
             }
         },
+        /**
+         * The other half of 4b.6: a sign-in that was REFUSED. The success half is the
+         * session hook above, because a session row is the success; there is no row for
+         * a failure, so it has to be caught here, on the way out of the endpoint.
+         *
+         * Only /sign-in/email, and only when the endpoint returned an error. Better Auth
+         * puts what the handler produced on `context.context.returned`, an APIError for
+         * a refusal. Anything else is a success, already recorded by the session hook.
+         *
+         * The address is the one the caller offered, which is exactly what an audit of
+         * failed sign-ins is for: it is not a user id, because there may be no such user.
+         * Never the password, and never which of "no such account" or "wrong password"
+         * it was, since the response does not say either.
+         */
+        after: createAuthMiddleware(async context => {
+            try {
+            const request = context.request;
+            if (!request) return;
+            if (!new URL(request.url).pathname.endsWith('/sign-in/email')) return;
+
+            // `returned` is on the endpoint context at runtime but not on
+            // AuthMiddleware's input type, which describes the request rather than the
+            // result, so it is read through unknown. If a future version stops putting
+            // it there this hook goes quiet rather than throwing, and the test below
+            // fails, which is the point of having one.
+            const returned = (context as unknown as { context?: { returned?: unknown } }).context
+                ?.returned;
+            if (!(returned instanceof APIError)) return;
+
+            const body = context.body as { email?: unknown } | undefined;
+            const email = typeof body?.email === 'string' ? body.email : null;
+            if (!email) return;
+
+            const existing = await prisma.user
+                .findUnique({ where: { email }, select: { id: true } })
+                .catch(() => null);
+
+            await logActivity(
+                {
+                    event: 'signin.failed',
+                    target: { id: existing?.id ?? null, email },
+                    meta: { status: returned.status },
+                },
+                contextFromHeaders(request.headers)
+            );
+            console.warn('[auth] sign-in refused for', maskForLog(email));
+            } catch (error) {
+                // Same rule as the session hook: recording a refusal must not turn it
+                // into a 500, which would tell an attacker more than the refusal does.
+                console.error('[auth] signin.failed audit failed', error);
+            }
+        }),
     },
     advanced: {
         useSecureCookies: process.env.NODE_ENV === 'production',
