@@ -448,6 +448,44 @@ tracked here so they are not lost. None blocks any other phase.
 
 ---
 
+## PR queue — merge in this order
+
+Client decision (3 Sep): nothing is pushed until everything is done and tested locally. Every task
+lives on its own branch; `main` is the local integration branch we test against. At the end, each
+branch is pushed and merged **in this order**, one PR each, so every PR shows only its own commits.
+Docs updates now ride `docs/tracking` (merged into local `main` after each update) and go last.
+
+| # | Branch | Tip | Landed in local main as |
+|--:|---|---|---|
+| 1 | `docs/proforma-planning` | `dd19925` | fast-forward (early, linear) |
+| 2 | `chore/monorepo-restructure` | `9d06724` | fast-forward (early, linear) |
+| 3 | `fix/f14-reset-form-bypass` | `c8b2ec2` | `0d6b63f` |
+| 4 | `fix/f9-auth-rate-limit` | `44c3ef1` | `cb3117a` |
+| 5 | `fix/f2-article-drafts` | `d2b11e1` | `e44b143` |
+| 6 | `fix/f13-seed-on-build` | `d0e098a` | `596c71e` |
+| 7 | `fix/f1-upload-auth` | `3b3fc60` | `73b3bf0` |
+| 8 | `feat/proforma-mount-tool` | `88f9832` | `093f262` |
+| 9 | `feat/proforma-member-directory` | `0beef36` | `e011728` |
+| 10 | `fix/f8-dependency-upgrade` | `c0cfe86` | `26b31de` |
+| 11 | `feat/proforma-gate-routes` | `eae2c4b` | `445ba58` |
+| 12 | `feat/seed-additional-admins` | `805c120` | `c25dca2` |
+| 13 | `fix/seed-admins-role-and-password` | `8c53103` | `0a1148b` |
+| 14 | `fix/seed-admins-no-autosignin` | `8a218e9` | `bac0f22` |
+| 15 | `feat/proforma-otp-email-brand` | `0374a24` | `6af4ee9` |
+| 16 | `feat/proforma-login` | `d038ab2` | `7415c12` |
+| 17 | `fix/f15-account-issuer` | `ff7cac0` | `eadba94` |
+| 18 | `fix/email-logo-png` | `ed49020` | `c62de28` |
+| 19 | `fix/email-logo-self-backgrounded` | `1c550aa` | `9887cc5` |
+| 20 | `feat/proforma-hardening` | `3eb41d6` | `c955fa5` |
+| 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
+| 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
+| 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
+| 24 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+
+36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
+
+---
+
 ## Notes
 
 Use this space for anything half-done, blocked, or decided differently from the plan.
