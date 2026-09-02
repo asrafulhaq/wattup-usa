@@ -64,6 +64,12 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # PageProps, LayoutProps and the cacheLife signature are globals that
+      # next dev, next build or next typegen write into .next/types, which
+      # tsconfig.json includes. A fresh checkout has none of them.
+      - name: Generate Next route types
+        run: pnpm exec next typegen
+
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
@@ -103,6 +109,11 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      # app/layout.tsx and app/login/page.tsx use the generated LayoutProps
+      # and PageProps globals; without this step tsc fails with TS2304.
+      - name: Generate Next route types
+        run: pnpm exec next typegen
 
       - name: Typecheck
         run: pnpm typecheck
