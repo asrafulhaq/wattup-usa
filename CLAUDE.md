@@ -55,12 +55,12 @@ wattup/
 
 ## Before starting anything
 
-`docs/plan/SECURITY-FINDINGS.md` lists 13 open findings; **F1 and F8 are live on production**.
+`docs/plan/SECURITY-FINDINGS.md` lists 14 findings. **F1, F2, F9, F13 and F14 are fixed on `main` but not yet deployed; F8 is live and unfixed.**
 F8 in particular — `better-auth` below 1.6.22 carries an account-takeover advisory against
 verification flows — **blocks the pro-forma gate work**.
 
 **`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` is
-plain `next build` and is safe to run locally: it no longer runs the seed (finding F13).
+plain `next build` and no longer runs the seed (finding F13). It still reads that database at build time to prerender static pages, but it no longer writes to it.
 `pnpm db:seed` still writes to that database — it force-promotes `ADMIN_EMAIL` to
 `SUPER_ADMIN` and recreates it from `ADMIN_PASSWORD` — so treat it as a deliberate,
 production-affecting action, never a routine step.

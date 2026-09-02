@@ -6,11 +6,12 @@ that work, and F1 and F2 are live on production now.**
 
 | # | Finding | Severity | Fix in |
 |:--:|---|:--:|:--:|
-| F1 | Unauthenticated file upload **and deletion** | **Critical** | Phase S |
+| F1 | Unauthenticated file upload **and deletion** | **Critical** | ✅ merged (S.1) |
 | F8 | `next` and `better-auth` carry a critical + 20 high advisories | **Critical** | Phase S |
-| F2 | Unauthenticated disclosure of unpublished articles | **High** | Phase S |
-| F9 | No rate limiting configured on any auth endpoint | **High** | Phase S |
-| F13 | Seed script re-creates an unremovable SUPER_ADMIN on every build | **High** | Phase S |
+| F2 | Unauthenticated disclosure of unpublished articles | **High** | ✅ merged (S.3) |
+| F9 | No custom rate limits; reset endpoints at the generic rate | **High** | ✅ merged (S.4) |
+| F14 | Forgot/reset forms bypass the limiter via server actions | **High** | ✅ merged (S.4.4) |
+| F13 | Seed script re-creates an unremovable SUPER_ADMIN on every build | **High** | ✅ merged (S.5.1); deploy check S.5.5 open |
 | F3 | Six permissions defined but never enforced | Medium | 4a |
 | F4 | Site-wide script injection gated only by role, and only at the page | Medium | 4a |
 | F10 | Public sign-up blocked by a fragile path-string hook | Medium | 4a |
@@ -65,8 +66,16 @@ and unvalidated, so uploads can be placed anywhere in the account.
 points, an origin check on the route, and a whitelist for `folder`. Until phase 4a exists,
 gate on an authenticated session and tighten to the permission afterwards.
 
-**Also do.** Review the Cloudinary account for files uploaded by anyone outside the team, and
-check whether `cleanupOldDrafts` has already removed anything unexpected.
+**Also do.** Review the Cloudinary account for files uploaded by anyone outside the team.
+
+> **Status after review (2 Sep): fixed and merged**, in two commits. The second closed a vector
+> the first left open: the server actions forwarded caller-supplied `publicId` with
+> `overwrite: true` to Cloudinary, so any signed-in user could **replace the live homepage hero
+> in place** with no database write. Actions now build a fresh `{ folder }` and forward nothing
+> else. Two corrections to the text above: `cleanupOldDrafts` only ever logged and never called
+> Cloudinary, so the `hours` widening was not a real exposure; and `deleteImages` /
+> `deleteSingleImage` still accept **any** id from any signed-in user — that needs a media
+> ownership model and is tracked as S.1.10 → phase 4a.
 
 ---
 
@@ -255,6 +264,33 @@ for using password-reset as an email bomb.
 **Fix.** Add `rateLimit.customRules` with tight windows on `sign-in`, `forget-password` and
 `reset-password`. Phase 5 builds a limiter for the pro-forma gate; the same work covers this,
 but this half should not wait for it — it is a few lines of configuration.
+
+---
+
+> **Correction after review (2 Sep):** the original wording "no rate limiting" overstated it.
+> Better Auth 1.6.9 ships built-in rules for `/sign-in*` (3 per 10 s) and
+> `/request-password-reset` (3 per 60 s). What was missing: any explicit configuration, any rule
+> on `/reset-password`, and — the real gap — the app's own forms never hit the HTTP limiter at
+> all (F14). **Fixed:** explicit `rateLimit` block, five custom rules including the
+> `/reset-password/*` link-click callback, memory storage for now (B.10).
+
+---
+
+## F14 — Forgot/reset forms bypass the rate limiter · **High** · ✅ fixed
+
+Found by the F9 implementer and confirmed by both reviewers. `app/_actions/auth-actions.ts`
+exported `requestPasswordReset` and `resetPassword` as `'use server'` actions that called
+`auth.api.requestPasswordReset` / `auth.api.resetPassword` **directly**. Better Auth's rate
+limiter lives only in its HTTP handler, so those two public endpoints — the production path
+for the forgot-password and reset-password pages — were unlimited regardless of F9's rules.
+An anonymous caller could replay the action id from the client bundle and send a reset email
+per call through Resend: exactly the email-bomb F9 names.
+
+**Fix (merged):** both forms now call `authClient.requestPasswordReset` /
+`authClient.resetPassword` over HTTP — the same path `sign-in-form.tsx` already used — so F9's
+rules apply. The two server actions were **deleted**, not guarded; a leftover export is a
+leftover bypass. Better Auth returns the same `{ status: true }` for known and unknown
+addresses, so no enumeration was introduced.
 
 ---
 

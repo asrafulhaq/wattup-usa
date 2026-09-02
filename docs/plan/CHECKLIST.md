@@ -15,11 +15,11 @@ having intended to do it. If an item is half done, say which half in the Notes c
 
 | Phase | Title | Owner | Blocked by | Status |
 |:--:|---|:--:|---|:--:|
-| S | Security fixes: F1, F8, F2, F9, F13 | dev | — | ☐ not started |
+| S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ◐ F1 F2 F9 F13 F14 merged to main; **F8 upgrade outstanding** |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
 | 2 | The access gate | dev | 1 | ☐ not started |
-| 3 | Mount the tool behind it | dev | 2 | ☐ not started |
+| 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
 | 4c | Dashboard UI | dev | 4a, 4b | ☐ not started |
@@ -48,14 +48,16 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 
 ### S.1 — F1: unauthenticated upload and deletion · Critical
 
-- [ ] S.1.1 Session + permission check on `app/api/upload-image/route.ts`
-- [ ] S.1.2 Session checks on **all six** exports in `app/_actions/image-actions.ts` — `deleteImages` and `cleanupOldDrafts` included, they are destructive
-- [ ] S.1.3 Origin check on the upload route
-- [ ] S.1.4 Whitelist the caller-supplied `folder` parameter
-- [ ] S.1.5 Verify: unauthenticated `POST /api/upload-image` returns 401
-- [ ] S.1.6 Verify: TipTap editor upload still works when signed in
+- [x] S.1.1 Session + permission check on `app/api/upload-image/route.ts`
+- [x] S.1.2 Session checks on **all six** exports in `app/_actions/image-actions.ts` — `deleteImages` and `cleanupOldDrafts` included, they are destructive
+- [x] S.1.3 Origin check on the upload route
+- [x] S.1.4 Whitelist the caller-supplied `folder` parameter
+- [x] S.1.5 Verify: unauthenticated `POST /api/upload-image` returns 401
+- [◐] S.1.6 TipTap editor upload still works when signed in — structurally verified (same-origin fetch, `folder=tiptap` allowed, callers compile against the unchanged return shape); live check needs a signed-in session, do with 0.17
 - [ ] S.1.7 Audit Cloudinary for files uploaded from outside the team
-- [ ] S.1.8 Check whether `cleanupOldDrafts` has already deleted anything unexpected
+- [x] S.1.8 ~~Check whether `cleanupOldDrafts` has already deleted anything~~ — **premise was false**: it only ever logged and never called Cloudinary. Clamp kept for when it is wired in
+- [x] S.1.9 **Follow-up (review):** `publicId`/`overwrite` passthrough closed — actions build a fresh `{ folder }` and forward nothing else; allowlist moved to `lib/image-service.ts` and enforced on the actions and `moveImage` too
+- [ ] S.1.10 **Residual → 4a:** `deleteImages` / `deleteSingleImage` accept any id. Needs a media-ownership model (none exists). Any signed-in user can delete any asset until then
 
 > No `UPLOAD_MEDIA` permission exists until 4a. Gate on an authenticated session now, tighten
 > to the permission at 4a.16.
@@ -72,28 +74,32 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 
 ### S.3 — F2: unpublished articles readable by anyone · High
 
-- [ ] S.3.1 `getArticles` defaults to `status: 'Published'`
-- [ ] S.3.2 Same for `getPaginatedArticles`, `getArticleById`, `getArticleBySlug`
-- [ ] S.3.3 A caller cannot widen scope by passing `status` — drafts need a session with a post permission
-- [ ] S.3.4 Follow the pattern `lib/locations/server.ts` already uses: filter at the data layer, not at the caller
-- [ ] S.3.5 Verify: an unauthenticated call returns no draft
+- [x] S.3.1 `getArticles` defaults to `status: 'Published'`
+- [x] S.3.2 Same for `getPaginatedArticles`, `getArticleById`, `getArticleBySlug`
+- [x] S.3.3 A caller cannot widen scope by passing `status` — drafts need a session with a post permission
+- [x] S.3.4 Follow the pattern `lib/locations/server.ts` already uses: filter at the data layer, not at the caller
+- [x] S.3.5 An unauthenticated call returns no draft — by construction: `PUBLISHED` is inside every public query and the dashboard functions delegate to those on refusal
+- [x] S.3.6 **Follow-up (review):** drafts require `CREATE_POST`, not just a session; refusal takes the identical Published-only path as no-session. Also: public "Show more" (page 2+) was leaking drafts too — closed
 
 ### S.4 — F9: no rate limiting on auth endpoints · High
 
-- [ ] S.4.1 `rateLimit.customRules` in `lib/auth.ts` for `sign-in/email`
-- [ ] S.4.2 Rules for `forget-password` and `reset-password`
-- [ ] S.4.3 Verify: repeated sign-in attempts are throttled
+- [x] S.4.1 `rateLimit.customRules` in `lib/auth.ts` for `sign-in/email`
+- [x] S.4.2 Rules for `forget-password` and `reset-password`
+- [ ] S.4.3 Verify live: repeated sign-in attempts are throttled — rule keys confirmed against the 1.6.9 rate-limiter source (`/sign-in/email` after basePath strip); needs a running server + DB
+- [x] S.4.4 **F14 (found in review):** the app's own forgot/reset forms called `auth.api.*` from server actions, bypassing the HTTP limiter entirely. Forms now use `authClient` over HTTP; the two bypass actions are **deleted**, not guarded
+- [x] S.4.5 **Follow-up (review):** `/reset-password/*` wildcard so the link-click GET callback (a token-validity oracle) is limited too
+- [ ] S.4.6 **Note:** memory storage is per-instance on serverless — effective limit is N× the numbers. Move to `database`/secondary storage once a `rateLimit` table can be migrated (needs a frontend migration). Backlog B.10
 
 ### S.5 — F13: seed re-creates an unremovable SUPER_ADMIN · High
 
-- [ ] S.5.1 Remove `prisma db seed` from the `build` script; make it a one-off bootstrap command
+- [x] S.5.1 `prisma db seed` removed from `build`; `pnpm db:seed` is the explicit one-off; `seed.ts` header states the force-promote/recreate behaviour; `prisma.config.ts` seed hook is `pnpm run seed`
 - [ ] S.5.2 Decide: deliberate break-glass account, or leftover bootstrap?
 - [ ] S.5.3 If break-glass — rotate the password, move it to the password manager, document the procedure
 - [ ] S.5.4 Remove `ADMIN_PASSWORD` from the deployed environment once the account exists
-- [ ] S.5.5 Verify: a deploy no longer re-promotes or re-creates the account
+- [ ] S.5.5 Verify on a real deploy that the account is no longer re-promoted — **also check the Vercel project's Build Command override**: if one was ever set to `next build && prisma db seed`, the `package.json` change is void and this cannot be seen from git
 - [ ] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them
 
-- [ ] S.6 Each fix ships as its own commit; deploy and confirm
+- [◐] S.6 Each fix merged to `main` as its own branch (F1 ×2 commits, F2 ×2, F9 ×2, F13, F14). **Not deployed** — push is gated on the Vercel Root Directory change (0.18)
 
 ---
 
@@ -153,7 +159,9 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 > tables, nothing existing touched — but it writes to the shared Neon database, so it needs a
 > deliberate go-ahead. Tracked as 2.0 below.
 
-- [ ] 2.0 `proforma_session`, `proforma_account`, `proforma_verification` added to the frontend schema and migrated **(needs approval — writes to the shared database)**
+- [x] 2.0 `proforma_session`, `proforma_account`, `proforma_verification` added to the frontend schema and **migrated** (`20260902180000_proforma_auth_tables`, applied via `migrate deploy`, verified by read-only introspection). SQL generated with `migrate diff` first, which exposed drift deliberately left out — see 4a.41
+- [ ] 2.0a **Pro-forma schema bug:** `Session`/`Account`/`Verification` ids are `String @id` with **no `@default(cuid())`**, and Better Auth runs with `generateId: false` — inserts will fail. Add the default to all three before any sign-in is attempted
+- [ ] 2.0b `safeNext` belongs at the **consumer**: the `/login` page receives `?next=` from anyone and must validate it there (the Phase 3 route validates the producer side, which is always `/tool…`)
 
 **The riskiest phase.** Deliberately built and tested before DNS exists, against
 `PROFORMA_ALLOWLIST` rather than the database.
@@ -227,18 +235,19 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ## Phase 3 — Mount the tool
 
-- [ ] 3.1 Tool files copied to `wattup-proforma/private/tool/` — **not** `public/`
-- [ ] 3.2 `model.js`, `doc.js`, `evpin.js`, `app.js` byte-identical to source
-- [ ] 3.3 Only the wordmark and favicon in `public/`
-- [ ] 3.4 Gated route handler serving `private/tool/` after a session check
-- [ ] 3.5 Content-Type map for `.html`, `.js`, `.css`, `.svg`; everything else refused
-- [ ] 3.6 `Cache-Control: private, no-store` on served files
-- [ ] 3.7 **`outputFileTracingIncludes` set in `next.config.ts`** — without it the route works in dev and 404s in production
-- [ ] 3.8 Verified on a **preview deploy**, not just locally
-- [ ] 3.9 Sign-out link in `index.html:31` changed from `GET /__logout` to a POST — the one interface change
-- [ ] 3.10 The `*.wattupusa.com` hostname check still reveals the link
-- [ ] 3.11 Tool works end to end behind the gate: inputs, preview, scenarios, JSON import/export, print
-- [ ] 3.12 Unauthenticated request for `model.js` returns no JavaScript
+- [x] 3.1 Tool files copied to `wattup-proforma/private/tool/` — **not** `public/`
+- [x] 3.2 `model.js`, `doc.js`, `evpin.js`, `app.js` byte-identical to source
+- [x] 3.3 Only the wordmark and favicon in `public/`
+- [x] 3.4 Gated route handler serving `private/tool/` after a session check
+- [x] 3.5 Content-Type map for `.html`, `.js`, `.css`, `.svg`; everything else refused
+- [x] 3.6 `Cache-Control: private, no-store` on served files
+- [x] 3.7 **`outputFileTracingIncludes` set in `next.config.ts`** — without it the route works in dev and 404s in production
+- [ ] 3.8 Verified on a **preview deploy** — blocked on the Vercel project (1.6); locally the `.nft.json` lists all 15 `private/tool/**` files, which is the tracing proof
+- [x] 3.9 Sign-out link in `index.html:31` changed from `GET /__logout` to a POST — the one interface change
+- [x] 3.10 The `*.wattupusa.com` hostname check still reveals the link
+- [ ] 3.11 Tool works end to end behind the gate — needs a session, which needs phase 2 (`/login` + the gate routes). Every `/tool/*` request currently 302s to `/login`, which 404s: fail closed
+- [x] 3.13 **Follow-up (review):** `lib/gate.ts` `requireMember()` — `getSession` with `disableCookieCache: true` (forced DB read), then `user.banned` re-check; the one place a gated request decides membership, phase 2 swaps in the `proforma_member` lookup. `X-Frame-Options: DENY` + `frame-ancestors 'none'` on every gated response (tool's own `srcdoc` preview verified unaffected). Content-Type map trimmed to the four the spec names
+- [x] 3.12 Unauthenticated request for `model.js` returns no JavaScript
 
 ---
 
@@ -293,6 +302,7 @@ entirely inside `wattup-frontend`. Its own branch, its own PR. *(needs answers C
 - [ ] 4a.21 `SUPER_ADMIN` permissions cannot be revoked by override
 - [ ] 4a.22 `MANAGE_PERMISSIONS` is `SUPER_ADMIN` only
 - [ ] 4a.23 Every permission change writes an `activity_log` row: actor, target, permission, direction
+- [ ] 4a.41 **Reconcile schema drift found during 2.0:** the live `Permission` enum has 22 values, `main` has 17 — the DB carries `UPLOAD_MEDIA`, `DELETE_ANY_MEDIA`, `DELETE_OWN_MEDIA`, `MANAGE_PROFILE`, `VIEW_ANALYTICS` never committed; `SocialLink` has a redundant index on its PK. No column uses `Permission`, so inert, but `migrate dev` will refuse until reconciled. Three of the five are wanted here anyway — add them to the schema rather than drop them
 
 ### Completeness — every action gated, proven not assumed
 
@@ -365,8 +375,9 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ### Review gate
 
-> Per the project's development loop, reviewers are launched **only when you say so**. Ask,
-> then run exactly what is approved and record which were declined.
+> Reviewers run **once per completed phase**, not per task (user decision, 2 Sep 2026), and only
+> when the user says so. **Phase S + Phase 3 batch: security + code review run over the combined
+> diff; 2 High, 1 Medium, 3 Should-fix, nits — all folded into the branches before merge.**
 
 - [ ] 5.17 Ask whether to run the security review, and on which diff
 - [ ] 5.18 Ask whether to run the code review
@@ -409,6 +420,9 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.5 **F6:** re-check this on every `better-auth` upgrade — it hardcodes the stored hash format
 - [ ] B.6 **F7:** rate-limit `submitDriverInquiry` and `submitHostInquiry`; reuse the phase 5 limiter
 - [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
+- [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
+- [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
+- [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
 
 ---
 

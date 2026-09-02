@@ -187,7 +187,7 @@ not be able to widen it by passing an argument.
 ```bash
 pnpm dev              # localhost:3000; log in at /admin
 pnpm lint
-pnpm build            # next build. Safe to run locally: it no longer runs the seed
+pnpm build            # next build. Reads the database at build time; no longer writes (seed removed)
 pnpm db:seed          # one-off bootstrap, writes to DATABASE_URL  ← see the warning below
 pnpm db:studio        # Prisma Studio
 pnpm db:push          # schema → database, no migration
@@ -222,11 +222,11 @@ write here:
 
 | | |
 |---|---|
-| **F1** | `app/api/upload-image/route.ts` and all six exports of `image-actions.ts` have **no auth at all**. Live. |
+| **F1** | ✅ fixed on `main`: session + origin + folder allowlist on the route; session on all six actions; `publicId`/`overwrite` never forwarded. Residual: delete-by-any-id → 4a. |
 | **F8** | `next` needs ≥ 16.2.11, `better-auth` needs ≥ 1.6.22. Both have middleware-bypass / account-takeover advisories. |
-| **F2** | Article reads leak drafts. |
+| **F2** | ✅ fixed on `main`: public reads filter `Published` inside the query; dashboard reads need `CREATE_POST` and are uncached. |
 | **F13** | The seed resurrected an unremovable `SUPER_ADMIN` on every build. The build no longer runs it; whether the account should exist at all is still open. |
-| **F9** | No `rateLimit` config in `lib/auth.ts`. |
+| **F9** | ✅ fixed on `main`: explicit `rateLimit` block, five custom rules. **F14** (forms bypassed it via server actions) also fixed: forms use `authClient`, bypass actions deleted. |
 | **F3** | Six post permissions defined but never enforced. |
 
 Decisions and the tracked plan:

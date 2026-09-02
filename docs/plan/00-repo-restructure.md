@@ -382,11 +382,10 @@ pnpm install            # postinstall runs prisma generate
 pnpm exec next build    # NOT `pnpm build` — see the warning below
 ```
 
-> **Do not run `pnpm build` here.** Its script is `next build && prisma db seed`, and
-> `DATABASE_URL` points at a **remote Neon database**. Building locally would run the seed
-> against it, which force-promotes `ADMIN_EMAIL` to `SUPER_ADMIN` and recreates the account
-> from `ADMIN_PASSWORD` if it is missing — finding F13. `pnpm exec next build` compiles the
-> same thing and touches nothing.
+> **Historical note:** at the time of the restructure, `pnpm build` ran `prisma db seed` against
+> the remote Neon database (finding F13), so this step used `pnpm exec next build`. F13 is fixed:
+> `build` is now plain `next build`. It still **reads** the database at build time to prerender
+> the sitemap and press-release pages, but no longer writes to it.
 
 A clean build means the move changed nothing. If the build fails, the cause is almost always
 one of: a missing `.env` (step 4), a path in `next.config.ts` that pointed outside the app, or
