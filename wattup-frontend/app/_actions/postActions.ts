@@ -3,7 +3,7 @@
 
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { getAdminSession, getSession } from './auth-actions';
 
 /**
@@ -108,7 +108,7 @@ export async function getArticleBySlug(slug: string) {
 export async function getArticlesForDashboard(page = 1, pageSize = 10) {
     const session = await getSession();
     // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
-    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+    if (!session || !hasRoleDefault(session.role, Permission.CREATE_POST)) {
         return getPaginatedArticles(page, pageSize);
     }
 
@@ -142,7 +142,7 @@ export async function getArticlesForDashboard(page = 1, pageSize = 10) {
 export async function getArticleByIdForDashboard(id: string) {
     const session = await getSession();
     // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
-    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+    if (!session || !hasRoleDefault(session.role, Permission.CREATE_POST)) {
         return getArticleById(id);
     }
 

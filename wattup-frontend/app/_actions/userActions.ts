@@ -6,7 +6,7 @@ import {
     deleteSingleImageFromCloudinary,
     uploadImageToCloudinary,
 } from '@/lib/image-service';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
 import { headers } from 'next/headers';
@@ -102,7 +102,7 @@ export async function updateSocialLinks(
 ) {
     const session = await getSession();
     if (!session) return { success: false, error: 'Unauthorized' };
-    if (!hasPermission(session.role, Permission.MANAGE_SOCIAL_LINKS)) {
+    if (!hasRoleDefault(session.role, Permission.MANAGE_SOCIAL_LINKS)) {
         return { success: false, error: 'Insufficient permissions' };
     }
 

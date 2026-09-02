@@ -37,7 +37,7 @@ import {
 import {
     ASSIGNABLE_ROLES,
     canManageRole,
-    hasPermission,
+    hasRoleDefault,
     Permission,
     ROLE_BADGE_CLASSES,
     ROLE_LABELS,
@@ -74,13 +74,13 @@ export function UsersClient({ users, total }: Props) {
     const currentUserRole = (session?.user as { role?: string })?.role ?? '';
     const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
 
-    const canInvite = hasPermission(currentUserRole, Permission.INVITE_USERS);
-    const canChangeRole = hasPermission(
+    const canInvite = hasRoleDefault(currentUserRole, Permission.INVITE_USERS);
+    const canChangeRole = hasRoleDefault(
         currentUserRole,
         Permission.CHANGE_USER_ROLE
     );
-    const canBan = hasPermission(currentUserRole, Permission.BAN_USERS);
-    const canDelete = hasPermission(currentUserRole, Permission.DELETE_USERS);
+    const canBan = hasRoleDefault(currentUserRole, Permission.BAN_USERS);
+    const canDelete = hasRoleDefault(currentUserRole, Permission.DELETE_USERS);
 
     const refresh = () => router.refresh();
 

@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { AmenitiesBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getDashboardAmenities } from '@/lib/locations/dashboard';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 async function AmenitiesTable() {
@@ -14,7 +14,7 @@ async function AmenitiesTable() {
         getSession(),
     ]);
 
-    if (!hasPermission(session?.role, Permission.MANAGE_LOCATIONS)) {
+    if (!hasRoleDefault(session?.role, Permission.MANAGE_LOCATIONS)) {
         return <NoAccess what='charging locations' role={session?.role} />;
     }
 
@@ -23,7 +23,7 @@ async function AmenitiesTable() {
     return (
         <AmenitiesClient
             amenities={amenities}
-            canManage={hasPermission(session?.role, Permission.MANAGE_AMENITIES)}
+            canManage={hasRoleDefault(session?.role, Permission.MANAGE_AMENITIES)}
         />
     );
 }

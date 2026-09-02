@@ -8,7 +8,7 @@ import { StatCard } from '@/components/dashboard/ui/stat-card';
 import { StatusPill } from '@/components/dashboard/ui/status-pill';
 import { OverviewPageSkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getOverviewStats } from '@/lib/dashboard/overview';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import {
     ArrowUpRight,
     BatteryCharging,
@@ -33,7 +33,7 @@ async function Overview() {
     // rejects put the two in a loop that reloaded the page until the tab was closed.
     if (!session) return <SessionEnded />;
 
-    const canSeeNetwork = hasPermission(session.role, Permission.MANAGE_LOCATIONS);
+    const canSeeNetwork = hasRoleDefault(session.role, Permission.MANAGE_LOCATIONS);
     const stats = canSeeNetwork ? await getOverviewStats() : null;
 
     return (

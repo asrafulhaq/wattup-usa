@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { LocationsBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { getDashboardLocations } from '@/lib/locations/dashboard';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 async function LocationsTable() {
@@ -16,14 +16,14 @@ async function LocationsTable() {
 
     // The read returns an empty list to a caller without the permission, so this is
     // about saying why rather than showing an empty table that looks like a bug.
-    if (!hasPermission(session?.role, Permission.MANAGE_LOCATIONS)) {
+    if (!hasRoleDefault(session?.role, Permission.MANAGE_LOCATIONS)) {
         return <NoAccess what='charging locations' role={session?.role} />;
     }
 
     return (
         <LocationsClient
             locations={locations}
-            canDelete={hasPermission(session?.role, Permission.DELETE_LOCATIONS)}
+            canDelete={hasRoleDefault(session?.role, Permission.DELETE_LOCATIONS)}
         />
     );
 }

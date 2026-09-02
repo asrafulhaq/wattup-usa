@@ -4,7 +4,7 @@ import { NoAccess } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { getDashboardAmenities, getLocationForEdit } from '@/lib/locations/dashboard';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,7 +15,7 @@ interface Props {
 
 export default async function EditLocationPage({ params }: Props) {
     const session = await getSession();
-    if (!hasPermission(session?.role, Permission.MANAGE_LOCATIONS)) {
+    if (!hasRoleDefault(session?.role, Permission.MANAGE_LOCATIONS)) {
         return <NoAccess what='charging locations' role={session?.role} />;
     }
 

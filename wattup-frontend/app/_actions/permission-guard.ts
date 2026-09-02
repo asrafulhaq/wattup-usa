@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { hasPermission, type Permission } from '@/lib/permissions';
+import { hasRoleDefault, type Permission } from '@/lib/permissions';
 import { getSession } from './auth-actions';
 
 /**
@@ -15,7 +15,7 @@ import { getSession } from './auth-actions';
 export async function sessionWith(permission: Permission) {
     const session = await getSession();
     if (!session) return null;
-    return hasPermission(session.role, permission) ? session : null;
+    return hasRoleDefault(session.role, permission) ? session : null;
 }
 
 /**

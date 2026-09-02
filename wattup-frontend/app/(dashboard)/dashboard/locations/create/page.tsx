@@ -4,11 +4,11 @@ import { NoAccess } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { getDashboardAmenities } from '@/lib/locations/dashboard';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 
 export default async function CreateLocationPage() {
     const session = await getSession();
-    if (!hasPermission(session?.role, Permission.MANAGE_LOCATIONS)) {
+    if (!hasRoleDefault(session?.role, Permission.MANAGE_LOCATIONS)) {
         return <NoAccess what='charging locations' role={session?.role} />;
     }
 

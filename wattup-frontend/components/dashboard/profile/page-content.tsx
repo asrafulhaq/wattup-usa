@@ -1,6 +1,6 @@
 import { getSession } from '@/app/_actions/auth-actions';
 import { getSocialLinks } from '@/app/_actions/userActions';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import CredentialsUpdate from './credentials-update';
 import PersonalInformation from './personal-information';
@@ -23,7 +23,7 @@ const PageContent = async () => {
         getSocialLinks(session.id),
     ]);
 
-    const canManageSocialLinks = hasPermission(
+    const canManageSocialLinks = hasRoleDefault(
         session.role,
         Permission.MANAGE_SOCIAL_LINKS
     );

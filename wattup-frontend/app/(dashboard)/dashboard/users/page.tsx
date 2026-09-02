@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import UsersPageContent from '@/components/dashboard/users/page-content';
 import { UsersBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -17,7 +17,7 @@ export default async function UsersPage() {
     // Not a redirect: proxy.ts sends anyone holding a session cookie from /admin back to
     // /dashboard, so answering a rejected cookie with a redirect loops the two forever.
     if (!session) return <SessionEnded />;
-    if (!hasPermission(session.role, Permission.VIEW_USERS)) {
+    if (!hasRoleDefault(session.role, Permission.VIEW_USERS)) {
         return <NoAccess what='user management' role={session.role} />;
     }
 

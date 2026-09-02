@@ -17,11 +17,16 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+// The same list the select renders, so a role cannot be offered that the schema then
+// refuses. z.enum wants a non-empty tuple; ASSIGNABLE_ROLES is that list.
+const ASSIGNABLE = ASSIGNABLE_ROLES as unknown as [Role, ...Role[]];
+
 const schema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
-    role: z.enum([Role.ADMIN, Role.EDITOR, Role.COLLABORATOR]),
+    // No default (ADR 0002 section 4.2, checklist 4a.29): the admin chooses.
+    role: z.enum(ASSIGNABLE, { message: 'Choose a role' }),
     sendInviteEmail: z.boolean(),
 });
 
@@ -73,7 +78,6 @@ export function InviteUserDialog({ onSuccess }: Props) {
     } = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
-            role: Role.COLLABORATOR,
             sendInviteEmail: true,
         },
     });
@@ -238,7 +242,11 @@ export function InviteUserDialog({ onSuccess }: Props) {
                         </label>
                         <select
                             className='input-field bg-white'
+                            defaultValue=''
                             {...register('role')}>
+                            <option value='' disabled>
+                                Choose a role
+                            </option>
                             {ASSIGNABLE_ROLES.map(role => (
                                 <option key={role} value={role}>
                                     {ROLE_LABELS[role]}

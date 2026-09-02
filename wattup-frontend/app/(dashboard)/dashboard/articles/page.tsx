@@ -4,7 +4,7 @@ import { ArticlesDataTable } from '@/components/dashboard/articles/articles-data
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
 import { ArticlesBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -14,7 +14,7 @@ export async function ArticlesTable() {
         getSession(),
     ]);
 
-    const canPublish = hasPermission(session?.role, Permission.PUBLISH_POST);
+    const canPublish = hasRoleDefault(session?.role, Permission.PUBLISH_POST);
 
     const formattedArticles = articles.map(article => ({
         ...article,

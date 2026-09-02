@@ -5,7 +5,7 @@ import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
 import { RequireSession } from '@/components/dashboard/require-session';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasRoleDefault, Permission } from '@/lib/permissions';
 import React, { Suspense } from 'react';
 
 async function SidebarWrapper() {
@@ -19,9 +19,9 @@ async function SidebarWrapper() {
     return (
         <AppSidebar
             variant='inset'
-            showUsers={hasPermission(session.role, Permission.VIEW_USERS)}
-            showSettings={hasPermission(session.role, Permission.MANAGE_SITE_SETTINGS)}
-            showLocations={hasPermission(session.role, Permission.MANAGE_LOCATIONS)}
+            showUsers={hasRoleDefault(session.role, Permission.VIEW_USERS)}
+            showSettings={hasRoleDefault(session.role, Permission.MANAGE_SITE_SETTINGS)}
+            showLocations={hasRoleDefault(session.role, Permission.MANAGE_LOCATIONS)}
             user={{
                 name: session.name,
                 email: session.email,

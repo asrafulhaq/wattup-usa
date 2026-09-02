@@ -4,7 +4,7 @@
 import { auth } from '@/lib/auth';
 import { sendMail } from '@/lib/email';
 import { inviteUserTemplate } from '@/lib/mail/invite-user';
-import { canManageRole, hasPermission, Permission, Role, ROLE_LABELS } from '@/lib/permissions';
+import { canManageRole, hasRoleDefault, Permission, Role, ROLE_LABELS } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { updateTag } from 'next/cache';
@@ -30,7 +30,7 @@ export type ManagedUser = {
 async function requirePermission(permission: Permission) {
     const session = await getSession();
     if (!session) return { session: null, error: 'Unauthorized' as const };
-    if (!hasPermission(session.role, permission))
+    if (!hasRoleDefault(session.role, permission))
         return { session: null, error: 'Insufficient permissions' as const };
     return { session, error: null };
 }
