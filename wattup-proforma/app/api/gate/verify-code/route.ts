@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     // counter only exists once a code has been issued; an address that never had
     // one has no counter at all, so bound how often one address space may try.
     // A breach is the same refusal as a wrong code, never a distinct answer.
-    const ipLimit = await checkIpLimit(clientIp(request.headers));
+    const ipLimit = await checkIpLimit(clientIp(request.headers), 'verify');
     if (!ipLimit.allowed) {
         console.warn('[gate] verify-code refused', { id, reason: 'RATE_LIMIT_IP' });
         return refused(id);

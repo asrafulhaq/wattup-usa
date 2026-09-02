@@ -14,6 +14,8 @@
 
 export const REQUIRED_ENV = [
     'BETTER_AUTH_SECRET',
+    'BETTER_AUTH_URL',
+    'NEXT_PUBLIC_APP_URL',
     'DATABASE_URL',
     'RESEND_API_KEY',
     'MAIL_FROM',

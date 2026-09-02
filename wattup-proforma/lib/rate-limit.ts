@@ -9,9 +9,11 @@ import prisma from '@/lib/prisma';
  *
  * Three limits, all from the PRD, all on request-code:
  *
- *   per address   5 code requests per hour            checkEmailLimits, reason 'email'
- *   per IP        20 code requests per hour           checkIpLimit,     reason 'ip'
- *   gap           60 seconds between sends to one     checkEmailLimits, reason 'gap'
+ *   per address+source  5 code requests per hour      checkEmailLimits, reason 'email'
+ *   per address, global 20 code requests per hour     checkEmailLimits, reason 'email-global'
+ *   per IP (request)    20 code requests per hour     checkIpLimit,     reason 'ip'
+ *   per IP (verify)     100 attempts per hour         checkIpLimit,     reason 'ip'
+ *   gap                 60 seconds between sends      checkEmailLimits, reason 'gap'
  *                 address, rolling
  *
  * The fourth PRD limit, 5 verify attempts per code, is Better Auth's own
@@ -78,9 +80,17 @@ import prisma from '@/lib/prisma';
 
 export const LIMITS = {
     /** Code requests per address per hour. */
-    emailPerWindow: 5,
+    // Per address AND source: one IP cannot spend a member's whole hourly budget.
+    emailPerSourcePerWindow: 5,
+    // Global ceiling per address across all sources, so many IPs still cannot
+    // flood one inbox (the 60 s gap bounds it at 60/hour; this is lower).
+    emailGlobalPerWindow: 20,
     /** Code requests per client IP per hour. */
     ipPerWindow: 20,
+    // verify-code's own bucket, far higher: Better Auth's five attempts per code
+    // are the brute-force bound; this only caps timing-sample volume. Sharing
+    // request-code's bucket had halved every NAT's capacity (security review).
+    ipVerifyPerWindow: 100,
     /** The window for both counters, in seconds. */
     windowSeconds: 60 * 60,
     /** Minimum gap between two sends to one address, in seconds. */
@@ -95,7 +105,7 @@ const RETENTION_SECONDS = 2 * LIMITS.windowSeconds;
 const SWEEP_INTERVAL_MS = 10 * 60 * 1000;
 const RETRY_PRIMARY_AFTER_MS = 60 * 1000;
 
-export type LimitReason = 'ip' | 'email' | 'gap';
+export type LimitReason = 'ip' | 'email' | 'email-global' | 'gap';
 
 export type RequestLimitResult = { allowed: true } | { allowed: false; reason: LimitReason };
 
@@ -321,7 +331,7 @@ export function getRateLimitStore(): RateLimitStore {
  * 503 if it is missing; the throw here is for a caller that skipped that, and
  * the fail-open wrappers below turn it into a log line and `allowed`.
  */
-export function rateLimitKey(kind: 'ip' | 'email', value: string): string {
+export function rateLimitKey(kind: 'ip' | 'ip-verify' | 'email' | 'email-ip', value: string): string {
     const secret = process.env.BETTER_AUTH_SECRET;
     if (!secret) throw new Error('[rate-limit] BETTER_AUTH_SECRET is not set; a counter cannot be keyed');
     return `${kind}:${createHmac('sha256', secret).update(value).digest('hex')}`;
@@ -333,10 +343,16 @@ export function rateLimitKey(kind: 'ip' | 'email', value: string): string {
  * 'unknown' is a real key: with no client address at all, every such request
  * shares one bucket, which is a limit rather than none.
  */
-export async function checkIpLimit(ip: string, store: RateLimitStore = getRateLimitStore()): Promise<RequestLimitResult> {
+export async function checkIpLimit(
+    ip: string,
+    kind: 'request' | 'verify' = 'request',
+    store: RateLimitStore = getRateLimitStore(),
+): Promise<RequestLimitResult> {
     try {
-        const count = await store.hit(rateLimitKey('ip', ip), LIMITS.windowSeconds);
-        return count > LIMITS.ipPerWindow ? { allowed: false, reason: 'ip' } : { allowed: true };
+        const bucket = ipBucket(ip);
+        const count = await store.hit(rateLimitKey(kind === 'verify' ? 'ip-verify' : 'ip', bucket), LIMITS.windowSeconds);
+        const ceiling = kind === 'verify' ? LIMITS.ipVerifyPerWindow : LIMITS.ipPerWindow;
+        return count > ceiling ? { allowed: false, reason: 'ip' } : { allowed: true };
     } catch (error) {
         return failOpen('checkIpLimit', error);
     }
@@ -349,17 +365,27 @@ export async function checkIpLimit(ip: string, store: RateLimitStore = getRateLi
  */
 export async function checkEmailLimits(
     email: string,
+    ip: string,
     store: RateLimitStore = getRateLimitStore(),
     now: () => number = Date.now,
 ): Promise<RequestLimitResult> {
     try {
-        const key = rateLimitKey('email', email);
-        const last = await store.lastHit(key);
+        // Order matters and each step spends nothing if it refuses:
+        //   1. gap, per address: the inbox is not sent to more than once a minute,
+        //      whoever asked;
+        //   2. per address AND source: one IP cannot exhaust a member's hour
+        //      (security review: the old per-address-only counter let anyone who
+        //      knew an address lock its owner out, silently, every hour);
+        //   3. global per address: many sources still cannot flood one inbox.
+        const addressKey = rateLimitKey('email', email);
+        const last = await store.lastHit(addressKey);
         if (last && now() - last.getTime() < LIMITS.gapSeconds * 1000) {
             return { allowed: false, reason: 'gap' };
         }
-        const count = await store.hit(key, LIMITS.windowSeconds);
-        return count > LIMITS.emailPerWindow ? { allowed: false, reason: 'email' } : { allowed: true };
+        const perSource = await store.hit(rateLimitKey('email-ip', `${email}\n${ipBucket(ip)}`), LIMITS.windowSeconds);
+        if (perSource > LIMITS.emailPerSourcePerWindow) return { allowed: false, reason: 'email' };
+        const global = await store.hit(addressKey, LIMITS.windowSeconds);
+        return global > LIMITS.emailGlobalPerWindow ? { allowed: false, reason: 'email-global' } : { allowed: true };
     } catch (error) {
         return failOpen('checkEmailLimits', error);
     }
@@ -380,6 +406,20 @@ function failOpen(where: string, error: unknown): RequestLimitResult {
  * not the caller. In development there is no proxy and a caller can claim any
  * address; nothing but a per-IP counter turns on it.
  */
+/**
+ * The value a per-IP counter is keyed on. IPv4 as is. IPv6 by /64: a single
+ * subscriber holds 2^64 addresses, so per-/128 buckets would make the IP limit a
+ * formality (security review). Compressed forms are expanded first.
+ */
+export function ipBucket(ip: string): string {
+    if (!ip.includes(':')) return ip;
+    const [head, tail = ''] = ip.split('::');
+    const left = head ? head.split(':') : [];
+    const right = tail ? tail.split(':') : [];
+    const groups = ip.includes('::') ? [...left, ...Array(Math.max(0, 8 - left.length - right.length)).fill('0'), ...right] : left;
+    return groups.slice(0, 4).map((g) => g.toLowerCase().padStart(4, '0')).join(':') + '::/64';
+}
+
 export function clientIp(headers: Headers): string {
     const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
     if (forwarded) return forwarded;

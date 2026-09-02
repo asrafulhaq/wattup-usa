@@ -131,7 +131,7 @@ async function decideAndSend({ id, email, ip }: Decision): Promise<void> {
         }
 
         // 7. The per-address gap and hour counter, for a member only.
-        const emailLimit = await checkEmailLimits(email);
+        const emailLimit = await checkEmailLimits(email, ip);
         if (!emailLimit.allowed) {
             console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: emailLimit.reason });
             return;
