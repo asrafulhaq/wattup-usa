@@ -1,6 +1,74 @@
-import { auth, type Session } from '@/lib/auth';
+import type { Session } from '@/lib/auth';
 import { getMemberDirectory, normalizeEmail } from '@/lib/member-directory';
 import prisma from '@/lib/prisma';
+
+/**
+ * Headers on every response the gate produces, public or gated. Nothing it
+ * returns may be held by a shared cache or indexed.
+ */
+export const GATE_RESPONSE_HEADERS = {
+    'cache-control': 'no-store',
+    'x-robots-tag': 'noindex, nofollow',
+} as const;
+
+/**
+ * One id per request. It is logged next to the real reason and returned in
+ * x-correlation-id, so support can find the log line for a generic response
+ * without the response having said anything. ADR 0001 section 7.
+ */
+export function correlationId(): string {
+    return crypto.randomUUID();
+}
+
+/**
+ * Same-site absolute paths only, so the gate cannot be used as an open
+ * redirect. '//host' is protocol-relative, and browsers read '/\host' the same
+ * way. Anything else, including nothing at all, is the tool's front door.
+ * Checklist 2.23. The producer (app/tool) and the consumer (verify-code, and
+ * later the login page) share this one definition.
+ */
+export function safeNext(raw: string | null | undefined): string {
+    if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) {
+        return '/tool/';
+    }
+    return raw;
+}
+
+/**
+ * The 503 for a missing required variable (lib/env.ts, checklist 2.9). Plain
+ * text, naming the variables: a misconfigured deployment must fail visibly,
+ * and this response is built from nothing that could itself be misconfigured.
+ */
+export function serviceUnavailable(missing: string[]): Response {
+    return new Response(
+        `Service unavailable: missing required environment variable(s): ${missing.join(', ')}\n`,
+        {
+            status: 503,
+            headers: { ...GATE_RESPONSE_HEADERS, 'content-type': 'text/plain; charset=utf-8' },
+        },
+    );
+}
+
+/**
+ * The loggable shape of a failure. Better Auth throws better-call APIErrors,
+ * which carry a status name and a body with a code such as INVALID_OTP; those
+ * are the fields worth keeping. Duck-typed rather than instanceof, so this file
+ * does not have to import better-auth to describe its errors. Nothing here can
+ * contain a submitted code: the routes only ever pass strings to Better Auth,
+ * so its validation never echoes a value, and its own messages are fixed text.
+ */
+export function describeError(error: unknown): { name: string; status?: string; code?: string; message: string } {
+    if (error instanceof Error) {
+        const { status, body } = error as Error & { status?: unknown; body?: { code?: unknown } };
+        return {
+            name: error.name,
+            ...(typeof status === 'string' ? { status } : {}),
+            ...(typeof body?.code === 'string' ? { code: body.code } : {}),
+            message: error.message,
+        };
+    }
+    return { name: 'unknown', message: String(error) };
+}
 
 /**
  * The ONLY place a gated request decides membership.
@@ -38,8 +106,15 @@ import prisma from '@/lib/prisma';
  *
  * Nothing is caught here. A caller treats a throw the same as null: no
  * membership, never membership.
+ *
+ * `auth` is resolved here rather than imported at the top: lib/auth.ts throws
+ * at load when BETTER_AUTH_SECRET is missing, and the gate routes import this
+ * module before they have had the chance to answer 503 for exactly that
+ * (lib/env.ts). The membership logic itself is unchanged by that.
  */
 export async function requireMember(headers: Headers): Promise<Session | null> {
+    const { auth } = await import('@/lib/auth');
+
     const session = await auth.api.getSession({
         headers,
         query: { disableCookieCache: true },

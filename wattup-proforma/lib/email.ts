@@ -8,12 +8,19 @@ import { Resend } from 'resend';
  * without taking down the other's mail.
  */
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? '');
+// Constructed on first send, not at import. `new Resend('')` throws when the key
+// is empty, and this module is imported for maskEmail by routes that must be able
+// to answer "503: RESEND_API_KEY is missing" (lib/env.ts) rather than fail to load.
+let client: Resend | undefined;
+
+function resend(): Resend {
+    return (client ??= new Resend(process.env.RESEND_API_KEY));
+}
 
 type OtpMail = { email: string; otp: string; type: string };
 
 /** Truncate an address for logs. Full addresses belong in activity_log, not here. */
-function maskEmail(email: string): string {
+export function maskEmail(email: string): string {
     const [user, domain] = email.split('@');
     if (!domain) return '***';
     return `${user.slice(0, 2)}***@${domain}`;
@@ -24,7 +31,7 @@ export async function sendOtpEmail({ email, otp, type }: OtpMail): Promise<void>
 
     const { subject, html, text } = otpTemplate(otp);
 
-    const { error } = await resend.emails.send({
+    const { error } = await resend().emails.send({
         from: process.env.MAIL_FROM ?? 'WattUp <noreply@send.wattupusa.com>',
         replyTo: process.env.MAIL_REPLY_TO,
         to: email,
@@ -34,14 +41,11 @@ export async function sendOtpEmail({ email, otp, type }: OtpMail): Promise<void>
     });
 
     if (error) {
-        // The address is masked and the code never appears. A provider failure is
-        // ours to see; the caller still returns the same generic response.
-        console.error('[mail] OTP send failed', {
-            to: maskEmail(email),
-            name: (error as { name?: string }).name,
-            message: error.message,
-        });
-        throw new Error(`Resend error: ${error.message}`);
+        // A provider failure is ours to see, and the one place that sees it is
+        // the after() catch in lib/auth.ts, which logs it with the masked
+        // address. The code never appears. The caller of request-code has long
+        // since received the same generic response as everyone else.
+        throw new Error(`Resend ${(error as { name?: string }).name ?? 'error'}: ${error.message}`);
     }
 }
 
