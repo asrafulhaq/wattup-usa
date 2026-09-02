@@ -408,7 +408,7 @@ Follow [RUNBOOK-dns-email-env.md](RUNBOOK-dns-email-env.md). *(needs answers A, 
 - [ ] 6.8 Production env vars set, then **redeployed** — Vercel bakes them at build time
 - [ ] 6.9 Part 6 verification block passes in full
 - [ ] 6.10 Team told: **everyone is signed out at cutover** (cookie name changed)
-- [ ] 6.11 OTP email checked in Gmail and Outlook, not flagged as spam
+- [◐] 6.11 OTP email in Gmail: **logo was broken — SVG `<img>`, which Gmail/Outlook refuse; fixed with Cloudinary `f_png` renditions in both apps' mail bases** (also fixes the dashboard's reset/invite mail). Spam placement: SPF fix pending (K). Outlook render still to check
 - [ ] 6.12 `SITE_PASSWORD` and its entire code path deleted — no half-removal
 - [ ] 6.13 `DEPLOY.md` and `README.md` updated: subdomain, the new gate, the build step
 - [ ] 6.14 Old password-gated deployment retired
