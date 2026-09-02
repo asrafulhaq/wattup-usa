@@ -227,6 +227,8 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.35 Six digits as selectable text (`<code>`, 36px monospace, `#197dff` on `#eff6ff`), not an image
 - [x] 2.36 10-minute expiry and single use stated; "ignore if you did not request this" line present; subject `<code> is your WattUp sign-in code`
 - [ ] 2.37 `Reply-To` a monitored inbox *(needs answer E)*
+- [x] 2.37a OTP storage is a **keyed HMAC** under `BETTER_AUTH_SECRET`, not Better Auth's unkeyed `'hashed'`: a reader of the shared database cannot crack a six-digit space back to a live code (security review, Low)
+- [x] 2.37b `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` are now required: production can no longer silently fall back to `localhost:3001` for `baseURL`, `trustedOrigins` and the email logo link
 - [x] 2.38 **The code appears in no log line, error body or analytics event**
 - [x] 2.39 Emails in application logs are hashed or truncated
 

@@ -348,8 +348,8 @@ recorded here so it is a decision rather than an oversight.
 - A non-member sits on the code screen forever. **That is the specified behaviour.** The
   screen copy must not imply a code is definitely coming.
 - Better Auth's own error codes never reach the client, which makes debugging sign-in
-  failures a server-log exercise. Log the real reason with a correlation id and show the id
-  on the generic screen.
+  failures a server-log exercise. Log the real reason with a correlation id; the id is returned as a response header for
+  support but, at the client's request, never shown on the screen.
 - If Better Auth changes its OTP route internals, our wrapper is what protects us. Pin the
   version and treat a `better-auth` bump as a change requiring the §13 enumeration test to
   re-run.
