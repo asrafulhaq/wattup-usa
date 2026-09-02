@@ -1,6 +1,7 @@
 import { toNextJsHandler } from 'better-auth/next-js';
 
 import { auth } from '@/lib/auth';
+import { GATE_RESPONSE_HEADERS } from '@/lib/gate';
 
 /**
  * Better Auth's own endpoints, with the one-time-code routes deliberately closed.
@@ -19,14 +20,18 @@ import { auth } from '@/lib/auth';
  * are unreachable from the browser, and app/api/gate/* calls them server-side and
  * normalises every observable. See ADR 0001 section 7.
  *
- * What is left reachable: get-session and sign-out, which leak nothing.
+ * What is reachable: get-session and sign-out, and nothing else (allowlist).
  */
 
-const BLOCKED = ['email-otp', 'sign-in', 'sign-up'];
+// An allowlist, not a blocklist. Better Auth mounts far more than the OTP routes
+// (update-user, change-email, delete-user, list/revoke-sessions, ...), and a
+// pro-forma session must not be able to write to the shared `user` table
+// through any of them. Exactly two paths leak nothing and are needed:
+const ALLOWED = new Set(['/get-session', '/sign-out']);
 
-function isBlocked(request: Request): boolean {
-    const path = new URL(request.url).pathname;
-    return BLOCKED.some(segment => path.includes(segment));
+function isAllowed(request: Request): boolean {
+    const path = new URL(request.url).pathname.replace(/^\/api\/auth/, '').replace(/\/+$/, '') || '/';
+    return ALLOWED.has(path);
 }
 
 // Same shape as a genuinely absent route, so probing reveals nothing about
@@ -34,17 +39,17 @@ function isBlocked(request: Request): boolean {
 const notFound = () =>
     new Response('Not Found', {
         status: 404,
-        headers: { 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' },
+        headers: GATE_RESPONSE_HEADERS,
     });
 
 const handler = toNextJsHandler(auth);
 
 export async function GET(request: Request) {
-    if (isBlocked(request)) return notFound();
+    if (!isAllowed(request)) return notFound();
     return handler.GET(request);
 }
 
 export async function POST(request: Request) {
-    if (isBlocked(request)) return notFound();
+    if (!isAllowed(request)) return notFound();
     return handler.POST(request);
 }

@@ -73,6 +73,9 @@ import { checkEmailLimits, checkIpLimit, clientIp } from '@/lib/rate-limit';
  */
 
 export const runtime = 'nodejs';
+// Room for the deferred work (limits, directory, Better Auth's round trips, the
+// nested Resend send) on platforms with short function defaults.
+export const maxDuration = 30;
 
 // Serialised once, so every path returns these exact bytes. Checklist 2.16.
 const GENERIC_BODY = JSON.stringify({

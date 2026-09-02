@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 
 import { maskEmail } from '@/lib/email';
 import { missingRequiredEnv } from '@/lib/env';
+import { checkIpLimit, clientIp } from '@/lib/rate-limit';
 import {
     correlationId,
     describeError,
@@ -61,6 +62,9 @@ import { normalizeEmail } from '@/lib/member-directory';
  */
 
 export const runtime = 'nodejs';
+// Room for the deferred work (limits, directory, Better Auth's round trips, the
+// nested Resend send) on platforms with short function defaults.
+export const maxDuration = 30;
 
 // Serialised once, so every failure returns these exact bytes.
 const REFUSED_BODY = JSON.stringify({ message: 'That code is not valid.' });
@@ -116,6 +120,16 @@ export async function POST(request: Request) {
     if (!isSameOrigin(request.headers)) {
         console.warn('[gate] verify-code refused', { id, reason: 'CROSS_ORIGIN', ...describeOrigin(request.headers) });
         return forbidden(id);
+    }
+
+    // Per-IP limit, this route too (checklist 5.2). Better Auth's five-attempt
+    // counter only exists once a code has been issued; an address that never had
+    // one has no counter at all, so bound how often one address space may try.
+    // A breach is the same refusal as a wrong code, never a distinct answer.
+    const ipLimit = await checkIpLimit(clientIp(request.headers));
+    if (!ipLimit.allowed) {
+        console.warn('[gate] verify-code refused', { id, reason: 'RATE_LIMIT_IP' });
+        return refused(id);
     }
 
     // 1. Normalise.
