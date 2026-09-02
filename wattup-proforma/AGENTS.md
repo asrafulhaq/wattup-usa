@@ -82,6 +82,8 @@ it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoi
 app/api/auth/[...all]/   Better Auth, with OTP paths closed
 app/api/gate/            the two public routes (phase 2)
 lib/auth.ts              Better Auth config — read the comments before editing
+lib/gate.ts              requireMember: the one place a gated request decides membership
+lib/member-directory.ts  who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
 lib/prisma.ts            Prisma client, pooled
 lib/email.ts             Resend + the OTP template
 prisma/schema.prisma     narrow mirror, never migrated from here
