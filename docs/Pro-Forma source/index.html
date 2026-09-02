@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WattUpUSA · Site Pro-Forma Builder</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/app.css?v=9">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img class="wordmark" src="assets/logo_type_light.svg" alt="WattUpUSA">
+    <span class="bdiv" aria-hidden="true"></span>
+    <div>
+      <div class="t">Site Pro-Forma Builder</div>
+      <div class="s">Host Revenue Model</div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <select id="scen" class="btn sm hide" style="max-width:180px"></select>
+  <button class="btn ghost sm" id="btnSave">Save scenario</button>
+  <button class="btn ghost sm" id="btnImport">Load JSON</button>
+  <button class="btn ghost sm" id="btnExport">Export JSON</button>
+  <button class="btn ghost sm" id="btnReset">Reset</button>
+  <a class="btn ghost sm signout" href="/__logout" title="End this session on this device">Sign out</a>
+  <button class="btn sm" id="btnTab">Open document</button>
+  <button class="btn primary" id="btnPrint">Save as PDF</button>
+  <input type="file" id="fileImport" accept="application/json,.json" class="hide">
+</header>
+
+<div class="shell">
+  <aside class="rail" id="rail"></aside>
+
+  <main class="stage">
+    <div class="kpis" id="kpis"></div>
+    <div class="viewer">
+      <div class="paper" id="paper"><iframe id="preview" title="Pro-forma preview" sandbox="allow-same-origin allow-modals"></iframe></div>
+    </div>
+    <div class="zoombar">
+      <span>Zoom</span>
+      <input type="range" id="zoom" min="0.25" max="1.4" step="0.01" value="0.62">
+      <span id="zoomval">62%</span>
+      <button class="btn ghost sm" id="btnFit">Fit width</button>
+      <span class="spacer"></span>
+      <span id="pgcount">6 pages · US Letter · live preview</span>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/model.js?v=9"></script>
+<script src="js/doc.js?v=9"></script>
+<script src="js/evpin.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+<script>
+  /* The sign-out link only means something on the password-gated
+     wattupusa.com deployment; hide it everywhere else. */
+  if (/(^|\.)wattupusa\.com$/.test(location.hostname)) {
+    document.querySelector('.signout').classList.add('on');
+  }
+</script>
+</body>
+</html>

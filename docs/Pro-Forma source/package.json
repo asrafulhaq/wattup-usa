@@ -1,0 +1,7 @@
+{
+  "name": "wattupusa-proforma-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WattUpUSA Site Pro-Forma Builder — static host-revenue underwriting tool with an edge password gate.",
+  "license": "UNLICENSED"
+}
