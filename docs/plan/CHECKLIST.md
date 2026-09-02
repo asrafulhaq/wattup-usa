@@ -18,7 +18,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ✅ **all merged to main** — nothing deployed yet (0.18) |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
-| 2 | The access gate | dev | 1 | ◐ 2.0, 2.0a, 2a config, 2b directory merged; 2c routes next |
+| 2 | The access gate | dev | 1 | ◐ 2a, 2b, **2c routes merged**; 2d login screen running; 2f needs a test member |
 | 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
@@ -176,7 +176,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [ ] 2.6 `emailAndPassword` disabled
 - [ ] 2.7 Session table mapped to `proforma_session`, not the shared `session`
 - [ ] 2.8 Distinct cookie prefix and a **different** `BETTER_AUTH_SECRET`
-- [ ] 2.9 Fail closed: missing required env var → 503 with a plain-text reason
+- [x] 2.9 Fail closed: missing required env var → 503 with a plain-text reason
 
 ### 2b — Member directory
 
@@ -190,17 +190,19 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 > Better Auth's OTP endpoints are **never** exposed to the browser. See ADR 0001 §7.
 
-- [ ] 2.14 Better Auth's OTP routes confirmed unreachable from outside
-- [ ] 2.15 `POST /api/gate/request-code` — normalise, rate limit, look up, send, always 200
-- [ ] 2.16 One generic body regardless of outcome, member or not
-- [ ] 2.17 Email sent **after** the response via `after()`, never awaited on the response path
-- [ ] 2.18 `POST /api/gate/verify-code` — success sets the session
-- [ ] 2.19 **All** verify failures collapse to one identical response: wrong code, expired, never issued, attempts exhausted, member removed mid-flow
-- [ ] 2.20 Allowlist re-checked at verify, before the session is issued
-- [ ] 2.21 Real failure reason logged server-side with a correlation id, never returned
-- [ ] 2.22 `POST /api/auth/logout` clears the session
-- [ ] 2.23 `safeNext` same-site redirect check ported from the old middleware
-- [ ] 2.24 Constant-time comparison retained where codes or tokens are compared
+- [x] 2.14 Better Auth's OTP routes confirmed unreachable from outside
+- [x] 2.15 `POST /api/gate/request-code` — normalise, rate limit, look up, send, always 200
+- [x] 2.16 One generic body regardless of outcome, member or not
+- [x] 2.17 Email sent **after** the response via `after()` — and so is the decision itself (rate-limit stub → directory → OTP issue), nested `after()` for the Resend send. Proven in the dev log: the member's `passed to Better Auth` line lands ~1 s after its `200` line
+- [x] 2.18 `POST /api/gate/verify-code` — success sets the session
+- [x] 2.19 **All** verify failures collapse to one identical response: wrong code, expired, never issued, attempts exhausted, member removed mid-flow
+- [x] 2.20 Allowlist re-checked at verify, before the session is issued
+- [x] 2.21 Real failure reason logged server-side with a correlation id, never returned
+- [x] 2.22 Sign-out is Better Auth's `POST /api/auth/sign-out` (reachable; only `email-otp`/`sign-in`/`sign-up` are closed) — the tool's link already targets it
+- [x] 2.23 `safeNext` same-site redirect check ported from the old middleware
+- [x] 2.24a Both gate routes require `content-type: application/json` — closes CSRF via `text/plain` form posts (added beyond spec)
+- [x] 2.24b Known, documented, accepted: the removed-between-request-and-verify branch returns the identical 400 but carries cookie-expiry `set-cookie` headers from the sign-out. Reachable only by someone holding a valid code for that user
+- [x] 2.24 Constant-time comparison retained where codes or tokens are compared
 
 ### 2d — The login screen
 
@@ -227,7 +229,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 - [ ] 2.40 Member: code arrives, signs in
 - [ ] 2.41 Non-member: no email, and the response is byte-identical
-- [ ] 2.42 Timing measured: member and non-member within noise of each other
+- [x] 2.42 **Timing closed by construction.** First cut measured member 1,110 ms vs non-member 3 ms (Better Auth's DB round trips, not Resend). Fixed by moving the membership decision *and* OTP issue into `after()` — the response has zero dependence on who asked. Re-measured: member 3.1/2.9/3.9/3.0/2.5 ms, non-member 2.8/2.7/2.6/2.1/2.3 ms
 - [ ] 2.43 5 wrong attempts invalidates the code
 - [ ] 2.44 Code expires at 10 minutes; a used code cannot be reused
 - [ ] 2.45 Requesting a second code invalidates the first
