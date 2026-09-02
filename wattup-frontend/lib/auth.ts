@@ -79,6 +79,40 @@ export const auth = betterAuth({
             maxAge: 60 * 5, // 5 min cache
         },
     },
+    /**
+     * Rate limiting (finding F9).
+     *
+     * `enabled` is set explicitly. The library default is "production only",
+     * which makes local behaviour differ from deployed behaviour.
+     *
+     * Keys are matched against the request path with the `/api/auth` base
+     * path already stripped, so `/sign-in/email` means
+     * `/api/auth/sign-in/email`. A custom rule replaces both the generic
+     * limit and the library's built-in per-endpoint default for that path.
+     *
+     * Storage stays `memory`, the default, so no `rateLimit` table and no
+     * migration. Memory storage is per process: on serverless each instance
+     * counts separately, so the effective limit is looser than the numbers
+     * below. Moving to `database` or secondary storage is tracked separately.
+     */
+    rateLimit: {
+        enabled: true,
+        customRules: {
+            // Password guessing against a known address.
+            '/sign-in/email': { window: 60, max: 5 },
+            // Password reset used as an email bomb. Better Auth has renamed
+            // this endpoint across versions; both names are pinned so an
+            // upgrade cannot silently drop the rule.
+            '/forget-password': { window: 300, max: 3 },
+            '/request-password-reset': { window: 300, max: 3 },
+            // Token guessing against a live reset link.
+            '/reset-password': { window: 300, max: 5 },
+            // The link-click GET callback, /reset-password/:token, which
+            // answers whether a token is valid. Keys are exact, so it needs
+            // its own wildcard entry.
+            '/reset-password/*': { window: 300, max: 5 },
+        },
+    },
     plugins: [
         admin({
             adminRole: ['SUPER_ADMIN', 'ADMIN'],
