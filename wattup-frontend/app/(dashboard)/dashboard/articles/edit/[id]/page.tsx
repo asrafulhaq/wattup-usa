@@ -1,4 +1,4 @@
-import { getArticleById } from '@/app/_actions/postActions';
+import { getArticleByIdForDashboard } from '@/app/_actions/postActions';
 import ArticleForm from '@/components/dashboard/articles/article-form';
 import { EditorPageSkeleton } from '@/components/skeletons/editor-page-skeleton';
 import { notFound } from 'next/navigation';
@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 
 async function EditWrapper({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const article = await getArticleById(id);
+    const article = await getArticleByIdForDashboard(id);
     if (!article) {
         notFound();
     }

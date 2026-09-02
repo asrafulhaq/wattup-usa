@@ -30,7 +30,8 @@ const baseUrl = (
     // Dynamic routes for press releases
     let articleRoutes: MetadataRoute.Sitemap = [];
     try {
-        const articles = await getArticles(1, 1000, 'Published');
+        // getArticles is Published only inside its query; nothing passed here can widen it.
+        const articles = await getArticles(1, 1000);
 
         articleRoutes = articles.map((article) => ({
             url: `${baseUrl}/press-release/${article.slug}`,

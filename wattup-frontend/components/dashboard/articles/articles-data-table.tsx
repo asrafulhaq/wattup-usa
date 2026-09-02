@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { getPaginatedArticles } from '@/app/_actions/postActions';
+import { getArticlesForDashboard } from '@/app/_actions/postActions';
 import { DataTable } from '@/components/data-table';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -39,7 +39,7 @@ export function ArticlesDataTable({
 
         const fetchData = async () => {
             setIsLoading(true);
-            const result = await getPaginatedArticles(
+            const result = await getArticlesForDashboard(
                 pagination.pageIndex + 1,
                 pagination.pageSize
             );

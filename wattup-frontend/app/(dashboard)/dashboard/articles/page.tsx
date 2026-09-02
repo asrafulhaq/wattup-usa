@@ -1,5 +1,5 @@
 import { getSession } from '@/app/_actions/auth-actions';
-import { getPaginatedArticles } from '@/app/_actions/postActions';
+import { getArticlesForDashboard } from '@/app/_actions/postActions';
 import { ArticlesDataTable } from '@/components/dashboard/articles/articles-data-table';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
@@ -10,7 +10,7 @@ import { Suspense } from 'react';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function ArticlesTable() {
     const [{ articles, totalCount }, session] = await Promise.all([
-        getPaginatedArticles(1, 10),
+        getArticlesForDashboard(1, 10),
         getSession(),
     ]);
 
