@@ -107,6 +107,10 @@ export const auth = betterAuth({
             '/request-password-reset': { window: 300, max: 3 },
             // Token guessing against a live reset link.
             '/reset-password': { window: 300, max: 5 },
+            // The link-click GET callback, /reset-password/:token, which
+            // answers whether a token is valid. Keys are exact, so it needs
+            // its own wildcard entry.
+            '/reset-password/*': { window: 300, max: 5 },
         },
     },
     plugins: [
