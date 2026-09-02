@@ -255,3 +255,125 @@ export const ALL_ROLES: readonly Role[] = [
     Role.EDITOR,
     Role.SALES,
 ];
+
+// ─── What the Roles page may edit ─────────────────────────────────────────────
+
+/**
+ * The permissions nothing checks, named once (checklist 4c.13).
+ *
+ * Two groups, both listed above with their reasons, both here for the same reason: a
+ * toggle for a permission no code reads is a control that appears to do something and
+ * does nothing.
+ *
+ *   retired  EDIT_OWN_POST and DELETE_OWN_POST, dropped by ADR 0002 section 10
+ *            (client answer I). Posts.author stays free text, so they cannot be told
+ *            apart from the *_ANY_POST pair.
+ *   reserved DELETE_ANY_MEDIA, DELETE_OWN_MEDIA, MANAGE_PROFILE and VIEW_ANALYTICS,
+ *            which exist only because the 20260518 migration created them and Postgres
+ *            cannot drop an enum value.
+ *
+ * Neither group is removed from the enum: role_permission.permission uses the database
+ * type, and SUPER_ADMIN is seeded with every value of it. This is the marking, and
+ * EDITABLE_PERMISSIONS below is derived from it, so the Roles page and the server
+ * action that backs it read one list rather than two that can drift.
+ */
+export const UNCHECKED_PERMISSIONS: readonly Permission[] = [
+    Permission.EDIT_OWN_POST,
+    Permission.DELETE_OWN_POST,
+    Permission.DELETE_ANY_MEDIA,
+    Permission.DELETE_OWN_MEDIA,
+    Permission.MANAGE_PROFILE,
+    Permission.VIEW_ANALYTICS,
+];
+
+/** The 21 permissions the code actually reads, in the order this file declares them. */
+export const EDITABLE_PERMISSIONS: readonly Permission[] = ALL_PERMISSIONS.filter(
+    permission => !UNCHECKED_PERMISSIONS.includes(permission)
+);
+
+/**
+ * True for a permission the Roles page offers. False for anything the enum does not
+ * contain AND for the six above, so the server action refuses a hand-crafted request
+ * for one of them rather than writing a row nothing will ever read.
+ */
+export function isEditablePermission(value: unknown): value is Permission {
+    return isPermission(value) && !UNCHECKED_PERMISSIONS.includes(value);
+}
+
+/**
+ * The editable permissions in the groups this file already groups them by, for the
+ * role by permission matrix. Flattened it is EDITABLE_PERMISSIONS exactly, which
+ * lib/__tests__/permissions.test.ts asserts: a permission added to the enum and not
+ * given a group fails the suite rather than quietly vanishing from the page.
+ */
+export const PERMISSION_GROUPS: readonly {
+    label: string;
+    description: string;
+    permissions: readonly Permission[];
+}[] = [
+    {
+        label: 'Content',
+        description: 'Press releases and articles on the public site.',
+        permissions: [
+            Permission.CREATE_POST,
+            Permission.EDIT_ANY_POST,
+            Permission.DELETE_ANY_POST,
+            Permission.PUBLISH_POST,
+        ],
+    },
+    {
+        label: 'Charging network',
+        description: 'Sites, their bays, and the amenity catalogue.',
+        permissions: [
+            Permission.VIEW_LOCATIONS,
+            Permission.MANAGE_LOCATIONS,
+            Permission.DELETE_LOCATIONS,
+            Permission.MANAGE_AMENITIES,
+        ],
+    },
+    {
+        label: 'User management',
+        description: 'Who can sign in, and what each of them may change.',
+        permissions: [
+            Permission.VIEW_USERS,
+            Permission.INVITE_USERS,
+            Permission.EDIT_USERS,
+            Permission.CHANGE_USER_ROLE,
+            Permission.DELETE_USERS,
+            Permission.BAN_USERS,
+            Permission.MANAGE_PERMISSIONS,
+        ],
+    },
+    {
+        label: 'Site management',
+        description: 'Analytics ids, schema, injected scripts and social links.',
+        permissions: [Permission.MANAGE_SITE_SETTINGS, Permission.MANAGE_SOCIAL_LINKS],
+    },
+    {
+        label: 'Media',
+        description: 'The image library shared by every screen.',
+        permissions: [Permission.UPLOAD_MEDIA, Permission.DELETE_MEDIA],
+    },
+    {
+        label: 'Audit',
+        description: 'The activity log, both apps.',
+        permissions: [Permission.VIEW_ACTIVITY_LOG],
+    },
+    {
+        label: 'Pro-forma builder',
+        description: 'Sign-in to hostproposal.wattupusa.com, resolved in SQL by the proforma_member view.',
+        permissions: [Permission.ACCESS_PROFORMA],
+    },
+];
+
+/**
+ * "EDIT_ANY_POST" becomes "Edit any post". Mechanical on purpose: a second map of
+ * hand-written labels is one more thing to forget when a permission is added, and the
+ * enum names were written to be read.
+ */
+export function permissionLabel(permission: Permission): string {
+    const words = permission.toLowerCase().split('_');
+    return words
+        .map((word, index) => (index === 0 ? word[0].toUpperCase() + word.slice(1) : word))
+        .join(' ');
+}

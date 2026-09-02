@@ -18,6 +18,7 @@ import {
     MapPin,
     Newspaper,
     Settings,
+    ShieldCheck,
     UserRound,
     UsersRound,
 } from 'lucide-react';
@@ -36,6 +37,7 @@ export function AppSidebar({
     showUsers,
     showSettings,
     showLocations,
+    showRoles,
     ...props
 }: React.ComponentProps<typeof Sidebar> & {
     user: {
@@ -47,6 +49,7 @@ export function AppSidebar({
     showUsers?: boolean;
     showSettings?: boolean;
     showLocations?: boolean;
+    showRoles?: boolean;
 }) {
     const groups: NavGroup[] = [
         {
@@ -84,6 +87,11 @@ export function AppSidebar({
                               prefetch: true as const,
                           },
                       ]
+                    : []),
+                // Under Account beside Users, because it answers the same question one
+                // level up: Users is who may sign in, Roles is what each of them may do.
+                ...(showRoles
+                    ? [{ title: 'Roles', url: '/dashboard/roles', icon: ShieldCheck }]
                     : []),
             ],
         },
