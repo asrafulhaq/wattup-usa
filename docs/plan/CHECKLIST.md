@@ -375,7 +375,7 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [x] 5.6 Counters keyed on a salted hash, never the raw email or IP
 - [x] 5.7 **Rate-limiter failure degrades, it does not block** — `FailOpenStore`: any store error is logged once per process, memory answers for 60 s, the request continues. Identity (`requireMember`) untouched and still fail-closed
 - [x] 5.7a Hit order: **IP counter before the directory lookup** (probes count), gap + hourly **after it, members only**. Verified live: 6th same-minute → `gap`, 6th hourly → `email`, 21st from one IP → `ip`, every body byte-identical
-- [ ] 5.7b **Migration pending your go:** `proforma_rate_limit` (`20260902200000_proforma_rate_limit`) — one table, nothing existing touched. Until applied the store logs unavailable once and memory carries the limits (per-instance on serverless)
+- [x] 5.7b `proforma_rate_limit` migrated (`20260902200000_proforma_rate_limit`, applied via `migrate deploy`); the Prisma store took over — no "unavailable" warning after restart, and rows appear in the table on the first request
 - [x] 5.8 Origin/Referer check on both POST endpoints, accepting the request's own host so previews work
 - [x] 5.9 `noindex` robots header and `no-store` cache header on every response
 - [x] 5.10 `robots.txt` disallows all
