@@ -20,7 +20,7 @@ that work, and F1 and F2 are live on production now.**
 | F11 | CSP depends on `'unsafe-inline'` | Low, accepted | backlog |
 | F12 | Cloudinary API key exposed to the browser unnecessarily | Low | ✅ merged (B.3) |
 | F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
-| F6 | Hand-rolled scrypt verification in `updateEmail` | Low | backlog |
+| F6 | Hand-rolled scrypt verification in `updateEmail` | Low | ✅ merged (B.4) |
 | F7 | Public contact forms have no rate limiting | Low | ✅ merged (B.6) |
 
 ### A note on how server actions are exposed
@@ -185,7 +185,9 @@ creation is genuinely intended here.
 
 ---
 
-## F6 — Hand-rolled credential verification · Low
+## F6 — Hand-rolled credential verification · Low · ✅ fixed
+
+> **Fixed 2026-09-03** (`fix/auth-actions-credential-check`): `updateEmail` confirms the password with `auth.api.verifyPassword`, Better Auth 1.7.2's server-scoped endpoint (`metadata.scope: "server"`, so it is not routed under `/api/auth`): session from the request headers, credential row found by the library, comparison through `ctx.context.password.verify`. The action no longer reads the account table, so there is no hash format for it to depend on. A wrong password still answers "Incorrect current password"; the former "No password set on this account" branch collapses into it, since the library does not distinguish the two and telling them apart would mean reading the row again. Pinned by `wattup-frontend/tests/actions/auth-actions.test.ts` (Vitest, new to the frontend). **Residual, pre-existing and outside this fix:** `lib/auth.ts` sets no `user.changeEmail.enabled`, so `auth.api.changeEmail` throws CHANGE_EMAIL_DISABLED after the password check and the email change never completes; enabling it also needs `emailVerification.sendVerificationEmail`.
 
 `auth-actions.updateEmail` verifies the current password by parsing Better Auth's stored hash
 and re-deriving it:
@@ -488,6 +490,6 @@ others: articles, media, and dependency currency.
 
 **Phase 4a**, where the permission plumbing is already being rebuilt: F3, F4, F5, F10.
 
-**Backlog:** F6, F11, F16 (F7 and F12 fixed). F11 is the highest-value of these and closes F4's root cause.
+**Backlog:** F11, F16 (F6, F7 and F12 fixed). F11 is the highest-value of these and closes F4's root cause.
 
 Nothing here blocks the pro-forma work except F8, and the pro-forma work blocks none of it.
