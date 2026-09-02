@@ -11,6 +11,9 @@
 //
 // This mirror omits the owner's @@index declarations on purpose: it never migrates,
 // so a `migrate diff` run from this app is not drift, and indexes are the owner's.
+// ActivityLog is the one exception: it is the one table BOTH apps write, so its
+// indexes are declared here verbatim from the owner to keep the two declarations
+// comparable by eye. They are still the owner's, and still never migrated from here.
 //
 // Session, Account and Verification carry `@default(cuid())` on `id`. lib/auth.ts
 // runs Better Auth with `generateId: false`, so Better Auth sends no id on insert
@@ -139,4 +142,43 @@ model ProformaMember {
   active Boolean
 
   @@map("proforma_member")
+}
+
+/// The audit log (ADR 0001 section 9), SHARED with wattup-frontend, which owns the
+/// table, migrates it, and renders it in the dashboard. This app only ever INSERTs,
+/// through lib/activity-log.ts, and only from inside after(): `code.requested`,
+/// `code.refused`, `signin.success` and `signin.failed`, each with the client's IP,
+/// user agent and the request's correlation id. `app` is always 'proforma' here.
+///
+/// `email` is the FULL address, on purpose: the dashboard must be able to show a
+/// person's history (ADR section 9 resolves the PRD's contradiction that way).
+/// Application logs mask it; this table does not. `actorUserId` and `actorEmail`
+/// are the dashboard's, for events one user performs on another, and stay null here.
+///
+/// No relation to User: a narrow mirror declares no foreign keys, and a row must
+/// outlive the user it names. Declared as a plain model; Prisma does not care.
+///
+/// NOT YET CREATED. The table arrives with the wattup-frontend phase 4b migration
+/// (checklist 4b.1). Until then every insert fails with Prisma's P2021, which
+/// lib/activity-log.ts reports once per process and otherwise swallows: an audit
+/// row that cannot be written is never a reason to change or delay a response.
+model ActivityLog {
+  id            String   @id @default(cuid())
+  app           String
+  event         String
+  email         String
+  userId        String?
+  actorUserId   String?
+  actorEmail    String?
+  ipAddress     String?
+  userAgent     String?
+  correlationId String?
+  meta          Json?
+  createdAt     DateTime @default(now())
+
+  @@index([app, createdAt])
+  @@index([email, createdAt])
+  @@index([userId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("activity_log")
 }

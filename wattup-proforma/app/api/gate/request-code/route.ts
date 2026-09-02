@@ -1,5 +1,6 @@
 import { after } from 'next/server';
 
+import { activityContext, logActivity, type ActivityContext, type CodeRefusedReason } from '@/lib/activity-log';
 import { maskEmail } from '@/lib/email';
 import { missingRequiredEnv } from '@/lib/env';
 import {
@@ -66,10 +67,18 @@ import { checkEmailLimits, checkIpLimit, clientIp } from '@/lib/rate-limit';
  *                      schedules the email with a nested after() of its own.
  *                      Any error is logged with the correlation id and a masked
  *                      address. Nothing here can reach the caller.
+ *     9. audit        lib/activity-log.ts, one row whichever way steps 5 to 8
+ *                      went: code.requested for a member the code was passed on
+ *                      for, code.refused with meta.reason for everything else.
+ *                      Last, and inside after() like the rest, so the insert's
+ *                      latency and its failure are as invisible as the decision
+ *                      (checklist 4b.5). Malformed bodies write nothing: there is
+ *                      no address to attribute the row to.
  *
  * The correlation id is the only thread between the two halves: it is on the
- * response as x-correlation-id and on every log line the after() work writes,
- * so support can find what happened to a request that, by design, said nothing.
+ * response as x-correlation-id, on every log line the after() work writes, and
+ * in the activity_log row, so support can find what happened to a request that,
+ * by design, said nothing.
  */
 
 export const runtime = 'nodejs';
@@ -106,27 +115,49 @@ async function readEmail(request: Request): Promise<string | null> {
     return typeof email === 'string' ? email : null;
 }
 
-type Decision = { id: string; email: string; ip: string };
+type Decision = { email: string; ip: string; context: ActivityContext };
 
 /**
- * Steps 5 to 8. Runs after the response, so nothing in here, however long it
+ * Steps 5 to 9. Runs after the response, so nothing in here, however long it
  * takes or however it fails, is observable to the caller. One catch for all of
- * it: the only outcome of an error is a log line.
+ * it: the only outcome of an error is a log line and a code.refused row.
+ *
+ * Every exit writes exactly one activity_log row (step 9), and writes it as
+ * the last thing it does, so the row records what happened rather than what
+ * was about to. logActivity never throws, so the rows cannot disturb the
+ * decision either.
  */
-async function decideAndSend({ id, email, ip }: Decision): Promise<void> {
+async function decideAndSend({ email, ip, context }: Decision): Promise<void> {
+    const id = context.correlationId;
     const masked = maskEmail(email);
+    // The member, once the directory has answered, so a refusal after that
+    // point (an address limit, a failed send) is attributed to their user id.
+    let userId: string | null = null;
+    const refused = (reason: CodeRefusedReason, detail: Record<string, string> = {}) =>
+        logActivity({ ...context, event: 'code.refused', email, userId, meta: { reason, ...detail } });
+
     try {
         // 5. The per-IP counter, before the directory: a probe counts.
         const ipLimit = await checkIpLimit(ip);
         if (!ipLimit.allowed) {
             console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: ipLimit.reason });
+            await refused('rate_limited_ip');
             return;
         }
 
-        // 6. The directory. Not a member: nothing else is counted or sent.
+        // 6. The directory. Not a member: nothing else is counted or sent. An
+        //    inactive member is a banned one (the view's `active` is exactly
+        //    "not banned"), and is recorded as such.
         const member = await getMemberDirectory().lookup(email);
-        if (!member || !member.active) {
+        if (!member) {
             console.info('[gate] request-code: not a current member, nothing sent', { id, email: masked });
+            await refused('not_member');
+            return;
+        }
+        userId = member.id;
+        if (!member.active) {
+            console.info('[gate] request-code: not a current member, nothing sent', { id, email: masked });
+            await refused('banned');
             return;
         }
 
@@ -134,6 +165,7 @@ async function decideAndSend({ id, email, ip }: Decision): Promise<void> {
         const emailLimit = await checkEmailLimits(email, ip);
         if (!emailLimit.allowed) {
             console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: emailLimit.reason });
+            await refused('rate_limited_email', { limit: emailLimit.reason });
             return;
         }
 
@@ -141,12 +173,18 @@ async function decideAndSend({ id, email, ip }: Decision): Promise<void> {
         const { auth } = await import('@/lib/auth');
         await auth.api.sendVerificationOTP({ body: { email, type: 'sign-in' } });
         console.info('[gate] request-code: passed to Better Auth', { id, email: masked });
+
+        // 9. The one row a member's request leaves.
+        await logActivity({ ...context, event: 'code.requested', email, userId });
     } catch (error) {
         console.error('[gate] request-code: failed after the response, nothing sent', {
             id,
             email: masked,
             ...describeError(error),
         });
+        // Steps 5 to 7 never throw (the limiter fails open, the directory
+        // answers null), so what is caught is Better Auth or its import.
+        await refused('send_failed');
     }
 }
 
@@ -163,10 +201,16 @@ export async function POST(request: Request) {
         return forbidden(id);
     }
 
-    // 3. Normalise. Nothing about the address is decided here.
+    // 3. Normalise. Nothing about the address is decided here. What is read
+    //    for the audit row (client address, user agent) is three header reads,
+    //    the same for everyone.
     const raw = await readEmail(request);
     if (raw !== null) {
-        const decision: Decision = { id, email: normalizeEmail(raw), ip: clientIp(request.headers) };
+        const decision: Decision = {
+            email: normalizeEmail(raw),
+            ip: clientIp(request.headers),
+            context: activityContext(request.headers, id),
+        };
         after(() => decideAndSend(decision));
     }
 

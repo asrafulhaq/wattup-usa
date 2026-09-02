@@ -1,7 +1,10 @@
 import { headers } from 'next/headers';
+import { after } from 'next/server';
 
+import { activityContext, logActivity, type ActivityContext, type SignInFailedReason } from '@/lib/activity-log';
 import { maskEmail } from '@/lib/email';
 import { missingRequiredEnv } from '@/lib/env';
+import prisma from '@/lib/prisma';
 import { checkIpLimit, clientIp } from '@/lib/rate-limit';
 import {
     correlationId,
@@ -52,13 +55,23 @@ import { normalizeEmail } from '@/lib/member-directory';
  *                   Auth returned spliced in. Not a current member: the session
  *                   is deleted again and the answer is the same 400.
  *   4. answer       200 { redirectTo }, a same-site path (safeNext).
+ *   5. audit        lib/activity-log.ts, one row per request that named an
+ *                   address: signin.success with the user id, or signin.failed
+ *                   with meta.reason (checklist 4b.5). Unlike request-code, the
+ *                   decision here has to run on the response path, because the
+ *                   cookie is set by it; so only the WRITE is deferred, with
+ *                   after(), and the response is complete before it starts.
+ *                   The row can neither slow nor change the answer. A malformed
+ *                   body writes nothing: there is no address to attribute it to.
  *
  * Before any of it, lib/env.ts: a missing required variable is a 503 naming it,
  * and `auth` is imported only after that check (see request-code). Then
  * lib/gate.ts isSameOrigin: a request whose Origin, else Referer, does not
  * name this host is 403 Forbidden (checklist 5.8), the one answer here that is
  * not the generic 400, and it turns on where the request came from, never on
- * the address or code it carried.
+ * the address or code it carried. Then the per-IP limit, which is hit for
+ * every same-origin request whether or not its body parsed; the body is read
+ * before it so a refusal there can still be attributed to the address it named.
  */
 
 export const runtime = 'nodejs';
@@ -110,6 +123,54 @@ function cookieHeaderFrom(setCookies: string[]): string {
         .join('; ');
 }
 
+/**
+ * Better Auth's error codes, as the audit row names them. Anything not listed,
+ * including a throw that is not an APIError at all, is 'unknown'; the code
+ * itself, when there was one, rides along in meta.code so nothing is lost.
+ */
+const BETTER_AUTH_FAILURES: Record<string, SignInFailedReason> = {
+    INVALID_OTP: 'invalid_code',
+    OTP_EXPIRED: 'expired',
+    TOO_MANY_ATTEMPTS: 'attempts_exhausted',
+    USER_NOT_FOUND: 'not_member',
+};
+
+function signInFailedReason(code: string | undefined): SignInFailedReason {
+    return (code !== undefined && BETTER_AUTH_FAILURES[code]) || 'unknown';
+}
+
+/** The signin.failed row. Scheduled with after(), never awaited on the response path. */
+function failed(context: ActivityContext, email: string, reason: SignInFailedReason, code?: string): Promise<void> {
+    return logActivity({
+        ...context,
+        event: 'signin.failed',
+        email,
+        meta: { reason, ...(code === undefined ? {} : { code }) },
+    });
+}
+
+/**
+ * The row for step 3 saying no. requireMember is opaque on purpose (a caller
+ * never learns why it was null), so the reason is worked out here, after the
+ * response, from the user row: Better Auth accepted the code, so a row for
+ * this address exists unless it was deleted mid-flow, and if it is banned
+ * that is the reason; otherwise the directory no longer lists them. A
+ * re-check that THREW is neither: it is 'unknown', and no row is read.
+ */
+async function recheckFailed(context: ActivityContext, email: string, threw: boolean): Promise<void> {
+    if (threw) return failed(context, email, 'unknown');
+    const user = await prisma.user
+        .findUnique({ where: { email }, select: { id: true, banned: true } })
+        .catch(() => null);
+    return logActivity({
+        ...context,
+        event: 'signin.failed',
+        email,
+        userId: user?.id ?? null,
+        meta: { reason: user?.banned === true ? 'banned' : 'not_member' },
+    });
+}
+
 export async function POST(request: Request) {
     const missing = missingRequiredEnv();
     if (missing.length > 0) return serviceUnavailable(missing);
@@ -122,6 +183,14 @@ export async function POST(request: Request) {
         return forbidden(id);
     }
 
+    // What every audit row for this request carries: three header reads.
+    const context = activityContext(request.headers, id);
+
+    // 1. Normalise. Read before the IP counter so a refusal there can still
+    //    say which address it was for; null is refused below, after the
+    //    counter has been hit, so a malformed body still counts.
+    const input = await readInput(request);
+
     // Per-IP limit, this route too (checklist 5.2). Better Auth's five-attempt
     // counter only exists once a code has been issued; an address that never had
     // one has no counter at all, so bound how often one address space may try.
@@ -129,11 +198,10 @@ export async function POST(request: Request) {
     const ipLimit = await checkIpLimit(clientIp(request.headers), 'verify');
     if (!ipLimit.allowed) {
         console.warn('[gate] verify-code refused', { id, reason: 'RATE_LIMIT_IP' });
+        if (input) after(() => failed(context, input.email, 'rate_limited_ip'));
         return refused(id);
     }
 
-    // 1. Normalise.
-    const input = await readInput(request);
     if (!input) {
         console.warn('[gate] verify-code refused', { id, reason: 'MALFORMED_BODY' });
         return refused(id);
@@ -155,7 +223,9 @@ export async function POST(request: Request) {
         });
         issued = result.headers;
     } catch (error) {
-        console.warn('[gate] verify-code refused', { id, email: masked, ...describeError(error) });
+        const described = describeError(error);
+        console.warn('[gate] verify-code refused', { id, email: masked, ...described });
+        after(() => failed(context, email, signInFailedReason(described.code), described.code));
         return refused(id);
     }
 
@@ -163,7 +233,9 @@ export async function POST(request: Request) {
     const sessionHeaders = new Headers(requestHeaders);
     sessionHeaders.set('cookie', cookieHeaderFrom(issued.getSetCookie()));
 
+    let recheckThrew = false;
     const member = await requireMember(sessionHeaders).catch((error: unknown) => {
+        recheckThrew = true;
         console.error('[gate] verify-code: membership re-check failed', {
             id,
             email: masked,
@@ -187,10 +259,12 @@ export async function POST(request: Request) {
             });
         });
         console.warn('[gate] verify-code refused', { id, email: masked, reason: 'NOT_A_CURRENT_MEMBER' });
+        after(() => recheckFailed(context, email, recheckThrew));
         return refused(id);
     }
 
-    // 4. The answer.
+    // 4. The answer, with the audit row (5) scheduled to follow it.
     console.info('[gate] verify-code accepted', { id, email: masked });
+    after(() => logActivity({ ...context, event: 'signin.success', email, userId: member.user.id }));
     return respond(id, 200, JSON.stringify({ redirectTo: safeNext(next) }));
 }
