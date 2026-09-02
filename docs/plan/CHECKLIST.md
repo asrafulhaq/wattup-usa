@@ -335,13 +335,13 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ## Phase 4b — Activity log and member view
 
-- [ ] 4b.1 `ActivityLog` model + migration; indexed on `[app, createdAt]` and `[email, createdAt]`
-- [ ] 4b.2 `proforma_member` SQL view created in the same migration
-- [ ] 4b.3 `DbMemberDirectory` reads the view; `EnvMemberDirectory` becomes dev-only
-- [ ] 4b.4 **`PROFORMA_ALLOWLIST` unset in Production**
-- [ ] 4b.5 Pro-forma writes `code.requested`, `signin.success`, `signin.failed` with IP and user agent
+- [◐] 4b.1 `ActivityLog` model + migration; indexed on `[app, createdAt]` and `[email, createdAt]` (plus `[userId, createdAt]`, `[actorUserId, createdAt]`; columns are ADR 0001 §9 plus `actorUserId`, `actorEmail`, `correlationId`). **Pro-forma mirror done** (`feat/proforma-activity-log`); the frontend model + migration ride with 4a branch 1
+- [ ] 4b.2 `proforma_member` SQL view created in the same migration (4a branch 1; ADR 0001 §18 SQL with `lower(u.email)` and the SUPER_ADMIN revoke guard)
+- [x] 4b.3 `DbMemberDirectory` reads the view; `getMemberDirectory()` ignores `PROFORMA_ALLOWLIST` in production with a one-time warning (was already on main; test tightened, `example.env` and the in-file comment corrected, they claimed a production bypass that never existed)
+- [x] 4b.4 `PROFORMA_ALLOWLIST` is ignored in production by code (4b.3), so an operator leaving it set cannot widen access; the runbook still says to leave it unset
+- [x] 4b.5 `lib/activity-log.ts` + both gate routes write `code.requested`, `code.refused` (meta.reason: rate_limited_ip / not_member / banned / rate_limited_email / send_failed), `signin.success`, `signin.failed` (invalid_code / expired / attempts_exhausted / not_member / banned / rate_limited_ip / unknown, Better Auth's code in meta.code), each with IP (same `clientIp` the limiter keys on), user agent (≤512 chars) and the correlation id. **Every write is inside `after()`**; tests pin zero `create` calls at the moment each response exists, and byte-identical responses when the write rejects. Until the 4a migration lands the insert fails P2021, reported once and swallowed
 - [ ] 4b.6 Dashboard writes its own auth events to the same table
-- [ ] 4b.7 Full email stored in `activity_log`; hashed in application logs — the PRD contradiction, resolved
+- [x] 4b.7 Full email in the row; every log line the writer emits carries `maskEmail(email)` (asserted: the logged string holds the masked form, not the address)
 - [ ] 4b.8 90-day purge scheduled *(needs answer F)*
 - [ ] 4b.9 Verify: revoking `ACCESS_PROFORMA` blocks the **next** request, no redeploy
 - [ ] 4b.10 Verify: banning a user blocks an existing pro-forma session
@@ -484,7 +484,8 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
 | 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
 | 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
-| 26 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
+| 27 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 
