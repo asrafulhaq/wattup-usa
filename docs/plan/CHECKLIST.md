@@ -57,7 +57,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.1.4 Whitelist the caller-supplied `folder` parameter
 - [x] S.1.5 Verify: unauthenticated `POST /api/upload-image` returns 401
 - [x] S.1.6 Upload gate, live: signed in and same-origin the route reaches the body check (`400 No file provided`, nothing sent to Cloudinary); the same call without a session → 401. Structure was verified earlier (same-origin fetch, `folder=tiptap` allowed, unchanged return shape)
-- [ ] S.1.7 Audit Cloudinary for files uploaded from outside the team
+- [x] S.1.7 Audit Cloudinary for files uploaded from outside the team: 1,613 assets, 1,435 orphaned, 1,577 outside the allowlist, 1,460 in the unauthenticated window, of which only 14 went through the app and all by the team; the account is shared with other products (1,360 assets) and deletions in the window cannot be seen from the inventory. `docs/plan/CLOUDINARY-AUDIT.md`
 - [x] S.1.8 ~~Check whether `cleanupOldDrafts` has already deleted anything~~ — **premise was false**: it only ever logged and never called Cloudinary. Clamp kept for when it is wired in
 - [x] S.1.9 **Follow-up (review):** `publicId`/`overwrite` passthrough closed — actions build a fresh `{ folder }` and forward nothing else; allowlist moved to `lib/image-service.ts` and enforced on the actions and `moveImage` too
 - [ ] S.1.10 **Residual → 4a:** `deleteImages` / `deleteSingleImage` accept any id. Needs a media-ownership model (none exists). Any signed-in user can delete any asset until then
@@ -497,6 +497,8 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 27 | `feat/email-dark-mode` | `bdf61ed` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
 | 28 | `fix/auth-actions-credential-check` | `fd1cc02` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
 | 29 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 27 | `chore/cloudinary-audit` | `17446dd` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
+| 28 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 
