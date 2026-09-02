@@ -1,3 +1,5 @@
+import { createHmac } from 'node:crypto';
+
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
@@ -51,13 +53,22 @@ export const auth = betterAuth({
             //
             //   expiresIn       default 300  → the spec is a 10 minute code
             //   allowedAttempts default 3    → the spec is 5
-            //   storeOTP        default      → 'plain' would store codes in clear,
+            //   storeOTP        default      → 'plain' would store codes in clear, and
+            //                                  'hashed' is unkeyed; a keyed HMAC is used,
             //                                  and the spec says never store the code
             //   disableSignUp   default false→ a sign-in would CREATE a user, which
             //                                  would make the member list meaningless
             expiresIn: Number(process.env.OTP_TTL_SECONDS ?? 600),
             allowedAttempts: 5,
-            storeOTP: 'hashed',
+            // Not 'hashed': that is an unkeyed SHA-256, and a six-digit space under an
+            // unkeyed hash is stored in the clear for anyone who can read the table —
+            // ten to the sixth digests is well under a second, and the table lives in
+            // a database the dashboard also holds. An HMAC under this app's secret
+            // cannot be inverted without it (security review).
+            storeOTP: {
+                hash: async (otp: string) =>
+                    createHmac('sha256', required('BETTER_AUTH_SECRET')).update(otp).digest('base64url'),
+            },
             disableSignUp: true,
 
             // A fresh code on every request, so an old one cannot be replayed.
