@@ -452,6 +452,8 @@ tracked here so they are not lost. None blocks any other phase.
 
 ## PR queue — merge in this order
 
+> **Who ticks.** Since 2026-09-03 the agent that builds a branch ticks its own items above, with one evidence clause each, and inserts its row here before the `docs/tracking` row, in one final docs commit on its branch. The integrator resolves numbering overlaps at merge and uses `docs/tracking` only for items no branch owns. Everything is merged into local `main` in this order; nothing is pushed until the client's Vercel answer (B, 0.18).
+
 Client decision (3 Sep): nothing is pushed until everything is done and tested locally. Every task
 lives on its own branch; `main` is the local integration branch we test against. At the end, each
 branch is pushed and merged **in this order**, one PR each, so every PR shows only its own commits.
