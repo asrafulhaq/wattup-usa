@@ -70,57 +70,6 @@ export async function getSession() {
 }
 
 /**
- * Request password reset using Better Auth.
- */
-export async function requestPasswordReset(formData: FormData) {
-    const email = formData.get('email') as string | null;
-    if (!email) return { success: false, error: 'Email is required' };
-
-    try {
-        await auth.api.requestPasswordReset({
-            body: {
-                email,
-                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
-            },
-        });
-
-        return {
-            success: true,
-            message: 'If an account exists, a reset link has been sent.',
-        };
-    } catch (error: any) {
-        console.error('Reset Request Error:', error);
-        return { success: false, error: 'Failed to process request' };
-    }
-}
-
-/**
- * Reset password using Better Auth.
- */
-export async function resetPassword(formData: FormData) {
-    const token = formData.get('token') as string | null;
-    const newPassword = formData.get('password') as string | null;
-
-    if (!token || !newPassword) {
-        return { success: false, error: 'Missing fields' };
-    }
-
-    try {
-        await auth.api.resetPassword({
-            body: {
-                token,
-                newPassword,
-            },
-        });
-
-        return { success: true, message: 'Password reset successfully' };
-    } catch (error: any) {
-        console.error('Reset Password Error:', error);
-        return { success: false, error: 'Failed to reset password' };
-    }
-}
-
-/**
  * Updates user email using Better Auth.
  * Verifies current password via Better Auth changePassword as a pre-check,
  * then calls changeEmail which sends a verification link.

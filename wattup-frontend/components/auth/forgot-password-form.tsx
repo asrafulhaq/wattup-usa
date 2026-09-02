@@ -1,6 +1,6 @@
 'use client';
 
-import { requestPasswordReset } from '@/app/_actions/auth-actions';
+import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
@@ -30,15 +30,19 @@ export function ForgotPasswordForm() {
     const onSubmit = (values: Values) => {
         startTransition(async () => {
             setServerError('');
-            const data = new FormData();
-            data.append('email', values.email);
-            const result = await requestPasswordReset(data);
-            if (result.success) {
-                setSent(true);
+            // Submits over HTTP to Better Auth's /request-password-reset route so the
+            // rate limiter in lib/auth.ts applies. A server action calling auth.api
+            // directly would skip it and let anyone flood an address with reset mail.
+            // The route answers the same way for unknown addresses, so the success
+            // view below never reveals whether an account exists.
+            const { error } = await authClient.requestPasswordReset({
+                email: values.email,
+                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+            });
+            if (error) {
+                setServerError('Failed to process request');
             } else {
-                setServerError(
-                    result.error || 'Something went wrong. Please try again.'
-                );
+                setSent(true);
             }
         });
     };
