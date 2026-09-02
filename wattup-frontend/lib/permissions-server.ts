@@ -1,6 +1,7 @@
 import 'server-only';
 
 import {
+    ALL_PERMISSIONS,
     NO_PERMISSIONS,
     Permission,
     Role,
@@ -54,26 +55,30 @@ function isMissingTable(error: unknown): boolean {
 // Reported once per process rather than once per request.
 let missingTablesReported = false;
 
-/**
- * The pure resolver. `getEffectivePermissions` below is this over the shared client,
- * memoised for the request; tests call this directly with a stub.
- */
-export async function resolvePermissions(
-    db: PermissionSource,
-    userId: string
-): Promise<PermissionSet> {
-    const user = await db.user.findUnique({
+type UserRow = { role: Role; banned: boolean | null; banExpires: Date | null };
+type Override = { permission: Permission; granted: boolean };
+
+/** The user's role and ban state, or null when there is no such row. */
+async function loadUser(db: PermissionSource, userId: string): Promise<UserRow | null> {
+    return db.user.findUnique({
         where: { id: userId },
         select: { role: true, banned: true, banExpires: true },
     });
-    if (!user || isBanned(user)) return NO_PERMISSIONS;
+}
 
-    let defaults: readonly Permission[];
-    let overrides: { permission: Permission; granted: boolean }[];
+/**
+ * The two sources of truth for one user: what their role holds by default, and what
+ * has been granted or revoked on top of it.
+ */
+async function loadGrants(
+    db: PermissionSource,
+    role: Role,
+    userId: string
+): Promise<{ defaults: readonly Permission[]; overrides: Override[] }> {
     try {
         const [roleRows, userRows] = await Promise.all([
             db.rolePermission.findMany({
-                where: { role: user.role },
+                where: { role },
                 select: { permission: true },
             }),
             db.userPermission.findMany({
@@ -81,8 +86,7 @@ export async function resolvePermissions(
                 select: { permission: true, granted: true },
             }),
         ]);
-        defaults = roleRows.map(row => row.permission);
-        overrides = userRows;
+        return { defaults: roleRows.map(row => row.permission), overrides: userRows };
     } catch (error) {
         // The one fallback (checklist 4a.6): the code is deployed but the migration
         // that creates the two tables has not run yet. The in-code map is exactly what
@@ -100,19 +104,39 @@ export async function resolvePermissions(
                 error
             );
         }
-        defaults = ROLE_PERMISSIONS[user.role as Role] ?? [];
-        overrides = [];
+        return { defaults: ROLE_PERMISSIONS[role] ?? [], overrides: [] };
     }
+}
 
+/** role defaults, minus revokes (never for SUPER_ADMIN, 4a.21), plus grants. */
+function applyOverrides(
+    defaults: readonly Permission[],
+    overrides: readonly Override[],
+    role: Role
+): PermissionSet {
     const set = new Set<Permission>(defaults);
     for (const override of overrides) {
         if (override.granted) {
             set.add(override.permission);
-        } else if (user.role !== Role.SUPER_ADMIN) {
+        } else if (role !== Role.SUPER_ADMIN) {
             set.delete(override.permission);
         }
     }
     return set;
+}
+
+/**
+ * The pure resolver. `getEffectivePermissions` below is this over the shared client,
+ * memoised for the request; tests call this directly with a stub.
+ */
+export async function resolvePermissions(
+    db: PermissionSource,
+    userId: string
+): Promise<PermissionSet> {
+    const user = await loadUser(db, userId);
+    if (!user || isBanned(user)) return NO_PERMISSIONS;
+    const { defaults, overrides } = await loadGrants(db, user.role, userId);
+    return applyOverrides(defaults, overrides, user.role);
 }
 
 /**
@@ -125,4 +149,70 @@ export async function resolvePermissions(
  */
 export const getEffectivePermissions = cache(
     async (userId: string): Promise<PermissionSet> => resolvePermissions(prisma, userId)
+);
+
+// ─── Provenance ───────────────────────────────────────────────────────────────
+
+/**
+ * Why one user holds, or does not hold, one permission (checklist 4c.5, ADR 0001 D14).
+ *
+ *   fromRole   role_permission has this permission for the role they hold NOW
+ *   override   a user_permission row: 'granted' adds it, 'revoked' takes it away
+ *   effective  what getEffectivePermissions answers for them on this request
+ *
+ * The resolved set cannot answer this on its own: MANAGE_LOCATIONS present tells you
+ * nothing about whether it came with the role or was granted to this person, and an
+ * admin who cannot see the difference cannot predict what a toggle will do.
+ */
+export interface PermissionDescription {
+    permission: Permission;
+    fromRole: boolean;
+    override: 'granted' | 'revoked' | null;
+    effective: boolean;
+}
+
+/**
+ * The pure describer, over an injected client. Every permission in the enum appears
+ * exactly once, in ALL_PERMISSIONS order; an unknown user describes nothing.
+ *
+ * `effective` is the resolver's answer and nothing else, ban included: a banned user
+ * holds nothing whatever their role says, so every row reads effective = false while
+ * still showing where the permission would have come from. The screen says so once,
+ * rather than each row disagreeing with the ban badge above it.
+ */
+export async function describePermissions(
+    db: PermissionSource,
+    userId: string
+): Promise<PermissionDescription[]> {
+    const user = await loadUser(db, userId);
+    if (!user) return [];
+
+    const { defaults, overrides } = await loadGrants(db, user.role, userId);
+    const effective = isBanned(user)
+        ? NO_PERMISSIONS
+        : applyOverrides(defaults, overrides, user.role);
+
+    const roleHolds = new Set<Permission>(defaults);
+    // Last row wins if the table ever held two for one pair; the unique index on
+    // (userId, permission) means it cannot, and upsert keeps it that way.
+    const overridden = new Map<Permission, boolean>(
+        overrides.map(row => [row.permission, row.granted])
+    );
+
+    return ALL_PERMISSIONS.map(permission => ({
+        permission,
+        fromRole: roleHolds.has(permission),
+        override: overridden.has(permission)
+            ? overridden.get(permission)
+                ? ('granted' as const)
+                : ('revoked' as const)
+            : null,
+        effective: effective.has(permission),
+    }));
+}
+
+/** The provenance for one user, once per request. */
+export const describeUserPermissions = cache(
+    async (userId: string): Promise<PermissionDescription[]> =>
+        describePermissions(prisma, userId)
 );

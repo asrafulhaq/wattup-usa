@@ -1,11 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { NO_PERMISSIONS, Permission, Role, ROLE_PERMISSIONS } from '@/lib/permissions';
+import {
+    ALL_PERMISSIONS,
+    NO_PERMISSIONS,
+    Permission,
+    Role,
+    ROLE_PERMISSIONS,
+} from '@/lib/permissions';
 
 // The module imports the Prisma singleton for getEffectivePermissions; the tests below
 // go through resolvePermissions with a stub, so the singleton is never constructed.
 vi.mock('@/lib/prisma', () => ({ default: {} }));
 
-import { resolvePermissions, type PermissionSource } from '@/lib/permissions-server';
+import {
+    describePermissions,
+    resolvePermissions,
+    type PermissionDescription,
+    type PermissionSource,
+} from '@/lib/permissions-server';
 
 type UserRow = { role: string; banned: boolean | null; banExpires: Date | null } | null;
 type RoleRow = { permission: string };
@@ -150,5 +161,191 @@ describe('resolvePermissions', () => {
         const boom = Object.assign(new Error('connection refused'), { code: 'P1001' });
         const db = stubDb({ user: editor, roleRows: boom });
         await expect(resolvePermissions(db, 'user-1')).rejects.toBe(boom);
+    });
+});
+
+// ─── Provenance (checklist 4c.5) ──────────────────────────────────────────────
+
+describe('describePermissions', () => {
+    beforeEach(() => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    /** The one row for `permission`, so a test names the permission it means. */
+    const rowFor = (rows: PermissionDescription[], permission: Permission) =>
+        rows.find(row => row.permission === permission);
+
+    it('describes every permission in the enum exactly once, in ALL_PERMISSIONS order', async () => {
+        const db = stubDb({ user: editor, roleRows: editorDefaults });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rows.map(row => row.permission)).toEqual([...ALL_PERMISSIONS]);
+        expect(rows).toHaveLength(ALL_PERMISSIONS.length);
+    });
+
+    it('asks for the role rows of THAT role and the overrides of THAT user', async () => {
+        const db = stubDb({ user: editor, roleRows: editorDefaults });
+        await describePermissions(db, 'user-1');
+
+        expect(db.user.findUnique).toHaveBeenCalledWith({
+            where: { id: 'user-1' },
+            select: { role: true, banned: true, banExpires: true },
+        });
+        expect(db.rolePermission.findMany).toHaveBeenCalledWith({
+            where: { role: Role.EDITOR },
+            select: { permission: true },
+        });
+        expect(db.userPermission.findMany).toHaveBeenCalledWith({
+            where: { userId: 'user-1' },
+            select: { permission: true, granted: true },
+        });
+    });
+
+    it('from the role: fromRole true, no override, effective', async () => {
+        const db = stubDb({ user: editor, roleRows: editorDefaults });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.PUBLISH_POST)).toEqual({
+            permission: Permission.PUBLISH_POST,
+            fromRole: true,
+            override: null,
+            effective: true,
+        });
+    });
+
+    it('not held at all: every field says so', async () => {
+        const db = stubDb({ user: editor, roleRows: editorDefaults });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.MANAGE_PERMISSIONS)).toEqual({
+            permission: Permission.MANAGE_PERMISSIONS,
+            fromRole: false,
+            override: null,
+            effective: false,
+        });
+    });
+
+    it('granted on top: fromRole false, override granted, effective', async () => {
+        const db = stubDb({
+            user: editor,
+            roleRows: editorDefaults,
+            overrideRows: [{ permission: Permission.ACCESS_PROFORMA, granted: true }],
+        });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.ACCESS_PROFORMA)).toEqual({
+            permission: Permission.ACCESS_PROFORMA,
+            fromRole: false,
+            override: 'granted',
+            effective: true,
+        });
+    });
+
+    it('revoked from the role: fromRole STAYS true, override revoked, not effective', async () => {
+        // The distinction the resolved set cannot make: the role default is still
+        // there, which is what the screen has to show underneath the override.
+        const db = stubDb({
+            user: editor,
+            roleRows: editorDefaults,
+            overrideRows: [{ permission: Permission.PUBLISH_POST, granted: false }],
+        });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.PUBLISH_POST)).toEqual({
+            permission: Permission.PUBLISH_POST,
+            fromRole: true,
+            override: 'revoked',
+            effective: false,
+        });
+    });
+
+    it('a grant of something the role already holds is reported as a grant and stays effective', async () => {
+        const db = stubDb({
+            user: editor,
+            roleRows: editorDefaults,
+            overrideRows: [{ permission: Permission.CREATE_POST, granted: true }],
+        });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.CREATE_POST)).toEqual({
+            permission: Permission.CREATE_POST,
+            fromRole: true,
+            override: 'granted',
+            effective: true,
+        });
+    });
+
+    it('SUPER_ADMIN: a revoke is recorded but ignored, so effective stays true (4a.21)', async () => {
+        const db = stubDb({
+            user: { role: Role.SUPER_ADMIN, banned: false, banExpires: null },
+            roleRows: ROLE_PERMISSIONS.SUPER_ADMIN.map(permission => ({ permission })),
+            overrideRows: [{ permission: Permission.MANAGE_PERMISSIONS, granted: false }],
+        });
+        const rows = await describePermissions(db, 'root');
+
+        expect(rowFor(rows, Permission.MANAGE_PERMISSIONS)).toEqual({
+            permission: Permission.MANAGE_PERMISSIONS,
+            fromRole: true,
+            override: 'revoked',
+            effective: true,
+        });
+        expect(rows.every(row => row.effective)).toBe(true);
+    });
+
+    it('a banned user: the provenance still shows, nothing is effective', async () => {
+        const db = stubDb({
+            user: { role: Role.EDITOR, banned: true, banExpires: null },
+            roleRows: editorDefaults,
+            overrideRows: [{ permission: Permission.ACCESS_PROFORMA, granted: true }],
+        });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.PUBLISH_POST)?.fromRole).toBe(true);
+        expect(rowFor(rows, Permission.ACCESS_PROFORMA)?.override).toBe('granted');
+        expect(rows.some(row => row.effective)).toBe(false);
+    });
+
+    it('an unknown user describes nothing, and neither table is read', async () => {
+        const db = stubDb({ user: null });
+        expect(await describePermissions(db, 'nobody')).toEqual([]);
+        expect(db.rolePermission.findMany).not.toHaveBeenCalled();
+        expect(db.userPermission.findMany).not.toHaveBeenCalled();
+    });
+
+    it('agrees with resolvePermissions on the effective set, override for override', async () => {
+        const input = {
+            user: editor,
+            roleRows: editorDefaults,
+            overrideRows: [
+                { permission: Permission.PUBLISH_POST, granted: false },
+                { permission: Permission.ACCESS_PROFORMA, granted: true },
+                { permission: Permission.VIEW_ACTIVITY_LOG, granted: true },
+            ],
+        };
+        const described = await describePermissions(stubDb(input), 'user-1');
+        const resolved = await resolvePermissions(stubDb(input), 'user-1');
+
+        expect(described.filter(row => row.effective).map(row => row.permission).sort()).toEqual(
+            [...resolved].sort()
+        );
+    });
+
+    it('falls back to the in-code map when the tables do not exist, with no overrides to report', async () => {
+        const missing = Object.assign(new Error('relation "role_permission" does not exist'), {
+            code: 'P2021',
+        });
+        const db = stubDb({ user: editor, roleRows: missing });
+        const rows = await describePermissions(db, 'user-1');
+
+        expect(rowFor(rows, Permission.CREATE_POST)).toEqual({
+            permission: Permission.CREATE_POST,
+            fromRole: true,
+            override: null,
+            effective: true,
+        });
+        expect(rows.every(row => row.override === null)).toBe(true);
     });
 });

@@ -66,3 +66,59 @@ export async function getDashboardUsers(
     if (!session) return { users: [], total: 0 };
     return readUsers(pageSize);
 }
+
+// ─── One user, for the detail page ────────────────────────────────────────────
+
+/**
+ * What /dashboard/users/[id] shows in its identity section (checklist 4c.2).
+ *
+ * `updatedAt` is why this is not app/_actions/admin-user-actions.ts#getUserById, whose
+ * ManagedUser does not carry it. The two reads otherwise overlap; this one is
+ * server-only, so it is not a callable endpoint.
+ */
+export interface DashboardUserDetail {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    banned: boolean;
+    banReason: string | null;
+    banExpires: Date | null;
+    emailVerified: boolean;
+    image: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+/**
+ * One user by id, for a caller holding VIEW_USERS. Null both for a caller without it
+ * and for an id that does not exist: the page answers notFound either way, which is
+ * also the answer that tells an unauthorised caller the least.
+ *
+ * Deliberately uncached, unlike the list above. A permission override does not call
+ * updateTag('users'), so a cached read here would keep showing a role and a ban state
+ * that a grant made stale seconds ago.
+ */
+export async function getDashboardUser(userId: string): Promise<DashboardUserDetail | null> {
+    const authorised = await requirePermission(Permission.VIEW_USERS);
+    if (!authorised) return null;
+
+    const row = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            banned: true,
+            banReason: true,
+            banExpires: true,
+            emailVerified: true,
+            image: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+    if (!row) return null;
+    return { ...row, banned: row.banned ?? false };
+}
