@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
+/*
+ * The gate's palette and type, taken from the previous gate
+ * (docs/Pro-Forma source/middleware.ts) so the new screen matches the old one.
+ * The gate is dark only, so there is no light theme to prefer. The tool itself
+ * is served as raw files by app/tool and never sees any of this.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0e13;
+  --foreground: #e9edf3;
+  --blue: #3b7dff;
+  --blue-hover: #2c63d9;
+  --ink-1: #12171f;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.16);
+  --text-2: #9ba6b6;
+  --text-3: #6c7787;
+  --error-bg: rgba(240, 72, 72, 0.09);
+  --error-line: rgba(240, 72, 72, 0.3);
+  --error-text: #ffb4b4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-blue: var(--blue);
+  --color-blue-hover: var(--blue-hover);
+  --color-ink-1: var(--ink-1);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-error-bg: var(--error-bg);
+  --color-error-line: var(--error-line);
+  --color-error-text: var(--error-text);
+  --font-sans: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(900px 520px at 50% -8%, rgba(59, 125, 255, 0.16), transparent 70%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 14px;
 }

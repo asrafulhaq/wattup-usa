@@ -83,9 +83,14 @@ app/api/auth/[...all]/       Better Auth, with OTP paths closed
 app/api/gate/request-code/   POST: normalise, rate limit, directory, send (in after()), always the same 200
 app/api/gate/verify-code/    POST: sign in server-side, re-check membership, one identical 400 for every failure
 app/tool/[[...path]]/        serves private/tool/ to current members only
+app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
+                             member straight on; login-form.tsx is the client form
+app/page.tsx                 redirects to /tool/, which bounces a signed-out person to /login
+app/layout.tsx               title, noindex, favicon, Satoshi from fontshare; globals.css has the palette
 lib/auth.ts                  Better Auth config — read the comments before editing
 lib/gate.ts                  requireMember: the one place a gated request decides membership;
-                             also safeNext, correlationId and the gate's shared response headers
+                             also correlationId and the gate's shared response headers
+lib/safe-next.ts             safeNext, import-free so the browser can use it too; lib/gate.ts re-exports it
 lib/env.ts                   missingRequiredEnv: the 503 fail-closed check both gate routes run first
 lib/rate-limit.ts            checkRequestLimits: the phase 5 call site, a stub until then
 lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
