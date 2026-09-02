@@ -229,11 +229,11 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ### 2f — Verify the phase
 
-- [◐] 2.40 Member: request-code for `devripon.io@gmail.com` → 200 generic, decision ran in `after()` (log line after the response), Resend accepted the send; **code relay and sign-in pending**
+- [x] 2.40 Member: request-code → 200 generic, decision in `after()`, Resend `delivered`; verify-code with the real code → 200, `wup.session_token` (7 d) + `wup.session_data` (5 min) set, `{redirectTo:"/tool/"}`
 - [ ] 2.41 Non-member: no email, and the response is byte-identical
 - [x] 2.42 **Timing closed by construction.** First cut measured member 1,110 ms vs non-member 3 ms (Better Auth's DB round trips, not Resend). Fixed by moving the membership decision *and* OTP issue into `after()` — the response has zero dependence on who asked. Re-measured: member 3.1/2.9/3.9/3.0/2.5 ms, non-member 2.8/2.7/2.6/2.1/2.3 ms
 - [ ] 2.43 5 wrong attempts invalidates the code
-- [ ] 2.44 Code expires at 10 minutes; a used code cannot be reused
+- [◐] 2.44 A used code cannot be reused → verified (same code again → 400). 10-minute expiry: tested with a shortened TTL below
 - [ ] 2.45 Requesting a second code invalidates the first
 
 ---
@@ -250,9 +250,9 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [ ] 3.8 Verified on a **preview deploy** — blocked on the Vercel project (1.6); locally the `.nft.json` lists all 15 `private/tool/**` files, which is the tracing proof
 - [x] 3.9 Sign-out link in `index.html:31` changed from `GET /__logout` to a POST — the one interface change
 - [x] 3.10 The `*.wattupusa.com` hostname check still reveals the link
-- [ ] 3.11 Tool works end to end behind the gate — needs a session, which needs phase 2 (`/login` + the gate routes). Every `/tool/*` request currently 302s to `/login`, which 404s: fail closed
+- [x] 3.11 Tool served behind the gate with a real session: `/tool/` → 200 HTML, `js/model.js` → 200 JS **byte-identical to source**, `css/app.css` → 200; `/login` while signed in → 307 to `/tool/`
 - [x] 3.13 **Follow-up (review):** `lib/gate.ts` `requireMember()` — `getSession` with `disableCookieCache: true` (forced DB read), then `user.banned` re-check; the one place a gated request decides membership, phase 2 swaps in the `proforma_member` lookup. `X-Frame-Options: DENY` + `frame-ancestors 'none'` on every gated response (tool's own `srcdoc` preview verified unaffected). Content-Type map trimmed to the four the spec names
-- [x] 3.12 Unauthenticated request for `model.js` returns no JavaScript
+- [x] 3.12 Unauthenticated request for `model.js` → 302 to `/login?next=…`, no JavaScript — re-verified against the same URL that returns JS with a session
 
 ---
 
