@@ -6,7 +6,7 @@ in one repository sharing one PostgreSQL database.
 | Path | What it is | Domain | Port |
 |---|---|---|:--:|
 | `wattup-frontend/` | Marketing site **and** team dashboard | wattupusa.com | 3000 |
-| `wattup-proforma/` | Site Pro-Forma Builder, behind an email + one-time-code gate | hostproposal.wattupusa.com | 3001 |
+| `wattup-proforma/` | Site Pro-Forma Builder, behind an email + one-time-code gate | proforma.wattupusa.com (default; the host comes from env) | 3001 |
 
 Both are Next.js 16 / React 19 / TypeScript / Prisma / Better Auth / Resend, on pnpm. Each has
 its own `CLAUDE.md` with the full picture for that app; read the one for whichever you are in.

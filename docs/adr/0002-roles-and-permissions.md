@@ -365,3 +365,17 @@ next request, so revocation is immediate.
 | 3 | **Should `EDITOR` get `ACCESS_PROFORMA` by default?** Proposed no; per-user grants cover exceptions. |
 | 4 | **Is `COLLABORATOR` still in use?** No one currently holds capabilities it can exercise, since post actions are admin-gated. If the role is unused, this is the moment to retire it rather than wire it up. |
 | 5 | **Who fixes §2.2 and when?** It is live now. Recommendation: its own PR, before anything else. |
+
+
+---
+
+## 10. Sign-off, 2026-09-03
+
+The client answered the open questions in §9 and the checklist's asks C, D, F and I:
+
+- **C, the matrix (§6):** seeded as recommended. One departure kept from the migration: `EDITOR` keeps `DELETE_ANY_POST`, which it held before, so no surviving role loses anything. The client adjusts role defaults from the dashboard, so `role_permission` is editable there (a Roles page, checklist 4c.13 to 4c.16), gated by `MANAGE_PERMISSIONS`.
+- **D, the names:** `NETWORK_MANAGER` and `SALES` confirmed.
+- **F, the activity log:** `VIEW_ACTIVITY_LOG` defaults to `ADMIN` and `SUPER_ADMIN`; an admin may give it to any role from the Roles page. Retention 90 days, configurable.
+- **I, own-post:** `EDIT_OWN_POST` and `DELETE_OWN_POST` are dropped as §7 recommends. `Posts.author` stays free text. The enum values are retired rather than removed from the database type, like the four reserved values, because `role_permission.permission` now uses the type.
+
+With these, nothing in this ADR awaits sign-off.

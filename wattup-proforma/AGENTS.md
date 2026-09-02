@@ -11,8 +11,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # wattup-proforma
 
 The **Site Pro-Forma Builder**: a browser-only calculator that renders WattUp's six-page host
-revenue pro-forma live, used to pitch landlords and site hosts. Deployed to
-hostproposal.wattupusa.com, separate from the marketing site. Port 3001.
+revenue pro-forma live, used to pitch landlords and site hosts. Deployed to its own subdomain,
+named only by `NEXT_PUBLIC_APP_URL` (default `proforma.wattupusa.com`), separate from the marketing
+site. Port 3001.
 
 This app is **a new front door in front of an unchanged tool** — email plus a six-digit code,
 replacing a shared password.

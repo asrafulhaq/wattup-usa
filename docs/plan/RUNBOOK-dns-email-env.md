@@ -18,6 +18,20 @@ order, top to bottom, with a verification step after each part.
 
 ---
 
+## Part 0a — Operator to-do, client-owned (decided 2026-09-03)
+
+These are yours, not the code's. Nothing in the repository depends on them except the push.
+
+| | Item | Where |
+|---|---|---|
+| A | The pro-forma subdomain is whatever `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` say. **Default: `proforma.wattupusa.com`.** The PRD's `hostproposal` works too: set the env, nothing in code names the host | Part 2, Part 4, Part 5 |
+| B | Vercel: frontend project Root Directory → `wattup-frontend` **saved before the first push** (checklist 0.18); Ignored Build Step on both projects (0.19, 1.7); a second project with Root Directory `wattup-proforma` (1.6); domains (Part 2); env (Part 5) | Part 2, Part 5 |
+| J | Resend account owner login: obtain it (or be added as a team member) so the key can be rotated and the sending domain checked from the dashboard | Part 3 |
+| K | Apex SPF: add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so code emails stop failing SPF and landing in Spam | Part 3, 6.6a |
+| E | No `Reply-To`: the sender is `noreply` by decision; nothing to set up | Part 3 |
+
+---
+
 ## Part 0 — Blockers and pre-flight
 
 ### 0.1 Two answers needed first
