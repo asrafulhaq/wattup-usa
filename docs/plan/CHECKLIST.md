@@ -57,7 +57,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.1.4 Whitelist the caller-supplied `folder` parameter
 - [x] S.1.5 Verify: unauthenticated `POST /api/upload-image` returns 401
 - [x] S.1.6 Upload gate, live: signed in and same-origin the route reaches the body check (`400 No file provided`, nothing sent to Cloudinary); the same call without a session → 401. Structure was verified earlier (same-origin fetch, `folder=tiptap` allowed, unchanged return shape)
-- [ ] S.1.7 Audit Cloudinary for files uploaded from outside the team
+- [x] S.1.7 Audit Cloudinary for files uploaded from outside the team: 1,613 assets, 1,435 orphaned, 1,577 outside the allowlist, 1,460 in the unauthenticated window, of which only 14 went through the app and all by the team; the account is shared with other products (1,360 assets) and deletions in the window cannot be seen from the inventory. `docs/plan/CLOUDINARY-AUDIT.md`
 - [x] S.1.8 ~~Check whether `cleanupOldDrafts` has already deleted anything~~ — **premise was false**: it only ever logged and never called Cloudinary. Clamp kept for when it is wired in
 - [x] S.1.9 **Follow-up (review):** `publicId`/`overwrite` passthrough closed — actions build a fresh `{ folder }` and forward nothing else; allowlist moved to `lib/image-service.ts` and enforced on the actions and `moveImage` too
 - [ ] S.1.10 **Residual → 4a:** `deleteImages` / `deleteSingleImage` accept any id. Needs a media-ownership model (none exists). Any signed-in user can delete any asset until then
@@ -485,7 +485,8 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
 | 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
 | 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
-| 27 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 27 | `chore/cloudinary-audit` | `17446dd` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
+| 28 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 
