@@ -101,10 +101,8 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [ ] S.5.3 If break-glass — rotate the password, move it to the password manager, document the procedure
 - [ ] S.5.4 Remove `ADMIN_PASSWORD` from the deployed environment once the account exists
 - [ ] S.5.5 Verify on a real deploy that the account is no longer re-promoted — **also check the Vercel project's Build Command override**: if one was ever set to `next build && prisma db seed`, the `package.json` change is void and this cannot be seen from git
-- [ ] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them
 - [x] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does: seed.ts and seed-admins.ts create through `auth.api.createUser` with `role: 'SUPER_ADMIN'` and no defaultRole anywhere (`feat/rbac-5-seed`); `tsc` and `eslint` clean; not run
 - [◐] S.5.6 Clean up the stale `NEW_API_KEY` / `NEW_API_SECRET` / `NEW_CLOUD_NAME` Cloudinary vars, or confirm they are live and rotate them. **Checked 3 Sep in the frontend `.env`:** all three present, and each is **different** from its `CLOUDINARY_*` counterpart (same length), so they are a second set of credentials, not copies. Nothing reads them (`lib/cloudinary.ts` reads `CLOUDINARY_*` only). **Operator half pending:** find which Cloudinary account they belong to, revoke or rotate, then delete them from Vercel and every `.env`
-- [ ] S.5.7 `seed.ts` create path is broken since the RBAC migration (admin plugin stamps `role: "user"`); set `admin({ defaultRole })` as `seed-admins.ts` does
 - [x] S.5.8 **Second super admin seeded:** `devripon.io@gmail.com` via the new `pnpm seed:admins` (`ADMIN_EMAILS`, uses `ADMIN_PASSWORD`, touches user + account only). `admin@wattup.com` untouched. Every check from here runs as this account
 
 - [◐] S.6 Each fix merged to `main` as its own branch (F1 ×2 commits, F2 ×2, F9 ×2, F13, F14). **Not deployed** — push is gated on the Vercel Root Directory change (0.18)
@@ -342,16 +340,8 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 - [x] 4b.3 `DbMemberDirectory` reads the view; `getMemberDirectory()` ignores `PROFORMA_ALLOWLIST` in production with a one-time warning (was already on main; test tightened, `example.env` and the in-file comment corrected, they claimed a production bypass that never existed)
 - [x] 4b.4 `PROFORMA_ALLOWLIST` is ignored in production by code (4b.3), so an operator leaving it set cannot widen access; the runbook still says to leave it unset
 - [x] 4b.5 `lib/activity-log.ts` + both gate routes write `code.requested`, `code.refused` (meta.reason: rate_limited_ip / not_member / banned / rate_limited_email / send_failed), `signin.success`, `signin.failed` (invalid_code / expired / attempts_exhausted / not_member / banned / rate_limited_ip / unknown, Better Auth's code in meta.code), each with IP (same `clientIp` the limiter keys on), user agent (≤512 chars) and the correlation id. **Every write is inside `after()`**; tests pin zero `create` calls at the moment each response exists, and byte-identical responses when the write rejects. Until the 4a migration lands the insert fails P2021, reported once and swallowed. **Proven live end to end 2026-09-02** against the real table: one non-member request wrote `code.refused` with `meta.reason: not_member` and no user id, one member request wrote `code.requested` with the user id, and the verify wrote `signin.success`, all three carrying IP, user agent and the correlation id
-- [ ] 4b.6 Dashboard writes its own auth events to the same table
-- [x] 4b.7 Verified live: the three rows written on 2026-09-02 hold the full address, while the same events in the application log show `de***@gmail.com`. Full email in the row; every log line the writer emits carries `maskEmail(email)` (asserted: the logged string holds the masked form, not the address)
-- [x] 4b.1 `ActivityLog` model + migration; indexed on `[app, createdAt]` and `[email, createdAt]`: `ActivityLog` model and the `activity_log` table in the same migration; ADR 0001 §9 columns plus `actorUserId`, `actorEmail`, `correlationId`; indexes `[app, createdAt]`, `[email, createdAt]`, `[userId, createdAt]`, `[actorUserId, createdAt]`
-- [x] 4b.2 `proforma_member` SQL view created in the same migration: migration part 7 creates `proforma_member` (id, `lower(email)`, name, active) with the SUPER_ADMIN guard on the revoke branch; verified on the scratch DB: grant, revoke, ban and lowercase all behave; `wattup-proforma`'s `ProformaMember` model matches column for column
-- [ ] 4b.3 `DbMemberDirectory` reads the view; `EnvMemberDirectory` becomes dev-only
-- [ ] 4b.4 **`PROFORMA_ALLOWLIST` unset in Production**
-- [ ] 4b.5 Pro-forma writes `code.requested`, `signin.success`, `signin.failed` with IP and user agent
 - [◐] 4b.6 Dashboard writes its own auth events to the same table: the dashboard writes user.created, role.changed, user.banned, user.unbanned, user.deleted, permission.granted, permission.revoked and settings.updated; its own sign-in events (signin.success / signin.failed from the Better Auth handler) are not written yet
 - [x] 4b.7 Full email stored in `activity_log`; hashed in application logs — the PRD contradiction, resolved: full address in `activity_log.email` / `actorEmail`; `maskEmail` in `lib/activity-log.ts` and `lib/auth.ts` for every application log line; `activity-log.test.ts` asserts the failure report masks both addresses
-- [ ] 4b.8 90-day purge scheduled *(needs answer F)*
 - [◐] 4b.8 90-day purge scheduled *(needs answer F)*: `GET /api/cron/purge-activity-log` on `wattup-frontend`, daily 03:17 UTC from `vercel.json`, `CRON_SECRET` bearer compared in constant time, one parameterised DELETE on `activity_log.createdAt`, 200 `skipped` while the table is missing; 19 Vitest tests in `tests/api/purge-activity-log.test.ts` (401 paths issue no statement, exact SQL and parameter, P2010/P2021 skip reported once, malformed retention deletes nothing). Retention default 90, client answer F pending; `CRON_SECRET` not yet set in Vercel (runbook Part 5, Cron)
 - [x] 4b.9 **Verified live** (2026-09-03): granting `ACCESS_PROFORMA` to an EDITOR puts them in `proforma_member` on the very next query and deleting the grant removes them; a revoke row on a `SALES` user (who holds it from the role) drops them immediately. No deploy, no cache: the view resolves in SQL per query and `getEffectivePermissions` reads the tables per request
 - [x] 4b.10 **Verified live** (2026-09-03): setting `banned = true` removes the user from `proforma_member` even with `ACCESS_PROFORMA` intact, and unbanning restores them. The gate re-reads membership per request with `disableCookieCache: true` (3.13), so an existing session stops working on its next request rather than at expiry
@@ -455,16 +445,11 @@ tracked here so they are not lost. None blocks any other phase.
 - [x] B.4 **F6:** `updateEmail` confirms the password with `auth.api.verifyPassword`, Better Auth 1.7.2's server-scoped endpoint (session from the request headers, credential row and `ctx.context.password.verify` inside the library, `scope: "server"` so never routed under `/api/auth`); the account table is no longer read and the scrypt parse is gone. Pinned by `wattup-frontend/tests/actions/auth-actions.test.ts`: "is decided by Better Auth's verifyPassword, given the submitted password and the same headers, before changeEmail", "never reads the account row", and "is refused with the existing message, and changeEmail is never called". Vitest 4.1.11 added to the frontend for it (`pnpm test`, 15 tests)
 - [x] B.5 **F6:** nothing left to re-check: the app no longer holds the hash format, so a `better-auth` upgrade cannot break the check silently; if the parse ever came back, the "never reads the account row" test fails. Residual found on the way, pre-existing and outside B.4: `lib/auth.ts` sets no `user.changeEmail.enabled`, so `auth.api.changeEmail` throws CHANGE_EMAIL_DISABLED and the email change never completes (pinned by "reports a changeEmail failure by its message"); recorded under F6 in SECURITY-FINDINGS
 - [x] B.6 **F7:** `lib/contact-rate-limit.ts`, 5 per address per 10 min in a bounded Map (500 keys, oldest window evicted), HMAC(BETTER_AUTH_SECRET) keys, IPv6 by /64 (copied from the pro-forma limiter, noted in file), fails open; both actions check it before validation. Proven by a direct-call script (6th hit refused, window reset, eviction, header parsing)
-- [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
 - [x] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review): `searchArticles` carries `cacheTag('posts')`
 - [x] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand: the route refuses a Content-Length over `MAX_UPLOAD_BYTES` (10 MB) before reading the body and the actions refuse an oversized file; `revalidatePath('/')` removed from all six media actions (an upload changes no page until the record embedding it is saved, which invalidates its own tag)
 - [x] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades: `docs/plan/AUDIT-TRIAGE.md` (3 Sep). Frontend 83 advisories (106 findings, 0 critical), proforma 3; one reachable from code the app executes (`@tiptap/core` 3.22.5, upgrade to 3.30.4 in lockstep, pending), `prisma` 7.8.0 → 7.10.0 clears the 31 `@prisma/dev` rows, everything else is lint, build or CLI tooling and accepted. Nothing upgraded on that branch
-- [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
-- [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
-- [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
 - [x] B.11 **`dompurify` 3.4.1 → 3.4.14** (`pnpm audit` dompurify advisories 10 → 0, total 109 → 106) — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [◐] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6) → **done in code** on `feat/auth-rate-limit-db` (`2d25cd9`): `auth_rate_limit` table, `storage: 'database'`, evidence script in S.4.6; **migration written, applied on the user's go**
-- [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
 - [ ] B.16 **F18:** eleven public ids in `lib/images/*.ts` are missing from the Cloudinary account (three on live pages: `hero1Md` OG image, `corePrincipals`, `forDriverPageHero`); repoint each to an existing asset or restore it; verify every id in `lib/images/` answers 200
 - [ ] B.15 **Dashboard cookie-cache tail (found in 0.17):** `lib/auth.ts` keeps `cookieCache` at 5 min and `proxy.ts` checks cookie presence only, so a *captured* `session_data` cookie keeps rendering dashboard **pages** for up to 5 min after sign-out or ban (a real browser drops the cookies on sign-out — the normal path 307s). Server actions resolve fresh per ADR D13, so no writes; reads only. Same class as the pro-forma finding fixed with `disableCookieCache` on gated requests — apply it to `getSession()` in the dashboard's page shells, or accept and record
@@ -477,57 +462,46 @@ tracked here so they are not lost. None blocks any other phase.
 
 > **Who ticks.** Since 2026-09-03 the agent that builds a branch ticks its own items above, with one evidence clause each, and inserts its row here before the `docs/tracking` row, in one final docs commit on its branch. The integrator resolves numbering overlaps at merge and uses `docs/tracking` only for items no branch owns. Everything is merged into local `main` in this order; nothing is pushed until the client's Vercel answer (B, 0.18).
 
-Client decision (3 Sep): nothing is pushed until everything is done and tested locally. Every task
-lives on its own branch; `main` is the local integration branch we test against. At the end, each
-branch is pushed and merged **in this order**, one PR each, so every PR shows only its own commits.
-Docs updates now ride `docs/tracking` (merged into local `main` after each update) and go last.
+> **Rebuilt from git on 2026-09-02**, because several agents inserted rows at once and the
+> hand-kept numbering collided. This is the real order in which branches went into local
+> `main`, which is the order to open the pull requests in. It starts at `origin/main`
+> (`f876aea`), the last pushed commit; local `main` is 153 commits ahead of it.
+> The SHA column is the **merge commit** on `main`, not the branch tip.
 
-| # | Branch | Tip | Landed in local main as |
+| # | Branch | Merge commit | What it carries |
 |--:|---|---|---|
-| 1 | `docs/proforma-planning` | `dd19925` | fast-forward (early, linear) |
-| 2 | `chore/monorepo-restructure` | `9d06724` | fast-forward (early, linear) |
-| 3 | `fix/f14-reset-form-bypass` | `c8b2ec2` | `0d6b63f` |
-| 4 | `fix/f9-auth-rate-limit` | `44c3ef1` | `cb3117a` |
-| 5 | `fix/f2-article-drafts` | `d2b11e1` | `e44b143` |
-| 6 | `fix/f13-seed-on-build` | `d0e098a` | `596c71e` |
-| 7 | `fix/f1-upload-auth` | `3b3fc60` | `73b3bf0` |
-| 8 | `feat/proforma-mount-tool` | `88f9832` | `093f262` |
-| 9 | `feat/proforma-member-directory` | `0beef36` | `e011728` |
-| 10 | `fix/f8-dependency-upgrade` | `c0cfe86` | `26b31de` |
-| 11 | `feat/proforma-gate-routes` | `eae2c4b` | `445ba58` |
-| 12 | `feat/seed-additional-admins` | `805c120` | `c25dca2` |
-| 13 | `fix/seed-admins-role-and-password` | `8c53103` | `0a1148b` |
-| 14 | `fix/seed-admins-no-autosignin` | `8a218e9` | `bac0f22` |
-| 15 | `feat/proforma-otp-email-brand` | `0374a24` | `6af4ee9` |
-| 16 | `feat/proforma-login` | `d038ab2` | `7415c12` |
-| 17 | `fix/f15-account-issuer` | `ff7cac0` | `eadba94` |
-| 18 | `fix/email-logo-png` | `ed49020` | `c62de28` |
-| 19 | `fix/email-logo-self-backgrounded` | `1c550aa` | `9887cc5` |
-| 20 | `feat/proforma-hardening` | `3eb41d6` | `c955fa5` |
-| 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
-| 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
-| 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
-| 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
-| 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
-| 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
-| 27 | `feat/email-dark-mode` | `bdf61ed` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
-| 28 | `fix/auth-actions-credential-check` | `fd1cc02` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
-| 29 | `chore/cloudinary-audit` | `17446dd` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
-| 31 | `docs/proforma-readme-deploy` | `83b8618` | 6.13: `wattup-proforma/README.md` and `DEPLOY.md` written, docs only, no code changes |
-| 30 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
-| 25 | `feat/rbac-1-schema` | `91bf5f2` | schema + hand-written migration: five roles, 27 permissions, role_permission / user_permission / activity_log, proforma_member view; executed on a scratch DB; tsc 0, lint = main baseline, next build 0 |
-| 26 | `feat/rbac-2-resolution` | `8c85366` | database-resolved PermissionSet, ranked roles, derived Better Auth AC, disableSignUp, Vitest (64 tests); tsc 0, lint = baseline, test 64/64, build 0 |
-| 27 | `feat/rbac-3-gates` | `0346331` | every action, route and page on requirePermission / the resolved set; F3, F4, F5, B.8, B.9; grant/revoke + activity_log; tsc 0, lint = baseline, test 91/91, build 0 |
-| 28 | `feat/rbac-4-completeness` | `4d13a8f` | endpoint inventory (59) + TypeScript-parsed coverage test, red/green verified; tsc 0, lint = baseline, test 97/97, build 0 |
-| 29 | `feat/rbac-5-seed` | `3e5ce2a` | seeds create with an explicit role, removed role retired, CLAUDE.md updated; docs commit on top; tsc 0, lint = baseline, test 97/97, build 0 |
-| 24 | `feat/auth-rate-limit-db` | `2d25cd9` | B.10/S.4.6: Better Auth limiter on `database` storage, `RateLimit` model → `auth_rate_limit`, migration `20260903110000_auth_rate_limit` written not applied, `scripts/rate-limit-storage-check.ts` (5 × 401 then 429). **Stacks on `feat/rbac-1-schema` (`91bf5f2`): merge after the five `feat/rbac-*` rows**, and apply the migration before deploying. Gate: tsc clean, lint baseline 40, build 61/61. Docs tick commit sits on top of `2d25cd9` |
-| 24 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
-| 28 | `chore/ops-cron-guard-ci` | `cffbd9c` | 4b.8 cron purge route + Vitest on the frontend (vitest 4.1.11, `test` script), 4b.11 migration guard + headers on the three proforma migrations, `.github/workflows/ci.yml`, B.7 `AUDIT-TRIAGE.md`, S.5.6 check, runbook Cron section; the checklist commit sits on top of that SHA. Gate in the worktree: frontend tsc clean, lint baseline 40 (0 in new files), 19 tests, `next build` 62/62; proforma lint clean, typecheck clean after `next typegen`, 256 tests. Workflow parsed, not yet run on GitHub |
-| 27 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
-
-36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
-
----
+| 1 | `fix/f14-reset-form-bypass` | `0d6b63f` | route password reset forms through the rate limited auth handler |
+| 2 | `fix/f9-auth-rate-limit` | `cb3117a` | rate-limit the reset-link callback as well as the POST; rate-limit sign-in and password-reset endpoints |
+| 3 | `fix/f2-article-drafts` | `e44b143` | require a post permission, not just a session, to read drafts; stop public article reads returning drafts |
+| 4 | `fix/f13-seed-on-build` | `596c71e` | stop running the database seed on every build (F13) |
+| 5 | `fix/f1-upload-auth` | `73b3bf0` | never forward caller-supplied publicId or overwrite to Cloudinary; require a session on every image upload and delete entry point |
+| 6 | `feat/proforma-mount-tool` | `093f262` | re-check banned on every gated request; deny framing; serve the pro-forma tool from private/ behind a session check |
+| 7 | `feat/proforma-member-directory` | `e011728` | member directory, and client-generated ids for Better Auth |
+| 8 | `fix/f8-dependency-upgrade` | `26b31de` | upgrade next to 16.3.4 and better-auth to 1.7.2 (F8) |
+| 9 | `feat/proforma-gate-routes` | `445ba58` | decide membership after the response, not before it; the two gate routes, indistinguishable for members and non-members |
+| 10 | `feat/seed-additional-admins` | `c25dca2` | add super admins from ADMIN_EMAILS without running the full seed |
+| 11 | `fix/seed-admins-role-and-password` | `0a1148b` | give the admin plugin a role the enum accepts; use ADMIN_PASSWORD |
+| 12 | `fix/seed-admins-no-autosignin` | `bac0f22` | no auto sign-in when creating an admin |
+| 13 | `feat/proforma-otp-email-brand` | `6af4ee9` | brand the sign-in code email like the dashboard's mail |
+| 14 | `feat/proforma-login` | `7415c12` | retheme the login screen on wattup-frontend's design system; two-step login screen for the gate |
+| 15 | `fix/f15-account-issuer` | `eadba94` | add account.issuer, which Better Auth 1.7 sends on every insert |
+| 16 | `fix/email-logo-png` | `c62de28` | request PNG renditions of the logo; Gmail does not render SVG |
+| 17 | `fix/email-logo-self-backgrounded` | `9887cc5` | give the email logo its own background so Gmail dark mode cannot hide it |
+| 18 | `feat/proforma-hardening` | `c955fa5` | proforma_rate_limit table (not applied); rate limits on the gate, fail open; origin checks; global no-index headers |
+| 19 | `chore/login-form-stale-comment` | `8a00394` | comment no longer says the gap limit is a future phase |
+| 20 | `fix/gate-review-round-2` | `cbea111` | review round 2 on the gate — allowlist, cooldown, verify-code IP limit, edges |
+| 21 | `fix/gate-security-round-2` | `dfd55fa` | security review — safeNext, per-source address limits, split IP buckets, keyed OTP hash |
+| 22 | `chore/frontend-backlog-sweep` | `acd109d` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
+| 23 | `feat/proforma-tests` | `2ad3a28` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
+| 24 | `feat/proforma-activity-log` | `eb4a452` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
+| 25 | `feat/email-dark-mode` | `d28eb4f` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
+| 26 | `fix/auth-actions-credential-check` | `c00e947` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
+| 27 | `chore/cloudinary-audit` | `dfda0af` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
+| 28 | `feat/rbac-5-seed` | `c1f24ea` | phase 4a, the whole RBAC stack: it was built as five stacked branches (`feat/rbac-1-schema`, `-2-resolution`, `-3-gates`, `-4-completeness`, `-5-seed`) and merged here as one. **Open them as five PRs in that order**, not as one |
+| 29 | `chore/ops-cron-guard-ci` | `2a82659` | 4b.8 cron purge route + Vitest on the frontend (vitest 4.1.11, `test` script), 4b.11 migration guard + headers on the three proforma migrations, `.github/workflows/ci.yml`, B.7 `AUDIT-TRIAGE.md`, S.5.6 check, runbook Cron section; the checklist commit sits on top of that SHA. Gate in the worktree: frontend tsc clean, lint baseline 40 (0 in new files), 19 tests, `next build` 62/62; proforma lint clean, typecheck clean after `next typegen`, 256 tests. Workflow parsed, not yet run on GitHub |
+| 30 | `feat/auth-rate-limit-db` | `7227fea` | B.10/S.4.6: Better Auth limiter on `database` storage, `RateLimit` model → `auth_rate_limit`, migration `20260903110000_auth_rate_limit` written not applied, `scripts/rate-limit-storage-check.ts` (5 × 401 then 429). **Stacks on `feat/rbac-1-schema` (`91bf5f2`): merge after the five `feat/rbac-*` rows**, and apply the migration before deploying. Gate: tsc clean, lint baseline 40, build 61/61. Docs tick commit sits on top of `2d25cd9` |
+| 31 | `docs/proforma-readme-deploy` | `53060f0` | 6.13: `wattup-proforma/README.md` and `DEPLOY.md` written, docs only, no code changes |
+| 32 | `docs/tracking` | (moving) | last: checklist, ADRs, findings, runbook |
 
 ## Notes
 
