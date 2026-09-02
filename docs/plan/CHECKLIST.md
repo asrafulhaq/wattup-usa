@@ -218,9 +218,9 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 ### 2e — Email
 
 - [x] 2.33 Own Resend client in `wattup-proforma` (copied, not imported); **same key and apex sender as the frontend** by client decision — ADR D10 superseded, runbook Part 3 void
-- [ ] 2.34 OTP template: HTML **and** plain text, on the frontend's mail base (`lib/mail/base.ts` copied) — not the old dark gate palette
-- [ ] 2.35 Six digits as selectable text, not an image
-- [ ] 2.36 10-minute expiry stated; "ignore if you did not request this" line present
+- [x] 2.34 OTP template: HTML **and** plain text, on the frontend's mail base (`lib/mail-base.ts`, a whole-file copy of the frontend's `lib/mail/base.ts`) — rendered documents identical to the reset-password mail except the body cell
+- [x] 2.35 Six digits as selectable text (`<code>`, 36px monospace, `#197dff` on `#eff6ff`), not an image
+- [x] 2.36 10-minute expiry and single use stated; "ignore if you did not request this" line present; subject `<code> is your WattUp sign-in code`
 - [ ] 2.37 `Reply-To` a monitored inbox *(needs answer E)*
 - [ ] 2.38 **The code appears in no log line, error body or analytics event**
 - [ ] 2.39 Emails in application logs are hashed or truncated
