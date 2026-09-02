@@ -14,7 +14,7 @@ import {
     GtmHeadScript,
     TrackingScripts,
 } from '@/components/tracking-scripts';
-import { homeImages } from '@/lib/images/home';
+import { homeImageUrls } from '@/lib/images/home';
 import { sharedImageUrls } from '@/lib/images/shared';
 import { videoUrls } from '@/lib/images/videos';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,10 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL || 'https://wattup-usa.vercel.app/';
     const settings = await getSiteSettings();
-    const ogImageUrl = homeImages.hero1Md;
+    // F18: was `homeImages.hero1Md`, the bare Cloudinary public id rather than a URL, so
+    // this always resolved as a broken relative path against metadataBase regardless of
+    // whether the id existed. homeImageUrls is the built delivery URL.
+    const ogImageUrl = homeImageUrls.hero1Md;
 
     return {
         metadataBase: new URL(baseUrl),

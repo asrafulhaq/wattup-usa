@@ -12,25 +12,43 @@ export function cloudinaryUrl(publicId: string) {
  */
 export const homeImages = {
     // Hero images
+    // MISSING (F18): hero-1_cufyrq is gone from the account and unused by any page or
+    // component (checked lib/images/home.ts consumers repo-wide); no same-name sibling and
+    // no cloudinary search hit, so nothing to repoint to. Left as-is.
     hero1: 'hero-1_cufyrq',
-    hero1Md: 'hero-1-md_kw0ekh',
+    // F18: hero-1-md_kw0ekh (the site-wide OG image in app/layout.tsx) is gone from the
+    // account. No sibling of that name exists, but og-image_wk8avs sits unreferenced in the
+    // same assets/images/home folder, sized 1200x630 to match the OG dimensions layout.tsx
+    // declares, so it is the intended asset rather than a guess.
+    hero1Md: 'og-image_wk8avs',
+    // MISSING (F18): hero-2_bk5zds — unused anywhere in the app, no sibling, no search hit.
     hero2: 'hero-2_bk5zds',
+    // MISSING (F18): hero-2-md_jq8set — unused anywhere in the app, no sibling, no search hit.
     hero2Md: 'hero-2-md_jq8set',
+    // MISSING (F18): homepage-hero-1_dh8gwz — unused anywhere in the app; homepage-hero-3/4/5
+    // survive but no homepage-hero-1 or homepage-hero-2 sibling exists in the account.
     homepageHero1: 'homepage-hero-1_dh8gwz',
     homepageHero3: 'homepage-hero-3_j6mbva',
     homepageHero4: 'homepage-hero-4_redtht',
     homepageHero5: 'homepage-hero-5_icjktz',
 
+    // MISSING (F18): slide-1_yq5l8a — unused by components/home/hero.tsx, which renders
+    // slide_1_layered for this slot, never slide_1_full. slide_1_layered_unuk3w is a
+    // different, already-in-use asset (confirmed distinct role from slides 4-9, where both
+    // full and layered exist as separate images), so it was not substituted here.
     slide_1_full: 'slide-1_yq5l8a',
     /* slide_1_layered: 'tex7-8_ik0ahw', */
     slide_1_layered: 'slide_1_layered_unuk3w',
     slide_1_layered_mobile: 'slide_1_mobile_pyp6mm',
     slide_1_full_mobile: 'slide_1_mobile_pyp6mm',
 
+    // MISSING (F18): slide-2_yq5l8a — same as slide_1_full above: unused, no matching "full"
+    // sibling in the account, the existing slide_2_layered is a different asset.
     slide_2_full: 'slide-2_yq5l8a',
     /*  slide_2_layered: 'tex10_2_i0at7t', */
     slide_2_layered: 'slide_2_layered_e7thux',
     slide_2_layered_mobile: 'slide_2_mobile_hppycs',
+    // MISSING (F18): slide-3_yq5l8a — same as slide_1_full/slide_2_full above.
     slide_3_full: 'slide-3_yq5l8a',
     slide_3_layered: 'tex13_1_pinuft',
     slide_4_full: 'slide_4_full_wqgda6',

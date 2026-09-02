@@ -451,7 +451,7 @@ tracked here so they are not lost. None blocks any other phase.
 - [x] B.11 **`dompurify` 3.4.1 → 3.4.14** (`pnpm audit` dompurify advisories 10 → 0, total 109 → 106) — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [◐] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6) → **done in code** on `feat/auth-rate-limit-db` (`2d25cd9`): `auth_rate_limit` table, `storage: 'database'`, evidence script in S.4.6; **migration written, applied on the user's go**
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
-- [ ] B.16 **F18:** eleven public ids in `lib/images/*.ts` are missing from the Cloudinary account (three on live pages: `hero1Md` OG image, `corePrincipals`, `forDriverPageHero`); repoint each to an existing asset or restore it; verify every id in `lib/images/` answers 200
+- [◐] B.16 **F18:** eleven public ids in `lib/images/*.ts` were missing from the Cloudinary account; **4 fixed, 7 left.** Fixed: `hero1Md` (home.ts, the site-wide OG image) → `og-image_wk8avs`, an unreferenced but correctly-sized (1200x630) OG asset already in the account; `forDriverPageHero`/`forDriverPageHeroMobile` (drivers.ts, the drivers hero fallback) → `hero-image_ajsueo` / `hero_image_layered_mobile_np7nxt`, the same-folder assets the live `/for-drivers` route already renders; `corePrincipals` (about.ts) → repointed to `public/assets/images/about/core-principals.png`, since no Cloudinary sibling or search hit exists — note `components/about/core-principles.tsx`, its only consumer, is currently commented out on the about page, so this was not actually reachable on a live page despite the audit's wording. Also fixed a related bug found while verifying: `app/layout.tsx` built the OG tag from the bare public id (`homeImages.hero1Md`) instead of the built URL (`homeImageUrls.hero1Md`), so it always 404ed as a broken relative path regardless of the id. Left, each with a `// MISSING (F18):` comment in `lib/images/home.ts` naming what was looked for: `hero1`, `hero2`, `hero2Md`, `homepageHero1`, `slide_1_full`, `slide_2_full`, `slide_3_full` — none has a same-name sibling or a cloudinary search hit, and all are confirmed unused by any component or page today. `scripts/check-image-ids.ts` added: HEAD-checks every URL `lib/images/` builds, exits 1 on any non-200; run today, 180/187 ok, the 7 failures are exactly the seven left above. Read-only against Cloudinary and the database throughout. `fix/missing-image-ids`
 - [ ] B.15 **Dashboard cookie-cache tail (found in 0.17):** `lib/auth.ts` keeps `cookieCache` at 5 min and `proxy.ts` checks cookie presence only, so a *captured* `session_data` cookie keeps rendering dashboard **pages** for up to 5 min after sign-out or ban (a real browser drops the cookies on sign-out — the normal path 307s). Server actions resolve fresh per ADR D13, so no writes; reads only. Same class as the pro-forma finding fixed with `disableCookieCache` on gated requests — apply it to `getSession()` in the dashboard's page shells, or accept and record
 - [x] B.14 **Email dark mode, properly:** the shared mail base's dark block darkens the cards but leaves text `#2d2d2d`, and it has no `<meta name="color-scheme">`, so clients that honour `prefers-color-scheme` (Apple/iOS Mail) render light, and adding the metas without fixing text colours would make them unreadable. The logo is now self-backgrounded so it survives Gmail's inversion; a real dark theme for the dashboard's and pro-forma's mail needs a design pass on the frontend's `lib/mail/base.ts` (text/muted/border colours), then resync the copy. Done on `feat/email-dark-mode` (`d5020ac` frontend, `bdf61ed` pro-forma): both colour-scheme metas plus `:root`, one `DARK_RULES` list emitted as the media block and as `[data-ogsc]`/`[data-ogsb]` twins, values from `.dark` in `globals.css` as hex, light text as solid hex so Gmail's inversion has no alpha to composite; verified by `pnpm exec tsx scripts/render-mail.ts` (5 templates, "dark coverage OK") and a scratch render of the OTP mail; `lib/mail-base.ts` resynced (diff: header and port only). Gates: frontend tsc + build clean, lint baseline unchanged; pro-forma tsc, lint, 256 tests, build clean. Not verified in a real Outlook.com or Gmail dark client yet
 - [ ] B.13 `next dev` 16.3 writes a `nextjs-agent-rules` block into `CLAUDE.md`/`AGENTS.md` on every run — committed in both apps now so the tree stays clean; if Next changes the text, recommit rather than fight it
@@ -502,6 +502,41 @@ tracked here so they are not lost. None blocks any other phase.
 | 30 | `feat/auth-rate-limit-db` | `7227fea` | B.10/S.4.6: Better Auth limiter on `database` storage, `RateLimit` model → `auth_rate_limit`, migration `20260903110000_auth_rate_limit` written not applied, `scripts/rate-limit-storage-check.ts` (5 × 401 then 429). **Stacks on `feat/rbac-1-schema` (`91bf5f2`): merge after the five `feat/rbac-*` rows**, and apply the migration before deploying. Gate: tsc clean, lint baseline 40, build 61/61. Docs tick commit sits on top of `2d25cd9` |
 | 31 | `docs/proforma-readme-deploy` | `53060f0` | 6.13: `wattup-proforma/README.md` and `DEPLOY.md` written, docs only, no code changes |
 | 32 | `docs/tracking` | (moving) | last: checklist, ADRs, findings, runbook |
+| 1 | `docs/proforma-planning` | `dd19925` | fast-forward (early, linear) |
+| 2 | `chore/monorepo-restructure` | `9d06724` | fast-forward (early, linear) |
+| 3 | `fix/f14-reset-form-bypass` | `c8b2ec2` | `0d6b63f` |
+| 4 | `fix/f9-auth-rate-limit` | `44c3ef1` | `cb3117a` |
+| 5 | `fix/f2-article-drafts` | `d2b11e1` | `e44b143` |
+| 6 | `fix/f13-seed-on-build` | `d0e098a` | `596c71e` |
+| 7 | `fix/f1-upload-auth` | `3b3fc60` | `73b3bf0` |
+| 8 | `feat/proforma-mount-tool` | `88f9832` | `093f262` |
+| 9 | `feat/proforma-member-directory` | `0beef36` | `e011728` |
+| 10 | `fix/f8-dependency-upgrade` | `c0cfe86` | `26b31de` |
+| 11 | `feat/proforma-gate-routes` | `eae2c4b` | `445ba58` |
+| 12 | `feat/seed-additional-admins` | `805c120` | `c25dca2` |
+| 13 | `fix/seed-admins-role-and-password` | `8c53103` | `0a1148b` |
+| 14 | `fix/seed-admins-no-autosignin` | `8a218e9` | `bac0f22` |
+| 15 | `feat/proforma-otp-email-brand` | `0374a24` | `6af4ee9` |
+| 16 | `feat/proforma-login` | `d038ab2` | `7415c12` |
+| 17 | `fix/f15-account-issuer` | `ff7cac0` | `eadba94` |
+| 18 | `fix/email-logo-png` | `ed49020` | `c62de28` |
+| 19 | `fix/email-logo-self-backgrounded` | `1c550aa` | `9887cc5` |
+| 20 | `feat/proforma-hardening` | `3eb41d6` | `c955fa5` |
+| 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
+| 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
+| 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
+| 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
+| 25 | `feat/proforma-tests` | `9bbf8c4` | 5b: Vitest 4.1.11, 11 files, 219 tests + 5 todo; tests and config only, no app code. Two mutation proofs in the report |
+| 26 | `feat/proforma-activity-log` | `2484fcd` | 4b pro-forma side: `ActivityLog` mirror, never-throwing writer, four `after()` writes, production directory rule. 256 tests. Gate on main: build, typecheck, lint, test green |
+| 27 | `feat/email-dark-mode` | `bdf61ed` | B.14: colour-scheme metas, complete dark block with Outlook twins, solid light text, render script + coverage check in both mail bases (pro-forma copy resynced); one docs tick commit sits on top. Gate: frontend tsc + build clean (lint baseline 40 unchanged), pro-forma tsc, lint, 256 tests, build clean |
+| 28 | `fix/auth-actions-credential-check` | `fd1cc02` | B.4/B.5, F6: `updateEmail` verifies through `auth.api.verifyPassword`, no hash read or parsed; Vitest 4.1.11 added to the frontend with 15 tests. Gate: tsc clean, lint at the 40 baseline, test 15/15, `next build` green. The docs commit for this row sits on top of `fd1cc02` |
+| 29 | `chore/cloudinary-audit` | `17446dd` | S.1.7: `docs/plan/CLOUDINARY-AUDIT.md` only, no code, nothing deleted; Cloudinary and the database were read, never written |
+| 30 | `fix/missing-image-ids` | `8cb620b` | B.16/F18: 4 of 11 missing ids repointed (`hero1Md`, `forDriverPageHero`, `forDriverPageHeroMobile`, `corePrincipals`), 7 left with `// MISSING (F18)` comments (unused dead code, no candidate found); fixed a related `app/layout.tsx` OG-URL bug found while verifying; `scripts/check-image-ids.ts` added as a regression check. Cloudinary and the database read-only throughout. Gate: tsc clean, lint baseline 40 unchanged, test 15/15, build 61/61. The docs commit for this row sits on top of `8cb620b` |
+| 31 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+
+36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
+
+---
 
 ## Notes
 
