@@ -90,13 +90,21 @@ export const auth = betterAuth({
      * `/api/auth/sign-in/email`. A custom rule replaces both the generic
      * limit and the library's built-in per-endpoint default for that path.
      *
-     * Storage stays `memory`, the default, so no `rateLimit` table and no
-     * migration. Memory storage is per process: on serverless each instance
-     * counts separately, so the effective limit is looser than the numbers
-     * below. Moving to `database` or secondary storage is tracked separately.
+     * Storage is `database` (checklist B.10, S.4.6): the counters live in
+     * the `auth_rate_limit` table, the `RateLimit` model at the end of
+     * prisma/schema.prisma, so every serverless instance shares one count
+     * and the numbers below are the real limits. Memory storage was per
+     * process, which made the effective limit N times these on Vercel.
+     * `modelName` is the Prisma client delegate (`prisma.rateLimit`), not
+     * the SQL table; the table name comes from the model's @@map. Each
+     * check is one guarded increment on that row, so concurrent requests
+     * cannot all pass a stale read. scripts/rate-limit-storage-check.ts
+     * proves the wiring without a database.
      */
     rateLimit: {
         enabled: true,
+        storage: 'database',
+        modelName: 'rateLimit',
         customRules: {
             // Password guessing against a known address.
             '/sign-in/email': { window: 60, max: 5 },

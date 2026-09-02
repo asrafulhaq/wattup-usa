@@ -153,6 +153,7 @@ export async function updateLocation(id: string, raw: unknown) {
   present in one and not the other fails silently in admin-plugin calls.
 - Public registration is blocked by a `before` hook in `lib/auth.ts` matching
   `/sign-up/email`. It is a string comparison, and it is load-bearing.
+- **The auth rate limiter is database-backed:** `rateLimit.storage: 'database'` in `lib/auth.ts` keeps its counters in the `auth_rate_limit` table (the `RateLimit` model), so every serverless instance shares one count; `scripts/rate-limit-storage-check.ts` proves the wiring without a database.
 
 Current roles: `SUPER_ADMIN`, `ADMIN`, `EDITOR`, `COLLABORATOR`. 18 permissions in the
 `Permission` enum. **This is being redesigned** — see `docs/adr/0002-roles-and-permissions.md`.

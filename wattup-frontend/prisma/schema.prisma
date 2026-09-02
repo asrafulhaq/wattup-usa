@@ -572,3 +572,26 @@ view ProformaMember {
 
   @@map("proforma_member")
 }
+
+// ─── Better Auth rate limiter ─────────────────────────────────────────────────
+
+/// Counters for Better Auth's request rate limiter, read and written by the library
+/// itself because `rateLimit.storage` is `'database'` in lib/auth.ts (finding F9,
+/// checklist B.10 and S.4.6). `rateLimit.modelName` there names this model's Prisma
+/// delegate, `prisma.rateLimit`; the SQL table name comes from @@map. One row per
+/// `ip|path` key: `count` hits since the window last reset and `lastRequest` the time
+/// of the latest one, in milliseconds since the epoch, hence BigInt. A key whose
+/// `lastRequest` is older than its rule's window starts over, and the library prunes
+/// rows older than the longest window on each reset. The columns are the three Better
+/// Auth declares for the table (key, count, lastRequest) plus `id`, which its Prisma
+/// adapter reads back on every guarded increment; the default is Prisma's because
+/// lib/auth.ts sets generateId: false. Named parallel to proforma_rate_limit above,
+/// which belongs to the pro-forma app's own limiter and is unrelated.
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("auth_rate_limit")
+}
