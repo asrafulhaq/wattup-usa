@@ -1,146 +1,287 @@
 import { getSession } from '@/app/_actions/auth-actions';
-import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
-import { redirect } from 'next/navigation';
+import { SessionEnded } from '@/components/dashboard/session-state';
+import { EmptyState } from '@/components/dashboard/ui/empty-state';
+import { PageHeader } from '@/components/dashboard/ui/page-header';
+import { PageShell } from '@/components/dashboard/ui/page-shell';
+import { SectionCard } from '@/components/dashboard/ui/section-card';
+import { StatCard } from '@/components/dashboard/ui/stat-card';
+import { StatusPill } from '@/components/dashboard/ui/status-pill';
+import { OverviewPageSkeleton } from '@/components/dashboard/ui/page-skeletons';
+import { getOverviewStats } from '@/lib/dashboard/overview';
+import { hasPermission, Permission } from '@/lib/permissions';
+import {
+    ArrowUpRight,
+    BatteryCharging,
+    FileText,
+    MapPin,
+    Plug,
+    Sparkles,
+    Tag,
+} from 'lucide-react';
+import Link from 'next/link';
 import { Suspense } from 'react';
 
 export const metadata = {
-    title: 'Dashboard | WattUp',
+    title: 'Overview | WattUp',
     description: 'WattUp admin dashboard.',
 };
 
-async function DashboardContent() {
+async function Overview() {
     const session = await getSession();
-    if (!session) redirect('/admin');
+    // Deliberately not a redirect to /admin. proxy.ts sends anyone holding a session
+    // cookie from /admin back to /dashboard, so redirecting here on a cookie the server
+    // rejects put the two in a loop that reloaded the page until the tab was closed.
+    if (!session) return <SessionEnded />;
 
-    const { name, email, id, role } = session;
-
-    const initials = name
-        ? name
-              .split(' ')
-              .map((n: string) => n[0])
-              .join('')
-              .toUpperCase()
-              .slice(0, 2)
-        : email!.slice(0, 2).toUpperCase();
+    const canSeeNetwork = hasPermission(session.role, Permission.MANAGE_LOCATIONS);
+    const stats = canSeeNetwork ? await getOverviewStats() : null;
 
     return (
-        <div className='min-h-screen p-4 sm:p-6 lg:p-8'>
-            <main className='max-w-7xl mx-auto w-full'>
-                <div className='mb-8'>
-                    <h1 className='text-2xl sm:text-3xl font-bold text-dark tracking-tight'>
-                        Welcome back{name ? `, ${name.split(' ')[0]}` : ''}!
-                    </h1>
-                    <p className='text-sm text-dark/50 mt-1'>
-                        Here&apos;s your account overview.
-                    </p>
-                </div>
+        <PageShell>
+            <PageHeader
+                title='Overview'
+                description='The state of the charging network and what still needs a decision.'
+                actions={
+                    canSeeNetwork ? (
+                        <Link
+                            href='/dashboard/locations'
+                            className='flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-medium text-white transition-colors hover:bg-primary-hover'>
+                            Manage locations
+                            <ArrowUpRight className='size-4' />
+                        </Link>
+                    ) : null
+                }
+            />
 
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
-                    {/* Profile card */}
-                    <div className='sm:col-span-2 lg:col-span-1 bg-white rounded-xl border border-border/40 p-6 shadow-sm flex flex-col gap-6'>
-                        <div className='flex items-center gap-4'>
-                            <div className='w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl font-bold tracking-tight shrink-0'>
-                                {initials}
-                            </div>
-                            <div className='min-w-0'>
-                                <p className='font-bold text-dark text-base truncate'>
-                                    {name || 'Admin'}
-                                </p>
-                                <p className='text-sm text-dark/50 truncate font-normal'>
-                                    {email}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className='flex flex-col gap-3'>
-                            <InfoRow
-                                label='Role'
-                                value={role ?? 'user'}
-                                highlight
-                            />
-                            <InfoRow
-                                label='Email verified'
-                                value='Yes'
-                                status='success'
-                            />
-                        </div>
+            {!stats ? (
+                <SectionCard padded={false}>
+                    <EmptyState
+                        icon={MapPin}
+                        title='Nothing to show yet'
+                        description='Your account does not manage the charging network. Articles and your profile are in the sidebar.'
+                    />
+                </SectionCard>
+            ) : (
+                <>
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+                        <StatCard
+                            icon={MapPin}
+                            tone='accent'
+                            value={stats.locationsTotal}
+                            label='Signed locations'
+                            hint={
+                                stats.locationsHidden === 0
+                                    ? 'All visible on the public site'
+                                    : `${stats.locationsHidden} hidden from the public site`
+                            }
+                        />
+                        <StatCard
+                            icon={BatteryCharging}
+                            tone='emerald'
+                            value={stats.open}
+                            label='Open to drivers'
+                            hint={`${stats.comingSoon} coming soon${
+                                stats.underConstruction > 0
+                                    ? `, ${stats.underConstruction} in build`
+                                    : ''
+                            }`}
+                        />
+                        <StatCard
+                            icon={Plug}
+                            tone='violet'
+                            value={stats.chargingBays}
+                            label='Charging bays'
+                            hint='Across every signed site'
+                        />
+                        <StatCard
+                            icon={Sparkles}
+                            tone='amber'
+                            value={`${stats.amenitiesActive}/${stats.amenitiesTotal}`}
+                            label='Amenities shown'
+                            hint={
+                                stats.amenitiesAssigned === 0
+                                    ? 'None assigned to a site yet'
+                                    : `${stats.amenitiesAssigned} assignments across the network`
+                            }
+                        />
                     </div>
 
-                    {/* User ID card */}
-                    <div className='bg-white rounded-2xl border border-border/40 p-6 shadow-sm'>
-                        <p className='text-[10px] font-bold text-dark/40 uppercase tracking-widest mb-3'>
-                            User ID
-                        </p>
-                        <p className='text-sm font-mono text-dark break-all leading-relaxed'>
-                            {id}
-                        </p>
+                    <div className='grid gap-4 lg:grid-cols-[1.4fr_1fr]'>
+                        <SectionCard
+                            title='Needs a decision'
+                            description='Things the dashboard can hold but nobody has set yet. Each one shows as "Being confirmed" to a visitor.'>
+                            <ul className='divide-y divide-dash-border'>
+                                <PendingRow
+                                    label='Sites without a tariff'
+                                    count={stats.withoutPrice}
+                                    total={stats.locationsTotal}
+                                    note='Price per kWh is blank, so the card and the station page say "Being confirmed".'
+                                    href='/dashboard/locations'
+                                />
+                                <PendingRow
+                                    label='Sites without amenities'
+                                    count={
+                                        stats.amenitiesAssigned === 0
+                                            ? stats.locationsTotal
+                                            : Math.max(
+                                                  stats.locationsTotal -
+                                                      stats.amenitiesAssigned,
+                                                  0
+                                              )
+                                    }
+                                    total={stats.locationsTotal}
+                                    note='No facility has been recorded, so the amenities row is empty.'
+                                    href='/dashboard/locations'
+                                />
+                            </ul>
+                        </SectionCard>
+
+                        <SectionCard
+                            title='Network at a glance'
+                            description='How the signed sites break down.'>
+                            <dl className='flex flex-col gap-3.5'>
+                                <GlanceRow label='Open'>
+                                    <StatusPill tone='live'>{stats.open} sites</StatusPill>
+                                </GlanceRow>
+                                {stats.underConstruction > 0 && (
+                                    <GlanceRow label='Under construction'>
+                                        <StatusPill tone='progress'>
+                                            {stats.underConstruction} sites
+                                        </StatusPill>
+                                    </GlanceRow>
+                                )}
+                                <GlanceRow label='Coming soon'>
+                                    <StatusPill tone='idle'>
+                                        {stats.comingSoon} sites
+                                    </StatusPill>
+                                </GlanceRow>
+                                <GlanceRow label='Hidden from the site'>
+                                    <StatusPill
+                                        tone={stats.locationsHidden > 0 ? 'muted' : 'idle'}>
+                                        {stats.locationsHidden} sites
+                                    </StatusPill>
+                                </GlanceRow>
+                                <GlanceRow label='Articles published'>
+                                    <span className='dash-num text-[13px] font-medium text-dash-body'>
+                                        {stats.articlesPublished} of {stats.articlesTotal}
+                                    </span>
+                                </GlanceRow>
+                            </dl>
+                        </SectionCard>
                     </div>
 
-                    {/* Session card */}
-                    <div className='bg-white rounded-2xl border border-border/40 p-6 shadow-sm flex flex-col justify-between'>
-                        <p className='text-[10px] font-bold text-dark/40 uppercase tracking-widest mb-3'>
-                            Session Status
-                        </p>
-                        <div className='flex items-center gap-2 mt-auto'>
-                            <span className='w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse' />
-                            <span className='text-sm font-bold text-dark'>
-                                Active
-                            </span>
-                        </div>
-                        <p className='text-xs text-dark/50 mt-3 font-normal'>
-                            Session expires in 7 days
-                        </p>
+                    <div className='grid gap-4 sm:grid-cols-3'>
+                        <QuickLink
+                            href='/dashboard/locations'
+                            icon={MapPin}
+                            title='Locations'
+                            description='Add a site, change its status, or take it off the map.'
+                        />
+                        <QuickLink
+                            href='/dashboard/locations/amenities'
+                            icon={Tag}
+                            title='Amenities'
+                            description='Rename, reorder, and turn facilities on or off network wide.'
+                        />
+                        <QuickLink
+                            href='/dashboard/articles'
+                            icon={FileText}
+                            title='Articles'
+                            description='Write and publish to the public site.'
+                        />
                     </div>
-                </div>
-            </main>
+                </>
+            )}
+        </PageShell>
+    );
+}
+
+function PendingRow({
+    label,
+    count,
+    total,
+    note,
+    href,
+}: {
+    label: string;
+    count: number;
+    total: number;
+    note: string;
+    href: string;
+}) {
+    const done = count === 0;
+    return (
+        <li className='flex items-start justify-between gap-4 py-3.5 first:pt-0 last:pb-0'>
+            <div className='min-w-0'>
+                <Link
+                    href={href}
+                    className='text-[14px] font-medium text-dash-heading hover:text-primary'>
+                    {label}
+                </Link>
+                <p className='mt-0.5 text-[12.5px] leading-relaxed text-dash-muted'>
+                    {note}
+                </p>
+            </div>
+            <span
+                className={`dash-num shrink-0 rounded-full px-2.5 py-1 text-[12px] font-semibold ${
+                    done
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-amber-50 text-amber-700'
+                }`}>
+                {done ? 'All set' : `${count} of ${total}`}
+            </span>
+        </li>
+    );
+}
+
+function GlanceRow({
+    label,
+    children,
+}: {
+    label: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div className='flex items-center justify-between gap-4'>
+            <dt className='text-[13.5px] text-dash-muted'>{label}</dt>
+            <dd>{children}</dd>
         </div>
+    );
+}
+
+function QuickLink({
+    href,
+    icon: Icon,
+    title,
+    description,
+}: {
+    href: string;
+    icon: typeof MapPin;
+    title: string;
+    description: string;
+}) {
+    return (
+        <Link
+            href={href}
+            className='dash-card group flex flex-col gap-2 p-5 transition-colors hover:border-dash-border-strong hover:bg-white'>
+            <span className='flex size-9 items-center justify-center rounded-[10px] bg-dash-canvas text-dash-muted transition-colors group-hover:bg-primary/10 group-hover:text-primary'>
+                <Icon className='size-[18px]' />
+            </span>
+            <span className='mt-1 flex items-center gap-1 text-[14px] font-semibold text-dash-heading'>
+                {title}
+                <ArrowUpRight className='size-3.5 text-dash-faint transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5' />
+            </span>
+            <span className='text-[12.5px] leading-relaxed text-dash-muted'>
+                {description}
+            </span>
+        </Link>
     );
 }
 
 export default function DashboardPage() {
     return (
-        <div className='flex w-full flex-col gap-2 pt-0'>
-            <Suspense fallback={<DashboardSkeleton />}>
-                <DashboardContent />
-            </Suspense>
-        </div>
+        <Suspense fallback={<OverviewPageSkeleton />}>
+            <Overview />
+        </Suspense>
     );
 }
-
-/* ── Sub-components ─────────────────────────────── */
-
-function InfoRow({
-    label,
-    value,
-    highlight,
-    status,
-}: {
-    label: string;
-    value: string;
-    highlight?: boolean;
-    status?: 'success' | 'warning';
-}) {
-    return (
-        <div className='flex items-center justify-between gap-4'>
-            <span className='text-xs text-muted-foreground'>{label}</span>
-            {status === 'success' ? (
-                <span className='text-xs font-normal text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5'>
-                    {value}
-                </span>
-            ) : status === 'warning' ? (
-                <span className='text-xs font-normal text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5'>
-                    {value}
-                </span>
-            ) : highlight ? (
-                <span className='text-xs font-semibold text-[#197dff] bg-[#197dff]/8 border border-[#197dff]/15 rounded-full px-2 py-0.5 capitalize'>
-                    {value}
-                </span>
-            ) : (
-                <span className='text-xs font-normal text-foreground'>
-                    {value}
-                </span>
-            )}
-        </div>
-    );
-}
-

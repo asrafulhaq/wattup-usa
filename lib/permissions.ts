@@ -34,6 +34,11 @@ export const Permission = {
     CHANGE_USER_ROLE: 'CHANGE_USER_ROLE',
     DELETE_USERS: 'DELETE_USERS',
     BAN_USERS: 'BAN_USERS',
+
+    // Charging network
+    MANAGE_LOCATIONS: 'MANAGE_LOCATIONS',
+    DELETE_LOCATIONS: 'DELETE_LOCATIONS',
+    MANAGE_AMENITIES: 'MANAGE_AMENITIES',
 } as const;
 
 export type Permission = (typeof Permission)[keyof typeof Permission];
@@ -42,7 +47,11 @@ export type Permission = (typeof Permission)[keyof typeof Permission];
 //
 // SUPER_ADMIN: full access
 // ADMIN:       all content + site settings + user management (not delete admins)
-// EDITOR:      all content + publish + social links + view users; no user management
+//              + the charging network, catalogue and deletion included
+// EDITOR:      all content + publish + social links + view users; no user management.
+//              Edits and publishes locations, but does not delete one or restructure the
+//              amenity catalogue: both are network wide and hard to undo from the UI,
+//              and hiding a site with the publish toggle covers the day to day need.
 // COLLABORATOR: create/edit own posts only; no publish, no settings, no user access
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
@@ -63,6 +72,9 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         Permission.CHANGE_USER_ROLE,
         Permission.DELETE_USERS,
         Permission.BAN_USERS,
+        Permission.MANAGE_LOCATIONS,
+        Permission.DELETE_LOCATIONS,
+        Permission.MANAGE_AMENITIES,
     ],
 
     [Role.EDITOR]: [
@@ -74,6 +86,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         Permission.PUBLISH_POST,
         Permission.MANAGE_SOCIAL_LINKS,
         Permission.VIEW_USERS,
+        Permission.MANAGE_LOCATIONS,
     ],
 
     [Role.COLLABORATOR]: [

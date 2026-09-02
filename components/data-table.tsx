@@ -25,6 +25,7 @@ import {
     IconChevronsLeft,
     IconChevronsRight,
     IconSearch,
+    IconX,
 } from '@tabler/icons-react';
 import {
     flexRender,
@@ -90,7 +91,7 @@ function DraggableRow<TData>({ row }: { row: Row<TData> }) {
             data-state={row.getIsSelected() && 'selected'}
             data-dragging={isDragging}
             ref={setNodeRef}
-            className='relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 border-border/40 hover:bg-muted/30 transition-colors'
+            className='relative z-0 border-dash-border transition-colors data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 hover:bg-dash-canvas/60'
             style={{
                 transform: CSS.Transform.toString(transform),
                 transition: transition,
@@ -215,7 +216,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                 <div className='flex flex-1 items-center space-x-2'>
                     {searchColumn && (
                         <div className='relative w-full max-w-sm'>
-                            <IconSearch className='absolute left-2.5 top-2.5 h-6 w-5 text-muted-foreground mr-2' />
+                            <IconSearch className='pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-dash-faint' />
                             <Input
                                 placeholder={searchPlaceholder}
                                 value={
@@ -228,7 +229,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                                         .getColumn(searchColumn)
                                         ?.setFilterValue(event.target.value)
                                 }
-                                className='border h-auto rounded bg-white justify-center items-center pl-9! border-border text-dark/70 gap-2 py-2.5 px-6'
+                                className='h-10 rounded-[10px] border-dash-border bg-dash-surface pl-9! text-sm text-dash-body placeholder:text-dash-faint'
                             />
                         </div>
                     )}
@@ -237,27 +238,31 @@ export function DataTable<TData extends { id: string | number }, TValue>({
             </div>
 
             {/* Batch Action Bar */}
+            {/* White, with the accent carried by the count and the border rather than
+                by a slab of colour. It still has to out-rank the toolbar above it, so
+                that is done with a border and a lift instead of a dark fill. */}
             {hasSelection && batchActions && (
-                <div className='flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 animate-in fade-in slide-in-from-top-1 duration-200'>
-                    <span className='text-sm font-medium text-primary '>
-                        {selectedRows.length} selected
+                <div className='flex flex-wrap items-center gap-2 rounded-[10px] border border-primary/25 bg-dash-surface px-3 py-2 shadow-sm ring-1 ring-primary/5 animate-in fade-in slide-in-from-top-1 duration-200'>
+                    <span className='dash-num rounded-[7px] bg-primary px-2.5 py-1 text-[13px] font-semibold text-white'>
+                        {selectedRows.length}
                     </span>
-                    <div className='h-4 w-px bg-border' />
-                    <div className='flex items-center gap-2 flex-wrap'>
+                    <span className='text-[13px] text-dash-muted'>selected</span>
+                    <div className='mx-1 h-5 w-px bg-dash-border' />
+                    <div className='flex flex-wrap items-center gap-1'>
                         {batchActions(selectedRows, clearSelection)}
                     </div>
-                    <Button
-                        variant='ghost'
-                        size='sm'
-                        className='ml-auto h-7 text-xs text-muted-foreground hover:text-foreground'
-                        onClick={clearSelection}>
+                    <button
+                        type='button'
+                        onClick={clearSelection}
+                        className='ml-auto flex h-8 items-center gap-1.5 rounded-[8px] px-2.5 text-[13px] font-medium text-dash-muted transition-colors hover:bg-dash-canvas hover:text-dash-heading'>
+                        <IconX className='size-4' />
                         Clear
-                    </Button>
+                    </button>
                 </div>
             )}
 
             {/* Table */}
-            <div className='overflow-hidden rounded-md border border-border/50 bg-background/30 backdrop-blur-sm shadow-sm'>
+            <div className='dash-card overflow-hidden'>
                 <DndContext
                     collisionDetection={closestCenter}
                     modifiers={[restrictToVerticalAxis]}
@@ -265,7 +270,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                     sensors={sensors}
                     id={sortableId}>
                     <Table>
-                        <TableHeader className='bg-muted/50 border-b border-border/50'>
+                        <TableHeader className='border-b border-dash-border bg-dash-canvas/70'>
                             {table.getHeaderGroups().map(headerGroup => (
                                 <TableRow
                                     key={headerGroup.id}
@@ -275,7 +280,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                                             <TableHead
                                                 key={header.id}
                                                 colSpan={header.colSpan}
-                                                className='text-muted-foreground  font-semibold py-4 text-xs uppercase tracking-wider'>
+                                                className='dash-eyebrow h-11 py-0 align-middle'>
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
@@ -302,8 +307,8 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                                 <TableRow>
                                     <TableCell
                                         colSpan={columns.length}
-                                        className='h-24 text-center text-muted-foreground'>
-                                        No results.
+                                        className='h-28 text-center text-[13.5px] text-dash-muted'>
+                                        Nothing matches those filters.
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -314,7 +319,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
 
             {/* Pagination */}
             <div className='flex flex-col items-center justify-between gap-4 px-2 py-4 sm:flex-row'>
-                <div className='text-muted-foreground order-2 text-sm  sm:order-1'>
+                <div className='order-2 text-[13px] text-dash-muted sm:order-1'>
                     {table.getFilteredSelectedRowModel().rows.length} of{' '}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
@@ -322,7 +327,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                     <div className='flex items-center gap-2'>
                         <Label
                             htmlFor='rows-per-page'
-                            className='text-muted-foreground whitespace-nowrap text-xs font-medium'>
+                            className='whitespace-nowrap text-[12px] font-medium text-dash-muted'>
                             Rows per page
                         </Label>
                         <Select
@@ -353,7 +358,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                         </Select>
                     </div>
                     <div className='flex items-center gap-6 sm:gap-6 lg:gap-8'>
-                        <div className='text-muted-foreground flex items-center justify-center text-xs font-medium'>
+                        <div className='dash-num flex items-center justify-center text-[12.5px] font-medium text-dash-muted'>
                             Page {table.getState().pagination.pageIndex + 1} of{' '}
                             {table.getPageCount() || 1}
                         </div>

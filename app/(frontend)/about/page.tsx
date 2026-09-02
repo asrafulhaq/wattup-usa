@@ -2,6 +2,7 @@ import { PageHero } from '@/components/drivers/page-hero';
 import { aboutImageUrls } from '@/lib/images/about';
 
 import { ExpandingWithoutCrossfade } from '@/components/about/expanding-without-crossfade';
+import { getNetworkCities } from '@/lib/locations/network';
 import { CTAReady } from '@/components/home/cta-ready';
 import { StepGrid } from '@/components/ui/step-grid';
 import { AboutPageCorePrinciplesData } from '@/data';
@@ -39,7 +40,10 @@ export const metadata: Metadata = {
     },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+    // Read on the server so the network section names sites that actually exist.
+    const cities = await getNetworkCities();
+
     return (
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
@@ -81,7 +85,7 @@ export default function AboutPage() {
             />
 
             {/*  3.  Expanding Us */}
-            <ExpandingWithoutCrossfade />
+            <ExpandingWithoutCrossfade cities={cities} />
 
             {/* 4. CTA Section */}
             <CTAReady

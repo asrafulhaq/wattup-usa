@@ -2,7 +2,7 @@
 'use server';
 
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
@@ -241,4 +241,45 @@ export async function updatePassword(formData: FormData) {
             'Failed to update password. Check your current password and try again.';
         return { success: false, error: msg };
     }
+}
+
+/**
+ * Clears a session the server will not accept, then sends the visitor to sign in.
+ *
+ * This exists because proxy.ts can only see whether the session cookie is *present*: it
+ * runs sync, with no database, so it cannot tell a valid token from an expired or
+ * revoked one. A stale cookie therefore walks past the proxy, the page then finds no
+ * session, and if the page answered by redirecting to /admin the proxy would send it
+ * straight back to /dashboard, forever.
+ *
+ * So the cookie has to actually go before we redirect, or the loop simply resumes.
+ * signOut is tried first because it is the supported path and revokes the row; when the
+ * token is already invalid it can refuse, and the cookie is then removed directly.
+ */
+export async function endStaleSession() {
+    try {
+        await auth.api.signOut({ headers: await headers() });
+    } catch {
+        // Expected when the token is no longer one the server recognises. The cookie is
+        // still in the browser and still enough to fool the proxy, so it goes below.
+    }
+
+    try {
+        const jar = await cookies();
+        for (const cookie of jar.getAll()) {
+            // Covers the default name, the __Secure- prefixed production variant, and the
+            // signed cookie cache, without hardcoding a name that a config change breaks.
+            if (
+                cookie.name.includes('session_token') ||
+                cookie.name.includes('session_data') ||
+                cookie.name.startsWith('better-auth')
+            ) {
+                jar.delete(cookie.name);
+            }
+        }
+    } catch (error) {
+        console.error('End Stale Session Error:', error);
+    }
+
+    redirect('/admin');
 }

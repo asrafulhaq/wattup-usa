@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSession } from '@/app/_actions/auth-actions';
 import { getPaginatedArticles } from '@/app/_actions/postActions';
-import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { ArticlesDataTable } from '@/components/dashboard/articles/articles-data-table';
+import { PageHeader } from '@/components/dashboard/ui/page-header';
+import { PageShell } from '@/components/dashboard/ui/page-shell';
+import { ArticlesBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
 import { hasPermission, Permission } from '@/lib/permissions';
 import { Suspense } from 'react';
-import PageTitle from '../../../../components/dashboard/page-title';
-import { ArticlesDataTable } from '../../../../components/dashboard/articles/articles-data-table';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function ArticlesTable() {
     const [{ articles, totalCount }, session] = await Promise.all([
         getPaginatedArticles(1, 10),
@@ -36,14 +37,14 @@ export async function ArticlesTable() {
 
 export default async function ArticlesPage() {
     return (
-        <div className='flex flex-1 flex-col gap-2 p-4 pt-0 '>
-            <div className='flex items-center justify-between'>
-                <PageTitle title='Articles' />
-            </div>
-            <Suspense fallback={<TableSkeleton />}>
+        <PageShell>
+            <PageHeader
+                title='Articles'
+                description='Write, edit and publish to the public site.'
+            />
+            <Suspense fallback={<ArticlesBodySkeleton />}>
                 <ArticlesTable />
             </Suspense>
-        </div>
+        </PageShell>
     );
 }
-

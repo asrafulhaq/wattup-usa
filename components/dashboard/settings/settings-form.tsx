@@ -102,26 +102,19 @@ export function SettingsForm({ settings }: SettingsFormProps) {
     };
 
     return (
-        <div className='space-y-6'>
-            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-                <div>
-                    <h2 className='text-xl font-semibold'>Site Settings</h2>
-                    <p className='text-sm text-muted-foreground mt-0.5'>
-                        Manage tracking codes, AEO schema, and custom scripts.
-                    </p>
-                </div>
-                <Button
-                    size='sm'
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className='px-6 gap-2 self-start sm:self-auto'>
+        <div className='flex flex-col gap-5'>
+            {/* The page header above already carries the title and the description, so
+                only the action is left here. Sticky, because the scripts tab is long and
+                Save otherwise scrolls off exactly when someone has finished typing. */}
+            <div className='sticky top-(--header-height) z-10 -mx-4 flex items-center justify-end border-b border-dash-border bg-dash-canvas/85 px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8'>
+                <Button onClick={handleSave} disabled={isSaving} className='gap-2 px-6'>
                     <IconDeviceFloppy size={18} />
-                    {isSaving ? 'Saving...' : 'Save All Settings'}
+                    {isSaving ? 'Saving...' : 'Save all settings'}
                 </Button>
             </div>
 
             <Tabs defaultValue='google'>
-                <TabsList className='flex-wrap h-auto gap-1'>
+                <TabsList className='h-10 flex-wrap rounded-[10px] border border-dash-border bg-dash-surface p-1'>
                     <TabsTrigger value='google'>Google</TabsTrigger>
                     <TabsTrigger value='meta'>Meta / Facebook</TabsTrigger>
 
@@ -131,7 +124,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
                 {/* ── Google ──────────────────────────────────── */}
                 <TabsContent value='google' className='mt-4'>
-                    <Card className='shadow-none border-border'>
+                    <Card className='dash-card shadow-none'>
                         <CardHeader>
                             <CardTitle className='text-base font-medium'>
                                 Google Tracking
@@ -172,7 +165,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
                 {/* ── Meta ──────────────────────────────────── */}
                 <TabsContent value='meta' className='mt-4'>
-                    <Card className='shadow-none border-border'>
+                    <Card className='dash-card shadow-none'>
                         <CardHeader>
                             <CardTitle className='text-base font-medium'>
                                 Meta / Facebook Pixel
@@ -197,7 +190,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
                 {/* ── Custom Scripts ──────────────────────────────────── */}
                 <TabsContent value='scripts' className='mt-4'>
-                    <Card className='shadow-none border-border'>
+                    <Card className='dash-card shadow-none'>
                         <CardHeader>
                             <CardTitle className='text-base font-medium'>
                                 Custom Script Injection
@@ -247,7 +240,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
                 {/* ── AEO & Schema ──────────────────────────────────── */}
                 <TabsContent value='aeo' className='mt-4 space-y-4'>
-                    <Card className='shadow-none border-border'>
+                    <Card className='dash-card shadow-none'>
                         <CardHeader>
                             <CardTitle className='text-base font-medium'>
                                 AEO &amp; JSON-LD Organisation Schema
@@ -335,7 +328,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                         </CardContent>
                     </Card>
 
-                    <Card className='shadow-none border-border'>
+                    <Card className='dash-card shadow-none'>
                         <CardHeader>
                             <CardTitle className='text-base font-medium'>
                                 Social Profiles

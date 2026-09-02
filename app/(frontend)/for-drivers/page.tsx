@@ -12,6 +12,7 @@ import {
     DriverPageWhyChooseSlideCardData,
 } from '@/data';
 import { driversImageUrls } from '@/lib/images/drivers';
+import { getNetworkCities } from '@/lib/locations/network';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -46,7 +47,11 @@ export const metadata: Metadata = {
     },
 };
 
-export default function ForDriversPage() {
+export default async function ForDriversPage() {
+    // Read on the server so the network section names the sites that actually exist,
+    // rather than a list maintained by hand alongside the database.
+    const cities = await getNetworkCities();
+
     return (
         <main className='flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20'>
             {/* 01. Hero Section */}
@@ -80,7 +85,7 @@ export default function ForDriversPage() {
             <ImageSliderSection slides={DriverPageWhyChooseSlideCardData} />
 
             {/* 4. Expanding Us */}
-            <ExpandingUsDrivers />
+            <ExpandingUsDrivers cities={cities} />
 
             {/* 5. Charging Where You Go */}
             <ImageTitleGrid

@@ -127,29 +127,25 @@ export function UsersClient({ users, total }: Props) {
 
     return (
         <div className='flex flex-col gap-6'>
-            {/* Header */}
-            <div className='flex items-center justify-between'>
-                <div>
-                    <h1 className='text-xl font-bold text-dark'>
-                        Users
-                    </h1>
-                    <p className='text-sm text-dark/50 mt-0.5'>
-                        {total} {total === 1 ? 'member' : 'members'} in total
-                    </p>
-                </div>
+            {/* The page header carries the title; this row is the count and the action.
+                Two <h1>s on one screen is the kind of thing that reads as a page glued
+                together out of two pages, which is what it was. */}
+            <div className='flex items-center justify-between gap-4'>
+                <p className='text-[13.5px] text-dash-muted'>
+                    {total} {total === 1 ? 'member' : 'members'} in total
+                </p>
                 {canInvite && <InviteUserDialog onSuccess={refresh} />}
             </div>
 
-            {/* Table */}
-            <div className='rounded-xl border border-border/40 bg-white overflow-hidden shadow-sm'>
+            <div className='dash-card overflow-hidden'>
                 <Table>
                     <TableHeader>
-                        <TableRow className='border-border/40'>
-                            <TableHead className='pl-6'>User</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Joined</TableHead>
-                            <TableHead className='pr-4 text-right'>
+                        <TableRow className='border-dash-border bg-dash-canvas/70 hover:bg-dash-canvas/70'>
+                            <TableHead className='dash-eyebrow h-11 py-0 pl-6'>User</TableHead>
+                            <TableHead className='dash-eyebrow h-11 py-0'>Role</TableHead>
+                            <TableHead className='dash-eyebrow h-11 py-0'>Status</TableHead>
+                            <TableHead className='dash-eyebrow h-11 py-0'>Joined</TableHead>
+                            <TableHead className='dash-eyebrow h-11 py-0 pr-4 text-right'>
                                 Actions
                             </TableHead>
                         </TableRow>
@@ -258,7 +254,7 @@ function UserRow({
         !isCurrentUser && targetIsManageable && (canChangeRole || canBan || canDelete);
 
     return (
-        <TableRow className='border-border/40'>
+        <TableRow className='border-dash-border hover:bg-dash-canvas/60'>
             {/* User */}
             <TableCell className='pl-6 py-3'>
                 <div className='flex items-center gap-3'>

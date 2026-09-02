@@ -38,6 +38,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { BsFileEarmarkMedical } from 'react-icons/bs';
+import { BatchButton } from '@/components/dashboard/ui/batch-bar';
+import { CheckCircle2, FileEdit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 // ── Drag Handle ────────────────────────────────────────────────
@@ -226,36 +228,28 @@ export function ArticleBatchActions({
     return (
         <>
             {canPublish && (
-                <Button
-                    size='sm'
-                    variant='outline'
-                    className='h-7 text-xs gap-1.5'
+                <BatchButton
+                    icon={CheckCircle2}
                     disabled={isLoading}
                     onClick={handleBatchPublish}>
-                    <IconCircleCheckFilled className='size-3 fill-green-500' />
                     Publish
-                </Button>
+                </BatchButton>
             )}
             {canPublish && (
-                <Button
-                    size='sm'
-                    variant='outline'
-                    className='h-7 text-xs gap-1.5'
+                <BatchButton
+                    icon={FileEdit}
                     disabled={isLoading}
                     onClick={handleBatchUnpublish}>
-                    <BsFileEarmarkMedical className='size-3' />
-                    Draft
-                </Button>
+                    Move to draft
+                </BatchButton>
             )}
-            <Button
-                size='sm'
-                variant='destructive'
-                className='h-7 text-xs gap-1.5'
+            <BatchButton
+                icon={Trash2}
+                tone='destructive'
                 disabled={isLoading}
                 onClick={() => setShowDeleteDialog(true)}>
-                <IconTrash className='size-3' />
                 Delete
-            </Button>
+            </BatchButton>
 
             <AlertDialog
                 open={showDeleteDialog}

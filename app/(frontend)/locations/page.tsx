@@ -1,7 +1,13 @@
-import { ExpandingUsDrivers } from "@/components/drivers/expanding-us-drivers";
 import { PageHero } from "@/components/drivers/page-hero";
-import { hostsImageUrls } from "@/lib/images/hosts";
+import { StationFinder } from "@/components/locations/station-finder";
+import { FadedImageCrossSection } from "@/components/ui/faded-image-cross-section";
+import { homeImageUrls } from "@/lib/images/home";
 import { locationsImageUrls } from "@/lib/images/locations";
+import {
+  getAmenityCatalogue,
+  getMapboxToken,
+  getPublicStations,
+} from "@/lib/locations/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -36,7 +42,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LocationsPage() {
+export default async function LocationsPage() {
+  // Read on the server so the private columns of a location row never enter the bundle:
+  // only the projection from lib/locations/public crosses into the client island.
+  //
+  // The amenity catalogue travels with them. The client renames and reorders it from the
+  // dashboard, so the labels the filter tray draws have to come from the database rather
+  // than from a constant compiled into the bundle.
+  const [stations, amenities] = await Promise.all([
+    getPublicStations(),
+    getAmenityCatalogue(),
+  ]);
+  const mapboxToken = getMapboxToken();
+
   return (
     <main className="flex min-h-screen w-full flex-col mx-auto bg-background selection:bg-primary/20">
       {/* 01. Hero Section */}
@@ -60,10 +78,21 @@ export default function LocationsPage() {
         buttonLink="/locations#locations"
       />
 
-      {/* 2. Expanding Us */}
-      <ExpandingUsDrivers isLocationsPage={true} />
-      {/* 2. Find Location */}
-      {/* <FindLocation /> */}
+      {/* 2. Station finder */}
+      <StationFinder
+        stations={stations}
+        amenities={amenities}
+        mapboxToken={mapboxToken}
+      />
+
+      {/* 3. The faded image band on its own: the finder above already carries the
+          copy and the list, so only the image belongs here. */}
+      <FadedImageCrossSection
+        imageSrc={homeImageUrls.locationMarqueBg}
+        imageSrcMobile={homeImageUrls.locationMarqueBgMobile}
+        imageAlt="WattUp charging stations"
+        imageWrapperClass="relative w-full h-[380px] sm:h-[560px] md:h-[760px] lg:h-[900px]"
+      />
     </main>
   );
 }

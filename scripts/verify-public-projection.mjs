@@ -1,0 +1,92 @@
+/**
+ * Checks that no private value from the signed-locations sheet survives the projection
+ * in lib/locations/public.ts.
+ *
+ * Runs against the seed input rather than the database: this asserts the boundary in
+ * the code, which is what a reviewer needs to trust, and it needs no connection.
+ *
+ * The full record is deliberately kept intact so we can decide later what to expose.
+ * That decision is only safe if widening it stays deliberate, so this asserts the
+ * current boundary: every private value must be absent from the public shape.
+ *
+ * Run: node scripts/verify-public-projection.mjs
+ */
+import { readFileSync } from 'node:fs';
+
+const PRIVATE_FIELDS = [
+  'company',
+  'noticeAddress',
+  'apn',
+  'siteScore',
+  'salesRep',
+  'initialNotes',
+  'pipelineRef',
+  'signedNumber',
+];
+
+const src = readFileSync('prisma/seed-data/locations.ts', 'utf8');
+// Anchor past the '=', not on the declaration: the type annotation carries a '[' of its
+// own in SeedLocation[], and starting from that parses the annotation as the array.
+const assignment = src.match(/export const SEED_LOCATIONS[^=]*=\s*/);
+if (!assignment) throw new Error('SEED_LOCATIONS not found in prisma/seed-data/locations.ts');
+const start = assignment.index + assignment[0].length;
+const records = JSON.parse(src.slice(start, src.lastIndexOf(']') + 1));
+
+// mirrors lib/locations/public.ts. amenities, pricePerKwh and connectors are in this
+// list but absent from the seed input: the sheet does not own them, the dashboard does.
+const PUBLIC_KEYS = [
+  'slug', 'name', 'street', 'city', 'region', 'postalCode', 'country',
+  'latitude', 'longitude', 'market', 'status', 'goLiveYear', 'county', 'countyFips',
+  'maxPowerKw', 'amenities', 'pricePerKwh', 'connectors', 'chargerCount',
+  // Search and social. Public by definition: these exist to be crawled.
+  'metaTitle', 'metaDescription', 'imageUrl', 'noIndex', 'updatedAt',
+];
+const toPublic = (r) => Object.fromEntries(PUBLIC_KEYS.map((k) => [k, r[k]]));
+
+const failures = [];
+
+for (const record of records) {
+  for (const field of PRIVATE_FIELDS) {
+    if (!(field in record)) failures.push(`${record.slug}: full record is missing ${field}`);
+  }
+
+  const pub = toPublic(record);
+  // Values only. Serialising the whole object searched our own field names too, so a
+  // two letter note like "EC" matched inside the key "connectors" and was reported as a
+  // leak. Keys are names we chose; only the values are data.
+  const serialised = JSON.stringify(Object.values(pub)).toLowerCase();
+
+  for (const field of PRIVATE_FIELDS) {
+    if (field in pub) failures.push(`${record.slug}: ${field} present in public shape`);
+
+    const value = record[field];
+    if (value === null || value === '' || value === undefined) continue;
+    if (typeof value !== 'string') continue;
+
+    // Substring matching only says something useful about distinctive values. A short
+    // numeric one (pipelineRef "6", signedNumber "1") appears inside street numbers,
+    // postcodes and coordinates by coincidence, so matching it proves nothing. The
+    // values that actually matter here are names and addresses, which are not short
+    // and not purely numeric.
+    // Short values carry no signal: a two or three character note appears inside a
+    // street name or a county by coincidence, and matching one proves nothing.
+    if (/^\d{1,4}$/.test(value) || value.length < 5) continue;
+
+    if (serialised.includes(value.toLowerCase())) {
+      failures.push(`${record.slug}: value of ${field} ("${value}") leaked into public shape`);
+    }
+  }
+}
+
+const byYear = records.reduce((acc, r) => ({ ...acc, [r.goLiveYear]: (acc[r.goLiveYear] ?? 0) + 1 }), {});
+console.log(`records: ${records.length}`);
+console.log(`install year: ${JSON.stringify(byYear)}`);
+console.log(`full record fields: ${Object.keys(records[0]).length}`);
+console.log(`public fields: ${PUBLIC_KEYS.length}`);
+
+if (failures.length) {
+  console.error(`\nFAILED (${failures.length}):`);
+  for (const f of failures) console.error(`  ${f}`);
+  process.exit(1);
+}
+console.log('\nOK: no private value reaches the public shape.');

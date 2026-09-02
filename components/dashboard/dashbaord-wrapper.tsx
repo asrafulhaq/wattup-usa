@@ -1,83 +1,76 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSession } from '@/app/_actions/auth-actions';
-import { hasPermission, Permission } from '@/lib/permissions';
 import { AppSidebar } from '@/components/app-sidebar';
 import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
+import { RequireSession } from '@/components/dashboard/require-session';
 import { SiteHeader } from '@/components/site-header';
-import { Separator } from '@/components/ui/separator';
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { hasPermission, Permission } from '@/lib/permissions';
 import React, { Suspense } from 'react';
 
 async function SidebarWrapper() {
     const session = await getSession();
-    const showUsers = hasPermission(session?.role, Permission.VIEW_USERS);
-    const showSettings = hasPermission(session?.role, Permission.MANAGE_SITE_SETTINGS);
+
+    // Nothing rather than a signed-in looking shell. Without this a rejected session
+    // still drew the logo, an empty nav and a user card reading "Admin" with no email,
+    // which is the part that made the screen look broken rather than signed out.
+    if (!session) return null;
 
     return (
         <AppSidebar
             variant='inset'
-            showUsers={showUsers}
-            showSettings={showSettings}
+            showUsers={hasPermission(session.role, Permission.VIEW_USERS)}
+            showSettings={hasPermission(session.role, Permission.MANAGE_SITE_SETTINGS)}
+            showLocations={hasPermission(session.role, Permission.MANAGE_LOCATIONS)}
             user={{
-                name: session?.name,
-                email: session?.email,
-                image: session?.image,
+                name: session.name,
+                email: session.email,
+                image: session.image,
             }}
         />
     );
 }
 
-const DashboardWrapper = async ({
-    children,
-}: {
-    children: React.ReactNode;
-}) => {
+async function HeaderWrapper() {
+    const session = await getSession();
+    return <SiteHeader name={session?.name} />;
+}
+
+const DashboardWrapper = async ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className=''>
-            <SidebarProvider
-                style={
-                    {
-                        '--sidebar-width': 'calc(var(--spacing) * 72)',
-                        '--header-height': 'calc(var(--spacing) * 12)',
-                    } as any
-                }>
-                <Suspense fallback={null}>
-                    <SidebarWrapper />
+        <SidebarProvider
+            style={
+                {
+                    '--sidebar-width': 'calc(var(--spacing) * 68)',
+                    '--header-height': 'calc(var(--spacing) * 14)',
+                } as any
+            }>
+            <Suspense fallback={null}>
+                <SidebarWrapper />
+            </Suspense>
+
+            {/* The canvas sits a shade below the cards, which is what lets a plain white
+                panel read as raised without a shadow heavy enough to notice. */}
+            {/* dash-scope carries the dashboard's field styling. See globals.css: the
+                base Input is the public site's tall filled control, which is wrong at
+                this density. */}
+            <SidebarInset className='dash-scope bg-dash-canvas'>
+                <Suspense
+                    fallback={
+                        <div className='h-(--header-height) shrink-0 border-b border-dash-border bg-dash-surface' />
+                    }>
+                    <HeaderWrapper />
                 </Suspense>
-                <SidebarInset>
-                    <Suspense
-                        fallback={
-                            <header className='flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
-                                <div className='flex w-full items-center gap-1 px-4 md:gap-2 md:px-6'>
-                                    <SidebarTrigger className='-ml-1' />
-                                    <Separator
-                                        orientation='vertical'
-                                        className='mx-2 data-[orientation=vertical]:h-4'
-                                    />
-                                    <h1 className='text-base font-normal'>
-                                        Welcome !
-                                    </h1>
-                                </div>
-                            </header>
-                        }>
-                        <SiteHeader />
+
+                <div className='@container/main flex flex-1 flex-col'>
+                    <Suspense fallback={null}>
+                        <RequireSession>
+                            <DashboardFadeIn>{children}</DashboardFadeIn>
+                        </RequireSession>
                     </Suspense>
-                    <div className='flex flex-1 flex-col w-full'>
-                        <div className='@container/main flex flex-1 flex-col gap-2 w-full'>
-                            <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6 w-full max-w-full'>
-                                <Suspense fallback={null}>
-                                    <DashboardFadeIn>{children}</DashboardFadeIn>
-                                </Suspense>
-                            </div>
-                        </div>
-                    </div>
-                </SidebarInset>
-            </SidebarProvider>
-        </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 };
 

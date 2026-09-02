@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { IconDeviceFloppy, IconLock } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -91,15 +90,12 @@ export default function CredentialsUpdate() {
     return (
         <div className='grid gap-6 md:grid-cols-2'>
             {/* ── Password Update Card ── */}
-            <Card className='shadow-none border-border h-full flex flex-col'>
+            <Card className='dash-card flex h-full flex-col shadow-none'>
                 <CardHeader>
-                    <div className='flex items-center gap-2 text-primary mb-1'>
-                        <IconLock size={20} />
-                        <CardTitle className='text-lg font-medium'>
-                            Change Password
-                        </CardTitle>
-                    </div>
-                    <CardDescription>
+                    <CardTitle className='text-[15px] font-semibold text-dash-heading'>
+                        Change Password
+                    </CardTitle>
+                    <CardDescription className='mt-1'>
                         Use a long, random password to keep your account secure.
                     </CardDescription>
                 </CardHeader>
@@ -191,15 +187,83 @@ export default function CredentialsUpdate() {
                             )}
                         </div>
 
-                        <Button
-                            type='submit'
-                            disabled={isPasswordLoading}
-                            className='w-full gap-2 mt-2'>
-                            <IconDeviceFloppy size={22} />
-                            {isPasswordLoading
-                                ? 'Updating...'
-                                : 'Update Password'}
-                        </Button>
+                        <div className='flex justify-end pt-1'>
+                            <Button type='submit' size='sm' disabled={isPasswordLoading}>
+                                {isPasswordLoading ? 'Updating...' : 'Update password'}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+
+            {/* ── Email Update Card ──
+                The form, the handler and the updateEmail action all existed; only this
+                card was missing, which is why the grid beside Change Password was empty
+                and why a working feature was unreachable. */}
+            <Card className='dash-card flex h-full flex-col shadow-none'>
+                <CardHeader>
+                    <CardTitle className='text-[15px] font-semibold text-dash-heading'>
+                        Change Email
+                    </CardTitle>
+                    <CardDescription className='mt-1'>
+                        You sign in with this address, so it is confirmed with your
+                        password before it changes.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className='flex-1'>
+                    <form
+                        onSubmit={emailForm.handleSubmit(onEmailSubmit)}
+                        className='space-y-4'>
+                        <div className='space-y-2'>
+                            <Label htmlFor='email-new-email'>New Email</Label>
+                            <Input
+                                {...emailForm.register('newEmail', {
+                                    required: 'A new email address is required',
+                                    pattern: {
+                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                        message: 'Enter a valid email address',
+                                    },
+                                })}
+                                type='email'
+                                id='email-new-email'
+                                autoComplete='email'
+                                placeholder='you@example.com'
+                            />
+                            {emailForm.formState.errors.newEmail && (
+                                <p className='mt-1 text-xs text-destructive'>
+                                    {emailForm.formState.errors.newEmail.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className='space-y-2'>
+                            <Label htmlFor='email-current-password'>
+                                Current Password
+                            </Label>
+                            <Input
+                                {...emailForm.register('currentPassword', {
+                                    required: 'Current password is required',
+                                })}
+                                type='password'
+                                id='email-current-password'
+                                autoComplete='current-password'
+                                placeholder='••••••••'
+                            />
+                            {emailForm.formState.errors.currentPassword && (
+                                <p className='mt-1 text-xs text-destructive'>
+                                    {
+                                        emailForm.formState.errors.currentPassword
+                                            .message
+                                    }
+                                </p>
+                            )}
+                        </div>
+
+                        <div className='flex justify-end pt-1'>
+                            <Button type='submit' size='sm' disabled={isEmailLoading}>
+                                {isEmailLoading ? 'Updating...' : 'Update email'}
+                            </Button>
+                        </div>
                     </form>
                 </CardContent>
             </Card>

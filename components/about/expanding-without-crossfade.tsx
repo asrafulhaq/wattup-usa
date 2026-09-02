@@ -2,14 +2,21 @@
 
 import { FadeUp } from '@/components/ui/fade-up';
 import { WattupButton } from '@/components/ui/wattup-button';
+import { ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 import { useRef } from 'react';
 
-import { cities } from '@/data';
+import type { NetworkCity } from '@/lib/locations/network';
 
-export function ExpandingWithoutCrossfade() {
+export function ExpandingWithoutCrossfade({
+    /** Read from the database on the server. See lib/locations/network.ts. */
+    cities,
+}: {
+    cities: NetworkCity[];
+}) {
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Always show 8 initially, unless showAll is true on the locations page
+    // Eight, with the last two hidden below md. The full network is on /locations.
     const visibleCities = cities.slice(0, 8);
     return (
         <div id='locations' className='pt-[40px] md:pt-[82px]'>
@@ -25,18 +32,30 @@ export function ExpandingWithoutCrossfade() {
                         ref={containerRef}
                         className='grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-10 md:gap-y-20 w-full'>
                         {visibleCities.map((city, idx) => (
-                            <div
-                                key={`${city.name}-${idx}`}
-                                className={`city-item flex flex-col gap-2 md:gap-4 ${idx >= 6 ? 'hidden md:flex' : 'flex'}`}>
-                                <h3 className='text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark'>
+                            <Link
+                                key={`${city.name}-${city.region}`}
+                                href={city.href}
+                                aria-label={
+                                    city.siteCount === 1
+                                        ? `${city.name}, ${city.county}: ${city.detail}, ${city.status}`
+                                        : `${city.name}: ${city.siteCount} locations`
+                                }
+                                className={`city-item group flex flex-col gap-2 md:gap-4 ${idx >= 6 ? 'hidden md:flex' : 'flex'}`}>
+                                <h3 className='flex items-center gap-1.5 text-[20px] md:text-[28px] font-semibold md:font-bold leading-[130%] md:leading-[110%] tracking-[-0.02em] text-dark transition-colors group-hover:text-primary'>
                                     {city.name}
+                                    <ArrowUpRight className='size-4 shrink-0 opacity-0 transition-all duration-200 md:size-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100' />
                                 </h3>
                                 <div className='flex flex-col gap-y-2 text-[16px] md:text-[20px] text-dark leading-[120%]'>
+                                    {city.county && (
+                                        <span className='text-dark/60'>
+                                            {city.county}
+                                        </span>
+                                    )}
                                     <span>{city.capacity}</span>
-                                    <span>{city.stationName}</span>
+                                    <span>{city.detail}</span>
                                     <span>{city.status}</span>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </FadeUp>

@@ -44,6 +44,10 @@
     --accent-foreground: oklch(0.214 0.009 43.1);
     --destructive: var(--error);
     --border: oklch(0.922 0.005 34.3);
+
+    /* Scrollbars, themed with the rest of the UI. */
+    --scrollbar-thumb: rgba(17, 24, 39, 0.22);
+    --scrollbar-thumb-hover: rgba(17, 24, 39, 0.38);
     --input: oklch(0.922 0.005 34.3);
     --ring: var(--primary);
     --chart-1: oklch(0.868 0.007 39.5);
@@ -183,6 +187,9 @@ body {
     --accent-foreground: oklch(0.986 0.002 67.8);
     --destructive: var(--error);
     --border: rgba(255, 255, 255, 0.1);
+
+    --scrollbar-thumb: rgba(255, 255, 255, 0.24);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
     --input: rgba(255, 255, 255, 0.15);
     --ring: var(--primary);
     /* --- WATTUP SPECIFIC TOKENS END --- */
@@ -287,3 +294,343 @@ body {
     }
 }
 
+
+/*
+ * Station card enter and leave.
+ *
+ * Done in CSS rather than with a JS animation library. The card was mounting through
+ * AnimatePresence and staying at its initial keyframe: invisible, still in the DOM, and
+ * impossible to close because the close button it held was never actually on screen. A
+ * CSS animation cannot fail that way, since the browser runs it whether or not any
+ * library has finished initialising.
+ */
+@keyframes wattup-card-in {
+    from {
+        opacity: 0;
+        transform: scale(0.86) translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes wattup-card-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.92) translateY(6px);
+    }
+}
+
+.wattup-card-enter {
+    animation: wattup-card-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: bottom left;
+}
+
+.wattup-card-exit {
+    animation: wattup-card-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+    transform-origin: bottom left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wattup-card-enter,
+    .wattup-card-exit {
+        animation: none;
+    }
+}
+
+
+/*
+ * Takes react-map-gl's overlay wrapper out of the map's normal flow.
+ *
+ * The wrapper holding a <Map>'s JSX children is a plain block at height 100%, and Mapbox
+ * appends its own canvas to the same container. Which comes first depends on how the map
+ * was mounted. Rendered fresh, Mapbox is already in the container and the wrapper lands
+ * after it, costing nothing. Coming back to a page the router had cached, React keeps the
+ * old DOM and reconnects it: the effect that owns the map had destroyed the old one and
+ * builds a new one, which now appends its canvas AFTER the wrapper.
+ *
+ * A full-height block in front of the canvas pushes the canvas container down by the
+ * whole height of the map, and Mapbox reads every pointer position as an offset from that
+ * container's box. So the pointer was measured 780px too high and landed off the map:
+ * hovering a marker did nothing and clicking one did nothing, while dragging still worked
+ * because panning reads the movement between two positions and the offset cancels out.
+ *
+ * Taking it out of flow puts the canvas back at the top of the map whichever order the
+ * two arrive in. pointer-events is off because in that same order the wrapper paints over
+ * the canvas, and it would otherwise swallow everything the fix is meant to restore;
+ * anything interactive placed inside a <Map> has to opt back in with pointer-events: auto.
+ */
+.mapboxgl-map > [mapboxgl-children] {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+
+/*
+ * Scrollbars.
+ *
+ * The platform default is a wide light-grey bar that belongs to the operating system
+ * rather than to this page, and on a dark panel it reads as a seam. These are thin,
+ * themed, and follow the light and dark palettes through the same tokens as everything
+ * else.
+ *
+ * Inside @layer base deliberately. Unlayered rules beat every layered one whatever their
+ * specificity, so leaving these unlayered overrode the utilities that deliberately hide
+ * a scrollbar, and the location strip grew one it is designed not to have.
+ */
+@layer base {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb);
+        border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: var(--scrollbar-thumb-hover);
+    }
+
+    /* Touch platforms overlay their own; leaving them alone keeps that behaviour. */
+    @media (hover: none) {
+        * {
+            scrollbar-width: auto;
+        }
+    }
+}
+
+/*
+ * Panels that drop out of the search bar: the typeahead and the filter tray.
+ *
+ * CSS rather than a JS animation library, for the same reason the station card is: a
+ * keyframe runs whether or not anything else has finished initialising, so a panel can
+ * never be left stranded at its opening frame, invisible but still holding the controls
+ * inside it.
+ */
+@keyframes wattup-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes wattup-pop-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.98) translateY(-4px);
+    }
+}
+
+.wattup-pop-enter {
+    animation: wattup-pop-in 170ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: top center;
+}
+
+.wattup-pop-exit {
+    animation: wattup-pop-out 130ms cubic-bezier(0.4, 0, 1, 1) both;
+    transform-origin: top center;
+}
+
+/*
+ * Shortened rather than switched off. These panels unmount on animationend, and an
+ * animation of none never fires it, which would leave a closed panel on screen forever.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .wattup-pop-enter,
+    .wattup-pop-exit {
+        animation-duration: 1ms;
+    }
+}
+
+/* ─── Dashboard page transition ────────────────────────────────────────────────
+ *
+ * A short lift and fade as each dashboard screen arrives, replayed per navigation by
+ * keying the wrapper on the pathname.
+ *
+ * CSS rather than a JS animation library, and deliberately without `forwards`. The
+ * previous framer-motion version left this dashboard stranded at its opening frame more
+ * than once: nav links and the whole page body sat at opacity 0, present in the DOM and
+ * invisible, which read as a broken screen rather than a slow one. Ending on the
+ * element's natural state means the worst a failed animation can do here is show the
+ * content immediately, which is the right direction to fail in.
+ */
+@keyframes wattup-page-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wattup-page-enter {
+    animation: wattup-page-in 260ms cubic-bezier(0.21, 0.47, 0.32, 0.98) backwards;
+}
+
+/* Staggered by index so the sidebar links arrive in sequence rather than together. */
+.wattup-nav-item {
+    animation: wattup-page-in 320ms cubic-bezier(0.21, 0.47, 0.32, 0.98) backwards;
+    animation-delay: calc(var(--nav-index, 0) * 45ms + 60ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wattup-page-enter,
+    .wattup-nav-item {
+        /* 1ms rather than none: an animation that never starts also never fires
+           animationend, and anything waiting on that event would hang. */
+        animation-duration: 1ms;
+        animation-delay: 0ms;
+    }
+}
+
+/* ─── Dashboard design tokens ──────────────────────────────────────────────────
+ *
+ * One place for the surfaces, so a card in Locations and a card in Settings are the
+ * same card. The public site keeps its own scale; these are deliberately quieter,
+ * because an admin screen is read all day and read densely.
+ */
+:root {
+    /* The canvas sits a shade below the cards, so a white card reads as raised
+       without needing a shadow heavy enough to notice. */
+    --dash-canvas: #f6f8fb;
+    --dash-surface: #ffffff;
+    --dash-border: #e8ecf2;
+    --dash-border-strong: #dbe2ea;
+
+    --dash-heading: #101828;
+    --dash-body: #344054;
+    --dash-muted: #667085;
+    --dash-faint: #98a2b3;
+
+    /* Tints of the brand blue, for icon chips and the active nav pill. */
+    --dash-accent: var(--primary);
+    --dash-accent-soft: rgba(25, 125, 255, 0.08);
+    --dash-accent-line: rgba(25, 125, 255, 0.22);
+
+    --dash-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+    --dash-shadow-raised:
+        0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+
+    --dash-radius: 12px;
+    --dash-radius-sm: 8px;
+}
+
+@theme inline {
+    --color-dash-canvas: var(--dash-canvas);
+    --color-dash-surface: var(--dash-surface);
+    --color-dash-border: var(--dash-border);
+    --color-dash-border-strong: var(--dash-border-strong);
+    --color-dash-heading: var(--dash-heading);
+    --color-dash-body: var(--dash-body);
+    --color-dash-muted: var(--dash-muted);
+    --color-dash-faint: var(--dash-faint);
+    --color-dash-accent: var(--dash-accent);
+    --color-dash-accent-soft: var(--dash-accent-soft);
+}
+
+@layer components {
+    /* The one card. Everything on a dashboard screen sits in one of these. */
+    .dash-card {
+        background: var(--dash-surface);
+        border: 1px solid var(--dash-border);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow-card);
+    }
+
+    /* Micro label: table headers and sidebar group titles. Uppercase with real
+       letter-spacing, which is what stops it reading as shouting. */
+    .dash-eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--dash-faint);
+    }
+
+    /* Tabular figures everywhere a number sits in a column, so digits line up. */
+    .dash-num {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* ─── Dashboard form fields ────────────────────────────────────────────────────
+ *
+ * The base Input and Textarea are the public site's: 56px tall, 16px type, filled with
+ * a grey wash. That is right for a marketing form with three fields and wrong for an
+ * admin screen with thirty, where it turns every panel into a wall of grey blocks.
+ *
+ * Scoped to the dashboard shell rather than changed at the component, so the public
+ * forms are untouched and any new dashboard form gets the right field without having to
+ * remember a class.
+ */
+/* In @layer utilities, not components: Tailwind's utilities layer wins over components
+ * whatever the specificity, so bg-gray/30 and h-[56px] on the base control beat anything
+ * written there. Inside the same layer the cascade falls back to specificity, and
+ * `.dash-scope input[data-slot=...]` outranks a single utility class. */
+@layer utilities {
+    .dash-scope input[data-slot='input'],
+    .dash-scope textarea[data-slot='textarea'] {
+        height: auto;
+        min-height: 2.5rem;
+        border-radius: 8px;
+        border-color: var(--dash-border);
+        background-color: var(--dash-surface);
+        padding: 0.5rem 0.75rem;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: normal;
+        color: var(--dash-heading);
+    }
+
+    .dash-scope textarea[data-slot='textarea'] {
+        min-height: 6rem;
+        padding: 0.625rem 0.75rem;
+    }
+
+    .dash-scope input[data-slot='input']::placeholder,
+    .dash-scope textarea[data-slot='textarea']::placeholder {
+        color: var(--dash-faint);
+        font-weight: 400;
+    }
+
+    .dash-scope input[data-slot='input']:focus-visible,
+    .dash-scope textarea[data-slot='textarea']:focus-visible {
+        border-color: var(--primary);
+    }
+
+    /* Labels above them, matched to the field rather than to the page. */
+    .dash-scope label[data-slot='label'] {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--dash-body);
+    }
+}
