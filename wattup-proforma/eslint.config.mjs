@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The vendored Site Pro-Forma Builder: plain browser scripts, byte-identical
+    // to docs/Pro-Forma source/, and never edited here. Not this app's code.
+    "private/**",
   ]),
 ]);
 
