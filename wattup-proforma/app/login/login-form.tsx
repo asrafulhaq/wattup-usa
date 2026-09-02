@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 
+import { OtpInput, type OtpInputHandle } from './otp-input';
 import { safeNext } from '@/lib/safe-next';
 
 /**
@@ -112,6 +113,7 @@ export function LoginForm({ next }: { next: string }) {
     const baseId = useId();
     const emailId = `${baseId}-email`;
     const codeId = `${baseId}-code`;
+    const codeLabelId = `${baseId}-code-label`;
     const errorId = `${baseId}-error`;
 
     const [step, setStep] = useState<Step>('email');
@@ -120,19 +122,31 @@ export function LoginForm({ next }: { next: string }) {
     const [pending, setPending] = useState(false);
     const [failure, setFailure] = useState<string | null>(null);
     const [cooldown, setCooldown] = useState(0);
+    // Bumped whenever the code field should be focused again. An effect does the
+    // focusing, so it happens after the render that changed the value: calling focus
+    // straight after setCode('') would land on the box the caret was in when the
+    // code was still there, leaving the caret on box six while typing filled box one.
+    const [focusNonce, setFocusNonce] = useState(0);
     // The address a code was last requested for, and when. The 60 s gap is a
     // server rule (lib/rate-limit.ts); this keeps the client from asking for a
     // code the server would refuse, and from wiping a code that is still good.
     const lastSentRef = useRef<{ address: string; at: number } | null>(null);
 
     const emailRef = useRef<HTMLInputElement>(null);
-    const codeRef = useRef<HTMLInputElement>(null);
+    const codeRef = useRef<OtpInputHandle>(null);
 
     // Focus follows the step: the address field on arrival, the code field the
     // moment step 2 appears.
     useEffect(() => {
         (step === 'code' ? codeRef : emailRef).current?.focus();
     }, [step]);
+
+    // The other times the code field takes focus: after a refusal, which clears it, and
+    // after a resend, which does not. Both go through the nonce so the focus runs on the
+    // committed render rather than the one being replaced.
+    useEffect(() => {
+        if (focusNonce > 0) codeRef.current?.focus();
+    }, [focusNonce]);
 
     // The resend cooldown, one second at a time. Client side only: the server's
     // real gap limit is enforced server-side in lib/rate-limit.ts (checklist 5.3), and this is the affordance that respects it.
@@ -196,7 +210,7 @@ export function LoginForm({ next }: { next: string }) {
         setCooldown(RESEND_GAP_SECONDS);
         // The field is left alone: a new code is on its way, but the old one
         // is not necessarily wrong yet and the member may still be reading it.
-        codeRef.current?.focus();
+        setFocusNonce((n) => n + 1);
     }
 
     async function handleCodeSubmit(event: FormEvent<HTMLFormElement>) {
@@ -224,7 +238,7 @@ export function LoginForm({ next }: { next: string }) {
                 ? reply.body.message
                 : SOMETHING_WRONG,
         );
-        codeRef.current?.focus();
+        setFocusNonce((n) => n + 1);
     }
 
     function changeAddress() {
@@ -332,26 +346,19 @@ export function LoginForm({ next }: { next: string }) {
 
                 {/* Code */}
                 <div className="flex flex-col gap-3">
-                    <label htmlFor={codeId} className={LABEL}>
+                    <label htmlFor={codeId} id={codeLabelId} className={LABEL}>
                         One-time code:
                     </label>
-                    <input
+                    <OtpInput
                         ref={codeRef}
                         id={codeId}
-                        name="code"
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        pattern="[0-9]*"
-                        maxLength={CODE_LENGTH}
-                        placeholder="Enter code"
-                        required
-                        readOnly={pending}
+                        labelledBy={codeLabelId}
+                        length={CODE_LENGTH}
                         value={code}
-                        onChange={(event) => setCode(event.target.value.replace(/[^0-9]/g, '').slice(0, CODE_LENGTH))}
-                        aria-invalid={failure ? true : undefined}
-                        aria-describedby={failure ? errorId : undefined}
-                        className={FIELD}
+                        onChange={setCode}
+                        disabled={pending}
+                        invalid={Boolean(failure)}
+                        describedBy={failure ? errorId : undefined}
                     />
                     {errorRegion}
                 </div>
