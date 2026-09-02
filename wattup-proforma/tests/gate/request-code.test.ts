@@ -7,6 +7,7 @@ import { gatePost, observable } from '../helpers';
 import { auth } from '../mocks/auth';
 import { directory, member } from '../mocks/member-directory';
 import { runAfterCallbacks, scheduledAfterCount } from '../mocks/next-server';
+import { prisma } from '../mocks/prisma';
 
 /**
  * POST /api/gate/request-code. Checklist 5.11, ADR 0001 section 7.
@@ -19,7 +20,10 @@ import { runAfterCallbacks, scheduledAfterCount } from '../mocks/next-server';
  *
  * The limiter's own logic is tests/lib/rate-limit.test.ts; here it is a mock
  * whose answer the test scripts, so what is under test is the route's order of
- * operations, not the counters.
+ * operations, not the counters. The same goes for the audit row (checklist
+ * 4b.5): lib/activity-log.ts is tests/lib/activity-log.test.ts; here the
+ * questions are WHEN it is written (after the response, never before) and
+ * WHAT it says for each way the decision can go.
  */
 
 vi.mock('@/lib/rate-limit', async (importOriginal) => {
@@ -45,7 +49,18 @@ function expectNothingDecidedYet(): void {
     expect(directory.lookup).not.toHaveBeenCalled();
     expect(checkEmailLimits).not.toHaveBeenCalled();
     expect(auth.api.sendVerificationOTP).not.toHaveBeenCalled();
+    // The audit row is a database write; on the response path it would be
+    // both a delay and, if it failed, a different answer (checklist 4b.5).
+    expect(prisma.activityLog.create).not.toHaveBeenCalled();
 }
+
+/** The one activity_log row the drained after() left, or a failure if there was not exactly one. */
+function theRow() {
+    expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
+    return prisma.activityLog.create.mock.calls[0]![0].data;
+}
+
+const CLIENT = { 'x-forwarded-for': '198.51.100.9, 10.0.0.1', 'user-agent': 'vitest/1.0' };
 
 describe('enumeration: the response does not depend on the address', () => {
     const requests: [label: string, make: () => Request, schedulesWork: boolean][] = [
@@ -179,6 +194,106 @@ describe('the limiter, from inside after() (checklist 5.5, 5.7a)', () => {
         await runAfterCallbacks();
 
         expect(auth.api.sendVerificationOTP).not.toHaveBeenCalled();
+    });
+});
+
+describe('the audit row (checklist 4b.5, 4b.7): one per decision, written last, inside after()', () => {
+    it('a member: code.requested with their user id, the client address, the user agent and the correlation id the caller received', async () => {
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER }, headers: CLIENT }));
+        const id = response.headers.get('x-correlation-id');
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+
+        await runAfterCallbacks();
+
+        expect(theRow()).toStrictEqual({
+            app: 'proforma',
+            event: 'code.requested',
+            email: MEMBER,
+            userId: `user_${MEMBER}`,
+            ipAddress: '198.51.100.9',
+            userAgent: 'vitest/1.0',
+            correlationId: id,
+        });
+        // Written after the send, so the row records what happened.
+        expect(prisma.activityLog.create.mock.invocationCallOrder[0]).toBeGreaterThan(auth.api.sendVerificationOTP.mock.invocationCallOrder[0]!);
+    });
+
+    it('a non-member: code.refused, reason not_member, no user id, the full address', async () => {
+        const response = await POST(gatePost(PATH, { body: { email: STRANGER }, headers: CLIENT }));
+        await runAfterCallbacks();
+
+        expect(theRow()).toStrictEqual({
+            app: 'proforma',
+            event: 'code.refused',
+            email: STRANGER,
+            userId: null,
+            ipAddress: '198.51.100.9',
+            userAgent: 'vitest/1.0',
+            correlationId: response.headers.get('x-correlation-id'),
+            meta: { reason: 'not_member' },
+        });
+    });
+
+    it('a banned member (the directory says inactive): code.refused, reason banned, with their user id', async () => {
+        directory.lookup.mockResolvedValue(member(MEMBER, { active: false }));
+
+        await POST(gatePost(PATH, { body: { email: MEMBER } }));
+        await runAfterCallbacks();
+
+        expect(theRow()).toMatchObject({ event: 'code.refused', email: MEMBER, userId: `user_${MEMBER}`, meta: { reason: 'banned' } });
+    });
+
+    it('the IP limit: code.refused, reason rate_limited_ip, before the directory was asked', async () => {
+        vi.mocked(checkIpLimit).mockResolvedValue({ allowed: false, reason: 'ip' });
+
+        await POST(gatePost(PATH, { body: { email: MEMBER } }));
+        await runAfterCallbacks();
+
+        expect(theRow()).toMatchObject({ event: 'code.refused', email: MEMBER, userId: null, meta: { reason: 'rate_limited_ip' } });
+        expect(directory.lookup).not.toHaveBeenCalled();
+    });
+
+    it('the address limits: code.refused, reason rate_limited_email, naming which limit, with the user id', async () => {
+        vi.mocked(checkEmailLimits).mockResolvedValue({ allowed: false, reason: 'gap' });
+
+        await POST(gatePost(PATH, { body: { email: MEMBER } }));
+        await runAfterCallbacks();
+
+        expect(theRow()).toMatchObject({
+            event: 'code.refused',
+            email: MEMBER,
+            userId: `user_${MEMBER}`,
+            meta: { reason: 'rate_limited_email', limit: 'gap' },
+        });
+    });
+
+    it('Better Auth throwing: code.refused, reason send_failed, with the user id', async () => {
+        auth.api.sendVerificationOTP.mockRejectedValue(new Error('database gone'));
+
+        await POST(gatePost(PATH, { body: { email: MEMBER } }));
+        await runAfterCallbacks();
+
+        expect(theRow()).toMatchObject({ event: 'code.refused', email: MEMBER, userId: `user_${MEMBER}`, meta: { reason: 'send_failed' } });
+    });
+
+    it('a malformed body: no row, there is no address to attribute one to', async () => {
+        await POST(gatePost(PATH, { rawBody: `email=${MEMBER}` }));
+        await POST(gatePost(PATH, { body: { email: [MEMBER] } }));
+        await POST(gatePost(PATH, { body: { email: MEMBER }, contentType: null }));
+        await runAfterCallbacks();
+
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+    });
+
+    it('a write that rejects changes nothing: the same bytes, the code still sent, after() still drains', async () => {
+        prisma.activityLog.create.mockRejectedValue(new Error('relation "activity_log" does not exist'));
+
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER } }));
+        expect((await observable(response)).body).toBe(GENERIC_BODY);
+        await expect(runAfterCallbacks()).resolves.toBeUndefined();
+
+        expect(auth.api.sendVerificationOTP).toHaveBeenCalledTimes(1);
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
     });
 });
 

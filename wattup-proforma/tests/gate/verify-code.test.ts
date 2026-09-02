@@ -7,6 +7,7 @@ import { apiError, fakeSession, gatePost, HOST, observable, SITE } from '../help
 import { auth, resetAuth } from '../mocks/auth';
 import { directory, member } from '../mocks/member-directory';
 import { setRequestHeaders } from '../mocks/next-headers';
+import { runAfterCallbacks } from '../mocks/next-server';
 import { prisma } from '../mocks/prisma';
 
 /**
@@ -18,6 +19,11 @@ import { prisma } from '../mocks/prisma';
  * this route collapses all of it, and the malformed-body and removed-mid-flow
  * cases with it, into 400 and one body. The real reason goes to the log with
  * the correlation id, and the id is on the response whatever happened.
+ *
+ * The audit row (checklist 4b.5) is the one thing here that is allowed to
+ * differ per outcome, and it is allowed to because nobody outside can see it:
+ * it is written by after(), once the response is complete, and the tests
+ * below pin that no write has happened at the moment the handler returns.
  */
 
 vi.mock('@/lib/rate-limit', async (importOriginal) => {
@@ -28,6 +34,7 @@ vi.mock('@/lib/rate-limit', async (importOriginal) => {
 const PATH = '/api/gate/verify-code';
 const MEMBER = 'member@hostproposal.test';
 const CODE = '012345';
+const CLIENT = { 'x-forwarded-for': '203.0.113.7, 10.0.0.1', 'user-agent': 'vitest/1.0' };
 const REFUSED_BODY = JSON.stringify({ message: 'That code is not valid.' });
 const HEADER_NAMES = ['cache-control', 'content-type', 'x-correlation-id', 'x-robots-tag'];
 
@@ -205,6 +212,35 @@ describe('success', () => {
         expect(auth.api.signOut).not.toHaveBeenCalled();
     });
 
+    it('writes signin.success with the user id, the client address, the user agent and the correlation id, only once the response exists (checklist 4b.5)', async () => {
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE }, headers: CLIENT }));
+        // The response is complete and no row exists: the write is after() work.
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+
+        await runAfterCallbacks();
+
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
+        expect(prisma.activityLog.create.mock.calls[0]![0].data).toStrictEqual({
+            app: 'proforma',
+            event: 'signin.success',
+            email: MEMBER,
+            userId: 'user_member',
+            ipAddress: '203.0.113.7',
+            userAgent: 'vitest/1.0',
+            correlationId: response.headers.get('x-correlation-id'),
+        });
+    });
+
+    it('a write that rejects changes nothing about the answer', async () => {
+        prisma.activityLog.create.mockRejectedValue(new Error('relation "activity_log" does not exist'));
+
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } }));
+
+        expect(await observable(response)).toMatchObject({ status: 200, body: JSON.stringify({ redirectTo: '/tool/' }) });
+        await expect(runAfterCallbacks()).resolves.toBeUndefined();
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
+    });
+
     it.each([
         ['//evil.example', '/tool/'],
         ['https://evil.example/', '/tool/'],
@@ -222,6 +258,127 @@ describe('success', () => {
     });
 });
 
+describe('the audit row for a refusal (checklist 4b.5): signin.failed, the reason in meta, written after the response', () => {
+    /** The one activity_log row the drained after() left, or a failure if there was not exactly one. */
+    function theRow() {
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
+        return prisma.activityLog.create.mock.calls[0]![0].data;
+    }
+
+    it.each([
+        ['INVALID_OTP', () => auth.api.signInEmailOTP.mockRejectedValue(apiError('INVALID_OTP')), { reason: 'invalid_code', code: 'INVALID_OTP' }],
+        ['OTP_EXPIRED', () => auth.api.signInEmailOTP.mockRejectedValue(apiError('OTP_EXPIRED')), { reason: 'expired', code: 'OTP_EXPIRED' }],
+        [
+            'TOO_MANY_ATTEMPTS',
+            () => auth.api.signInEmailOTP.mockRejectedValue(apiError('TOO_MANY_ATTEMPTS')),
+            { reason: 'attempts_exhausted', code: 'TOO_MANY_ATTEMPTS' },
+        ],
+        ['USER_NOT_FOUND', () => auth.api.signInEmailOTP.mockRejectedValue(apiError('USER_NOT_FOUND')), { reason: 'not_member', code: 'USER_NOT_FOUND' }],
+        [
+            'an APIError with a code this route does not know',
+            () => auth.api.signInEmailOTP.mockRejectedValue(apiError('BODY_TOO_LARGE', 'PAYLOAD_TOO_LARGE', 413)),
+            { reason: 'unknown', code: 'BODY_TOO_LARGE' },
+        ],
+        ['an error that is not an APIError', () => auth.api.signInEmailOTP.mockRejectedValue(new TypeError('socket hang up')), { reason: 'unknown' }],
+        ['a thrown value that is not an Error', () => auth.api.signInEmailOTP.mockRejectedValue('nope'), { reason: 'unknown' }],
+        ['the per-IP limit', () => vi.mocked(checkIpLimit).mockResolvedValue({ allowed: false, reason: 'ip' }), { reason: 'rate_limited_ip' }],
+    ] as const)('%s -> meta %j', async (_label, arrange, meta) => {
+        arrange();
+
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE }, headers: CLIENT }));
+        expect(response.status).toBe(400);
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+
+        await runAfterCallbacks();
+
+        expect(theRow()).toStrictEqual({
+            app: 'proforma',
+            event: 'signin.failed',
+            email: MEMBER,
+            userId: null,
+            ipAddress: '203.0.113.7',
+            userAgent: 'vitest/1.0',
+            correlationId: response.headers.get('x-correlation-id'),
+            meta,
+        });
+    });
+
+    it('a member removed mid-flow: not_member, attributed to their user id, worked out from the user row AFTER the response', async () => {
+        auth.api.signInEmailOTP.mockResolvedValue(issuedSession());
+        auth.api.getSession.mockResolvedValue(null);
+        prisma.user.findUnique.mockResolvedValue({ id: 'user_member', banned: false });
+
+        const response = await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } }));
+        expect(response.status).toBe(400);
+        // Neither the classifying read nor the write has happened yet.
+        expect(prisma.user.findUnique).not.toHaveBeenCalled();
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+
+        await runAfterCallbacks();
+
+        expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: MEMBER }, select: { id: true, banned: true } });
+        expect(theRow()).toMatchObject({ event: 'signin.failed', email: MEMBER, userId: 'user_member', meta: { reason: 'not_member' } });
+    });
+
+    it('a member banned mid-flow (the code was right, the user row says banned): banned, with their user id', async () => {
+        auth.api.signInEmailOTP.mockResolvedValue(issuedSession());
+        auth.api.getSession.mockResolvedValue(fakeSession({ email: MEMBER }));
+        prisma.user.findUnique.mockResolvedValue({ id: 'user_member', banned: true });
+
+        await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } }));
+        await runAfterCallbacks();
+
+        expect(auth.api.signOut).toHaveBeenCalledTimes(1);
+        expect(theRow()).toMatchObject({ event: 'signin.failed', email: MEMBER, userId: 'user_member', meta: { reason: 'banned' } });
+    });
+
+    it('a re-check that threw: unknown, and the user row is not read for it', async () => {
+        auth.api.signInEmailOTP.mockResolvedValue(issuedSession());
+        auth.api.getSession.mockRejectedValue(new Error('database gone'));
+
+        await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } }));
+        await runAfterCallbacks();
+
+        expect(prisma.user.findUnique).not.toHaveBeenCalled();
+        expect(theRow()).toMatchObject({ event: 'signin.failed', email: MEMBER, userId: null, meta: { reason: 'unknown' } });
+    });
+
+    it('the address is the normalised one, whatever was typed', async () => {
+        auth.api.signInEmailOTP.mockRejectedValue(apiError('INVALID_OTP'));
+
+        await POST(gatePost(PATH, { body: { email: '  Member@HostProposal.TEST ', code: CODE } }));
+        await runAfterCallbacks();
+
+        expect(theRow().email).toBe(MEMBER);
+    });
+
+    it('a malformed body: no row, whether or not the IP limit refused it', async () => {
+        await POST(gatePost(PATH, { rawBody: `email=${MEMBER}&code=${CODE}` }));
+        await POST(gatePost(PATH, { body: { email: MEMBER, code: 12345 } }));
+        await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE }, contentType: null }));
+        vi.mocked(checkIpLimit).mockResolvedValue({ allowed: false, reason: 'ip' });
+        await POST(gatePost(PATH, { rawBody: 'x' }));
+        await runAfterCallbacks();
+
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+        // The counter was still hit for every one of them.
+        expect(checkIpLimit).toHaveBeenCalledTimes(4);
+    });
+
+    it('the refusal is byte-identical whether the write succeeds or rejects', async () => {
+        auth.api.signInEmailOTP.mockRejectedValue(apiError('INVALID_OTP'));
+        const written = await observable(await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } })));
+        await runAfterCallbacks();
+
+        prisma.activityLog.create.mockRejectedValue(new Error('relation "activity_log" does not exist'));
+        const lost = await observable(await POST(gatePost(PATH, { body: { email: MEMBER, code: CODE } })));
+        await expect(runAfterCallbacks()).resolves.toBeUndefined();
+
+        expect(lost).toEqual(written);
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(2);
+    });
+});
+
 describe('before the body is read', () => {
     it('403 for a request that is not from this site, and Better Auth is never called', async () => {
         auth.api.signInEmailOTP.mockResolvedValue(issuedSession());
@@ -232,6 +389,8 @@ describe('before the body is read', () => {
         expect(await observable(response)).toMatchObject({ status: 403, body: JSON.stringify({ message: 'Forbidden' }) });
         expect(checkIpLimit).not.toHaveBeenCalled();
         expect(auth.api.signInEmailOTP).not.toHaveBeenCalled();
+        await runAfterCallbacks();
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
     });
 
     it('503 naming the missing variable (checklist 2.9)', async () => {
