@@ -120,8 +120,13 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
+  // Better Auth ≥ 1.7 supplies an issuer on every account (synthetic for credential
+  // and OAuth providers without one). Nullable so rows created before the upgrade
+  // keep loading; Better Auth fills it on every insert. Finding F15.
+  issuer                String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  @@unique([issuer, accountId])
 
   @@map("account")
 }
@@ -178,10 +183,15 @@ model ProformaAccount {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
+  // Better Auth ≥ 1.7 supplies an issuer on every account (synthetic for credential
+  // and OAuth providers without one). Nullable so rows created before the upgrade
+  // keep loading; Better Auth fills it on every insert. Finding F15.
+  issuer                String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
   @@index([userId])
+  @@unique([issuer, accountId])
   @@map("proforma_account")
 }
 
