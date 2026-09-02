@@ -92,7 +92,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.4.3 Verified live during F8: six bogus sign-ins → 401 ×5 then **429**
 - [x] S.4.4 **F14 (found in review):** the app's own forgot/reset forms called `auth.api.*` from server actions, bypassing the HTTP limiter entirely. Forms now use `authClient` over HTTP; the two bypass actions are **deleted**, not guarded
 - [x] S.4.5 **Follow-up (review):** `/reset-password/*` wildcard so the link-click GET callback (a token-validity oracle) is limited too
-- [ ] S.4.6 **Note:** memory storage is per-instance on serverless — effective limit is N× the numbers. Move to `database`/secondary storage once a `rateLimit` table can be migrated (needs a frontend migration). Backlog B.10
+- [◐] S.4.6 **Note:** memory storage is per-instance on serverless — effective limit is N× the numbers. Move to `database`/secondary storage once a `rateLimit` table can be migrated (needs a frontend migration). Backlog B.10 → **done in code** on `feat/auth-rate-limit-db` (`2d25cd9`): `rateLimit.storage: 'database'`, `RateLimit` model → `auth_rate_limit` table; `scripts/rate-limit-storage-check.ts` prints `6 x POST /api/auth/sign-in/email from 203.0.113.7: 401 401 401 401 401 429` with every `prisma.rateLimit` call keyed `203.0.113.7|/sign-in/email`. **Migration `20260903110000_auth_rate_limit` written, applied on the user's go**, and it must land before this code is deployed: the limiter queries the table on every auth request
 
 ### S.5 — F13: seed re-creates an unremovable SUPER_ADMIN · High
 
@@ -441,7 +441,7 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
 - [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
 - [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
-- [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
+- [◐] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6) → **done in code** on `feat/auth-rate-limit-db` (`2d25cd9`): `auth_rate_limit` table, `storage: 'database'`, evidence script in S.4.6; **migration written, applied on the user's go**
 - [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
 - [ ] B.15 **Dashboard cookie-cache tail (found in 0.17):** `lib/auth.ts` keeps `cookieCache` at 5 min and `proxy.ts` checks cookie presence only, so a *captured* `session_data` cookie keeps rendering dashboard **pages** for up to 5 min after sign-out or ban (a real browser drops the cookies on sign-out — the normal path 307s). Server actions resolve fresh per ADR D13, so no writes; reads only. Same class as the pro-forma finding fixed with `disableCookieCache` on gated requests — apply it to `getSession()` in the dashboard's page shells, or accept and record
@@ -482,6 +482,7 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
 | 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
 | 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
+| 24 | `feat/auth-rate-limit-db` | `2d25cd9` | B.10/S.4.6: Better Auth limiter on `database` storage, `RateLimit` model → `auth_rate_limit`, migration `20260903110000_auth_rate_limit` written not applied, `scripts/rate-limit-storage-check.ts` (5 × 401 then 429). **Stacks on `feat/rbac-1-schema` (`91bf5f2`): merge after the five `feat/rbac-*` rows**, and apply the migration before deploying. Gate: tsc clean, lint baseline 40, build 61/61. Docs tick commit sits on top of `2d25cd9` |
 | 24 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
