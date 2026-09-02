@@ -8,9 +8,17 @@ import {
     moveImageInCloudinary,
     uploadImageToCloudinary
 } from '@/lib/image-service';
+import { getSession } from './auth-actions';
+
+// Every export below checks the session for itself. A 'use server' export is its own HTTP
+// endpoint, so a caller having checked proves nothing. Any signed-in user passes for now;
+// the UPLOAD_MEDIA permission tightens this in phase 4a.
 
 // upload single image
 export async function uploadSingleImage(file: File, options = {}) {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     try {
         const result = await uploadImageToCloudinary(file, options);
         revalidatePath("/")
@@ -26,6 +34,9 @@ export async function uploadSingleImage(file: File, options = {}) {
 
 // upload multiple image
 export async function uploadMultipleImage(files: File[], options = {}) {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     try {
         if (!files || files.length === 0) {
             throw new Error('No files provided');
@@ -51,6 +62,9 @@ export async function uploadMultipleImage(files: File[], options = {}) {
 
 //delete multiple images
 export async function deleteImages(publicIds: string[]) {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     try {
         const result = await deleteImagesFromCloudinary(publicIds);
         revalidatePath("/")
@@ -66,6 +80,9 @@ export async function deleteImages(publicIds: string[]) {
 
 //delete Single image
 export async function deleteSingleImage(publicId: string) {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     try {
         const result = await deleteSingleImageFromCloudinary(publicId);
         revalidatePath("/")
@@ -81,6 +98,9 @@ export async function deleteSingleImage(publicId: string) {
 
 // move image to another folder
 export async function moveImage(publicId: string, newFolder: string, userId?: string) {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     try {
         const result = await moveImageInCloudinary(publicId, newFolder);
         revalidatePath("/")
@@ -99,6 +119,12 @@ export async function moveImage(publicId: string, newFolder: string, userId?: st
 
 // clean up old drafts
 export async function cleanupOldDrafts(hours = 24) {
-    console.log(`Cleanup requested for drafts older than ${hours} hours. (Skipped to avoid fetch during build)`);
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    // Clamped to between an hour and thirty days, so a caller cannot widen the delete
+    // window to cover everything ever left in drafts.
+    const safeHours = Math.min(720, Math.max(1, Number.isFinite(hours) ? hours : 24));
+    console.log(`Cleanup requested for drafts older than ${safeHours} hours. (Skipped to avoid fetch during build)`);
     return { success: true };
 }
