@@ -23,7 +23,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
 | 4c | Dashboard UI | dev | 4a, 4b | ☐ not started |
-| 5 | Hardening and tests | dev | 2 | ☐ not started |
+| 5 | Hardening and tests | dev | 2 | ◐ 5a merged (limits, origin, headers, robots); migration pending; 5b tests next |
 | 6 | Cutover | client + dev | all | ☐ not started |
 | B | Security backlog (F6, F7, F11, F12) | dev | — | ☐ not started |
 
@@ -363,16 +363,18 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ## Phase 5 — Hardening and tests
 
-- [ ] 5.1 Rate limit: 5 code requests per email per hour
-- [ ] 5.2 Rate limit: 20 code requests per IP per hour
-- [ ] 5.3 Rate limit: 60-second gap between sends to one address
-- [ ] 5.4 Verify attempts capped at 5 per code
-- [ ] 5.5 A breach returns the **generic** response, never a distinct error
-- [ ] 5.6 Counters keyed on a salted hash, never the raw email or IP
-- [ ] 5.7 **Rate-limiter failure degrades, it does not block** — ADR 0001 §10, deliberate deviation from the PRD
-- [ ] 5.8 Origin/Referer check on both POST endpoints, accepting the request's own host so previews work
-- [ ] 5.9 `noindex` robots header and `no-store` cache header on every response
-- [ ] 5.10 `robots.txt` disallows all
+- [x] 5.1 Rate limit: 5 code requests per email per hour
+- [x] 5.2 Rate limit: 20 code requests per IP per hour
+- [x] 5.3 Rate limit: 60-second gap between sends to one address — a gap refusal does not consume the hourly budget
+- [x] 5.4 Verify attempts capped at 5 per code
+- [x] 5.5 A breach returns the **generic** response, never a distinct error
+- [x] 5.6 Counters keyed on a salted hash, never the raw email or IP
+- [x] 5.7 **Rate-limiter failure degrades, it does not block** — `FailOpenStore`: any store error is logged once per process, memory answers for 60 s, the request continues. Identity (`requireMember`) untouched and still fail-closed
+- [x] 5.7a Hit order: **IP counter before the directory lookup** (probes count), gap + hourly **after it, members only**. Verified live: 6th same-minute → `gap`, 6th hourly → `email`, 21st from one IP → `ip`, every body byte-identical
+- [ ] 5.7b **Migration pending your go:** `proforma_rate_limit` (`20260902200000_proforma_rate_limit`) — one table, nothing existing touched. Until applied the store logs unavailable once and memory carries the limits (per-instance on serverless)
+- [x] 5.8 Origin/Referer check on both POST endpoints, accepting the request's own host so previews work
+- [x] 5.9 `noindex` robots header and `no-store` cache header on every response
+- [x] 5.10 `robots.txt` disallows all
 - [ ] 5.11 **Automated test:** member and non-member responses byte-identical, both endpoints
 - [ ] 5.12 **Automated test:** unauthenticated `model.js` returns no JavaScript
 - [ ] 5.13 **Automated test:** revocation refuses an existing session
