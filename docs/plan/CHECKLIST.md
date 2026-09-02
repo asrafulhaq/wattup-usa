@@ -30,12 +30,14 @@ having intended to do it. If an item is half done, say which half in the Notes c
 **Answers needed from the client** — chase these in parallel, they block only what is listed:
 
 - [ ] **A.** Subdomain spelling: `hostproposal` confirmed in writing → blocks 6
+- [ ] **K. Apex SPF edit** (found in 2f): add `include:amazonses.com` to `wattupusa.com`'s SPF TXT so Resend mail stops failing SPF and landing in Spam. Your DNS action; see runbook Part 3 and 6.6a
 - [ ] **B.** Vercel accounts — **deferred by the client.** Possibly a fresh Vercel for both projects. Revisit before 1.6 and 6.
 - [ ] **C.** ADR 0002 §6 permission matrix confirmed or amended → blocks 4a
 - [ ] **D.** New role names: `NETWORK_MANAGER`, `SALES` → blocks 4a
 - [ ] **E.** Monitored `Reply-To` address for code emails → blocks 6
 - [ ] **F.** Activity log retention (90 days proposed) and who may read it → blocks 4b
 - [ ] **I.** `EDIT_OWN_POST` / `DELETE_OWN_POST` — add an `authorId` relation to `Posts`, or drop the two permissions? Recommend dropping. → blocks 4a
+- [ ] **J. Resend account ownership.** Both apps send through one Resend account whose owner login is unknown to us. What is known: domain `wattupusa.com` verified 2026-05-18 19:58 UTC, API keys `Wattup USA` (2026-05-18 20:09) and `Wattup` (2026-05-19 09:40), region us-east-1; the integration commit landed the next morning. The API exposes no owner and the dashboard needs a login. **Ask the client to provide the account's login email (or transfer/add a team member) so the key can be rotated and the SPF fix verified from the dashboard.** → blocks 6 (cutover ownership), and any key rotation
 - [x] **G.** ~~Is `COLLABORATOR` still in use~~ → **removed; client confirms nobody holds it.** Verify with the count query at 4a.24 before migrating.
 - [x] **H.** ~~Default role~~ → **no implicit default; role is an explicit choice at creation.**
 
