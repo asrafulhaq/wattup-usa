@@ -18,7 +18,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ◐ F1 F2 F9 F13 F14 merged to main; **F8 upgrade outstanding** |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
-| 2 | The access gate | dev | 1 | ☐ not started |
+| 2 | The access gate | dev | 1 | ◐ 2.0, 2.0a, 2a config, 2b directory merged; 2c routes next |
 | 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
@@ -160,7 +160,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 > deliberate go-ahead. Tracked as 2.0 below.
 
 - [x] 2.0 `proforma_session`, `proforma_account`, `proforma_verification` added to the frontend schema and **migrated** (`20260902180000_proforma_auth_tables`, applied via `migrate deploy`, verified by read-only introspection). SQL generated with `migrate diff` first, which exposed drift deliberately left out — see 4a.41
-- [ ] 2.0a **Pro-forma schema bug:** `Session`/`Account`/`Verification` ids are `String @id` with **no `@default(cuid())`**, and Better Auth runs with `generateId: false` — inserts will fail. Add the default to all three before any sign-in is attempted
+- [x] 2.0a **Pro-forma schema bug (fixed):** `Session`/`Account`/`Verification` ids are `String @id` with **no `@default(cuid())`**, and Better Auth runs with `generateId: false` — inserts will fail. Add the default to all three before any sign-in is attempted
 - [ ] 2.0b `safeNext` belongs at the **consumer**: the `/login` page receives `?next=` from anyone and must validate it there (the Phase 3 route validates the producer side, which is always `/tool…`)
 
 **The riskiest phase.** Deliberately built and tested before DNS exists, against
@@ -180,10 +180,11 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ### 2b — Member directory
 
-- [ ] 2.10 `MemberDirectory` interface defined
-- [ ] 2.11 `EnvMemberDirectory` reading `PROFORMA_ALLOWLIST`
-- [ ] 2.12 Email normalisation: trim, lowercase, applied on **every** path
-- [ ] 2.13 `DbMemberDirectory` stubbed, wired in 4b
+- [x] 2.10 `MemberDirectory` interface defined
+- [x] 2.11 `EnvMemberDirectory` reading `PROFORMA_ALLOWLIST`
+- [x] 2.12 Email normalisation: trim, lowercase, applied on **every** path
+- [x] 2.13 `DbMemberDirectory` reads the `proforma_member` view (typed via a read-only Prisma model); until 4b creates the view it catches P2021, logs once, and returns null — fail closed. **4b must emit `lower(u.email) AS email`** or normalised lookups miss mixed-case rows
+- [x] 2.13a `requireMember()` now decides membership fully: forced-DB-read session → not banned → directory says active. `PROFORMA_ALLOWLIST` is ignored in production with a loud warning (4b.4 enforced in code)
 
 ### 2c — The two wrapped routes
 
