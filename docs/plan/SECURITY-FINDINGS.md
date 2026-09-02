@@ -18,10 +18,10 @@ that work, and F1 and F2 are live on production now.**
 | F10 | Public sign-up blocked by a fragile path-string hook | Medium | 4a |
 | F5 | `updateUserInformationById` upserts arbitrary profile rows | Low | 4a |
 | F11 | CSP depends on `'unsafe-inline'` | Low, accepted | backlog |
-| F12 | Cloudinary API key exposed to the browser unnecessarily | Low | backlog |
+| F12 | Cloudinary API key exposed to the browser unnecessarily | Low | ✅ merged (B.3) |
 | F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
 | F6 | Hand-rolled scrypt verification in `updateEmail` | Low | backlog |
-| F7 | Public contact forms have no rate limiting | Low | backlog |
+| F7 | Public contact forms have no rate limiting | Low | ✅ merged (B.6) |
 
 ### A note on how server actions are exposed
 
@@ -205,7 +205,9 @@ priority, but flag it on any `better-auth` version bump.
 
 ---
 
-## F7 — Public contact forms have no rate limiting · Low
+## F7 — Public contact forms have no rate limiting · Low · ✅ fixed
+
+> **Fixed 2026-09-03** (`chore/frontend-backlog-sweep`): `lib/contact-rate-limit.ts`, five per address per ten minutes, HMAC-keyed, bounded to 500 keys, fails open; both inquiry actions check it before validation.
 
 `contact-actions.ts` exposes `submitDriverInquiry` and `submitHostInquiry` with no guard, which
 is correct for public forms, and no rate limiting or spam protection, which is not. They send
@@ -371,7 +373,9 @@ front-end security posture.
 
 ---
 
-## F12 — Cloudinary API key exposed to the browser · Low
+## F12 — Cloudinary API key exposed to the browser · Low · ✅ fixed
+
+> **Fixed 2026-09-03** (`chore/frontend-backlog-sweep`): `lib/cloudinary.ts` is `server-only` and reads `CLOUDINARY_*` only. `NEXT_PUBLIC_CLOUDINARY_API_KEY` is read by nothing; delete it from every environment (runbook).
 
 `lib/cloudinary.ts` reads `NEXT_PUBLIC_CLOUDINARY_API_KEY`, so the key ships in the client
 bundle. Uploads are **signed server-side** — `api_secret` is server-only and there are no
@@ -484,6 +488,6 @@ others: articles, media, and dependency currency.
 
 **Phase 4a**, where the permission plumbing is already being rebuilt: F3, F4, F5, F10.
 
-**Backlog:** F6, F7, F11, F12, F16. F11 is the highest-value of these and closes F4's root cause.
+**Backlog:** F6, F11, F16 (F7 and F12 fixed). F11 is the highest-value of these and closes F4's root cause.
 
 Nothing here blocks the pro-forma work except F8, and the pro-forma work blocks none of it.
