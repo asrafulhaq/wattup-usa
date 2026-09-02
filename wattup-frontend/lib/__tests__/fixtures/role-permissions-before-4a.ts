@@ -4,8 +4,8 @@
  * this is the "before" that role-permission-seed.test.ts holds the migration's seed
  * to (checklist 4a.5). SUPER_ADMIN was `Object.values(Permission)` over the 17
  * values of the time; that list is spelled out here so the fixture does not depend
- * on today's enum. COLLABORATOR is omitted because the role was removed and its
- * users reassigned before the migration runs (4a.24).
+ * on today's enum. The fourth role of the time is omitted because it was removed and
+ * its users reassigned before the migration runs (4a.24).
  */
 export const ROLE_PERMISSIONS_BEFORE_4A: Record<'SUPER_ADMIN' | 'ADMIN' | 'EDITOR', readonly string[]> = {
     SUPER_ADMIN: [

@@ -63,6 +63,12 @@ const dbAdapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter: dbAdapter });
 
 // ── Minimal Better Auth instance for seeding ────────────────────────────────
+// The user is created through the admin plugin's createUser, which takes the role
+// explicitly, so no defaultRole is set anywhere: User.role has no default in the
+// schema (ADR 0002 section 4.2) and the plugin's own fallback, the literal "user", is
+// not an enum value, which is what broke this create path after the RBAC migration
+// (checklist S.5.7). Called without headers the endpoint needs no session, and with no
+// `roles` map on this instance it accepts the enum's names as given.
 const seedAuth = betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     emailAndPassword: { enabled: true },
@@ -94,12 +100,18 @@ async function seed() {
         return;
     }
 
-    // Create super admin via Better Auth API — handles password hashing automatically
-    const result = await seedAuth.api.signUpEmail({
+    // Create the super admin through Better Auth, which hashes the password. The role
+    // is explicit in the create itself: there is no default to fall back on.
+    const result = await seedAuth.api.createUser({
         body: {
             email: ADMIN_EMAIL!,
             password: ADMIN_PASSWORD!,
             name: ADMIN_NAME,
+            // Typed as the plugin's built-in "admin" | "user" because this instance
+            // declares no roles map; at runtime the value is passed through as is.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            role: 'SUPER_ADMIN' as any,
+            data: { emailVerified: true },
         },
     });
 
@@ -107,13 +119,6 @@ async function seed() {
         console.error('❌  Failed to create super admin user:', result);
         process.exit(1);
     }
-
-    // Elevate role to SUPER_ADMIN
-    await prisma.user.update({
-        where: { id: result.user.id },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: { role: 'SUPER_ADMIN' as any, emailVerified: true },
-    });
 
     console.log(`✅  Super admin seeded successfully: ${ADMIN_EMAIL}`);
 }

@@ -194,10 +194,10 @@ describe('createUser', () => {
         expect(authApi.createUser).not.toHaveBeenCalled();
     });
 
-    it('refuses a role that is not assignable, SUPER_ADMIN and COLLABORATOR included', async () => {
+    it('refuses a role that is not assignable, SUPER_ADMIN and names outside the enum included', async () => {
         guardAllows(root, [Permission.INVITE_USERS]);
 
-        for (const role of [Role.SUPER_ADMIN, 'COLLABORATOR', 'UNASSIGNED', '']) {
+        for (const role of [Role.SUPER_ADMIN, 'INTERN', 'UNASSIGNED', '']) {
             const result = await createUser({ ...body, role: role as Role });
             expect(result).toEqual({ success: false, error: 'Choose a role for the new user' });
         }

@@ -17,11 +17,10 @@ import {
 } from '@/lib/permissions';
 
 describe('roles', () => {
-    it('are exactly the five from ADR 0002, with COLLABORATOR gone', () => {
+    it('are exactly the five from ADR 0002', () => {
         expect(Object.values(Role).sort()).toEqual(
             ['ADMIN', 'EDITOR', 'NETWORK_MANAGER', 'SALES', 'SUPER_ADMIN'].sort()
         );
-        expect(Object.values(Role)).not.toContain('COLLABORATOR');
         expect(ALL_ROLES).toHaveLength(5);
     });
 
@@ -85,8 +84,8 @@ describe('canManageRole', () => {
     });
 
     it('a role the enum does not contain neither manages nor is managed', () => {
-        expect(canManageRole('COLLABORATOR', Role.SALES)).toBe(false);
-        expect(canManageRole(Role.SUPER_ADMIN, 'COLLABORATOR')).toBe(false);
+        expect(canManageRole('INTERN', Role.SALES)).toBe(false);
+        expect(canManageRole(Role.SUPER_ADMIN, 'INTERN')).toBe(false);
         expect(canManageRole('', Role.SALES)).toBe(false);
         expect(canManageRole(Role.ADMIN, '')).toBe(false);
     });
@@ -109,7 +108,7 @@ describe('hasPermission', () => {
 describe('type guards', () => {
     it('isRole and isPermission accept only enum values', () => {
         expect(isRole('SALES')).toBe(true);
-        expect(isRole('COLLABORATOR')).toBe(false);
+        expect(isRole('INTERN')).toBe(false);
         expect(isRole('UNASSIGNED')).toBe(false);
         expect(isRole(undefined)).toBe(false);
         expect(isRole('toString')).toBe(false);
