@@ -434,15 +434,15 @@ tracked here so they are not lost. None blocks any other phase.
 
 - [ ] B.1 **F11:** migrate GTM and the admin-injected script fields to a CSP nonce, then drop `script-src 'unsafe-inline'`
 - [ ] B.2 **F11:** this also closes F4's root cause — the CSP currently cannot mitigate admin-injected script by design
-- [ ] B.3 **F12:** drop the `NEXT_PUBLIC_` fallbacks from `lib/cloudinary.ts`; the config is server-side only
+- [x] B.3 **F12:** `lib/cloudinary.ts` is `import 'server-only'` and reads `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` only; `example.env` regrouped, cloud name stays public for delivery URLs. **Operator:** delete `NEXT_PUBLIC_CLOUDINARY_API_KEY` from Vercel and local envs, nothing reads it (runbook)
 - [ ] B.4 **F6:** replace the hand-rolled scrypt verification in `auth-actions.updateEmail` with Better Auth's own credential check
 - [ ] B.5 **F6:** re-check this on every `better-auth` upgrade — it hardcodes the stored hash format
-- [ ] B.6 **F7:** rate-limit `submitDriverInquiry` and `submitHostInquiry`; reuse the phase 5 limiter
+- [x] B.6 **F7:** `lib/contact-rate-limit.ts`, 5 per address per 10 min in a bounded Map (500 keys, oldest window evicted), HMAC(BETTER_AUTH_SECRET) keys, IPv6 by /64 (copied from the pro-forma limiter, noted in file), fails open; both actions check it before validation. Proven by a direct-call script (6th hit refused, window reset, eviction, header parsing)
 - [ ] B.7 Re-run `pnpm audit`; triage whatever remains after the F8 upgrades
 - [ ] B.8 `searchArticles` is `'use cache'` with no `cacheTag('posts')` — suggestions go stale for the cache window after a publish/unpublish (pre-existing, found in review)
 - [ ] B.9 `/api/upload-image` buffers the whole body with no size limit (Vercel caps at 4.5 MB; a standalone host does not), and every upload/delete calls `revalidatePath('/')` — any signed-in user can bust the homepage cache on demand
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
-- [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
+- [x] B.11 **`dompurify` 3.4.1 → 3.4.14** (`pnpm audit` dompurify advisories 10 → 0, total 109 → 106) — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
 - [ ] B.15 **Dashboard cookie-cache tail (found in 0.17):** `lib/auth.ts` keeps `cookieCache` at 5 min and `proxy.ts` checks cookie presence only, so a *captured* `session_data` cookie keeps rendering dashboard **pages** for up to 5 min after sign-out or ban (a real browser drops the cookies on sign-out — the normal path 307s). Server actions resolve fresh per ADR D13, so no writes; reads only. Same class as the pro-forma finding fixed with `disableCookieCache` on gated requests — apply it to `getSession()` in the dashboard's page shells, or accept and record
 - [ ] B.14 **Email dark mode, properly:** the shared mail base's dark block darkens the cards but leaves text `#2d2d2d`, and it has no `<meta name="color-scheme">`, so clients that honour `prefers-color-scheme` (Apple/iOS Mail) render light, and adding the metas without fixing text colours would make them unreadable. The logo is now self-backgrounded so it survives Gmail's inversion; a real dark theme for the dashboard's and pro-forma's mail needs a design pass on the frontend's `lib/mail/base.ts` (text/muted/border colours), then resync the copy
@@ -482,7 +482,8 @@ Docs updates now ride `docs/tracking` (merged into local `main` after each updat
 | 21 | `chore/login-form-stale-comment` | `bd496ad` | `8a00394` |
 | 22 | `fix/gate-review-round-2` | `b91edf4` | `cbea111` |
 | 23 | `fix/gate-security-round-2` | `830a17f` | `dfd55fa` |
-| 24 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
+| 24 | `chore/frontend-backlog-sweep` | `2581934` | B.11 dompurify 3.4.14, B.3/F12 server-only Cloudinary, B.6/F7 contact limiter. Gate on main after merge: tsc clean, lint baseline 40, build 61/61 |
+| 25 | `docs/tracking` | (moving) | last — checklist, ADRs, findings, runbook |
 
 36 commits sit directly on `main` (early fast-forwards and the docs commits made before this rule); the docs ones are folded into `docs/tracking` at the end by cherry-pick.
 

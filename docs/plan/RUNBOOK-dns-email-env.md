@@ -272,7 +272,7 @@ Values are not recorded here. Read them from the current project's settings, or 
 | Bootstrap | `ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD` — **see finding F13** |
 | Email | `RESEND_API_KEY`, `MAIL_FROM`, `CONTACT_EMAIL` |
 | Cloudinary | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_URL` |
-| Cloudinary, public | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_API_KEY` — **F12, should be removed** |
+| Cloudinary, public | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` only (delivery URLs). **`NEXT_PUBLIC_CLOUDINARY_API_KEY` is read by nothing since F12 was fixed: delete it from Vercel and from every `.env`** |
 | Maps | `MAPBOX_ACCESS_TOKEN` |
 | Analytics | `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`, `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` |
 | Consent | `NEXT_PUBLIC_COOKIEBOT_CBID`, `NEXT_PUBLIC_COOKIEYES_ID` |
