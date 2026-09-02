@@ -81,6 +81,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.3.2 Same for `getPaginatedArticles`, `getArticleById`, `getArticleBySlug`
 - [x] S.3.3 A caller cannot widen scope by passing `status` — drafts need a session with a post permission
 - [x] S.3.4 Follow the pattern `lib/locations/server.ts` already uses: filter at the data layer, not at the caller
+- [x] S.3.5a Seen from both sides in 0.17: the signed-in dashboard list shows `Draft`; the public press-release page has zero draft markers
 - [x] S.3.5 An unauthenticated call returns no draft — by construction: `PUBLISHED` is inside every public query and the dashboard functions delegate to those on refusal
 - [x] S.3.6 **Follow-up (review):** drafts require `CREATE_POST`, not just a session; refusal takes the identical Published-only path as no-session. Also: public "Show more" (page 2+) was leaking drafts too — closed
 
@@ -88,7 +89,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 
 - [x] S.4.1 `rateLimit.customRules` in `lib/auth.ts` for `sign-in/email`
 - [x] S.4.2 Rules for `forget-password` and `reset-password`
-- [ ] S.4.3 Verify live: repeated sign-in attempts are throttled — rule keys confirmed against the 1.6.9 rate-limiter source (`/sign-in/email` after basePath strip); needs a running server + DB
+- [x] S.4.3 Verified live during F8: six bogus sign-ins → 401 ×5 then **429**
 - [x] S.4.4 **F14 (found in review):** the app's own forgot/reset forms called `auth.api.*` from server actions, bypassing the HTTP limiter entirely. Forms now use `authClient` over HTTP; the two bypass actions are **deleted**, not guarded
 - [x] S.4.5 **Follow-up (review):** `/reset-password/*` wildcard so the link-click GET callback (a token-validity oracle) is limited too
 - [ ] S.4.6 **Note:** memory storage is per-instance on serverless — effective limit is N× the numbers. Move to `database`/secondary storage once a `rateLimit` table can be migrated (needs a frontend migration). Backlog B.10
@@ -129,7 +130,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 0.15 `git log --follow` on a moved file shows real history
 - [x] 0.16 `pnpm install` + `pnpm exec next build` pass in `wattup-frontend/` (**not** `pnpm build` — it seeds the remote database)
 - [x] 0.16a Outer directory renamed `wattup-frontend` → `wattup`; git, pnpm symlinks and the build all verified from the new path
-- [◐] 0.17 `pnpm dev` — server boots, `.env` read, `/`, `/locations`, `/press-release`, `/admin` all 200, `/dashboard` 307s to `/admin?callbackUrl=%2Fdashboard`. **Signed-in dashboard walkthrough still to do by hand.**
+- [x] 0.17 Signed-in walkthrough as `devripon.io@gmail.com` (SUPER_ADMIN): sign-in 200; all nine dashboard pages 200 with the session and 307 without; sign-out 200 and `/dashboard` then 307s. Post-F1/F2/F8/F14/F15, on the restructured tree
 - [ ] 0.18 Vercel Root Directory → `wattup-frontend` **saved before pushing** *(on whichever account holds the project at that time)*
 - [ ] 0.19 Ignored Build Step set on the frontend project
 - [ ] 0.20 Pushed; preview deploy loads the dashboard
@@ -443,6 +444,7 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
 - [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
+- [ ] B.15 **Dashboard cookie-cache tail (found in 0.17):** `lib/auth.ts` keeps `cookieCache` at 5 min and `proxy.ts` checks cookie presence only, so a *captured* `session_data` cookie keeps rendering dashboard **pages** for up to 5 min after sign-out or ban (a real browser drops the cookies on sign-out — the normal path 307s). Server actions resolve fresh per ADR D13, so no writes; reads only. Same class as the pro-forma finding fixed with `disableCookieCache` on gated requests — apply it to `getSession()` in the dashboard's page shells, or accept and record
 - [ ] B.14 **Email dark mode, properly:** the shared mail base's dark block darkens the cards but leaves text `#2d2d2d`, and it has no `<meta name="color-scheme">`, so clients that honour `prefers-color-scheme` (Apple/iOS Mail) render light, and adding the metas without fixing text colours would make them unreadable. The logo is now self-backgrounded so it survives Gmail's inversion; a real dark theme for the dashboard's and pro-forma's mail needs a design pass on the frontend's `lib/mail/base.ts` (text/muted/border colours), then resync the copy
 - [ ] B.13 `next dev` 16.3 writes a `nextjs-agent-rules` block into `CLAUDE.md`/`AGENTS.md` on every run — committed in both apps now so the tree stays clean; if Next changes the text, recommit rather than fight it
 
