@@ -4,7 +4,7 @@ import path from 'node:path';
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 
-import { auth } from '@/lib/auth';
+import { requireMember } from '@/lib/gate';
 
 /**
  * Serves the Site Pro-Forma Builder from private/tool/, to signed-in users only.
@@ -20,11 +20,13 @@ import { auth } from '@/lib/auth';
  *   1. canonical URL   /tool  -> 302 /tool/. No content is involved. index.html
  *                      loads css/app.css and js/*.js by RELATIVE path, which only
  *                      resolve under /tool/, so the document must live there.
- *   2. session         none   -> 302 /login?next=<original path>
+ *   2. membership      requireMember (lib/gate.ts): a session read from the
+ *                      database, not the cookie cache, for a user who is not
+ *                      banned. Anything else -> 302 /login?next=<original path>
  *   3. path safety     '..', unexpected characters, a directory URL, or a
  *                      resolved path outside private/tool/  -> 404
  *   4. extension       not in CONTENT_TYPES -> 404
- *   5. read + respond  private, no-store, noindex, nosniff
+ *   5. read + respond  private, no-store, noindex, nosniff, never framed
  *
  * Production note: nothing imports these files, so the build's file tracing
  * cannot see them. next.config.ts lists them in outputFileTracingIncludes.
@@ -37,22 +39,27 @@ export const runtime = 'nodejs';
 const TOOL_ROOT = path.join(process.cwd(), 'private', 'tool');
 
 // The complete list of what may be served. Anything else is a 404, whether or
-// not the file exists.
+// not the file exists: the vendored assets/brand/*.jpg are on disk because the
+// copy is byte-for-byte, but nothing in the tool references them.
 const CONTENT_TYPES: Record<string, string> = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.svg': 'image/svg+xml',
-    '.jpg': 'image/jpeg',
-    '.ico': 'image/x-icon',
 };
 
-// Gated content is never cached by a shared cache, never indexed, and never
-// sniffed into a different type than the one declared.
+// Gated content is never cached by a shared cache, never indexed, never
+// sniffed into a different type than the one declared, and never framed by
+// any origin. Both frame headers: frame-ancestors is what current browsers
+// honour, X-Frame-Options is what everything else does. The tool's own
+// preview iframe is unaffected, as it is written into about:blank and never
+// navigates to a served URL.
 const GATED_HEADERS = {
     'cache-control': 'private, no-store',
     'x-robots-tag': 'noindex, nofollow',
     'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'content-security-policy': "frame-ancestors 'none'",
 };
 
 // A file name in the tool: letters, digits, dot, underscore, hyphen, and it may
@@ -91,16 +98,14 @@ export async function GET(
         return redirectTo('/tool/');
     }
 
-    // 2. Session, before anything is read from disk.
-    let signedIn = false;
-    try {
-        const session = await auth.api.getSession({ headers: await headers() });
-        signedIn = session !== null;
-    } catch (error) {
-        // Fail closed: an auth error is treated as no session, never as one.
-        console.error('[tool] session lookup failed', error);
-    }
-    if (!signedIn) {
+    // 2. Membership, before anything is read from disk. requireMember is the
+    //    only place that decides it: a database-backed session for a user who
+    //    is not banned. Fail closed: an error is no membership, never membership.
+    const member = await requireMember(await headers()).catch((error: unknown) => {
+        console.error('[tool] membership check failed', error);
+        return null;
+    });
+    if (!member) {
         return redirectTo(`/login?next=${encodeURIComponent(safeNext(pathname + search))}`);
     }
 
