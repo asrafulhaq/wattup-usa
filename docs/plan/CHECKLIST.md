@@ -56,7 +56,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.1.3 Origin check on the upload route
 - [x] S.1.4 Whitelist the caller-supplied `folder` parameter
 - [x] S.1.5 Verify: unauthenticated `POST /api/upload-image` returns 401
-- [◐] S.1.6 TipTap editor upload still works when signed in — structurally verified (same-origin fetch, `folder=tiptap` allowed, callers compile against the unchanged return shape); live check needs a signed-in session, do with 0.17
+- [x] S.1.6 Upload gate, live: signed in and same-origin the route reaches the body check (`400 No file provided`, nothing sent to Cloudinary); the same call without a session → 401. Structure was verified earlier (same-origin fetch, `folder=tiptap` allowed, unchanged return shape)
 - [ ] S.1.7 Audit Cloudinary for files uploaded from outside the team
 - [x] S.1.8 ~~Check whether `cleanupOldDrafts` has already deleted anything~~ — **premise was false**: it only ever logged and never called Cloudinary. Clamp kept for when it is wired in
 - [x] S.1.9 **Follow-up (review):** `publicId`/`overwrite` passthrough closed — actions build a fresh `{ folder }` and forward nothing else; allowlist moved to `lib/image-service.ts` and enforced on the actions and `moveImage` too
@@ -71,7 +71,7 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 - [x] S.2.2 `better-auth` 1.6.9 → **1.7.2** (1 critical closed; `lib/auth.ts` compiled unchanged — admin plugin, sign-up hook, rate rules, `nextCookies` all intact)
 - [x] S.2.3 Pinned `^16.3.4` / `^1.7.2`; `eslint-config-next` and `@next/eslint-plugin-next` aligned to 16.3.4
 - [x] S.2.4 tsc clean; lint delta **zero** (17/23 before and after — rule set unchanged); `pnpm build` green on Next 16.3.4 with Proxy
-- [◐] S.2.5 Runtime probes on 16.3.4: `/dashboard` → 307 to `/admin?callbackUrl=`, `/` `/admin` `/locations` → 200, sign-up → 403 (hook fires first), **six bogus sign-ins → 401 ×5 then 429** (F9 proven live). Signed-in walk still needs credentials — do with 0.17
+- [x] S.2.5 Runtime probes on 16.3.4: `/dashboard` → 307 to `/admin?callbackUrl=`, `/` `/admin` `/locations` → 200, sign-up → 403 (hook fires first), **six bogus sign-ins → 401 ×5 then 429** (F9 proven live). Signed-in walk done in 0.17; the write path was exercised by creating the second admin, which is what surfaced F15
 - [x] S.2.6 `pnpm audit` 152 → **109, 0 critical**; `next` and `better-auth` absent. Remaining is transitive build-chain (hono via shadcn/prisma dev, picomatch, brace-expansion, nanoid…) **except `dompurify` 3.4.1 — the rich-text sanitiser, 10 advisories, patched ≥ 3.4.13 → B.11**
 - [x] S.2.7 Gate cleared (pro-forma had installed 1.7.2 fresh anyway; the frontend now matches)
 
