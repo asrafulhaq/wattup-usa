@@ -21,7 +21,7 @@ that work, and F1 and F2 are live on production now.**
 | F12 | Cloudinary API key exposed to the browser unnecessarily | Low | ✅ merged (B.3) |
 | F16 | Dashboard cookie cache keeps a captured session readable for up to 5 min after sign-out or ban | Low | backlog (B.15) |
 | F17 | The Cloudinary cloud is shared with other products and its secret is in use outside this repo | Medium | operator (runbook Part 0a) |
-| F18 | Eleven image ids referenced by the marketing site do not exist in the Cloudinary account, three on live pages | Low | B.16 |
+| F18 | Eleven image ids referenced by the marketing site do not exist in the Cloudinary account, three on live pages | Low | ✅ fixed (B.16), 4/11; 7 left |
 | F6 | Hand-rolled scrypt verification in `updateEmail` | Low | ✅ merged (B.4) |
 | F7 | Public contact forms have no rate limiting | Low | ✅ merged (B.6) |
 
@@ -432,7 +432,9 @@ app itself deletes nothing.
 
 ---
 
-## F18 — Eleven referenced image ids do not exist in the account · Low
+## F18 — Eleven referenced image ids do not exist in the account · Low · ✅ fixed
+
+> **Fixed 2026-09-03** (`fix/missing-image-ids`): 4 of 11 repointed to a genuine existing asset — `hero1Md`, `forDriverPageHero`, `forDriverPageHeroMobile`, `corePrincipals` — and a related `app/layout.tsx` bug (OG tag built from the bare public id, not the URL) fixed alongside. The other 7, confirmed unused by any page or component, are left commented `// MISSING (F18)` rather than guessed at; `scripts/check-image-ids.ts` now HEAD-checks every id so a new one going missing is caught.
 
 **Found** by the same audit. `lib/images/*.ts` names eleven public ids that the Admin API does not
 return; three are used by live pages: the Open Graph image in `app/layout.tsx` (`hero1Md`), the
