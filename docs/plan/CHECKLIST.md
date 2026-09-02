@@ -18,7 +18,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | S | Security fixes: F1, F8, F2, F9, F13 (+F14) | dev | — | ✅ **all merged to main** — nothing deployed yet (0.18) |
 | 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ◐ done except the Vercel project (1.6-1.8) |
-| 2 | The access gate | dev | 1 | ◐ 2a, 2b, **2c routes merged**; 2d login screen running; 2f needs a test member |
+| 2 | The access gate | dev | 1 | ◐ 2a–2e merged; **2f blocked on F15 migration + the second admin** |
 | 3 | Mount the tool behind it | dev | 2 | ◐ merged to main; 3.8 needs Vercel, 3.11 needs phase 2 |
 | 4a | RBAC: roles and permissions | dev | S | ☐ not started |
 | 4b | Activity log and member view | dev | 2, 3, 4a | ☐ not started |
@@ -161,7 +161,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 - [x] 2.0 `proforma_session`, `proforma_account`, `proforma_verification` added to the frontend schema and **migrated** (`20260902180000_proforma_auth_tables`, applied via `migrate deploy`, verified by read-only introspection). SQL generated with `migrate diff` first, which exposed drift deliberately left out — see 4a.41
 - [x] 2.0a **Pro-forma schema bug (fixed):** `Session`/`Account`/`Verification` ids are `String @id` with **no `@default(cuid())`**, and Better Auth runs with `generateId: false` — inserts will fail. Add the default to all three before any sign-in is attempted
-- [ ] 2.0b `safeNext` belongs at the **consumer**: the `/login` page receives `?next=` from anyone and must validate it there (the Phase 3 route validates the producer side, which is always `/tool…`)
+- [x] 2.0b `safeNext` belongs at the **consumer**: the `/login` page receives `?next=` from anyone and must validate it there (the Phase 3 route validates the producer side, which is always `/tool…`)
 
 **The riskiest phase.** Deliberately built and tested before DNS exists, against
 `PROFORMA_ALLOWLIST` rather than the database.
@@ -206,14 +206,14 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
 ### 2d — The login screen
 
-- [ ] 2.25 Two-step screen: email, then code. Ungated.
-- [ ] 2.26 Advances to code entry **whether or not** the address is a member
-- [ ] 2.27 Copy does not imply a code is definitely coming
-- [ ] 2.28 Code input: `inputmode="numeric"`, `autocomplete="one-time-code"`
-- [ ] 2.29 Leading zeros survive — code handled as a **string** throughout
-- [ ] 2.30 Built on **wattup-frontend's design tokens** (copied by hand, light + dark blocks, referenced by name); wordmark renders before sign-in. Client instruction 2 Sep: one brand across both apps. **Scheme — light / system (as the frontend) / forced dark (as the PRD assumed) — to be confirmed with the client from a screenshot; one-line switch either way**
-- [ ] 2.31 Resend-code affordance respecting the 60-second gap
-- [ ] 2.32 Error states for expired and exhausted codes, using the one generic message
+- [x] 2.25 Two-step screen: email, then code. Ungated.
+- [x] 2.26 Advances to code entry **whether or not** the address is a member
+- [x] 2.27 Copy does not imply a code is definitely coming
+- [x] 2.28 Code input: `inputmode="numeric"`, `autocomplete="one-time-code"`
+- [x] 2.29 Leading zeros survive — code handled as a **string** throughout
+- [x] 2.30 Built on **wattup-frontend's design tokens** (copied by hand, light + dark blocks, referenced by name); wordmark renders before sign-in. Client instruction 2 Sep: one brand across both apps. **Scheme settled: `/admin` mounts no theme provider and is always light, so the gate is too** (client: design the login like the frontend's). Dark flip verified working with a temporary `dark` class, then reverted
+- [x] 2.31 Resend-code affordance respecting the 60-second gap
+- [x] 2.32 Error states for expired and exhausted codes, using the one generic message
 
 ### 2e — Email
 
