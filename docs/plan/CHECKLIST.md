@@ -16,7 +16,7 @@ having intended to do it. If an item is half done, say which half in the Notes c
 | Phase | Title | Owner | Blocked by | Status |
 |:--:|---|:--:|---|:--:|
 | S | Security fixes: F1, F8, F2, F9, F13 | dev | — | ☐ not started |
-| 0 | Repository restructure | dev | — | ☐ not started |
+| 0 | Repository restructure | dev | — | ◐ steps 1-7 done; 0.17-0.21 need Vercel + push |
 | 1 | Scaffold `wattup-proforma` | dev | 0 | ☐ not started |
 | 2 | The access gate | dev | 1 | ☐ not started |
 | 3 | Mount the tool behind it | dev | 2 | ☐ not started |
@@ -101,23 +101,23 @@ production now**, none depends on the pro-forma work, and F8 blocks phase 2.
 
 Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 
-- [ ] 0.1 Working tree clean, `pre-restructure` tag created
-- [ ] 0.2 `node_modules`, `.next`, `tsconfig.tsbuildinfo`, `next-env.d.ts` removed
-- [ ] 0.3 `mkdir wattup-frontend` and `git mv` every tracked entry **except** `docs/`, `.claude/`, `.agents/`, `.agent/`, `skills-lock.json`, `.vscode/`
-- [ ] 0.4 Agent folders confirmed still at the **root** — they are shared tooling, and `wattup-proforma` needs the same Better Auth / Resend / Next skills
-- [ ] 0.5 `.claude/skills` deduplicated: 6 real directories converted to symlinks into `.agents/skills/`, with a `diff` guard so a locally edited skill is reported not overwritten
-- [ ] 0.6 Root `CLAUDE.md` written; `AGENTS.md` symlinked to it
-- [ ] 0.7 `wattup-frontend/CLAUDE.md` present (moved down with the app) and its `AGENTS.md` symlink intact
-- [ ] 0.8 Verify the cascade: from `wattup-frontend/`, both the root and app `CLAUDE.md` apply
-- [ ] 0.9 `git ls-files | grep -vE '^(wattup-frontend|docs|\.claude|\.agents?|\.vscode)/' | grep -v '^skills-lock.json$'` prints nothing
-- [ ] 0.10 `.env` moved by hand — **git could not see it**
-- [ ] 0.11 Gitignored internal reports moved; `.DS_Store` files deleted
-- [ ] 0.12 Root `.gitignore` written with `**/`-prefixed patterns
-- [ ] 0.13 `git status --short | grep -c node_modules` prints 0
-- [ ] 0.14 Branch `chore/monorepo-restructure`, move committed alone
-- [ ] 0.15 `git log --follow` on a moved file shows real history
-- [ ] 0.16 `pnpm install && pnpm prisma generate && pnpm build` passes in `wattup-frontend/`
-- [ ] 0.17 `pnpm dev` — sign in, `/dashboard` loads, locations and articles render
+- [x] 0.1 Working tree clean, `pre-restructure` tag created
+- [x] 0.2 `node_modules`, `.next`, `tsconfig.tsbuildinfo`, `next-env.d.ts` removed
+- [x] 0.3 `mkdir wattup-frontend` and `git mv` every tracked entry **except** `docs/`, `.claude/`, `.agents/`, `.agent/`, `skills-lock.json`, `.vscode/`
+- [x] 0.4 Agent folders confirmed still at the **root** — they are shared tooling, and `wattup-proforma` needs the same Better Auth / Resend / Next skills
+- [x] 0.5 `.claude/skills` deduplicated: 6 real directories converted to symlinks into `.agents/skills/`, with a `diff` guard so a locally edited skill is reported not overwritten
+- [x] 0.6 Root `CLAUDE.md` written; `AGENTS.md` symlinked to it
+- [x] 0.7 `wattup-frontend/CLAUDE.md` present (moved down with the app) and its `AGENTS.md` symlink intact
+- [x] 0.8 Verify the cascade: from `wattup-frontend/`, both the root and app `CLAUDE.md` apply
+- [x] 0.9 `git ls-files | grep -vE '^(wattup-frontend|docs|\.claude|\.agents?|\.vscode)/' | grep -v '^skills-lock.json$'` prints nothing
+- [x] 0.10 `.env` moved by hand — **git could not see it**
+- [x] 0.11 Gitignored internal reports moved; `.DS_Store` files deleted
+- [x] 0.12 Root `.gitignore` written with `**/`-prefixed patterns
+- [x] 0.13 `git status --short | grep -c node_modules` prints 0
+- [x] 0.14 Branch `chore/monorepo-restructure`, move committed alone
+- [x] 0.15 `git log --follow` on a moved file shows real history
+- [x] 0.16 `pnpm install && pnpm prisma generate && pnpm build` passes in `wattup-frontend/`
+- [◐] 0.17 `pnpm dev` — server boots, `.env` read, `/`, `/locations`, `/press-release`, `/admin` all 200, `/dashboard` 307s to `/admin?callbackUrl=%2Fdashboard`. **Signed-in dashboard walkthrough still to do by hand.**
 - [ ] 0.18 Vercel Root Directory → `wattup-frontend` **saved before pushing** *(on whichever account holds the project at that time)*
 - [ ] 0.19 Ignored Build Step set on the frontend project
 - [ ] 0.20 Pushed; preview deploy loads the dashboard
