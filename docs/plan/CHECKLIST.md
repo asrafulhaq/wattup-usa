@@ -385,6 +385,10 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 > Reviewers run **once per completed phase**, not per task (user decision, 2 Sep 2026), and only
 > when the user says so. **Phase S + Phase 3 batch: security + code review run over the combined
 > diff; 2 High, 1 Medium, 3 Should-fix, nits — all folded into the branches before merge.**
+> **Phase 2 + Phase 5a: reviewed together once 5a merges** (user decision, 2 Sep) — one
+> adversarial security pass and one code-vs-spec pass over the finished gate: `lib/gate.ts`,
+> `lib/member-directory.ts`, `lib/rate-limit.ts`, both `app/api/gate/*` routes, `app/login/*`,
+> `app/tool/*`, `next.config.ts`.
 
 - [ ] 5.17 Ask whether to run the security review, and on which diff
 - [ ] 5.18 Ask whether to run the code review
