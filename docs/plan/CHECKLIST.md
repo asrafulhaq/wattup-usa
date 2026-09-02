@@ -232,7 +232,7 @@ Follow [00-repo-restructure.md](00-repo-restructure.md). No behaviour changes.
 - [x] 2.40 Member: request-code → 200 generic, decision in `after()`, Resend `delivered`; verify-code with the real code → 200, `wup.session_token` (7 d) + `wup.session_data` (5 min) set, `{redirectTo:"/tool/"}`
 - [x] 2.41 Non-member: request-code → 200 identical body; Resend's API shows **zero** emails to that address before and after — nothing sent
 - [x] 2.42 **Timing closed by construction.** First cut measured member 1,110 ms vs non-member 3 ms (Better Auth's DB round trips, not Resend). Fixed by moving the membership decision *and* OTP issue into `after()` — the response has zero dependence on who asked. Re-measured: member 3.1/2.9/3.9/3.0/2.5 ms, non-member 2.8/2.7/2.6/2.1/2.3 ms
-- [ ] 2.43 5 wrong attempts invalidates the code
+- [x] 2.43 5 wrong attempts → 400 ×5, then the **correct** code → 400: the record is destroyed at the fifth attempt (`allowedAttempts: 5`), verified against a real code and an empty `proforma_verification` afterwards
 - [◐] 2.44 A used code cannot be reused → verified (same code again → 400). 10-minute expiry: tested with a shortened TTL below
 - [ ] 2.45 Requesting a second code invalidates the first
 
@@ -400,7 +400,8 @@ Follow [RUNBOOK-dns-email-env.md](RUNBOOK-dns-email-env.md). *(needs answers A, 
 - [ ] 6.3 Secrets generated and stored in the password manager
 - [ ] 6.4 Vercel domain added; **CNAME copied from the pro-forma project's own screen**
 - [x] 6.5 ~~Resend domain added and verified~~ — **not needed**: the frontend's apex sender is already verified and is shared
-- [ ] 6.6 DNS records created; **nothing existing edited or deleted**
+- [ ] 6.6 DNS records created; **nothing existing edited or deleted** — **except one deliberate edit**: the apex SPF must gain `include:amazonses.com` (see 6.6a)
+- [ ] 6.6a **Deliverability (found in 2f):** the apex SPF is `v=spf1 include:_spf.google.com -all` — Resend/SES is not in it, so every code email **fails SPF**; DMARC (`p=quarantine`) passes on DKIM alone, so Gmail delivers to Spam rather than rejecting. Edit the apex TXT to `v=spf1 include:_spf.google.com include:amazonses.com -all`. This replaces the `send.` subdomain the PRD used to sidestep exactly this
 - [ ] 6.7 Apex, `www` and MX verified unchanged against the snapshot
 - [ ] 6.8 Production env vars set, then **redeployed** — Vercel bakes them at build time
 - [ ] 6.9 Part 6 verification block passes in full

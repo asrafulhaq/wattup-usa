@@ -108,7 +108,16 @@ Store both in your password manager before pasting them into Vercel. A lost
 ## Part 3 — Resend: the sending domain
 
 > **VOID as of 2 Sep 2026.** The client decided the pro-forma app uses the frontend's existing
-> Resend key and its already-verified apex sender `noreply@wattupusa.com`. **Do not add
+> Resend key and its already-verified apex sender `noreply@wattupusa.com`.
+>
+> **One consequence, found when the first real code landed in Spam:** the apex SPF record is
+> `v=spf1 include:_spf.google.com -all` and does not include Resend's sending infrastructure
+> (Amazon SES), so every email from the apex **fails SPF**. DKIM is in place and DMARC is
+> `p=quarantine`, so mail is delivered on DKIM alone, but to Spam. **Edit the existing apex
+> `TXT` to** `v=spf1 include:_spf.google.com include:amazonses.com -all` — one record, one
+> added `include:`; keep `-all`. Verify with `dig +short TXT wattupusa.com`. This is the single
+> exception to "never edit an existing record" in this runbook, and it also fixes the
+> dashboard's own password-reset and invite emails, which have had the same problem. **Do not add
 > `send.wattupusa.com` to Resend and do not create rows 2–6 in Part 4.** Only the
 > `hostproposal` CNAME (row 1), the `_vercel` TXT if asked (row 7), and the `_dmarc` check
 > (row 8) remain. Kept below for the record.
