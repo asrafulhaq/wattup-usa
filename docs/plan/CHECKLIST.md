@@ -433,6 +433,7 @@ tracked here so they are not lost. None blocks any other phase.
 - [ ] B.10 Rate-limit storage → `database` or secondary storage once a `rateLimit` table can be migrated (see S.4.6)
 - [ ] B.11 **`dompurify` 3.4.1 → ≥ 3.4.13** — it is the sanitiser in front of `dangerouslySetInnerHTML` for rich text; 4 low + 6 moderate advisories (found by the F8 audit)
 - [ ] B.12 App-level `zod` 3 → 4: `better-auth`/`better-call` run on zod 4 internally while `lib/validations/` uses 3.25 — works today via separate lockfile snapshots, but a peer warning on every install and two zod copies in the bundle
+- [ ] B.14 **Email dark mode, properly:** the shared mail base's dark block darkens the cards but leaves text `#2d2d2d`, and it has no `<meta name="color-scheme">`, so clients that honour `prefers-color-scheme` (Apple/iOS Mail) render light, and adding the metas without fixing text colours would make them unreadable. The logo is now self-backgrounded so it survives Gmail's inversion; a real dark theme for the dashboard's and pro-forma's mail needs a design pass on the frontend's `lib/mail/base.ts` (text/muted/border colours), then resync the copy
 - [ ] B.13 `next dev` 16.3 writes a `nextjs-agent-rules` block into `CLAUDE.md`/`AGENTS.md` on every run — committed in both apps now so the tree stays clean; if Next changes the text, recommit rather than fight it
 
 ---
