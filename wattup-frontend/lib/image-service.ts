@@ -24,6 +24,26 @@ export interface CloudinaryImageResponse {
     created_at: string;
 }
 
+/**
+ * The only Cloudinary folders an upload may land in, or an image be moved to. Each one is a
+ * folder a caller in this app already uses: 'tiptap' from lib/tiptap-utils.ts, 'articles'
+ * from the article form, 'locations' from the location form, 'profile-photos' from
+ * userActions.ts, and 'drafts', the default below. It lives here rather than in a
+ * 'use server' module, which cannot export a constant, so the REST route and the server
+ * actions enforce one list instead of two that drift.
+ */
+export const ALLOWED_UPLOAD_FOLDERS: ReadonlySet<string> = new Set([
+    'tiptap',
+    'articles',
+    'locations',
+    'profile-photos',
+    'drafts',
+]);
+
+export function isAllowedFolder(value: unknown): value is string {
+    return typeof value === 'string' && ALLOWED_UPLOAD_FOLDERS.has(value);
+}
+
 function getOptimizedUrl(url: string): string {
     return url.replace('/upload/', '/upload/f_auto,q_auto/');
 }

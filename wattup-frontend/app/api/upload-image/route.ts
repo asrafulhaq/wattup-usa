@@ -1,18 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/app/_actions/auth-actions";
 import { uploadSingleImage } from "@/app/_actions/image-actions";
-
-// The only Cloudinary folders an upload may land in. Each is a folder a caller in this app
-// already uses: "tiptap" from lib/tiptap-utils.ts, "articles" from the article form,
-// "locations" from the location form, "profile-photos" from userActions.ts, and "drafts",
-// the image-service default. Anything else was a stranger choosing where to file uploads.
-const ALLOWED_FOLDERS = new Set([
-  "tiptap",
-  "articles",
-  "locations",
-  "profile-photos",
-  "drafts",
-]);
+import { isAllowedFolder } from "@/lib/image-service";
 
 /**
  * True when the request came from one of this site's own pages.
@@ -57,7 +46,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    if (typeof folder !== "string" || !ALLOWED_FOLDERS.has(folder)) {
+    // The allowlist lives with the image service so the server actions enforce the same one.
+    if (!isAllowedFolder(folder)) {
       return NextResponse.json({ error: "Invalid folder" }, { status: 400 });
     }
 

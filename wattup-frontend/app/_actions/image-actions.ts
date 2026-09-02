@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import {
     deleteImagesFromCloudinary,
     deleteSingleImageFromCloudinary,
+    isAllowedFolder,
     moveImageInCloudinary,
     uploadImageToCloudinary
 } from '@/lib/image-service';
@@ -13,14 +14,22 @@ import { getSession } from './auth-actions';
 // Every export below checks the session for itself. A 'use server' export is its own HTTP
 // endpoint, so a caller having checked proves nothing. Any signed-in user passes for now;
 // the UPLOAD_MEDIA permission tightens this in phase 4a.
+//
+// The upload actions hand Cloudinary a fresh object carrying only a validated folder, never
+// the caller's options as received. A caller-supplied publicId would overwrite a live asset
+// in place at its existing URL: the public site defaced with no database write and nothing
+// visible in the dashboard.
 
 // upload single image
-export async function uploadSingleImage(file: File, options = {}) {
+export async function uploadSingleImage(file: File, options: { folder?: string } = {}) {
     const session = await getSession();
     if (!session) return { success: false, error: 'Unauthorized' };
 
+    const folder = options?.folder;
+    if (!isAllowedFolder(folder)) return { success: false, error: 'Invalid folder' };
+
     try {
-        const result = await uploadImageToCloudinary(file, options);
+        const result = await uploadImageToCloudinary(file, { folder });
         revalidatePath("/")
         return {
             data: result,
@@ -33,9 +42,12 @@ export async function uploadSingleImage(file: File, options = {}) {
 }
 
 // upload multiple image
-export async function uploadMultipleImage(files: File[], options = {}) {
+export async function uploadMultipleImage(files: File[], options: { folder?: string } = {}) {
     const session = await getSession();
     if (!session) return { success: false, error: 'Unauthorized' };
+
+    const folder = options?.folder;
+    if (!isAllowedFolder(folder)) return { success: false, error: 'Invalid folder' };
 
     try {
         if (!files || files.length === 0) {
@@ -43,7 +55,7 @@ export async function uploadMultipleImage(files: File[], options = {}) {
         }
 
         const uploadPromises = files.map(file =>
-            uploadImageToCloudinary(file, options)
+            uploadImageToCloudinary(file, { folder })
         );
 
         const uploadedImages = await Promise.all(uploadPromises);
@@ -61,6 +73,7 @@ export async function uploadMultipleImage(files: File[], options = {}) {
 }
 
 //delete multiple images
+// Any id is accepted for now: scoping deletes to media the caller owns needs an ownership model, phase 4a.
 export async function deleteImages(publicIds: string[]) {
     const session = await getSession();
     if (!session) return { success: false, error: 'Unauthorized' };
@@ -100,6 +113,8 @@ export async function deleteSingleImage(publicId: string) {
 export async function moveImage(publicId: string, newFolder: string, userId?: string) {
     const session = await getSession();
     if (!session) return { success: false, error: 'Unauthorized' };
+
+    if (!isAllowedFolder(newFolder)) return { success: false, error: 'Invalid folder' };
 
     try {
         const result = await moveImageInCloudinary(publicId, newFolder);
