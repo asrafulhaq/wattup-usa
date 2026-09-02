@@ -12,6 +12,7 @@ that work, and F1 and F2 are live on production now.**
 | F9 | No custom rate limits; reset endpoints at the generic rate | **High** | ✅ merged (S.4) |
 | F14 | Forgot/reset forms bypass the limiter via server actions | **High** | ✅ merged (S.4.4) |
 | F13 | Seed script re-creates an unremovable SUPER_ADMIN on every build | **High** | ✅ merged (S.5.1); deploy check S.5.5 open |
+| F15 | F8 regression: Better Auth 1.7 needs `account.issuer`; every account insert on main was refused | **High** | ✅ merged + migrated (S.2.8) |
 | F3 | Six permissions defined but never enforced | Medium | 4a |
 | F4 | Site-wide script injection gated only by role, and only at the page | Medium | 4a |
 | F10 | Public sign-up blocked by a fragile path-string hook | Medium | 4a |
@@ -256,6 +257,30 @@ pro-forma work depends on either library.
 > present. The upgrade run also proved F9's `/sign-in/email` rule live: five bad sign-ins
 > returned 401, the sixth 429. One new item from the audit: `dompurify` 3.4.1, the rich-text
 > sanitiser, has 10 advisories patched in ≥ 3.4.13 — tracked as B.11.
+
+---
+
+## F15 — F8 regression: `account.issuer` missing after the Better Auth 1.7 upgrade · **High** · ✅ fixed
+
+Better Auth 1.7 added a required `issuer` field to its `account` model (plus a unique index on
+`issuer, accountId`), synthesised for every provider — credential accounts get
+`local:credential`. The F8 upgrade to 1.7.2 did not add the column, so on `main` **every
+account insert was refused** with `Unknown argument issuer`: the dashboard's invite flow and
+the admin seed were both broken. It went unnoticed because F8's runtime checks exercised
+sign-in, which only reads. Found while seeding a second super admin.
+
+**Fix (merged, migrated):** nullable `issuer` on `account`, on the frontend-owned
+`proforma_account`, and on the pro-forma mirror model, with the unique index. The one
+pre-existing credential row keeps `NULL`; Better Auth fills every new row. Migration
+`20260902190000_account_issuer`, generated with `migrate diff` and applied with `migrate deploy`.
+
+**Lesson, applied:** a dependency upgrade's verification must include one **write** path —
+here, creating a user — not just reads. Added to S.2.5.
+
+**Related, older:** `seed.ts`'s own create path for the primary admin has been broken since the
+May RBAC migration — the admin plugin stamps `role: "user"`, which the enum no longer contains.
+It survives only because `admin@wattup.com` already exists and takes the promote branch.
+`seed-admins.ts` sets `defaultRole` explicitly; `seed.ts` should too (S.5.7).
 
 ---
 
