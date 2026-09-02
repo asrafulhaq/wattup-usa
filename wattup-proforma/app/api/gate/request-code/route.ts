@@ -2,9 +2,17 @@ import { after } from 'next/server';
 
 import { maskEmail } from '@/lib/email';
 import { missingRequiredEnv } from '@/lib/env';
-import { correlationId, describeError, GATE_RESPONSE_HEADERS, serviceUnavailable } from '@/lib/gate';
+import {
+    correlationId,
+    describeError,
+    describeOrigin,
+    forbidden,
+    GATE_RESPONSE_HEADERS,
+    isSameOrigin,
+    serviceUnavailable,
+} from '@/lib/gate';
 import { getMemberDirectory, normalizeEmail } from '@/lib/member-directory';
-import { checkRequestLimits, clientIp } from '@/lib/rate-limit';
+import { checkEmailLimits, checkIpLimit, clientIp } from '@/lib/rate-limit';
 
 /**
  * POST /api/gate/request-code        body: { email }
@@ -31,16 +39,29 @@ import { checkRequestLimits, clientIp } from '@/lib/rate-limit';
  *                      deployment must fail visibly. `auth` is imported only
  *                      after this, because lib/auth.ts throws at load when
  *                      BETTER_AUTH_SECRET is missing and a 500 would hide the 503.
- *     2. normalise     trim + lowercase. A body that is not JSON, or an email
+ *     2. origin        lib/gate.ts isSameOrigin: the request's Origin, else its
+ *                      Referer, must name this host, or the answer is 403 and
+ *                      nothing is scheduled (checklist 5.8). The one response
+ *                      that differs, and it differs on where the request came
+ *                      from, never on the address it carried.
+ *     3. normalise     trim + lowercase. A body that is not JSON, or an email
  *                      that is not a string, schedules nothing.
- *     3. answer        the generic 200, same bytes every time.
+ *     4. answer        the generic 200, same bytes every time.
  *
  *   in after(), once the response has gone out
- *     4. rate limits   lib/rate-limit.ts, a phase 5 stub today. A breach sends
- *                      nothing and says nothing.
- *     5. directory     lib/member-directory.ts. Not a current, active member:
+ *     5. IP limit      lib/rate-limit.ts checkIpLimit, for EVERY request that
+ *                      got this far, member or not: a request for an address
+ *                      that is not a member is a probe, and probes are what the
+ *                      per-IP limit counts. Over it, nothing is sent and nothing
+ *                      is said (checklist 5.5). The limiter fails open: if its
+ *                      store is down the request continues (checklist 5.7).
+ *     6. directory     lib/member-directory.ts. Not a current, active member:
  *                      nothing is sent. Better Auth is never told the address.
- *     6. Better Auth   auth.api.sendVerificationOTP, server side. It stores the
+ *     7. address limits  checkEmailLimits, for a member only: the 60 second gap
+ *                      since the last send, then the five-per-hour counter. A
+ *                      non-member's address is never counted, because nothing
+ *                      would have been sent to it. Same silence on a breach.
+ *     8. Better Auth   auth.api.sendVerificationOTP, server side. It stores the
  *                      hashed code and calls the lib/auth.ts callback, which
  *                      schedules the email with a nested after() of its own.
  *                      Any error is logged with the correlation id and a masked
@@ -82,28 +103,38 @@ async function readEmail(request: Request): Promise<string | null> {
     return typeof email === 'string' ? email : null;
 }
 
-type Decision = { id: string; email: string; ip: string | null };
+type Decision = { id: string; email: string; ip: string };
 
 /**
- * Steps 4 to 6. Runs after the response, so nothing in here, however long it
+ * Steps 5 to 8. Runs after the response, so nothing in here, however long it
  * takes or however it fails, is observable to the caller. One catch for all of
  * it: the only outcome of an error is a log line.
  */
 async function decideAndSend({ id, email, ip }: Decision): Promise<void> {
     const masked = maskEmail(email);
     try {
-        const limit = await checkRequestLimits({ email, ip });
-        if (!limit.allowed) {
-            console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: limit.reason });
+        // 5. The per-IP counter, before the directory: a probe counts.
+        const ipLimit = await checkIpLimit(ip);
+        if (!ipLimit.allowed) {
+            console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: ipLimit.reason });
             return;
         }
 
+        // 6. The directory. Not a member: nothing else is counted or sent.
         const member = await getMemberDirectory().lookup(email);
         if (!member || !member.active) {
             console.info('[gate] request-code: not a current member, nothing sent', { id, email: masked });
             return;
         }
 
+        // 7. The per-address gap and hour counter, for a member only.
+        const emailLimit = await checkEmailLimits(email);
+        if (!emailLimit.allowed) {
+            console.warn('[gate] request-code: rate limited, nothing sent', { id, email: masked, reason: emailLimit.reason });
+            return;
+        }
+
+        // 8. Better Auth.
         const { auth } = await import('@/lib/auth');
         await auth.api.sendVerificationOTP({ body: { email, type: 'sign-in' } });
         console.info('[gate] request-code: passed to Better Auth', { id, email: masked });
@@ -123,13 +154,19 @@ export async function POST(request: Request) {
 
     const id = correlationId();
 
-    // 2. Normalise. Nothing about the address is decided here.
+    // 2. Origin. Not from this site: 403, and nothing is scheduled.
+    if (!isSameOrigin(request.headers)) {
+        console.warn('[gate] request-code refused', { id, reason: 'CROSS_ORIGIN', ...describeOrigin(request.headers) });
+        return forbidden(id);
+    }
+
+    // 3. Normalise. Nothing about the address is decided here.
     const raw = await readEmail(request);
     if (raw !== null) {
         const decision: Decision = { id, email: normalizeEmail(raw), ip: clientIp(request.headers) };
         after(() => decideAndSend(decision));
     }
 
-    // 3. The answer, the same whoever asked.
+    // 4. The answer, the same whoever asked.
     return generic(id);
 }

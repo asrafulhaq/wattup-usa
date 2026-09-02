@@ -5,7 +5,10 @@ import { missingRequiredEnv } from '@/lib/env';
 import {
     correlationId,
     describeError,
+    describeOrigin,
+    forbidden,
     GATE_RESPONSE_HEADERS,
+    isSameOrigin,
     requireMember,
     safeNext,
     serviceUnavailable,
@@ -50,7 +53,11 @@ import { normalizeEmail } from '@/lib/member-directory';
  *   4. answer       200 { redirectTo }, a same-site path (safeNext).
  *
  * Before any of it, lib/env.ts: a missing required variable is a 503 naming it,
- * and `auth` is imported only after that check (see request-code).
+ * and `auth` is imported only after that check (see request-code). Then
+ * lib/gate.ts isSameOrigin: a request whose Origin, else Referer, does not
+ * name this host is 403 Forbidden (checklist 5.8), the one answer here that is
+ * not the generic 400, and it turns on where the request came from, never on
+ * the address or code it carried.
  */
 
 export const runtime = 'nodejs';
@@ -104,6 +111,12 @@ export async function POST(request: Request) {
     if (missing.length > 0) return serviceUnavailable(missing);
 
     const id = correlationId();
+
+    // Origin. Not from this site: 403, before the body is even read.
+    if (!isSameOrigin(request.headers)) {
+        console.warn('[gate] verify-code refused', { id, reason: 'CROSS_ORIGIN', ...describeOrigin(request.headers) });
+        return forbidden(id);
+    }
 
     // 1. Normalise.
     const input = await readInput(request);
