@@ -3,6 +3,7 @@
 
 import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { getAdminSession, getSession } from './auth-actions';
 
 /**
@@ -92,7 +93,7 @@ export async function getArticleBySlug(slug: string) {
 }
 
 /**
- * The dashboard's list: drafts included, for a signed-in user only.
+ * The dashboard's list: drafts included, for a signed-in user holding a post permission.
  *
  * Deliberately not 'use cache'. A cached result is keyed on the arguments, not on who is
  * asking, so a cached function that checks a session would serve the first caller's answer
@@ -100,12 +101,16 @@ export async function getArticleBySlug(slug: string) {
  * next anonymous request would read them back out. The session check and the query have to
  * run together, on every call. Only the team reads this list, so the cost is not felt.
  *
- * Without a session the caller gets exactly what the public site shows, by going through
- * getPaginatedArticles, so there is one definition of "public" rather than two.
+ * Without a session, or without the permission, the caller gets exactly what the public
+ * site shows, by going through getPaginatedArticles, so there is one definition of
+ * "public" rather than two. The two refusals are indistinguishable on purpose.
  */
 export async function getArticlesForDashboard(page = 1, pageSize = 10) {
     const session = await getSession();
-    if (!session) return getPaginatedArticles(page, pageSize);
+    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
+    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+        return getPaginatedArticles(page, pageSize);
+    }
 
     try {
         const skip = (page - 1) * pageSize;
@@ -130,12 +135,16 @@ export async function getArticlesForDashboard(page = 1, pageSize = 10) {
 }
 
 /**
- * One article for the editor, draft or published, for a signed-in user only.
+ * One article for the editor, draft or published, for a signed-in user holding a post
+ * permission.
  * Uncached for the reason given on getArticlesForDashboard.
  */
 export async function getArticleByIdForDashboard(id: string) {
     const session = await getSession();
-    if (!session) return getArticleById(id);
+    // CREATE_POST is the floor for seeing drafts; 4a may narrow this.
+    if (!session || !hasPermission(session.role, Permission.CREATE_POST)) {
+        return getArticleById(id);
+    }
 
     try {
         return await prisma.posts.findUnique({ where: { id } });
