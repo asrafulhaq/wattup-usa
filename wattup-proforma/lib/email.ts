@@ -1,11 +1,14 @@
 import { Resend } from 'resend';
+import { baseTemplate, heading, muted, paragraph } from './mail-base';
 
 /**
  * Resend client for this app.
  *
  * Deliberately a copy of wattup-frontend's, not an import: the two apps share no
- * code (ADR 0001 section 3), and each holds its own API key so one can be revoked
- * without taking down the other's mail.
+ * code (ADR 0001 section 3). The API key and the sender, though, are shared with
+ * the frontend by client decision (2 Sep 2026), superseding ADR 0001 D10, which
+ * gave this app its own key and a send subdomain. RESEND_API_KEY and MAIL_FROM
+ * carry the frontend's values, and revoking that key stops both apps' mail.
  */
 
 // Constructed on first send, not at import. `new Resend('')` throws when the key
@@ -32,7 +35,7 @@ export async function sendOtpEmail({ email, otp, type }: OtpMail): Promise<void>
     const { subject, html, text } = otpTemplate(otp);
 
     const { error } = await resend().emails.send({
-        from: process.env.MAIL_FROM ?? 'WattUp <noreply@send.wattupusa.com>',
+        from: process.env.MAIL_FROM ?? 'WattUp <noreply@wattupusa.com>',
         replyTo: process.env.MAIL_REPLY_TO,
         to: email,
         subject,
@@ -52,39 +55,58 @@ export async function sendOtpEmail({ email, otp, type }: OtpMail): Promise<void>
 /**
  * Plain text and HTML, both carrying the digits as selectable text rather than an
  * image, the ten minute expiry, and a line telling an unexpecting reader to ignore
- * it. Styled to match the dark login screen so it does not read as phishing.
+ * it. The HTML is built on the same wrapper, type and palette as the dashboard's
+ * password-reset and invitation mail (lib/mail-base.ts), so a member who receives
+ * both sees one brand. The PRD's "matches the dark login screen" is superseded by
+ * the client's instruction of 2 Sep 2026 that every pro-forma surface uses the
+ * frontend's design.
+ *
+ * The code stays in the subject on purpose: mail clients surface it in the
+ * notification, so the member need not open the message.
  */
-function otpTemplate(otp: string) {
+export function otpTemplate(otp: string): { subject: string; html: string; text: string } {
     const subject = `${otp} is your WattUp sign-in code`;
+    const year = new Date().getFullYear();
 
     const text = [
-        `Your WattUp Site Pro-Forma Builder sign-in code is: ${otp}`,
+        `Your WattUp sign-in code is: ${otp}`,
         ``,
+        `Enter it to sign in to the Site Pro-Forma Builder.`,
         `It expires in 10 minutes and can be used once.`,
         `If you did not request this code, you can ignore this email.`,
         ``,
-        `WattUpUSA · Confidential`,
+        `© ${year} WattUp USA. All rights reserved.`,
+        `This email was sent by WattUp. Please do not reply to this email.`,
     ].join('\n');
 
-    const html = `<!DOCTYPE html>
-<html><body style="margin:0;padding:24px;background:#0B0E13;color:#E9EDF3;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">
-  <div style="max-width:392px;margin:0 auto">
-    <div style="background:#12171F;border:1px solid rgba(255,255,255,.09);
-      border-radius:12px;padding:28px">
-      <h1 style="margin:0 0 6px;font-size:17px;font-weight:700">Site Pro-Forma Builder</h1>
-      <p style="margin:0 0 22px;color:#9BA6B6;font-size:13px;line-height:1.5">
-        Enter this code to sign in.</p>
-      <p style="margin:0 0 22px;font-size:32px;font-weight:700;letter-spacing:.18em;
-        font-family:ui-monospace,SFMono-Regular,Menlo,monospace">${otp}</p>
-      <p style="margin:0;color:#9BA6B6;font-size:12.5px;line-height:1.5">
-        It expires in 10 minutes and can be used once.<br>
-        If you did not request this code, you can ignore this email.</p>
-    </div>
-    <p style="text-align:center;color:#6C7787;font-size:11.5px;margin:22px 0 0">
-      WattUpUSA · Confidential</p>
-  </div>
-</body></html>`;
+    const body = `
+        ${heading('Your sign-in code')}
+        ${paragraph('Enter this code to sign in to the WattUp Site Pro-Forma Builder.')}
+        ${codePanel(otp)}
+        ${muted('This code expires in <strong style="color:rgba(17,24,39,0.65);">10 minutes</strong> and can be used once. If you did not request this code, you can ignore this email.')}
+    `;
 
-    return { subject, html, text };
+    return { subject, html: baseTemplate(body), text };
+}
+
+/*
+ * The six digits, treated like the credentials panel in the dashboard's invitation
+ * mail: the #f4f4f5 panel with an uppercase label, and the value as a blue <code>
+ * pill on #eff6ff. Text, never an image, so it can be selected and copied; monospaced
+ * and letter-spaced so it reads at a glance. The pill's right padding is the left
+ * padding minus one letter-space (0.2em of 36px), so the digits sit centred.
+ */
+function codePanel(otp: string): string {
+    return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f4f5;border:1px solid #e8e8e8;border-radius:10px;margin:24px 0 0;overflow:hidden;">
+          <tr>
+            <td align="center" style="padding:20px 20px 0;">
+              <p style="margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:rgba(45,45,45,0.4);letter-spacing:0.06em;text-transform:uppercase;">One-time code</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:12px 20px 24px;">
+              <code style="display:inline-block;font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:700;color:#197dff;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 17px 12px 24px;letter-spacing:0.2em;line-height:1;">${otp}</code>
+            </td>
+          </tr>
+        </table>`;
 }
