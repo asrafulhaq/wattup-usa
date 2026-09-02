@@ -48,7 +48,7 @@ wattup/
 | `adr/0001-proforma-access-architecture.md` | 14 decisions: layout, deployment, identity, data |
 | `adr/0002-roles-and-permissions.md` | roles, permissions, the matrix awaiting sign-off |
 | `plan/CHECKLIST.md` | **the tracking document.** Tick from evidence, never intent |
-| `plan/SECURITY-FINDINGS.md` | 13 open findings |
+| `plan/SECURITY-FINDINGS.md` | 16 findings, 7 fixed |
 | `plan/RUNBOOK-dns-email-env.md` | DNS, Resend, env — operator work |
 | `plan/00-repo-restructure.md` | how this layout came to be |
 | `Pro-Forma Access.md` | the client PRD, superseded in parts by ADR 0001 §16 |
