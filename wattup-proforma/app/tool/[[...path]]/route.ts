@@ -4,7 +4,7 @@ import path from 'node:path';
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 
-import { requireMember } from '@/lib/gate';
+import { requireMember, safeNext } from '@/lib/gate';
 
 /**
  * Serves the Site Pro-Forma Builder from private/tool/, to signed-in users only.
@@ -69,13 +69,6 @@ const SAFE_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 function isSafeSegment(segment: string): boolean {
     return !segment.includes('..') && SAFE_SEGMENT.test(segment);
-}
-
-/** Same-site absolute paths only, so the gate cannot be used as an open redirect. */
-function safeNext(raw: string): string {
-    // '//host' is protocol-relative, and browsers read '/\host' the same way.
-    if (!raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return '/tool/';
-    return raw;
 }
 
 // Same shape as a genuinely absent route, so probing reveals nothing about

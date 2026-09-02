@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
 import { emailOTP } from 'better-auth/plugins';
+import { after } from 'next/server';
 
 import prisma from '@/lib/prisma';
 
@@ -63,10 +64,27 @@ export const auth = betterAuth({
             resendStrategy: 'rotate',
 
             async sendVerificationOTP({ email, otp, type }) {
-                // Wired to Resend in phase 2, together with the allowlist check that
-                // decides whether this is called at all. Never log `otp`.
-                const { sendOtpEmail } = await import('@/lib/email');
-                await sendOtpEmail({ email, otp, type });
+                // Better Auth calls this once the hashed code is stored, and AWAITS
+                // it (runInBackgroundOrAwait, dist/context/create-context.mjs). If
+                // the Resend round trip ran here, a member's request-code response
+                // would be hundreds of milliseconds slower than a non-member's, which
+                // is the one thing ADR 0001 section 7 forbids. So the send is
+                // scheduled with Next's after(): this callback returns as soon as the
+                // work is queued, and the mail goes out once the response has been
+                // sent. after() is request scoped, and this callback only ever runs
+                // inside a request, from app/api/gate/request-code through auth.api.
+                //
+                // Whether this is called at all is decided by the member directory
+                // check in that route, before Better Auth is involved. Never log `otp`.
+                const { maskEmail, sendOtpEmail } = await import('@/lib/email');
+                after(() =>
+                    sendOtpEmail({ email, otp, type }).catch((error: unknown) => {
+                        console.error('[mail] OTP send failed', {
+                            to: maskEmail(email),
+                            message: error instanceof Error ? error.message : String(error),
+                        });
+                    }),
+                );
             },
         }),
 

@@ -79,15 +79,20 @@ it here does not sign out wattupusa.com. `DATABASE_URL` is the **pooled** endpoi
 ## Layout
 
 ```
-app/api/auth/[...all]/   Better Auth, with OTP paths closed
-app/api/gate/            the two public routes (phase 2)
-lib/auth.ts              Better Auth config — read the comments before editing
-lib/gate.ts              requireMember: the one place a gated request decides membership
-lib/member-directory.ts  who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
-lib/prisma.ts            Prisma client, pooled
-lib/email.ts             Resend + the OTP template
-prisma/schema.prisma     narrow mirror, never migrated from here
-private/tool/            the untouched calculator (phase 3)
+app/api/auth/[...all]/       Better Auth, with OTP paths closed
+app/api/gate/request-code/   POST: normalise, rate limit, directory, send (in after()), always the same 200
+app/api/gate/verify-code/    POST: sign in server-side, re-check membership, one identical 400 for every failure
+app/tool/[[...path]]/        serves private/tool/ to current members only
+lib/auth.ts                  Better Auth config — read the comments before editing
+lib/gate.ts                  requireMember: the one place a gated request decides membership;
+                             also safeNext, correlationId and the gate's shared response headers
+lib/env.ts                   missingRequiredEnv: the 503 fail-closed check both gate routes run first
+lib/rate-limit.ts            checkRequestLimits: the phase 5 call site, a stub until then
+lib/member-directory.ts      who may sign in: PROFORMA_ALLOWLIST in dev, the proforma_member view in production
+lib/prisma.ts                Prisma client, pooled
+lib/email.ts                 Resend + the OTP template; maskEmail for logs
+prisma/schema.prisma         narrow mirror, never migrated from here
+private/tool/                the untouched calculator (phase 3)
 ```
 
 ## Commands
