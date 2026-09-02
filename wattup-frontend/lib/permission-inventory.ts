@@ -43,6 +43,7 @@ export const PERMISSION_INVENTORY: Readonly<Record<string, EndpointAccess>> = {
     'app/_actions/admin-user-actions.ts#getUserById': needs(Permission.VIEW_USERS),
     'app/_actions/admin-user-actions.ts#grantPermission': needs(Permission.MANAGE_PERMISSIONS),
     'app/_actions/admin-user-actions.ts#revokePermission': needs(Permission.MANAGE_PERMISSIONS),
+    'app/_actions/admin-user-actions.ts#clearPermissionOverride': needs(Permission.MANAGE_PERMISSIONS),
 
     // ─── Role defaults ────────────────────────────────────────────────────────
     'app/_actions/role-permission-actions.ts#setRolePermission': needs(

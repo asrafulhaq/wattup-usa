@@ -2,7 +2,9 @@ import { getSocialLinks } from '@/app/_actions/userActions';
 import { getSessionPermissions } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
+import { describeUserPermissions } from '@/lib/permissions-server';
 import CredentialsUpdate from './credentials-update';
+import { MyAccess } from './my-access';
 import PersonalInformation from './personal-information';
 import SocialLinks from './social-links';
 
@@ -11,7 +13,7 @@ const PageContent = async () => {
     if (!authorised) return null;
     const { session, permissions } = authorised;
 
-    const [user, socialLinks] = await Promise.all([
+    const [user, socialLinks, permissionRows] = await Promise.all([
         prisma.user.findUnique({
             where: { id: session.id },
             select: {
@@ -22,6 +24,7 @@ const PageContent = async () => {
             },
         }),
         getSocialLinks(session.id),
+        describeUserPermissions(session.id),
     ]);
 
     const canManageSocialLinks = hasPermission(permissions, Permission.MANAGE_SOCIAL_LINKS);
@@ -41,6 +44,8 @@ const PageContent = async () => {
                     <SocialLinks initialLinks={socialLinks || []} />
                 )}
             </div>
+            {/* Your own role and permissions, read only (checklist 4c.8, 4c.9). */}
+            <MyAccess role={session.role} rows={permissionRows} />
             <CredentialsUpdate />
         </div>
     );

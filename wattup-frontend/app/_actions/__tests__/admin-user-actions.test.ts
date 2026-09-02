@@ -12,7 +12,7 @@ import { Permission, Role } from '@/lib/permissions';
 const { prisma, authApi, requirePermission } = vi.hoisted(() => ({
     prisma: {
         user: { findUnique: vi.fn() },
-        userPermission: { upsert: vi.fn() },
+        userPermission: { upsert: vi.fn(), deleteMany: vi.fn() },
         activityLog: { create: vi.fn() },
     },
     authApi: {
@@ -40,6 +40,7 @@ vi.mock('@/lib/permission-guard', async () => {
 
 import {
     banUser,
+    clearPermissionOverride,
     createUser,
     deleteUser,
     grantPermission,
@@ -69,7 +70,97 @@ beforeEach(() => {
     }
     requirePermission.mockReset();
     prisma.userPermission.upsert.mockResolvedValue({});
+    prisma.userPermission.deleteMany.mockResolvedValue({ count: 1 });
     prisma.activityLog.create.mockResolvedValue({});
+});
+
+describe('clearPermissionOverride', () => {
+    it('deletes the override for that one user and permission, and nothing else', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+        prisma.user.findUnique.mockResolvedValue(editorRow);
+
+        const result = await clearPermissionOverride('u-editor', Permission.ACCESS_PROFORMA);
+
+        expect(result).toEqual({ success: true });
+        expect(prisma.userPermission.deleteMany).toHaveBeenCalledWith({
+            where: { userId: 'u-editor', permission: Permission.ACCESS_PROFORMA },
+        });
+    });
+
+    it('writes an audit row naming the actor, the target and the permission', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+        prisma.user.findUnique.mockResolvedValue(editorRow);
+
+        await clearPermissionOverride('u-editor', Permission.ACCESS_PROFORMA);
+
+        expect(prisma.activityLog.create).toHaveBeenCalledTimes(1);
+        expect(prisma.activityLog.create.mock.calls[0][0].data).toMatchObject({
+            event: 'permission.reset',
+            actorEmail: root.email,
+            email: editorRow.email,
+            meta: { permission: Permission.ACCESS_PROFORMA },
+        });
+    });
+
+    it('writes no audit row when there was no override to remove', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+        prisma.user.findUnique.mockResolvedValue(editorRow);
+        prisma.userPermission.deleteMany.mockResolvedValue({ count: 0 });
+
+        const result = await clearPermissionOverride('u-editor', Permission.ACCESS_PROFORMA);
+
+        // A no-op is still a success; it is just not an event, and filling the audit
+        // log with changes that did not happen would make it useless.
+        expect(result).toEqual({ success: true });
+        expect(prisma.activityLog.create).not.toHaveBeenCalled();
+    });
+
+    it('refuses a caller without MANAGE_PERMISSIONS, before touching the database', async () => {
+        guardAllows(admin, [Permission.VIEW_USERS, Permission.EDIT_USERS]);
+
+        const result = await clearPermissionOverride('u-editor', Permission.ACCESS_PROFORMA);
+
+        expect(result).toMatchObject({ success: false });
+        expect(prisma.userPermission.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('refuses a permission outside the enum', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+
+        const result = await clearPermissionOverride('u-editor', 'BECOME_ROOT' as Permission);
+
+        expect(result).toEqual({ success: false, error: 'Unknown permission' });
+        expect(prisma.userPermission.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('refuses the caller changing their own permissions', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+
+        const result = await clearPermissionOverride(root.id, Permission.ACCESS_PROFORMA);
+
+        expect(result).toEqual({ success: false, error: 'You cannot change your own permissions' });
+        expect(prisma.userPermission.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('refuses a target the caller does not outrank', async () => {
+        guardAllows(admin, [Permission.MANAGE_PERMISSIONS]);
+        prisma.user.findUnique.mockResolvedValue(superRow);
+
+        const result = await clearPermissionOverride('u-super', Permission.ACCESS_PROFORMA);
+
+        expect(result).toMatchObject({ success: false });
+        expect(prisma.userPermission.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('refuses an id that does not exist', async () => {
+        guardAllows(root, [Permission.MANAGE_PERMISSIONS]);
+        prisma.user.findUnique.mockResolvedValue(null);
+
+        const result = await clearPermissionOverride('nobody', Permission.ACCESS_PROFORMA);
+
+        expect(result).toEqual({ success: false, error: 'User not found' });
+        expect(prisma.userPermission.deleteMany).not.toHaveBeenCalled();
+    });
 });
 
 describe('grantPermission / revokePermission', () => {

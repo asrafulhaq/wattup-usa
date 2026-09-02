@@ -23,6 +23,8 @@ export const ACTIVITY_APP = 'dashboard';
 export type ActivityEvent =
     | 'permission.granted'
     | 'permission.revoked'
+    /** An override was deleted, so the permission follows the role again. */
+    | 'permission.reset'
     | 'role.changed'
     | 'role_permission.changed'
     | 'user.banned'

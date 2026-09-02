@@ -53,6 +53,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -274,14 +275,21 @@ function UserRow({
                         )}
                     </div>
                     <div className='min-w-0'>
-                        <p className='text-sm font-medium text-dark truncate'>
+                        {/* The name opens the detail page (checklist 4c.1). A link on the
+                            name rather than on the whole row, so the role dropdown and
+                            the action menu in the other cells still behave as controls
+                            rather than as parts of a link. */}
+                        <Link
+                            href={`/dashboard/users/${user.id}`}
+                            className='block truncate text-sm font-medium text-dark hover:text-primary hover:underline'
+                        >
                             {user.name}
                             {isCurrentUser && (
                                 <span className='ml-1.5 text-[10px] text-dark/40'>
                                     (you)
                                 </span>
                             )}
-                        </p>
+                        </Link>
                         <p className='text-xs text-dark/50 truncate'>
                             {user.email}
                         </p>

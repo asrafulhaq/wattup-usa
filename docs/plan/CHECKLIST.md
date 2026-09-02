@@ -351,18 +351,18 @@ asserted mechanically, because a hand-audit of 54 actions decays the moment some
 
 ## Phase 4c — Dashboard UI
 
-- [ ] 4c.1 `dashboard/users/[id]/page.tsx` created, reachable by clicking a row
-- [ ] 4c.2 Identity section — `VIEW_USERS`
-- [ ] 4c.3 Role section with the change control — `CHANGE_USER_ROLE`
-- [ ] 4c.4 Permission section with toggles — `MANAGE_PERMISSIONS`
-- [ ] 4c.5 **Provenance shown**: from role / granted / revoked, per permission
-- [ ] 4c.6 Activity section, paginated, both apps — `VIEW_ACTIVITY_LOG`
-- [ ] 4c.7 Sign-in history with IP and user agent — `VIEW_ACTIVITY_LOG`
-- [ ] 4c.8 Profile page shows the signed-in user's own role, using `ROLE_LABELS` / `ROLE_BADGE_CLASSES`
-- [ ] 4c.9 Profile page lists own effective permissions, read-only
-- [ ] 4c.10 New role badge colours added for `NETWORK_MANAGER` and `SALES`
-- [ ] 4c.11 Users list filterable by the new roles
-- [◐] 4c.12 Server side is done and proven for the Roles page: `setRolePermission` re-checks `MANAGE_PERMISSIONS` and every lockout guard, with 16 tests, 3 of which go red when the guards are disabled; `/dashboard/roles` 307s to `/admin` signed out and the page returns null for a caller without the permission rather than erroring. **The user detail page's controls are not built** (see 4c.1 to 4c.7), so the hidden-half of this item is only partly demonstrable
+- [x] 4c.1 `app/(dashboard)/dashboard/users/[id]/page.tsx` with a `loading.tsx`; the name in each row of the team table links to it. The link is on the name, not the whole row, so the role dropdown and the action menu in the other cells stay controls rather than parts of a link
+- [x] 4c.2 Identity: avatar, name, email, role badge, active or banned, email verified, joined, plus ban reason and expiry when banned, and a line saying a banned account holds nothing whatever the rows below say
+- [x] 4c.3 Role section: the badge, plus a select and a confirm button for a caller holding `CHANGE_USER_ROLE` who outranks the target. The list offers only roles the caller may assign and outranks; the page reloads after a change because the permission rows below are drawn from the old role's defaults
+- [x] 4c.4 Permission section: every non-inert permission as a three-way control, optimistic with a revert and a message on refusal. **Verified live against the production database:** granting `ACCESS_PROFORMA` to the EDITOR wrote the `user_permission` row, put them in `proforma_member`, and logged `permission.granted`; Default removed all three again and logged `permission.reset`
+- [x] 4c.5 Provenance per permission, from `describeUserPermissions`: each row says whether the role grants it and whether an override adds or removes it, so "they do not have this" and "someone took this away from them" are never confused. A two-state switch cannot express that, which is why the control is Default / Granted / Revoked. A new `clearPermissionOverride` action makes Default reachable; without it an override was a one-way door. Eight tests
+- [x] 4c.6 Activity: both apps in one table, newest first, 20 a page through the URL so a page can be linked to. Verified live showing dashboard permission changes beside pro-forma sign-ins, with `meta` rendered as a sentence rather than raw JSON
+- [x] 4c.7 Sign-in history: the same table filtered to the four sign-in events, with IP address and user agent columns and a dash where a row carries neither. Verified live showing pro-forma sign-ins inside the dashboard, which is the reason the two apps share a database
+- [x] 4c.8 Profile page: a `Your access` card with the role badge from `ROLE_LABELS` and `ROLE_BADGE_CLASSES`
+- [x] 4c.9 The same card lists every permission grouped, held ones in green and the rest struck through, with the provenance in the title text. Read only by design. A live check caught it reading `27 of 21 permissions`, counting the six inert values in the numerator only; both halves now ignore them
+- [x] 4c.10 `NETWORK_MANAGER` amber and `SALES` teal in `ROLE_BADGE_CLASSES`, alongside the three that existed
+- [x] 4c.11 The team table reads `ALL_ROLES` and `ROLE_LABELS` rather than a hardcoded list, so all five roles appear wherever a role does
+- [x] 4c.12 Every control hidden without the permission **and** refused server-side. Hidden: the page draws the role control only for `CHANGE_USER_ROLE`, the permission controls only for `MANAGE_PERMISSIONS`, and the two audit sections only for `VIEW_ACTIVITY_LOG`, so a caller with only `VIEW_USERS` gets a readable page with no controls on it. Refused: every action behind those controls resolves the caller's permissions again for itself, and both data readers refuse independently of the page. **Verified live:** on your own page both sections render their locked text with zero editable controls
 
 ### Roles page (decision C and F, 2026-09-03)
 

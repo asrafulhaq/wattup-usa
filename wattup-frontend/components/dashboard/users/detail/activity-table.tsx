@@ -1,0 +1,185 @@
+import Link from 'next/link';
+
+import type { ActivityPage, ActivityScope } from '@/lib/dashboard/activity';
+
+import {
+    appBadgeClasses,
+    appLabel,
+    eventLabel,
+    eventTone,
+    orDash,
+    summariseMeta,
+} from './activity-format';
+
+/**
+ * One user's activity_log rows (checklist 4c.6) and, in the sign-in variant, the same
+ * table narrowed to sign-in events with the IP address and user agent (4c.7).
+ *
+ * Both applications write to that table, so a row here may have come from the dashboard
+ * or from the pro-forma builder, and the App column says which. That is the whole
+ * reason the two share a database rather than talking over HTTP.
+ *
+ * Server rendered, and paginated through the URL rather than through state, so a page
+ * of someone's history can be linked to and survives a reload. The page number is the
+ * only thing the links change; the tab is a separate parameter.
+ */
+
+const TONE_CLASSES: Record<'neutral' | 'good' | 'bad', string> = {
+    neutral: 'bg-dash-canvas text-dark/70 border border-dash-border',
+    good: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    bad: 'bg-red-50 text-red-700 border border-red-200',
+};
+
+function formatWhen(value: Date): string {
+    // A fixed format rather than a relative one: an audit table is read to answer "when
+    // exactly", and "3 days ago" is the one thing it must not say.
+    return new Intl.DateTimeFormat('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: 'UTC',
+    }).format(value);
+}
+
+function Pagination({
+    page,
+    total,
+    pageSize,
+    scope,
+    basePath,
+}: {
+    page: number;
+    total: number;
+    pageSize: number;
+    scope: ActivityScope;
+    basePath: string;
+}) {
+    const lastPage = Math.max(1, Math.ceil(total / pageSize));
+    if (lastPage <= 1) return null;
+
+    const key = scope === 'signin' ? 'signinPage' : 'activityPage';
+    const href = (target: number) => `${basePath}?${key}=${target}#${scope}`;
+    const first = (page - 1) * pageSize + 1;
+    const last = Math.min(page * pageSize, total);
+
+    return (
+        <div className='flex items-center justify-between gap-4 border-t border-dash-border px-4 py-3'>
+            <p className='text-xs text-dark/50'>
+                {first} to {last} of {total}
+            </p>
+            <div className='flex gap-2'>
+                {page > 1 ? (
+                    <Link href={href(page - 1)} className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark hover:bg-dash-canvas'>
+                        Previous
+                    </Link>
+                ) : (
+                    <span className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark/30'>Previous</span>
+                )}
+                {page < lastPage ? (
+                    <Link href={href(page + 1)} className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark hover:bg-dash-canvas'>
+                        Next
+                    </Link>
+                ) : (
+                    <span className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark/30'>Next</span>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export function ActivityTable({
+    result,
+    scope,
+    basePath,
+    subjectId,
+}: {
+    result: ActivityPage;
+    scope: ActivityScope;
+    basePath: string;
+    /** Tells a row this person carried out from one that happened to them. */
+    subjectId: string;
+}) {
+    if (result.rows.length === 0) {
+        return (
+            <p className='rounded-lg border border-dash-border px-4 py-6 text-center text-sm text-dark/50'>
+                {scope === 'signin'
+                    ? 'No sign-ins recorded for this account yet.'
+                    : 'Nothing recorded for this account yet.'}
+            </p>
+        );
+    }
+
+    const showsClient = scope === 'signin';
+
+    return (
+        <div className='overflow-hidden rounded-lg border border-dash-border'>
+            <div className='overflow-x-auto'>
+                <table className='w-full min-w-[640px] text-left'>
+                    <thead className='border-b border-dash-border bg-dash-canvas/60'>
+                        <tr className='text-[11px] uppercase tracking-wide text-dark/50'>
+                            <th scope='col' className='px-4 py-2.5 font-medium'>When (UTC)</th>
+                            <th scope='col' className='px-4 py-2.5 font-medium'>App</th>
+                            <th scope='col' className='px-4 py-2.5 font-medium'>Event</th>
+                            {showsClient ? (
+                                <>
+                                    <th scope='col' className='px-4 py-2.5 font-medium'>IP address</th>
+                                    <th scope='col' className='px-4 py-2.5 font-medium'>User agent</th>
+                                </>
+                            ) : (
+                                <th scope='col' className='px-4 py-2.5 font-medium'>Detail</th>
+                            )}
+                        </tr>
+                    </thead>
+                    <tbody className='divide-y divide-dash-border'>
+                        {result.rows.map(row => {
+                            const byThemToSomeoneElse = row.actorUserId === subjectId && row.userId !== subjectId;
+                            const summary = summariseMeta(row.event, row.meta);
+                            return (
+                                <tr key={row.id} className='align-top'>
+                                    <td className='whitespace-nowrap px-4 py-3 text-xs text-dark/60'>
+                                        {formatWhen(row.createdAt)}
+                                    </td>
+                                    <td className='px-4 py-3'>
+                                        <span className={'rounded-full px-2 py-0.5 text-[10px] font-semibold ' + appBadgeClasses(row.app)}>
+                                            {appLabel(row.app)}
+                                        </span>
+                                    </td>
+                                    <td className='px-4 py-3'>
+                                        <span className={'rounded-full px-2 py-0.5 text-[11px] font-medium ' + TONE_CLASSES[eventTone(row.event)]}>
+                                            {eventLabel(row.event)}
+                                        </span>
+                                        {byThemToSomeoneElse && (
+                                            <p className='mt-1 text-[11px] text-dark/50'>
+                                                done by this person to {orDash(row.email)}
+                                            </p>
+                                        )}
+                                    </td>
+                                    {showsClient ? (
+                                        <>
+                                            <td className='px-4 py-3 text-xs text-dark/70'>
+                                                <code>{orDash(row.ipAddress)}</code>
+                                            </td>
+                                            <td className='max-w-[280px] px-4 py-3 text-xs text-dark/60'>
+                                                <span className='block truncate' title={row.userAgent ?? undefined}>
+                                                    {orDash(row.userAgent)}
+                                                </span>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <td className='px-4 py-3 text-xs text-dark/60'>{summary ?? '—'}</td>
+                                    )}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            <Pagination
+                page={result.page}
+                total={result.total}
+                pageSize={result.pageSize}
+                scope={scope}
+                basePath={basePath}
+            />
+        </div>
+    );
+}

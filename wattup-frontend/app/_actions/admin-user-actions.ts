@@ -460,6 +460,59 @@ export async function revokePermission(userId: string, permission: Permission): 
     return setPermissionOverride(userId, permission, false);
 }
 
+/**
+ * Deletes the override, so the permission goes back to whatever the role says.
+ *
+ * Without this an override is a one-way door: once granted or revoked, a permission
+ * would follow the row for ever and stop tracking the role, which is the opposite of
+ * what a default is for. The same guards as setting one, because putting a user back
+ * on their role's defaults is as much a permission change as taking them off it, and
+ * the audit row says which direction it went.
+ */
+export async function clearPermissionOverride(
+    userId: string,
+    permission: Permission
+): Promise<OverrideResult> {
+    const authorised = await requirePermission(Permission.MANAGE_PERMISSIONS);
+    if (!authorised) return UNAUTHORIZED;
+    const { session } = authorised;
+
+    if (!isPermission(permission)) {
+        return { success: false, error: 'Unknown permission' };
+    }
+    if (session.id === userId) {
+        return { success: false, error: 'You cannot change your own permissions' };
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: userId }, select: USER_TARGET_SELECT });
+    if (!target) return { success: false, error: 'User not found' };
+    if (!canManageRole(session.role, target.role)) {
+        return { success: false, error: 'You cannot change the permissions of a higher-ranked user' };
+    }
+
+    try {
+        // deleteMany, so clearing an override that is not there is a no-op rather than
+        // a "record not found": the UI may send it for a permission already on default.
+        const { count } = await prisma.userPermission.deleteMany({
+            where: { userId: target.id, permission },
+        });
+        // Only an actual removal is an event. Writing a row for a no-op would fill the
+        // audit log with changes that did not happen.
+        if (count > 0) {
+            await logActivity({
+                event: 'permission.reset',
+                actor: { id: session.id, email: session.email },
+                target: { id: target.id, email: target.email },
+                meta: { permission },
+            });
+        }
+        return { success: true };
+    } catch (err: any) {
+        console.error('clearPermissionOverride error:', err);
+        return { success: false, error: 'Failed to update permissions' };
+    }
+}
+
 // ─── Invite email ─────────────────────────────────────────────────────────────
 
 async function sendInviteEmail(params: {
