@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"

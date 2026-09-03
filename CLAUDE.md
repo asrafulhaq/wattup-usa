@@ -35,6 +35,13 @@ wattup/
   `user` table, the `proforma_member` view, and `activity_log` — not HTTP. A change to those
   three surfaces affects both apps.
 - **`pnpm`, never `npm`,** and always from inside an app directory, never the root.
+- **Git hooks live in `.githooks/`, and they are not husky.** Husky wants a root
+  `package.json`, which the rule above forbids, so these are plain committed shell scripts
+  activated by `core.hooksPath`. Each app's `prepare` script sets that on install, so
+  `pnpm install` in **either** app wires up both hooks. `pre-commit` lints the apps you
+  staged; `pre-push` runs the full CI gate (lint, typegen, typecheck, test) on the apps the
+  push changes. Neither ever runs `pnpm build`, because that would invoke
+  `migrate-on-deploy.mjs` against the shared production database. Bypass with `SKIP_HOOKS=1`.
 - **Secrets are per-app.** `BETTER_AUTH_SECRET` in particular must differ, so rotating one
   app's sessions does not sign out the other's users.
 - **No attribution trailer** in any commit message or PR body.

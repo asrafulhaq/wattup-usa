@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# Run the same gate CI runs, on the apps this push actually changes, before the
+# push leaves the machine. The point is that a red CI run should be impossible
+# to create by accident.
+#
+# Mirrors .github/workflows/ci-frontend.yml and ci-proforma.yml step for step:
+#
+#     lint  ->  next typegen  ->  tsc --noEmit  ->  test
+#
+# `next typegen` is not optional. PageProps, LayoutProps and the cacheLife
+# signature are globals written into .next/types, which tsconfig.json includes.
+# Without it tsc fails with TS2304 on a clean tree, exactly as it would in CI.
+#
+# The build step is deliberately NOT run here. In CI it is gated on a
+# DATABASE_URL secret; locally `pnpm build` would invoke
+# scripts/migrate-on-deploy.mjs, and a git hook is the last place that should be
+# able to touch the shared production database.
+#
+# Escape hatch: SKIP_HOOKS=1 git push ...
+
+set -e
+
+[ "$SKIP_HOOKS" = "1" ] && { echo "pre-push: skipped (SKIP_HOOKS=1)"; exit 0; }
+
+ROOT=$(git rev-parse --show-toplevel)
+ZERO=0000000000000000000000000000000000000000
+
+# Collect every path this push would change, across all refs being pushed.
+CHANGED=""
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    # Branch deletion: nothing to check.
+    [ "$local_sha" = "$ZERO" ] && continue
+
+    if [ "$remote_sha" = "$ZERO" ]; then
+        # New branch on the remote. Diff against whatever the remote already
+        # has, so we check what this branch adds rather than the whole tree.
+        base=$(git merge-base "$local_sha" origin/main 2>/dev/null || true)
+        [ -n "$base" ] && files=$(git diff --name-only "$base" "$local_sha") \
+                       || files=$(git show --name-only --format= "$local_sha")
+    else
+        files=$(git diff --name-only "$remote_sha" "$local_sha")
+    fi
+
+    CHANGED=$(printf '%s\n%s' "$CHANGED" "$files")
+done
+
+[ -z "$(printf '%s' "$CHANGED" | tr -d '[:space:]')" ] && {
+    echo "pre-push: nothing to check"
+    exit 0
+}
+
+ran=0
+for app in wattup-frontend wattup-proforma; do
+    printf '%s\n' "$CHANGED" | grep -q "^$app/" || continue
+
+    [ -d "$ROOT/$app/node_modules" ] || {
+        echo "pre-push: $app has no node_modules, skipping (run pnpm install there)"
+        continue
+    }
+
+    echo
+    echo "pre-push: full gate for $app"
+    cd "$ROOT/$app"
+
+    # wattup-proforma exposes `typecheck`; wattup-frontend does not, and calls
+    # tsc directly. Prefer the script when the app defines one.
+    if node -e "process.exit(require('./package.json').scripts.typecheck?0:1)" 2>/dev/null; then
+        typecheck_cmd="pnpm typecheck"
+    else
+        typecheck_cmd="pnpm exec tsc --noEmit"
+    fi
+
+    for step in "pnpm lint" "pnpm exec next typegen" "$typecheck_cmd" "pnpm test"; do
+        echo "  -> $step"
+        # shellcheck disable=SC2086
+        $step || {
+            echo
+            echo "pre-push: '$step' failed in $app. Push aborted."
+            echo "  This is the same command CI runs, so pushing would have failed there."
+            echo "  Override with:  SKIP_HOOKS=1 git push ..."
+            exit 1
+        }
+    done
+
+    ran=$((ran + 1))
+done
+
+[ "$ran" -eq 0 ] && echo "pre-push: no app code changed, nothing to check"
+
+echo
+echo "pre-push: OK"
+exit 0

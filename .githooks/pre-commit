@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# Lint the apps that have staged changes, and nothing else.
+#
+# Deliberately NOT husky. Husky wants a package.json at the git root, and the
+# root CLAUDE.md forbids one: this is not a workspace, each app installs on its
+# own. These are plain hooks, activated by core.hooksPath, which each app's
+# `prepare` script sets on install.
+#
+# Fast on purpose. This runs on every commit, so it lints only, and only the
+# app you touched. The full gate that mirrors CI is in pre-push.
+#
+# Escape hatch: SKIP_HOOKS=1 git commit ...
+
+set -e
+
+[ "$SKIP_HOOKS" = "1" ] && { echo "pre-commit: skipped (SKIP_HOOKS=1)"; exit 0; }
+
+ROOT=$(git rev-parse --show-toplevel)
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+
+[ -z "$STAGED" ] && exit 0
+
+ran=0
+for app in wattup-frontend wattup-proforma; do
+    printf '%s\n' "$STAGED" | grep -q "^$app/" || continue
+
+    # An app can be absent in a partial checkout; skip rather than fail.
+    [ -d "$ROOT/$app/node_modules" ] || {
+        echo "pre-commit: $app has no node_modules, skipping (run pnpm install there)"
+        continue
+    }
+
+    echo "pre-commit: lint $app"
+    ( cd "$ROOT/$app" && pnpm lint ) || {
+        echo
+        echo "pre-commit: lint failed in $app."
+        echo "  Fix it, or commit with:  SKIP_HOOKS=1 git commit ..."
+        exit 1
+    }
+    ran=$((ran + 1))
+done
+
+[ "$ran" -eq 0 ] && echo "pre-commit: no app code staged, nothing to lint"
+
+exit 0
