@@ -3,6 +3,8 @@ import { getSession } from '@/app/_actions/auth-actions';
 import { AppSidebar } from '@/components/app-sidebar';
 import { DashboardFadeIn } from '@/components/dashboard/dashboard-fade-in';
 import { RequireSession } from '@/components/dashboard/require-session';
+import { DashboardBodySkeleton } from '@/components/dashboard/ui/page-skeletons';
+import { SidebarSkeleton } from '@/components/dashboard/ui/sidebar-skeleton';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { getSessionPermissions } from '@/lib/permission-guard';
@@ -57,7 +59,21 @@ const DashboardWrapper = async ({ children }: { children: React.ReactNode }) => 
                     '--header-height': 'calc(var(--spacing) * 14)',
                 } as any
             }>
-            <Suspense fallback={null}>
+            {/* These two fallbacks are the dashboard's first paint.
+
+                Both boundaries used to fall back to null, and the one below wraps every
+                route's children, which makes it the outermost pending boundary on a hard
+                load. React renders the outermost fallback, so the route's own loading.tsx
+                one level deeper never became HTML: it was serialised into the flight
+                payload at +16ms and the viewer looked at a blank page until the session
+                round trips finished. The prerendered HTML for a dashboard page was 8.8 KB
+                whose only visible text was its <title>.
+
+                Neither fallback reads the session, so Next prerenders both into the
+                static shell and the frame is on screen at TTFB. Client side navigation is
+                unaffected: the layout is not re-rendered then, so each route's own
+                loading.tsx still shows. */}
+            <Suspense fallback={<SidebarSkeleton />}>
                 <SidebarWrapper />
             </Suspense>
 
@@ -75,7 +91,7 @@ const DashboardWrapper = async ({ children }: { children: React.ReactNode }) => 
                 </Suspense>
 
                 <div className='@container/main flex flex-1 flex-col'>
-                    <Suspense fallback={null}>
+                    <Suspense fallback={<DashboardBodySkeleton />}>
                         <RequireSession>
                             <DashboardFadeIn>{children}</DashboardFadeIn>
                         </RequireSession>

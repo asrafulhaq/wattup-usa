@@ -260,3 +260,34 @@ export function UserDetailBodySkeleton() {
         </div>
     );
 }
+
+// ── The layout's own fallback ─────────────────────────────────────────────────
+
+/**
+ * The shape of "a dashboard screen", for the one boundary that cannot know which screen.
+ *
+ * components/dashboard/dashbaord-wrapper.tsx wraps every route's children in a Suspense
+ * that awaits the session. That boundary is the OUTERMOST pending one on a hard load, so
+ * React renders ITS fallback and not the route's loading.tsx, which sits a level deeper.
+ * While the fallback was `null` that meant every dashboard page prerendered as an empty
+ * hole: 8 778 bytes of HTML whose only visible text was the <title>, zero animate-pulse,
+ * and the route's real skeleton serialised into the flight payload where nobody saw it.
+ *
+ * This one cannot be route specific, because the layout renders before the route's
+ * segment is resolved. It is the shell, a header and one table card: the shape ten of
+ * the fourteen dashboard routes actually have. On client side navigation the layout is
+ * not re-rendered, so each route's own loading.tsx still shows, unchanged.
+ *
+ * Nothing here reads the session, so Next prerenders it into the static shell.
+ */
+export function DashboardBodySkeleton() {
+    return (
+        <PageShell>
+            <SkeletonPageHeader actions={1} descriptionWidth='w-[480px]' />
+            <div className='flex flex-col gap-4'>
+                <SkeletonToolbar filters={1} />
+                <SkeletonTableCard columns={[3, 1, 1, 1, 1]} rows={8} leading='none' />
+            </div>
+        </PageShell>
+    );
+}
