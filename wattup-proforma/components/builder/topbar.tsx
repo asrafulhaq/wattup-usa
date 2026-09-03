@@ -17,7 +17,6 @@ import {
     FileJson,
     FolderOpen,
     LogOut,
-    Monitor,
     Moon,
     Printer,
     RotateCcw,
@@ -83,19 +82,17 @@ export interface TopbarProps {
 }
 
 function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
+    const { resolvedTheme, setTheme } = useTheme();
     // next-themes cannot know the resolved theme until it is on the client, so the
     // icon is held back for one paint rather than rendering the wrong one and
     // tripping a hydration mismatch.
     const mounted = useHydrated();
 
-    const next = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark';
-    const Icon = !mounted ? Sun : theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
-    const labels: Record<string, string> = {
-        dark: 'Dark theme',
-        light: 'Light theme',
-        system: 'Following your system',
-    };
+    // Two states only, by owner decision: light and dark, no "follow the system".
+    // resolvedTheme rather than theme, so the button always reflects what is on
+    // screen instead of the word stored in localStorage.
+    const isDark = resolvedTheme === 'dark';
+    const Icon = isDark ? Moon : Sun;
 
     return (
         <Tooltip>
@@ -105,11 +102,11 @@ function ThemeToggle() {
                     variant='ghost'
                     size='icon'
                     className='size-8'
-                    onClick={() => setTheme(next)}
+                    onClick={() => setTheme(isDark ? 'light' : 'dark')}
                     aria-label='Change theme'
                 >
                     <motion.span
-                        key={mounted ? theme : 'pending'}
+                        key={mounted ? String(isDark) : 'pending'}
                         initial={{ rotate: -25, opacity: 0 }}
                         animate={{ rotate: 0, opacity: 1 }}
                         transition={{ duration: 0.18 }}
@@ -120,7 +117,7 @@ function ThemeToggle() {
                 </Button>
             </TooltipTrigger>
             <TooltipContent>
-                {mounted ? labels[theme ?? 'system'] : 'Theme'}
+                {mounted ? (isDark ? 'Switch to light' : 'Switch to dark') : 'Theme'}
                 <span className='text-muted-foreground block text-[10px]'>
                     The document never changes
                 </span>
@@ -151,12 +148,24 @@ export function Topbar(props: TopbarProps) {
     return (
         <header className='border-border/60 flex h-14 shrink-0 items-center gap-2 border-b px-4'>
             <div className='flex min-w-0 items-center gap-3'>
-                {/* The wordmark is a flat SVG asset, not a themed component. */}
+                {/*
+                  * Two files, not one file and a CSS filter. WattUp ships a light
+                  * wordmark and a dark one; inverting the light one in light mode
+                  * changes the brand colour, which it is not ours to do. Both are
+                  * rendered and CSS picks, so there is no flash and no JS.
+                  */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src='/proforma/logo_type_dark.svg'
+                    alt='WattUpUSA'
+                    className='h-5 w-auto dark:hidden'
+                />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src='/proforma/logo_type_light.svg'
-                    alt='WattUpUSA'
-                    className='h-5 w-auto dark:invert-0 invert'
+                    alt=''
+                    aria-hidden='true'
+                    className='hidden h-5 w-auto dark:block'
                 />
                 <Separator orientation='vertical' className='h-7' />
                 <div className='min-w-0 leading-tight'>

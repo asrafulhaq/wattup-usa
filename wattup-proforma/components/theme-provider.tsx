@@ -16,8 +16,11 @@ export function ThemeProvider({ children, ...props }: ComponentProps<typeof Next
     return (
         <NextThemesProvider
             attribute='class'
-            defaultTheme='system'
-            enableSystem
+            // Light and dark only, by owner decision: no "follow the system" state.
+            // A first visit opens light, and the choice is remembered per device.
+            defaultTheme='light'
+            enableSystem={false}
+            themes={['light', 'dark']}
             // The tool redraws a full document on every keystroke; letting CSS
             // transitions run through a theme flip on top of that is visible jank.
             disableTransitionOnChange
