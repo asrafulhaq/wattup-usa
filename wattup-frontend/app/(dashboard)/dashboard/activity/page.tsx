@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 
-import Link from 'next/link';
 
 import { ActivityTable } from '@/components/dashboard/users/detail/activity-table';
+import { ActivityView } from '@/components/dashboard/activity/activity-view';
 import { NoAccess, SessionEnded } from '@/components/dashboard/session-state';
 import { PageHeader } from '@/components/dashboard/ui/page-header';
 import { PageShell } from '@/components/dashboard/ui/page-shell';
@@ -13,7 +13,6 @@ import {
 } from '@/lib/dashboard/activity';
 import { getSessionPermissions } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
-import { appLabel, eventLabel } from '@/components/dashboard/users/detail/activity-format';
 
 export const metadata = {
     title: 'Activity | WattUp',
@@ -46,11 +45,6 @@ function pageParam(value: string | string[] | undefined): number {
     const parsed = Number(one(value));
     return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
 }
-
-const TABS: { value: ActivityScope; label: string; hint: string }[] = [
-    { value: 'all', label: 'Everything', hint: 'Every event either application has recorded.' },
-    { value: 'signin', label: 'Sign-ins', hint: 'Sign-ins and code requests, with the address and browser.' },
-];
 
 /** Holds the table's space while it loads, so the filters above it do not jump. */
 function TableSkeleton() {
@@ -133,7 +127,6 @@ export default async function ActivityPage({
     if (scope !== 'all') params.scope = scope;
     for (const [key, value] of Object.entries(filter)) if (value) params[key] = value;
 
-    const active = TABS.find(tab => tab.value === scope)!;
     const filtered = Boolean(filter.app || filter.event || filter.email);
 
     return (
@@ -143,113 +136,26 @@ export default async function ActivityPage({
                 description='Everything the dashboard and the pro-forma builder have recorded, newest first.'
             />
 
-            {/* Tabs and filters are plain links and a plain form: no client state, so a
-                filtered view is a URL somebody can send to somebody else. */}
-            <div className='flex flex-wrap items-center gap-2'>
-                {TABS.map(tab => {
-                    const next = new URLSearchParams(params);
-                    if (tab.value === 'all') next.delete('scope');
-                    else next.set('scope', tab.value);
-                    next.delete('activityPage');
-                    next.delete('signinPage');
-                    const href = `/dashboard/activity${next.size ? `?${next}` : ''}`;
-                    return (
-                        <Link
-                            key={tab.value}
-                            href={href}
-                            className={
-                                'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ' +
-                                (tab.value === scope
-                                    ? 'border-primary bg-primary text-white'
-                                    : 'border-dash-border bg-white text-dark/70 hover:bg-dash-canvas')
-                            }
-                        >
-                            {tab.label}
-                        </Link>
-                    );
-                })}
-            </div>
-
-            <form
-                method='get'
-                action='/dashboard/activity'
-                className='flex flex-wrap items-end gap-3 rounded-xl border border-dash-border bg-white p-4'
+            {/* The filters are a client component and the table is not: it is passed
+                through as children, so a filter change is a transition that keeps the
+                current rows on screen instead of a navigation that unmounts them. */}
+            <ActivityView
+                scope={scope}
+                app={filter.app ?? ''}
+                event={filter.event ?? ''}
+                email={filter.email ?? ''}
+                facets={facets}
             >
-                {scope !== 'all' && <input type='hidden' name='scope' value={scope} />}
-
-                <div className='flex flex-col gap-1'>
-                    <label htmlFor='filter-app' className='text-[11px] uppercase tracking-wide text-dark/40'>
-                        Application
-                    </label>
-                    <select
-                        id='filter-app'
-                        name='app'
-                        defaultValue={filter.app ?? ''}
-                        className='h-9 rounded-lg border border-dash-border bg-white px-3 text-sm text-dark'
-                    >
-                        <option value=''>Either</option>
-                        {facets.apps.map(app => (
-                            <option key={app} value={app}>
-                                {appLabel(app)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className='flex flex-col gap-1'>
-                    <label htmlFor='filter-event' className='text-[11px] uppercase tracking-wide text-dark/40'>
-                        Event
-                    </label>
-                    <select
-                        id='filter-event'
-                        name='event'
-                        defaultValue={filter.event ?? ''}
-                        className='h-9 rounded-lg border border-dash-border bg-white px-3 text-sm text-dark'
-                    >
-                        <option value=''>Any</option>
-                        {facets.events.map(event => (
-                            <option key={event} value={event}>
-                                {eventLabel(event)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className='flex flex-col gap-1'>
-                    <label htmlFor='filter-email' className='text-[11px] uppercase tracking-wide text-dark/40'>
-                        Address contains
-                    </label>
-                    <input
-                        id='filter-email'
-                        name='email'
-                        type='search'
-                        defaultValue={filter.email ?? ''}
-                        placeholder='someone@'
-                        className='h-9 w-56 rounded-lg border border-dash-border bg-white px-3 text-sm text-dark'
+                <Suspense fallback={<TableSkeleton />}>
+                    <ActivityRows
+                        scope={scope}
+                        page={page}
+                        filter={filter}
+                        params={params}
+                        filtered={filtered}
                     />
-                </div>
-
-                <button
-                    type='submit'
-                    className='h-9 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary/90'
-                >
-                    Filter
-                </button>
-                {filtered && (
-                    <Link
-                        href={scope === 'all' ? '/dashboard/activity' : `/dashboard/activity?scope=${scope}`}
-                        className='h-9 rounded-lg border border-dash-border px-4 text-sm font-medium leading-9 text-dark/70 hover:bg-dash-canvas'
-                    >
-                        Clear
-                    </Link>
-                )}
-            </form>
-
-            <p className='text-sm text-dark/50'>{active.hint}</p>
-
-            <Suspense fallback={<TableSkeleton />}>
-                <ActivityRows scope={scope} page={page} filter={filter} params={params} filtered={filtered} />
-            </Suspense>
+                </Suspense>
+            </ActivityView>
         </PageShell>
     );
 }

@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { cacheLife, cacheTag } from 'next/cache';
 import { requirePermission } from '@/lib/permission-guard';
 import { Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
@@ -178,8 +179,20 @@ export async function readActivity(
     return { rows, total, page, pageSize };
 }
 
-/** The cache tag every activity read shares, so one write invalidates them all. */
-export const ACTIVITY_TAG = 'activity-log';
+export { ACTIVITY_TAG } from '@/lib/cache-tags';
+import { ACTIVITY_TAG } from '@/lib/cache-tags';
+
+/**
+ * How long a page of the log may be reused.
+ *
+ * The log was uncached because the pro-forma app writes to it and cannot invalidate this
+ * app's cache. That reasoning holds, and it cost 1.8 seconds on every filter change,
+ * because each one is two queries to a database several hundred milliseconds away. The
+ * compromise: a short window, plus `logActivity` invalidating the tag for everything the
+ * dashboard itself writes. So a dashboard event appears at once, a pro-forma event
+ * within the window, and browsing back to a filter already seen is instant.
+ */
+const ACTIVITY_CACHE = { stale: 15, revalidate: 30, expire: 300 } as const;
 
 /**
  * One page of the WHOLE log, for a caller holding VIEW_ACTIVITY_LOG (the dashboard's
@@ -190,6 +203,30 @@ export const ACTIVITY_TAG = 'activity-log';
  * than one that costs a query: the reason to open it is usually that something just
  * happened.
  */
+async function readSiteActivity(
+    scope: ActivityScope,
+    page: number,
+    app: string,
+    event: string,
+    email: string
+): Promise<ActivityPage> {
+    'use cache';
+    cacheTag(ACTIVITY_TAG);
+    cacheLife(ACTIVITY_CACHE);
+    // Primitive arguments rather than an object, because the cache key is built from
+    // them and two objects with the same contents are not the same key.
+    try {
+        return await readActivity(prisma, {
+            scope,
+            page,
+            filter: { app: app || undefined, event: event || undefined, email: email || undefined },
+        });
+    } catch (error) {
+        console.error('[activity] failed to read activity_log', error);
+        return EMPTY_ACTIVITY_PAGE;
+    }
+}
+
 export async function getSiteActivity(options: {
     scope: ActivityScope;
     page?: number;
@@ -199,21 +236,23 @@ export async function getSiteActivity(options: {
     const authorised = await requirePermission(Permission.VIEW_ACTIVITY_LOG);
     if (!authorised) return EMPTY_ACTIVITY_PAGE;
 
-    try {
-        return await readActivity(prisma, options);
-    } catch (error) {
-        console.error('[activity] failed to read activity_log', error);
-        return EMPTY_ACTIVITY_PAGE;
-    }
+    return readSiteActivity(
+        options.scope,
+        options.page ?? 1,
+        options.filter?.app ?? '',
+        options.filter?.event ?? '',
+        options.filter?.email ?? ''
+    );
 }
 
 /**
  * The distinct app and event names actually present, so the filters offer what exists
  * rather than a hardcoded list that drifts as either application adds an event.
  */
-export async function getActivityFacets(): Promise<{ apps: string[]; events: string[] }> {
-    const authorised = await requirePermission(Permission.VIEW_ACTIVITY_LOG);
-    if (!authorised) return { apps: [], events: [] };
+async function readActivityFacets(): Promise<{ apps: string[]; events: string[] }> {
+    'use cache';
+    cacheTag(ACTIVITY_TAG);
+    cacheLife(ACTIVITY_CACHE);
     try {
         const [apps, events] = await Promise.all([
             prisma.activityLog.findMany({ distinct: ['app'], select: { app: true }, orderBy: { app: 'asc' } }),
@@ -224,6 +263,12 @@ export async function getActivityFacets(): Promise<{ apps: string[]; events: str
         console.error('[activity] failed to read facets', error);
         return { apps: [], events: [] };
     }
+}
+
+export async function getActivityFacets(): Promise<{ apps: string[]; events: string[] }> {
+    const authorised = await requirePermission(Permission.VIEW_ACTIVITY_LOG);
+    if (!authorised) return { apps: [], events: [] };
+    return readActivityFacets();
 }
 
 /**

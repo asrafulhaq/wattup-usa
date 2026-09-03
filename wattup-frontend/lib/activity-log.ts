@@ -1,6 +1,8 @@
 import 'server-only';
 
+import { ACTIVITY_TAG } from '@/lib/cache-tags';
 import prisma from '@/lib/prisma';
+import { updateTag } from 'next/cache';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { headers } from 'next/headers';
 
@@ -135,4 +137,15 @@ export async function writeActivity(
  */
 export async function logActivity(entry: ActivityEntry, context?: RequestContext): Promise<void> {
     await writeActivity(prisma, entry, context ?? (await requestContext()));
+    // The activity screens cache a page of the log for a few seconds. An event this app
+    // just wrote should appear immediately rather than at the end of that window; an
+    // event the pro-forma app writes cannot invalidate us, and waits for it.
+    //
+    // Never allowed to throw: updateTag is unavailable outside a request scope, and a
+    // seed or a script writing an audit row must not fail because of it.
+    try {
+        updateTag(ACTIVITY_TAG);
+    } catch {
+        // Outside a request. The window is short and the next read refreshes anyway.
+    }
 }

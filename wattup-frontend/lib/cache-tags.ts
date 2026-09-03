@@ -31,6 +31,9 @@ export const userPermissionsTag = (userId: string) => `user-permissions-${userId
 /** What every role grants by default. An edit here changes what every person resolves to. */
 export const ROLE_PERMISSIONS_TAG = 'role-permissions';
 
+/** The audit log, shared by both applications. See the note at the top of this file. */
+export const ACTIVITY_TAG = 'activity-log';
+
 /** Press releases. */
 export const POSTS_TAG = 'posts';
 
