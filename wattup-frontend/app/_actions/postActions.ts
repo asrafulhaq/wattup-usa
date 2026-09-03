@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
+import { getDashboardArticles } from '@/lib/dashboard/articles';
 import { requirePermission, UNAUTHORIZED } from '@/lib/permission-guard';
 import { hasPermission, Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
@@ -107,42 +108,36 @@ export async function getArticleBySlug(slug: string) {
 /**
  * The dashboard's list: drafts included, for a signed-in user holding CREATE_POST.
  *
- * Deliberately not 'use cache'. A cached result is keyed on the arguments, not on who is
- * asking, so a cached function that checks a session would serve the first caller's answer
- * to everyone after it: one signed-in request would put the drafts into the cache and the
- * next anonymous request would read them back out. The session check and the query have to
- * run together, on every call. Only the team reads this list, so the cost is not felt.
+ * The read itself now lives in lib/dashboard/articles.ts, in the shape the rest of this
+ * dashboard uses: a server-only module with an uncached wrapper doing the permission
+ * check and a cached reader under it tagged POSTS_TAG. This export stays because it is
+ * the endpoint hooks/use-articles.ts calls, and it is listed in lib/permission-inventory.
+ *
+ * The comment that used to sit here said the read could not be cached, because a cached
+ * result is keyed on its arguments rather than on who is asking, so one signed-in request
+ * would put the drafts in the cache and the next anonymous request would read them out.
+ * That reasoning is right about a cache wrapped AROUND the check, and it is why the check
+ * stays out here: what changed is that the reader underneath it is cached separately, so
+ * every caller still pays for their own permission resolution and only the rows are
+ * shared. The rows are the same for everyone entitled to see them.
  *
  * Without a session, or without the permission, the caller gets exactly what the public
  * site shows, by going through getPaginatedArticles, so there is one definition of
  * "public" rather than two. The two refusals are indistinguishable on purpose.
+ *
+ * The permission is checked here AND inside getDashboardArticles, deliberately. The
+ * reader guards itself because a page can import it directly, and this endpoint guards
+ * itself because lib/permission-inventory.ts records what it takes to call this URL and
+ * a test proves the code backs the claim: a guard one module away is a guard a reader of
+ * this file cannot see. It costs nothing, because getSession and the permission
+ * resolution are both memoised for the request, so the second call issues no query.
  */
 export async function getArticlesForDashboard(page = 1, pageSize = 10) {
     const authorised = await requirePermission(Permission.CREATE_POST);
-    if (!authorised) {
-        return getPaginatedArticles(page, pageSize);
-    }
+    if (!authorised) return getPaginatedArticles(page, pageSize);
 
-    try {
-        const skip = (page - 1) * pageSize;
-        const [articles, totalCount] = await Promise.all([
-            prisma.posts.findMany({
-                skip,
-                take: pageSize,
-                orderBy: [{ createdAt: 'desc' }],
-            }),
-            prisma.posts.count(),
-        ]);
-
-        return {
-            articles,
-            hasNextPage: skip + articles.length < totalCount,
-            totalCount,
-        };
-    } catch (error) {
-        console.error('Get Articles For Dashboard Error:', error);
-        return { articles: [], hasNextPage: false, totalCount: 0 };
-    }
+    const forTheTeam = await getDashboardArticles(page, pageSize);
+    return forTheTeam ?? getPaginatedArticles(page, pageSize);
 }
 
 /**
