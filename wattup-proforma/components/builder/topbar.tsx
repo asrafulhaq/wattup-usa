@@ -16,6 +16,7 @@ import {
     ExternalLink,
     FileJson,
     FolderOpen,
+    Loader2,
     LogOut,
     Moon,
     Printer,
@@ -293,7 +294,11 @@ export function Topbar(props: TopbarProps) {
                         disabled={props.signingOut}
                         aria-label='Sign out'
                     >
-                        <LogOut className='size-4' />
+                        {props.signingOut ? (
+                            <Loader2 className='size-4 animate-spin' />
+                        ) : (
+                            <LogOut className='size-4' />
+                        )}
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>End this session on this device</TooltipContent>

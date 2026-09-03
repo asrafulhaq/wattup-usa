@@ -52,6 +52,7 @@ import { useHydrated } from '@/lib/use-hydrated';
 import { LG, useMediaQuery } from '@/lib/use-media-query';
 import { BuilderSkeleton } from './builder-skeleton';
 import { BuilderThemeScope } from './builder-theme-scope';
+import { SigningOutOverlay } from './signing-out-overlay';
 import { KpiStrip } from './kpi-strip';
 import { PreviewFrame, type PreviewHandle } from './preview-frame';
 import { Rail } from './rail';
@@ -379,17 +380,40 @@ function Builder() {
         toast('Reset to the WattUpUSA defaults');
     }, []);
 
+    /**
+     * End the session, then leave.
+     *
+     * The request is awaited rather than fired and forgotten, and the order is
+     * load-bearing: /login asks the database whether the caller is still a member,
+     * so navigating while the sign-out is still in flight would have it find a
+     * live session and send the user straight back to /tool. A redirect loop that
+     * looks like the sign-out button not working.
+     *
+     * The overlay covers the wait, which is a database round trip plus a full page
+     * load and is comfortably a second.
+     *
+     * The timeout is the honest part: if that request hangs there is no recovery
+     * from this screen, and stranding someone on a spinner is worse than leaving
+     * with the session possibly intact, which the cookie's own expiry will settle.
+     */
     const signOutNow = useCallback(async () => {
         setSigningOut(true);
+
+        const controller = new AbortController();
+        const bail = setTimeout(() => controller.abort(), 4000);
         try {
             await fetch('/api/auth/sign-out', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
                 body: '{}',
+                signal: controller.signal,
             });
         } catch {
-            /* the redirect below is what matters; a failed call still leaves the tool */
+            /* aborted or offline; leaving is still the right thing to do */
+        } finally {
+            clearTimeout(bail);
         }
+
         // A hard navigation, deliberately. Signing out has to leave nothing of the
         // site behind, and router.push would keep this component's inputs, images
         // and gallery alive in memory on the next screen.
@@ -418,6 +442,7 @@ function Builder() {
     return (
         <div data-builder className='bg-background flex h-dvh flex-col overflow-hidden'>
             <BuilderThemeScope />
+            {signingOut ? <SigningOutOverlay /> : null}
             <Sheet open={railOpen && !wide} onOpenChange={setRailOpen}>
                 <SheetContent side='left' className='flex w-[min(92vw,420px)] flex-col p-0'>
                     <SheetHeader className='border-border/60 border-b px-4 py-3'>
