@@ -6,12 +6,16 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
 
+// Derived from the action rather than hand-written, so a column added to or
+// removed from the search query cannot drift from what this list renders.
+type Suggestion = Awaited<ReturnType<typeof searchArticles>>[number];
+
 export default function SearchBar() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [query, setQuery] = useState(searchParams.get('q') || '');
-    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 

@@ -11,6 +11,14 @@
  * load after it.
  */
 
+/* eslint-disable @next/next/no-sync-scripts --
+ * The rule is right in general and wrong here. Every next/script strategy defers
+ * to at least afterInteractive, which would let GTM and the vendor tags fire
+ * before consent is known — precisely what this component exists to prevent. A
+ * CMP is only able to auto-block what loads after it, so it has to be synchronous
+ * and first. Blocking render for one script is the intended cost.
+ */
+
 export type ActiveCmp =
     | { provider: 'cookiebot'; id: string }
     | { provider: 'cookieyes'; id: string };

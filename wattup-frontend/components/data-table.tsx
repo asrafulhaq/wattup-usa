@@ -38,8 +38,10 @@ import {
     useReactTable,
     type ColumnDef,
     type ColumnFiltersState,
+    type PaginationState,
     type Row,
     type SortingState,
+    type Updater,
     type VisibilityState,
 } from '@tanstack/react-table';
 
@@ -148,7 +150,9 @@ export function DataTable<TData extends { id: string | number }, TValue>({
     });
 
     const pagination = externalPaginationState || internalPagination;
-    const onPaginationChange = (updater: any) => {
+    // Updater<PaginationState> is exactly `PaginationState | (old) => PaginationState`,
+    // which is the union the branch below already discriminates on.
+    const onPaginationChange = (updater: Updater<PaginationState>) => {
         if (typeof updater === 'function') {
             const nextValue = updater(pagination);
             if (onExternalPaginationChange) {

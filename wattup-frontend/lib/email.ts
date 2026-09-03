@@ -19,11 +19,20 @@ export const sendMail = async ({
     });
 
     if (error) {
+        // Resend's published error type does not carry `statusCode`, though the API
+        // returns one, and `name` is a narrow union that widens badly here. Read both
+        // through one structural cast rather than `any`, so the shape stays checked.
+        const { name, statusCode } = error as {
+            name?: string;
+            statusCode?: number;
+        };
         console.error('[Resend] send failed:', {
-            name: (error as any).name,
-            statusCode: (error as any).statusCode,
+            name,
+            statusCode,
             message: error.message,
         });
-        throw new Error(`Resend error [${(error as any).statusCode ?? 'unknown'}] ${(error as any).name ?? ''}: ${error.message}`);
+        throw new Error(
+            `Resend error [${statusCode ?? 'unknown'}] ${name ?? ''}: ${error.message}`,
+        );
     }
 };
