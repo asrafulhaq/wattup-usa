@@ -77,7 +77,23 @@ const nextConfig: NextConfig = {
     },
     cacheComponents: true,
     /* config options here */
-    output: 'standalone',
+    //
+    // No `output: 'standalone'`. It exists for self-hosting, where the entrypoint
+    // must be `node .next/standalone/server.js`, and nothing here self-hosts: there
+    // is no Dockerfile and both apps deploy to Vercel.
+    //
+    // On Vercel it is not merely unnecessary, it breaks the build. Vercel injects a
+    // build adapter (the log shows `Applying modifyConfig from Vercel` and
+    // `Running onBuildComplete from Vercel`), and Next 16 builds with Turbopack.
+    // Turbopack suppresses `next-server.js.nft.json` when an adapter is present,
+    // because the adapter assembles the deployment from the per-endpoint traces
+    // instead. But `copyTracedFiles` reads that file unconditionally whenever
+    // standalone is requested, so the pair crashes with
+    // `ENOENT: .next/next-server.js.nft.json` after a fully successful compile.
+    // That is Next.js #96646.
+    //
+    // Under webpack this was harmless, which is why docs/plan/PERF-AUDIT.md still
+    // says "Vercel ignores it" — true before the Next 16 upgrade (F8), not after.
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',
     },

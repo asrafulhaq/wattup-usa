@@ -1,0 +1,85 @@
+# CI for wattup-frontend only. Root CLAUDE.md: this is not a pnpm workspace,
+# so this job installs and runs inside wattup-frontend and nothing runs from
+# the repo root.
+#
+# One workflow per app, each with its own path filter, so a change confined to
+# wattup-proforma never spends a runner on this app. A change that touches
+# neither app (docs, ADRs, the checklist) runs no workflow at all.
+#
+# `next build` here prerenders pages from the database, so it runs only when
+# the DATABASE_URL secret is present. A secret cannot be read in an `if:`
+# directly; the documented way is a job-level env set from the secret and an
+# `if:` on that env, which is what HAS_DATABASE_URL does.
+#
+# Note this calls `pnpm exec next build`, NOT `pnpm build`. The package.json
+# build script is `node scripts/migrate-on-deploy.mjs && next build`, and CI
+# must never apply migrations to the shared production database.
+
+name: CI · wattup-frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wattup-frontend/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    paths:
+      - 'wattup-frontend/**'
+      - '.github/workflows/ci-frontend.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: wattup-frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wattup-frontend
+    env:
+      HAS_DATABASE_URL: ${{ secrets.DATABASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # wattup-frontend/package.json carries no packageManager field yet, so
+      # the version is pinned here to the one wattup-proforma declares. Move it
+      # into packageManager when that file is free.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: wattup-frontend/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # PageProps, LayoutProps and the cacheLife signature are globals that
+      # next dev, next build or next typegen write into .next/types, which
+      # tsconfig.json includes. A fresh checkout has none of them.
+      - name: Generate Next route types
+        run: pnpm exec next typegen
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build (prerenders from the database; skipped when DATABASE_URL is not set)
+        if: env.HAS_DATABASE_URL == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm exec next build

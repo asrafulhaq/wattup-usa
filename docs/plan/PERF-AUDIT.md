@@ -768,6 +768,14 @@ it is worth a look independently of performance.
 correctly for these measurements. It matters only for self-hosting, where the entrypoint must
 be `node .next/standalone/server.js`. Vercel ignores it.
 
+> **Superseded 2026-09-03.** "Vercel ignores it" was true under webpack and is false after the
+> Next 16 upgrade (F8). Vercel injects a build adapter, Next 16 builds with Turbopack, and
+> Turbopack suppresses `next-server.js.nft.json` when an adapter is present — while
+> `copyTracedFiles` still reads it unconditionally whenever standalone is requested. The first
+> production deploy died on `ENOENT: .next/next-server.js.nft.json` after a fully successful
+> compile (Next.js #96646). `output: 'standalone'` has been removed from
+> `wattup-frontend/next.config.ts`; nothing here self-hosts, so nothing wanted it.
+
 ---
 
 # Suggested order of work

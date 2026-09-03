@@ -1,0 +1,42 @@
+# Checklist 4b.11: wattup-frontend owns the schema, wattup-proforma reads it.
+# A frontend migration that touches "user", activity_log or proforma_* must say
+# so in a `-- shared-surface:` line, because those three surfaces are the only
+# coupling between the two apps and a silent change to one breaks the other.
+#
+# This is the one check with no Vercel equivalent: Vercel builds each app on
+# its own and can never see that a frontend migration broke the pro-forma.
+#
+# Pull requests only, where a base ref exists to diff against. Filtered to
+# migrations, since with no migration change there is nothing to guard. The
+# script needs no install, only Node and the full history.
+
+name: shared-surface migration guard
+
+on:
+  pull_request:
+    paths:
+      - 'wattup-frontend/prisma/migrations/**'
+      - '.github/workflows/shared-surface.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shared-migrations:
+    name: shared-surface migration guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check migrations changed against the base branch
+        run: node wattup-frontend/scripts/check-shared-migrations.mjs --base "origin/${{ github.base_ref }}"

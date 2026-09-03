@@ -56,7 +56,7 @@ after this lands, so tell them before you merge.
 ## Step 1 — Safety net
 
 ```bash
-cd "/Users/devripon/devripon/Final & Running Project/wattup"
+cd "/Users/devripon/devripon/Final & Running Project/wattup-usa"
 
 # Commit the docs written so far so the tree is clean
 git add docs/
@@ -429,7 +429,7 @@ before merging. If Root Directory was not saved, the preview fails — that is t
 From the repository root, after the restructure PR is merged:
 
 ```bash
-cd "/Users/devripon/devripon/Final & Running Project/wattup"   # the repo root
+cd "/Users/devripon/devripon/Final & Running Project/wattup-usa"   # the repo root
 git checkout main && git pull
 
 pnpm create next-app@latest wattup-proforma \

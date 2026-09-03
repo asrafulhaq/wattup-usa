@@ -1,0 +1,76 @@
+# CI for wattup-proforma only. Root CLAUDE.md: this is not a pnpm workspace,
+# so this job installs and runs inside wattup-proforma and nothing runs from
+# the repo root.
+#
+# One workflow per app, each with its own path filter, so a change confined to
+# wattup-frontend never spends a runner on this app. A change that touches
+# neither app (docs, ADRs, the checklist) runs no workflow at all.
+
+name: CI · wattup-proforma
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wattup-proforma/**'
+      - '.github/workflows/ci-proforma.yml'
+  pull_request:
+    paths:
+      - 'wattup-proforma/**'
+      - '.github/workflows/ci-proforma.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-proforma-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proforma:
+    name: wattup-proforma
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wattup-proforma
+    env:
+      HAS_DATABASE_URL: ${{ secrets.DATABASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads the pnpm version from wattup-proforma's packageManager field.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: wattup-proforma/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: wattup-proforma/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # app/layout.tsx and app/login/page.tsx use the generated LayoutProps
+      # and PageProps globals; without this step tsc fails with TS2304.
+      - name: Generate Next route types
+        run: pnpm exec next typegen
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # The pro-forma build reads nothing from the database, but it is gated
+      # the same way as the frontend so both apps build under the same
+      # conditions.
+      - name: Build (skipped when DATABASE_URL is not set)
+        if: env.HAS_DATABASE_URL == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm exec next build
