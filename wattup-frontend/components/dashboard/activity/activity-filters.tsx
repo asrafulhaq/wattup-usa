@@ -1,13 +1,16 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState, type TransitionStartFunction } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { appLabel, eventLabel } from '@/components/dashboard/users/detail/activity-format';
 import type { ActivityScope } from '@/lib/dashboard/activity';
 
 /**
  * The tabs and filters on the Activity page.
+ *
+ * Controls only: they report what changed and the view above decides what to do with it.
+ * That split is what lets the same controls sit over a client query cache rather than a
+ * navigation, without knowing which they are driving.
  *
  * These were a plain form and plain links, which is the right default and was the wrong
  * default here. Every change was a full navigation, so the table unmounted, the skeleton
@@ -38,19 +41,18 @@ export function ActivityFilters({
     email,
     facets,
     pending,
-    startTransition,
+    onChange,
 }: {
     scope: ActivityScope;
     app: string;
     event: string;
     email: string;
     facets: Facets;
-    /** Owned by the view above, which also dims the table with it. */
+    /** True while the table below is showing the previous filter's rows. */
     pending: boolean;
-    startTransition: TransitionStartFunction;
+    /** The view owns the URL; these controls only say what changed. */
+    onChange: (changes: Record<string, string | null>) => void;
 }) {
-    const router = useRouter();
-    const params = useSearchParams();
 
     // The text box is the one control that must not wait for the server between
     // keystrokes, so it holds its own value and pushes the URL behind a timer.
@@ -71,26 +73,7 @@ export function ActivityFilters({
         if (debounce.current) clearTimeout(debounce.current);
     }, []);
 
-    /** Build the next URL from the current one, so nothing unrelated is lost. */
-    function urlWith(changes: Record<string, string | null>): string {
-        const next = new URLSearchParams(params.toString());
-        for (const [key, value] of Object.entries(changes)) {
-            if (value) next.set(key, value);
-            else next.delete(key);
-        }
-        // Any change to what is being shown starts again at the first page. Keeping the
-        // number would land on page 4 of a result set that now has one page.
-        next.delete('activityPage');
-        next.delete('signinPage');
-        const query = next.toString();
-        return `/dashboard/activity${query ? `?${query}` : ''}`;
-    }
-
-    function go(changes: Record<string, string | null>): void {
-        // replace, not push: filtering is refining one view, not walking a trail, and a
-        // back button that steps through every keystroke is its own annoyance.
-        startTransition(() => router.replace(urlWith(changes), { scroll: false }));
-    }
+    const go = onChange;
 
     function onEmailChange(value: string): void {
         setDraft(value);

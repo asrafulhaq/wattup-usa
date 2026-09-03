@@ -45,6 +45,18 @@ export const PERMISSION_INVENTORY: Readonly<Record<string, EndpointAccess>> = {
     'app/_actions/admin-user-actions.ts#revokePermission': needs(Permission.MANAGE_PERMISSIONS),
     'app/_actions/admin-user-actions.ts#clearPermissionOverride': needs(Permission.MANAGE_PERMISSIONS),
 
+    // ─── Activity log ─────────────────────────────────────────────────────────
+    // The data path for the client query cache. Both are thin wrappers over readers that
+    // check VIEW_ACTIVITY_LOG themselves and answer an empty page to anyone without it,
+    // which is why they are marked SESSION_ONLY rather than carrying the permission: the
+    // export does not gate, the reader under it does.
+    'app/_actions/activity-actions.ts#fetchActivityPage': sessionOnly(
+        'Reads the audit log through getSiteActivity, which requires VIEW_ACTIVITY_LOG and returns an empty page without it.'
+    ),
+    'app/_actions/activity-actions.ts#fetchActivityFacets': sessionOnly(
+        'Reads the distinct apps and events through getActivityFacets, which requires VIEW_ACTIVITY_LOG.'
+    ),
+
     // ─── Role defaults ────────────────────────────────────────────────────────
     'app/_actions/role-permission-actions.ts#setRolePermission': needs(
         Permission.MANAGE_PERMISSIONS

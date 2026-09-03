@@ -47,6 +47,7 @@ function Pagination({
     scope,
     basePath,
     params,
+    onPageChange,
 }: {
     page: number;
     total: number;
@@ -54,9 +55,38 @@ function Pagination({
     scope: ActivityScope;
     basePath: string;
     params: Record<string, string>;
+    /** When given, paging is handled by the caller and no navigation happens. */
+    onPageChange?: (page: number) => void;
 }) {
     const lastPage = Math.max(1, Math.ceil(total / pageSize));
     if (lastPage <= 1) return null;
+
+    const box = 'rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium';
+
+    /**
+     * A link on the per-person page, where paging is a navigation, and a button on the
+     * Activity screen, where the parent holds the data and a navigation would throw away
+     * the cache it is paging through.
+     *
+     * A plain function called directly rather than a component used as <Step />: a
+     * component declared inside a render is a new type on every render, so React would
+     * remount it each time and any state in it would reset.
+     */
+    const step = (to: number, enabled: boolean, label: string) => {
+        if (!enabled) return <span className={`${box} text-dark/30`}>{label}</span>;
+        if (onPageChange) {
+            return (
+                <button type='button' onClick={() => onPageChange(to)} className={`${box} text-dark hover:bg-dash-canvas`}>
+                    {label}
+                </button>
+            );
+        }
+        return (
+            <Link href={href(to)} className={`${box} text-dark hover:bg-dash-canvas`}>
+                {label}
+            </Link>
+        );
+    };
 
     const key = scope === 'signin' ? 'signinPage' : 'activityPage';
     // Keep every other parameter. Without this, paging on the site-wide page silently
@@ -75,20 +105,8 @@ function Pagination({
                 {first} to {last} of {total}
             </p>
             <div className='flex gap-2'>
-                {page > 1 ? (
-                    <Link href={href(page - 1)} className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark hover:bg-dash-canvas'>
-                        Previous
-                    </Link>
-                ) : (
-                    <span className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark/30'>Previous</span>
-                )}
-                {page < lastPage ? (
-                    <Link href={href(page + 1)} className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark hover:bg-dash-canvas'>
-                        Next
-                    </Link>
-                ) : (
-                    <span className='rounded-lg border border-dash-border px-3 py-1.5 text-xs font-medium text-dark/30'>Next</span>
-                )}
+                {step(page - 1, page > 1, 'Previous')}
+                {step(page + 1, page < lastPage, 'Next')}
             </div>
         </div>
     );
@@ -101,6 +119,7 @@ export function ActivityTable({
     subjectId,
     params = {},
     showWho = false,
+    onPageChange,
 }: {
     result: ActivityPage;
     scope: ActivityScope;
@@ -114,6 +133,8 @@ export function ActivityTable({
     params?: Record<string, string>;
     /** Adds the Who column. On a person's own page it would repeat their name on every row. */
     showWho?: boolean;
+    /** When given, paging calls this instead of navigating. */
+    onPageChange?: (page: number) => void;
 }) {
     if (result.rows.length === 0) {
         return (
@@ -220,6 +241,7 @@ export function ActivityTable({
                 scope={scope}
                 basePath={basePath}
                 params={params}
+                onPageChange={onPageChange}
             />
         </div>
     );
