@@ -73,6 +73,31 @@ DATABASE_URL='<production url>' pnpm migrate:deploy
 `migrate:deploy` applies pending migrations and never resets. Use it, not
 `migrate:dev` and never `db push`.
 
+### 3.1a After the first deploy, this is automatic
+
+`wattup-frontend`'s build runs `scripts/migrate-on-deploy.mjs` before `next build`, so a
+**production** Vercel deploy applies pending migrations on its own. You run the command above
+only for the very first deploy, or to apply a migration without shipping code.
+
+The guard is not optional, and the reason is specific to this project: there is **one
+database**, shared by both apps, with no preview or branch database configured. Without it,
+every Preview deployment would migrate production, so a pull request carrying a bad migration
+would alter live data before anyone reviewed it.
+
+`VERCEL_ENV` must be exactly `production`; anything else, including a local `pnpm build`, skips
+and says so in the build log. A missing `DATABASE_URL` on a production build is refused rather
+than ignored, and a failed migration fails the build rather than shipping code whose schema
+change did not land.
+
+> **Migrations must be additive.** Vercel runs the build **before** it promotes the deployment,
+> so a migration takes effect while the previous version is still serving traffic. Adding a
+> column or a table is invisible to that older code; dropping or renaming one breaks the running
+> site for the length of the build. Split a destructive change across two releases: add the new
+> shape and write to it, ship, then remove the old shape once nothing reads it.
+>
+> If you later want migrations on Preview too, the clean answer is a **Neon branch database per
+> preview**, not loosening this guard.
+
 ### 3.2 What NOT to run
 
 > **`pnpm db:seed` writes to whatever `DATABASE_URL` points at.** It force-promotes
@@ -121,8 +146,10 @@ Rotating a `BETTER_AUTH_SECRET` invalidates every existing session for that app.
 2. **Root Directory: `wattup-frontend`.** Not the repository root. This is 0.18 and
    it is the step everything else waits on.
 3. Framework preset: **Next.js** (detected).
-4. Build command: leave as the default (`pnpm build`, which is plain `next build`).
-   **Do not add a seed or migrate step to it.**
+4. Build command: leave as the default. `pnpm build` is
+   `node scripts/migrate-on-deploy.mjs && next build`: it applies pending migrations, but
+   **only when `VERCEL_ENV=production`**, so Preview deploys and local builds skip it and
+   cannot touch the shared production database. **Do not add a seed step to it** (see §3.2).
 5. Install command: default. `postinstall` runs `prisma generate` already.
 6. Node.js version: **20.x or newer**. Next 16 requires it.
 
@@ -368,7 +395,8 @@ cache.
 ## 12. The short version
 
 ```
-1.  Apply migrations           cd wattup-frontend && pnpm migrate:deploy
+1.  Apply migrations           cd wattup-frontend && pnpm migrate:deploy   (first deploy only;
+                               production builds migrate themselves after that)
 2.  Generate 3 secrets         openssl rand -base64 32   (x3, two must differ)
 3.  Vercel project A           Root Directory = wattup-frontend
 4.  ...its env                 13 required + CRON_SECRET

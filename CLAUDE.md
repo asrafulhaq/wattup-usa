@@ -59,7 +59,12 @@ wattup/
 F8 (the dependency upgrade) is done on both apps: `next` 16.3.4, `better-auth` 1.7.2.
 
 **`DATABASE_URL` points at a remote Neon database.** `pnpm build` in `wattup-frontend` is
-plain `next build` and no longer runs the seed (finding F13). It still reads that database at build time to prerender static pages, but it no longer writes to it.
+`node scripts/migrate-on-deploy.mjs && next build`. It still does not run the seed (finding
+F13). It reads the database at build time to prerender static pages, and on a **production
+Vercel deploy only** it first applies pending migrations; `VERCEL_ENV` gates that, so local
+builds and Preview deploys skip it and never touch the shared production database. Migrations
+must therefore be **additive**: Vercel builds before it promotes, so a migration lands while
+the previous version is still serving.
 `pnpm db:seed` still writes to that database — it force-promotes `ADMIN_EMAIL` to
 `SUPER_ADMIN` and recreates it from `ADMIN_PASSWORD` — so treat it as a deliberate,
 production-affecting action, never a routine step.

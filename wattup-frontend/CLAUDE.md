@@ -220,7 +220,8 @@ not be able to widen it by passing an argument.
 pnpm dev              # localhost:3000; log in at /admin
 pnpm lint
 pnpm test             # Vitest: permissions, resolution, guards, audit rows, endpoint inventory
-pnpm build            # next build. Reads the database at build time; no longer writes (seed removed)
+pnpm build            # migrate-on-deploy + next build. Reads the DB to prerender; migrates only
+                      # when VERCEL_ENV=production, so local and Preview builds skip it entirely
 pnpm db:seed          # one-off bootstrap, writes to DATABASE_URL  ← see the warning below
 pnpm seed:admins      # add/promote SUPER_ADMINs from ADMIN_EMAILS only; touches user + account, nothing else
 pnpm db:studio        # Prisma Studio
