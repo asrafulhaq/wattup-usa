@@ -39,10 +39,19 @@ replacing a shared password.
 > pinned by `tests/proforma/sections-parity.test.ts`, so every section note and field hint stays
 > word for word what the static tool had.
 
-`private/tool/` is still in the repo and is still the frozen source in `../docs/Pro-Forma
-source/` bar the three exceptions below, but **nothing serves it any more**: it is the reference
-the parity tests compare against. The route that used to read it off disk is gone, and with it
-the whole class of path-traversal risk it existed to defend against.
+`private/tool/` holds **four files and nothing else**: `js/model.js`, `js/doc.js`,
+`js/evpin.js` and `js/app.js`. They are the reference the parity tests compare against, and
+that is their only remaining job. **Nothing serves them.** The route that used to read this
+folder off disk is gone, and with it the whole class of path-traversal risk it existed to
+defend against.
+
+The rest of the vendored copy (`index.html`, `css/app.css` and all ten files under `assets/`)
+was deleted once nothing referenced it. Every one of those files was byte-identical to
+`../docs/Pro-Forma source/`, which still holds them, except two: `index.html` differed only in
+a sign-out link the React header replaced, and `assets/render-station-wide.jpg` lives on at
+`public/proforma/render-station-wide.jpg`, byte for byte. Nothing was lost. Do not restore
+them: a second copy of files nothing reads is what made this folder look like it was still
+being served.
 
 Nothing typed is sent anywhere. The model runs in the browser, images become data URLs and never
 leave it, and the only state written to the device is what section 2.2 of
@@ -230,7 +239,7 @@ lib/activity-log.ts          logActivity: the four audit events into activity_lo
 lib/prisma.ts                Prisma client, pooled
 lib/email.ts                 Resend + the OTP template; maskEmail for logs
 prisma/schema.prisma         narrow mirror, never migrated from here; activity_log is the one table it writes
-private/tool/                the calculator, source-identical bar the three exceptions above
+private/tool/js/             FOUR files, the parity tests' reference. Nothing serves them
 ```
 
 ## Commands
