@@ -25,9 +25,9 @@ const TONE: Record<Tone, string> = {
 export function KpiStrip({ model }: { model: ProformaModel | null }) {
     if (!model) {
         return (
-            <div className='border-border/60 grid shrink-0 grid-cols-2 border-b md:grid-cols-3 lg:grid-cols-5'>
+            <div className='border-border/60 flex shrink-0 overflow-x-auto border-b lg:grid lg:grid-cols-5 lg:overflow-visible'>
                 {Array.from({ length: 5 }, (_, i) => (
-                    <div key={i} className='border-border/60 space-y-2 border-r px-5 py-3.5 last:border-r-0'>
+                    <div key={i} className='border-border/60 min-w-[9.5rem] shrink-0 space-y-2 border-r px-5 py-3.5 last:border-r-0 lg:min-w-0'>
                         <div className='bg-muted h-6 w-28 animate-pulse rounded' />
                         <div className='bg-muted h-2.5 w-20 animate-pulse rounded' />
                     </div>
@@ -49,11 +49,11 @@ export function KpiStrip({ model }: { model: ProformaModel | null }) {
     ];
 
     return (
-        <div className='border-border/60 grid shrink-0 grid-cols-2 border-b md:grid-cols-3 lg:grid-cols-5'>
+        <div className='border-border/60 flex shrink-0 overflow-x-auto border-b lg:grid lg:grid-cols-5 lg:overflow-visible'>
             {cards.map((c) => (
                 <div
                     key={c.label}
-                    className='border-border/60 min-w-0 border-r px-5 py-3.5 last:border-r-0'
+                    className='border-border/60 min-w-[9.5rem] shrink-0 border-r px-5 py-3.5 last:border-r-0 lg:min-w-0'
                 >
                     <motion.div
                         // Keyed on the value so a change remounts and replays the lift.

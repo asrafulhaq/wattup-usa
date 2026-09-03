@@ -214,25 +214,149 @@ body {
 /*
  * The builder's own additions, below everything copied from wattup-frontend so a
  * re-sync of the token block above stays a clean paste.
- *
- * Radix Accordion animates by measuring its own content and exposing the height as
- * a custom property; without these two keyframes the rail's sections would snap
- * open instead of sliding. They are not in the frontend's copy because nothing
- * there uses an accordion.
  */
-@theme inline {
-    --animate-accordion-down: accordion-down 0.22s cubic-bezier(0.32, 0.72, 0, 1);
-    --animate-accordion-up: accordion-up 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+
+/*
+ * The builder's surfaces are NEUTRAL grey, not the taupe the shared token block
+ * carries.
+ *
+ * wattup-frontend's palette is built on a warm base: --muted, --border and
+ * --input sit at oklch hue 17 to 43, which reads as beige on the large flat
+ * areas a control panel is made of (note boxes, field borders, the accordion
+ * dividers). That is right for the marketing site and wrong for a tool.
+ *
+ * Scoped to [data-builder] rather than :root on purpose. /login is deliberately a
+ * sibling of the dashboard's sign-in screen (ADR 0001 section 3) and must keep
+ * the shared palette exactly; only the builder is re-tinted. The block above stays
+ * a clean paste when the frontend's tokens are re-synced by hand.
+ *
+ * The values are the zinc ramp this app already uses for --gray and --gray-light.
+ */
+[data-builder] {
+    --foreground: #18181b;
+    --card: #ffffff;
+    --card-foreground: #18181b;
+    --popover: #ffffff;
+    --popover-foreground: #18181b;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #18181b;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #f4f4f5;
+    --accent-foreground: #18181b;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
 }
 
+.dark [data-builder],
+[data-builder].dark {
+    --background: #18181b;
+    --foreground: #fafafa;
+    --card: #1f1f23;
+    --card-foreground: #fafafa;
+    --popover: #1f1f23;
+    --popover-foreground: #fafafa;
+    --secondary: #27272a;
+    --secondary-foreground: #fafafa;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
+    --accent: #27272a;
+    --accent-foreground: #fafafa;
+    --border: #2e2e33;
+    --input: #34343a;
+}
+
+/*
+ * The rail's accordion.
+ *
+ * Written against Radix's own data-state attributes rather than as Tailwind
+ * `animate-*` utilities. The utility route was tried first and silently did
+ * nothing: `@theme inline` deliberately does not emit a custom property, and the
+ * generated class never carried the animation name, so the sections snapped open
+ * with a duration and no keyframes. This is deterministic, and a browser check
+ * confirms animation-name resolves.
+ *
+ * Radix measures the panel and publishes the height, which is the only way to
+ * animate to `auto`.
+ *
+ * Three things make it feel smooth rather than merely slow:
+ *
+ * 1. `contain: layout paint` on the panel. Animating height reflows whatever
+ *    follows it, and a section holds up to thirteen fields; containment lets the
+ *    browser treat the panel as its own layout root so the other seven sections
+ *    are not re-laid-out sixty times a second.
+ * 2. The height curve is an ease-out quint. It covers most of the distance early
+ *    and settles gently, which reads as smooth; a symmetric ease reads as slow.
+ * 3. The content fades and lifts on its own slightly faster curve, so the panel
+ *    is never a blank box being stretched.
+ *
+ * Opening is a little longer than closing on purpose: revealing wants to feel
+ * considered, dismissing wants to feel immediate.
+ */
 @keyframes accordion-down {
-    from { height: 0; opacity: 0; }
-    to { height: var(--radix-accordion-content-height); opacity: 1; }
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
 }
 
 @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); opacity: 1; }
-    to { height: 0; opacity: 0; }
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+}
+
+@keyframes accordion-content-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes accordion-content-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-4px); }
+}
+
+[data-slot='accordion-content'] {
+    contain: layout paint;
+    will-change: height;
+}
+
+[data-slot='accordion-content'][data-state='open'] {
+    animation: accordion-down 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-slot='accordion-content'][data-state='closed'] {
+    animation: accordion-up 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-slot='accordion-content'][data-state='open'] > * {
+    animation: accordion-content-in 300ms cubic-bezier(0.22, 1, 0.36, 1) 40ms backwards;
+}
+
+[data-slot='accordion-content'][data-state='closed'] > * {
+    animation: accordion-content-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* The chevron settles on the same curve as the panel it belongs to. */
+[data-slot='accordion-trigger'] > svg {
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * One easing and one duration for the small stuff, so hovers, focus rings, drop
+ * zones and buttons all settle at the same rate instead of each picking its own.
+ */
+@layer base {
+    button,
+    [role='button'],
+    a,
+    summary,
+    [data-slot='accordion-trigger'] {
+        transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+}
+
+/* A drag on the rail divider must not select the form text it passes over. */
+[role='separator'][aria-orientation='vertical'] {
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /*

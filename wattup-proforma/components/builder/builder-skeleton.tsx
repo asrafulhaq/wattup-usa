@@ -8,7 +8,7 @@
  */
 export function BuilderSkeleton() {
     return (
-        <div className='flex h-dvh flex-col overflow-hidden'>
+        <div data-builder className='bg-background flex h-dvh flex-col overflow-hidden'>
             <header className='border-border/60 flex h-14 shrink-0 items-center gap-3 border-b px-4'>
                 <div className='bg-muted h-5 w-28 animate-pulse rounded' />
                 <div className='bg-border h-7 w-px' />
@@ -26,7 +26,7 @@ export function BuilderSkeleton() {
             </header>
 
             <div className='flex min-h-0 flex-1'>
-                <aside className='border-border/60 w-[340px] shrink-0 space-y-4 border-r p-4'>
+                <aside className='border-border/60 hidden w-[340px] shrink-0 space-y-4 border-r p-4 lg:block'>
                     <div className='space-y-2 pb-2'>
                         <div className='bg-muted h-2.5 w-full animate-pulse rounded' />
                         <div className='bg-muted h-2.5 w-11/12 animate-pulse rounded' />
@@ -41,11 +41,11 @@ export function BuilderSkeleton() {
                 </aside>
 
                 <main className='flex min-w-0 flex-1 flex-col'>
-                    <div className='border-border/60 grid shrink-0 grid-cols-2 border-b md:grid-cols-3 lg:grid-cols-5'>
+                    <div className='border-border/60 flex shrink-0 overflow-x-auto border-b lg:grid lg:grid-cols-5'>
                         {Array.from({ length: 5 }, (_, i) => (
                             <div
                                 key={i}
-                                className='border-border/60 space-y-2 border-r px-5 py-3.5 last:border-r-0'
+                                className='border-border/60 min-w-[9.5rem] shrink-0 space-y-2 border-r px-5 py-3.5 last:border-r-0 lg:min-w-0'
                             >
                                 <div className='bg-muted h-6 w-28 animate-pulse rounded' />
                                 <div className='bg-muted h-2.5 w-20 animate-pulse rounded' />

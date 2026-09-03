@@ -8,7 +8,12 @@
  * One deliberate behaviour change from the static tool is marked FIXED below.
  */
 import type { EvpinParsed } from './evpin';
-import { DEFAULT_INPUTS, type ProformaInputs } from './model';
+import {
+    DEFAULT_INPUTS,
+    DEFAULT_MARKET,
+    DESIGN_DEFAULTS,
+    type ProformaInputs,
+} from './model';
 
 /** The three single-image slots the document draws. */
 export type ImageSlot = 'cover' | 'aerial' | 'design';
@@ -50,8 +55,25 @@ export function deepClone<T>(o: T): T {
     return JSON.parse(JSON.stringify(o)) as T;
 }
 
+/**
+ * A fresh set of inputs, with every default the engine holds already in the form.
+ *
+ * DEFAULT_INPUTS ships `market: {}` and `design: {}`, and the engine fills them in
+ * at build time with `Object.assign({}, DEFAULTS, input)`. That is why the static
+ * tool showed thirteen blank market fields and seven blank branding fields while
+ * the document printed real values: the numbers existed, just nowhere the user
+ * could see or edit them without retyping one from scratch.
+ *
+ * Seeding them here puts the same values in the form. **The document does not
+ * change**, because passing the defaults explicitly and letting the engine merge
+ * them are the same thing, and tests/proforma/prefill.test.ts proves it byte for
+ * byte rather than asserting it.
+ */
 export function freshInputs(): ProformaInputs {
-    return deepClone(DEFAULT_INPUTS);
+    const inputs = deepClone(DEFAULT_INPUTS);
+    inputs.market = deepClone(DEFAULT_MARKET);
+    inputs.design = deepClone(DESIGN_DEFAULTS);
+    return inputs;
 }
 
 /**
@@ -177,16 +199,24 @@ export function slugFor(inputs: ProformaInputs): string {
 }
 
 /**
- * Merge a loaded inputs.json over the defaults, with the static tool's exact
- * semantics: location is merged onto the default location, while design and market
- * are REPLACED by whatever the file carries, even when that is nothing. Changing
- * this would silently alter what an old exported file reloads as.
+ * Merge a loaded inputs.json over the defaults.
+ *
+ * Location merges onto the default location, as the static tool did. Design and
+ * market now merge onto the DEFAULTS rather than replacing them outright: the
+ * static tool assigned `json.design || {}` straight over the top, so loading a
+ * file that carried no branding emptied all seven branding fields on screen while
+ * the document went on printing the defaults the engine merged back in. With the
+ * form prefilled, that inconsistency would be visible on every load.
+ *
+ * **The document is unaffected either way**, which is what makes this safe: the
+ * engine merges the same defaults under whatever it is given, so a file's values
+ * still win and an absent value still resolves to the default.
  */
 export function mergeLoadedInputs(json: Partial<ProformaInputs>): ProformaInputs {
     const merged = Object.assign(freshInputs(), json) as ProformaInputs;
     merged.location = Object.assign({}, DEFAULT_INPUTS.location, json.location || {});
-    merged.design = json.design || {};
-    merged.market = json.market || {};
+    merged.design = Object.assign({}, DESIGN_DEFAULTS, json.design || {});
+    merged.market = Object.assign({}, DEFAULT_MARKET, json.market || {});
     return merged;
 }
 

@@ -187,17 +187,26 @@ describe('filenames', () => {
     });
 });
 
-describe('loading inputs, with the static tool’s exact merge semantics', () => {
+describe('loading inputs', () => {
     it('merges location onto the defaults', () => {
         const merged = mergeLoadedInputs({ location: { city: 'Fresno, CA' } } as never);
         expect(merged.location.city).toBe('Fresno, CA');
         expect(merged.location.address).toBe(DEFAULT_INPUTS.location.address);
     });
 
-    it('REPLACES design and market, so an old file cannot inherit new defaults', () => {
+    /**
+     * CHANGED from the static tool, deliberately, and safe because the engine
+     * merges the same defaults underneath either way. The old behaviour assigned
+     * `json.design || {}` straight over the top, so loading a file with no
+     * branding emptied all seven branding fields on screen while the document
+     * carried on printing the defaults. tests/proforma/prefill.test.ts proves the
+     * rendered document is byte-identical under the new merge.
+     */
+    it('lets the file win, and falls back to the default for keys it omits', () => {
         const merged = mergeLoadedInputs({ design: { accent: '#123456' } } as never);
-        expect(merged.design).toEqual({ accent: '#123456' });
-        expect(merged.market).toEqual({});
+        expect(merged.design.accent).toBe('#123456');
+        expect(merged.design.title1).toBe('Revenue');
+        expect(merged.market.util_score).toBe('4.4/5');
     });
 
     it('keeps every scalar the file carries', () => {

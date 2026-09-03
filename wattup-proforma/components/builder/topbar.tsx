@@ -79,6 +79,8 @@ export interface TopbarProps {
     onPrint: () => void;
     onSignOut: () => void;
     signingOut: boolean;
+    /** Opens the rail as a drawer below lg, where there is no room for a column. */
+    railTrigger?: React.ReactNode;
 }
 
 function ThemeToggle() {
@@ -146,7 +148,8 @@ export function Topbar(props: TopbarProps) {
     };
 
     return (
-        <header className='border-border/60 flex h-14 shrink-0 items-center gap-2 border-b px-4'>
+        <header className='border-border/60 flex h-14 shrink-0 items-center gap-1.5 border-b px-3 sm:gap-2 sm:px-4'>
+            {props.railTrigger}
             <div className='flex min-w-0 items-center gap-3'>
                 {/*
                   * Two files, not one file and a CSS filter. WattUp ships a light
@@ -167,8 +170,8 @@ export function Topbar(props: TopbarProps) {
                     aria-hidden='true'
                     className='hidden h-5 w-auto dark:block'
                 />
-                <Separator orientation='vertical' className='h-7' />
-                <div className='min-w-0 leading-tight'>
+                <Separator orientation='vertical' className='hidden h-7 sm:block' />
+                <div className='hidden min-w-0 leading-tight sm:block'>
                     <div className='truncate text-[13px] font-semibold'>Site Pro-Forma Builder</div>
                     <div className='text-muted-foreground truncate text-[10px] font-medium tracking-wider uppercase'>
                         Host Revenue Model
@@ -182,7 +185,7 @@ export function Topbar(props: TopbarProps) {
                 <DropdownMenuTrigger asChild>
                     <Button variant='ghost' size='sm' className='h-8 gap-1'>
                         <FolderOpen className='size-3.5' />
-                        Scenarios
+                        <span className='hidden md:inline'>Scenarios</span>
                         <ChevronDown className='size-3' />
                     </Button>
                 </DropdownMenuTrigger>
@@ -240,7 +243,7 @@ export function Topbar(props: TopbarProps) {
                 <DropdownMenuTrigger asChild>
                     <Button variant='ghost' size='sm' className='h-8 gap-1'>
                         <FileJson className='size-3.5' />
-                        File
+                        <span className='hidden md:inline'>File</span>
                         <ChevronDown className='size-3' />
                     </Button>
                 </DropdownMenuTrigger>
@@ -283,15 +286,21 @@ export function Topbar(props: TopbarProps) {
                 <TooltipContent>End this session on this device</TooltipContent>
             </Tooltip>
 
-            <Separator orientation='vertical' className='mx-1 h-7' />
+            <Separator orientation='vertical' className='mx-1 hidden h-7 sm:block' />
 
-            <Button variant='outline' size='sm' className='h-8 gap-1.5' onClick={props.onOpenDocument}>
+            <Button
+                variant='outline'
+                size='sm'
+                className='h-8 gap-1.5'
+                onClick={props.onOpenDocument}
+                aria-label='Open document'
+            >
                 <ExternalLink className='size-3.5' />
-                Open document
+                <span className='hidden lg:inline'>Open document</span>
             </Button>
-            <Button size='sm' className='h-8 gap-1.5' onClick={props.onPrint}>
+            <Button size='sm' className='h-8 gap-1.5' onClick={props.onPrint} aria-label='Save as PDF'>
                 <Printer className='size-3.5' />
-                Save as PDF
+                <span className='hidden sm:inline'>Save as PDF</span>
             </Button>
 
             <input

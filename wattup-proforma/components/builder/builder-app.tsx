@@ -8,8 +8,11 @@
  * underneath is the same code, proved byte-identical by
  * tests/proforma/engine-parity.test.ts.
  */
+import { SlidersHorizontal } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
+
+import { RailResizer } from './rail-resizer';
 
 import { loadAssets, fileToDataUrl } from '@/lib/proforma/assets';
 import { renderDoc, type ProformaAssets } from '@/lib/proforma/document';
@@ -41,7 +44,11 @@ import {
     type ImageSlot,
     type ImageSlots,
 } from '@/lib/proforma/state';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { readRailWidth, writeRailWidth } from '@/lib/proforma/rail-width';
 import { useHydrated } from '@/lib/use-hydrated';
+import { LG, useMediaQuery } from '@/lib/use-media-query';
 import { BuilderSkeleton } from './builder-skeleton';
 import { KpiStrip } from './kpi-strip';
 import { PreviewFrame, type PreviewHandle } from './preview-frame';
@@ -88,6 +95,10 @@ function Builder() {
     const [scenarios, setScenarios] = useState<string[]>(() => Object.keys(readScenarios()));
     const [storageOk] = useState(() => isStorageAvailable());
     const [zoom, setZoom] = useState(0.62);
+    // A per-device preference, read once on mount like the rest of the stored state.
+    const [railWidth, setRailWidth] = useState(readRailWidth);
+    const [railOpen, setRailOpen] = useState(false);
+    const wide = useMediaQuery(LG);
     const [signingOut, setSigningOut] = useState(false);
 
     const previewRef = useRef<PreviewHandle>(null);
@@ -369,8 +380,35 @@ function Builder() {
         window.location.href = '/login';
     }, []);
 
+    const railContent = (
+        <Rail
+            inputs={inputs}
+            images={images}
+            gallery={gallery}
+            evpin={evpin}
+            onFieldChange={onFieldChange}
+            onImagePick={onImagePick}
+            onImageClear={onImageClear}
+            onGalleryAdd={onGalleryAdd}
+            onGalleryCaption={onGalleryCaption}
+            onGalleryMove={onGalleryMove}
+            onGalleryRemove={onGalleryRemove}
+            onEvpinUrl={(u) => runEvpin('url', u)}
+            onEvpinText={(t) => runEvpin('text', t)}
+        />
+    );
+
     return (
-        <div className='flex h-dvh flex-col overflow-hidden'>
+        <div data-builder className='bg-background flex h-dvh flex-col overflow-hidden'>
+            <Sheet open={railOpen && !wide} onOpenChange={setRailOpen}>
+                <SheetContent side='left' className='flex w-[min(92vw,420px)] flex-col p-0'>
+                    <SheetHeader className='border-border/60 border-b px-4 py-3'>
+                        <SheetTitle className='text-sm'>Inputs</SheetTitle>
+                    </SheetHeader>
+                    <div className='min-h-0 flex-1'>{railContent}</div>
+                </SheetContent>
+            </Sheet>
+
             <Topbar
                 scenarioNames={scenarios}
                 defaultScenarioName={inputs.location.address || ''}
@@ -386,26 +424,43 @@ function Builder() {
                 onPrint={printDocument}
                 onSignOut={signOutNow}
                 signingOut={signingOut}
+                railTrigger={
+                    // The sheet is controlled, so this is a plain button rather than a
+                    // SheetTrigger, which would have to be a descendant of the root.
+                    <Button
+                        variant='outline'
+                        size='sm'
+                        className='h-8 gap-1.5 lg:hidden'
+                        onClick={() => setRailOpen(true)}
+                    >
+                        <SlidersHorizontal className='size-3.5' />
+                        Inputs
+                    </Button>
+                }
             />
 
             <div className='flex min-h-0 flex-1'>
-                <aside className='border-border/60 w-[340px] shrink-0 border-r'>
-                    <Rail
-                        inputs={inputs}
-                        images={images}
-                        gallery={gallery}
-                        evpin={evpin}
-                        onFieldChange={onFieldChange}
-                        onImagePick={onImagePick}
-                        onImageClear={onImageClear}
-                        onGalleryAdd={onGalleryAdd}
-                        onGalleryCaption={onGalleryCaption}
-                        onGalleryMove={onGalleryMove}
-                        onGalleryRemove={onGalleryRemove}
-                        onEvpinUrl={(u) => runEvpin('url', u)}
-                        onEvpinText={(t) => runEvpin('text', t)}
+                {/*
+                  * One <Rail/> definition, two placements. Above lg it is a resizable
+                  * column; below it there is not room for a form and a US Letter page
+                  * side by side, so it becomes a drawer over the document.
+                  */}
+                {wide ? (
+                    <aside
+                        className='border-border/60 shrink-0 border-r'
+                        style={{ width: railWidth }}
+                    >
+                        {railContent}
+                    </aside>
+                ) : null}
+
+                {wide ? (
+                    <RailResizer
+                        width={railWidth}
+                        onWidth={setRailWidth}
+                        onCommit={writeRailWidth}
                     />
-                </aside>
+                ) : null}
 
                 <main className='flex min-w-0 flex-1 flex-col'>
                     <KpiStrip model={model} />
