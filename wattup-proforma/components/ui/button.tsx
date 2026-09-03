@@ -12,8 +12,11 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary-hover",
         outline:
           "border-2 border-primary bg-background text-primary hover:bg-primary hover:text-primary-foreground aria-expanded:bg-primary aria-expanded:text-primary-foreground",
+        // Token colours, not `bg-white text-dark`, which is what the frontend's copy
+        // carries: --dark is not redefined in this app's .dark block, so that pair
+        // rendered a hardcoded white button with dark text in dark mode.
         secondary:
-          "bg-white text-dark hover:bg-gray-light border border-border/50",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
