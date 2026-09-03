@@ -46,18 +46,26 @@ function Pagination({
     pageSize,
     scope,
     basePath,
+    params,
 }: {
     page: number;
     total: number;
     pageSize: number;
     scope: ActivityScope;
     basePath: string;
+    params: Record<string, string>;
 }) {
     const lastPage = Math.max(1, Math.ceil(total / pageSize));
     if (lastPage <= 1) return null;
 
     const key = scope === 'signin' ? 'signinPage' : 'activityPage';
-    const href = (target: number) => `${basePath}?${key}=${target}#${scope}`;
+    // Keep every other parameter. Without this, paging on the site-wide page silently
+    // dropped the filters and jumped back to the unfiltered log.
+    const href = (target: number) => {
+        const next = new URLSearchParams(params);
+        next.set(key, String(target));
+        return `${basePath}?${next.toString()}#${scope}`;
+    };
     const first = (page - 1) * pageSize + 1;
     const last = Math.min(page * pageSize, total);
 
@@ -91,12 +99,21 @@ export function ActivityTable({
     scope,
     basePath,
     subjectId,
+    params = {},
+    showWho = false,
 }: {
     result: ActivityPage;
     scope: ActivityScope;
     basePath: string;
-    /** Tells a row this person carried out from one that happened to them. */
-    subjectId: string;
+    /**
+     * Tells a row this person carried out from one that happened to them. Undefined on
+     * the site-wide page, where every row belongs to somebody different.
+     */
+    subjectId?: string;
+    /** The page's other query parameters, so paging keeps the filters. */
+    params?: Record<string, string>;
+    /** Adds the Who column. On a person's own page it would repeat their name on every row. */
+    showWho?: boolean;
 }) {
     if (result.rows.length === 0) {
         return (
@@ -117,6 +134,7 @@ export function ActivityTable({
                     <thead className='border-b border-dash-border bg-dash-canvas/60'>
                         <tr className='text-[11px] uppercase tracking-wide text-dark/50'>
                             <th scope='col' className='px-4 py-2.5 font-medium'>When (UTC)</th>
+                            {showWho && <th scope='col' className='px-4 py-2.5 font-medium'>Who</th>}
                             <th scope='col' className='px-4 py-2.5 font-medium'>App</th>
                             <th scope='col' className='px-4 py-2.5 font-medium'>Event</th>
                             {showsClient ? (
@@ -131,13 +149,35 @@ export function ActivityTable({
                     </thead>
                     <tbody className='divide-y divide-dash-border'>
                         {result.rows.map(row => {
-                            const byThemToSomeoneElse = row.actorUserId === subjectId && row.userId !== subjectId;
+                            const byThemToSomeoneElse =
+                                subjectId !== undefined &&
+                                row.actorUserId === subjectId &&
+                                row.userId !== subjectId;
                             const summary = summariseMeta(row.event, row.meta);
                             return (
                                 <tr key={row.id} className='align-top'>
                                     <td className='whitespace-nowrap px-4 py-3 text-xs text-dark/60'>
                                         {formatWhen(row.createdAt)}
                                     </td>
+                                    {showWho && (
+                                        <td className='px-4 py-3 text-xs'>
+                                            {row.userId ? (
+                                                <Link
+                                                    href={`/dashboard/users/${row.userId}`}
+                                                    className='text-primary hover:underline'
+                                                >
+                                                    {orDash(row.email)}
+                                                </Link>
+                                            ) : (
+                                                <span className='text-dark/70'>{orDash(row.email)}</span>
+                                            )}
+                                            {row.actorEmail && row.actorEmail !== row.email && (
+                                                <p className='mt-0.5 text-[11px] text-dark/45'>
+                                                    by {row.actorEmail}
+                                                </p>
+                                            )}
+                                        </td>
+                                    )}
                                     <td className='px-4 py-3'>
                                         <span className={'rounded-full px-2 py-0.5 text-[10px] font-semibold ' + appBadgeClasses(row.app)}>
                                             {appLabel(row.app)}
@@ -179,6 +219,7 @@ export function ActivityTable({
                 pageSize={result.pageSize}
                 scope={scope}
                 basePath={basePath}
+                params={params}
             />
         </div>
     );

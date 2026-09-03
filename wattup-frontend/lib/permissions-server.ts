@@ -10,7 +10,10 @@ import {
 } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import type { PrismaClient } from '@prisma/client';
+import { cacheLife, cacheTag } from 'next/cache';
 import { cache } from 'react';
+
+import { ROLE_PERMISSIONS_TAG, userPermissionsTag } from '@/lib/cache-tags';
 
 /**
  * Resolves what one user may do right now (ADR 0002 section 7, checklist 4a.6):
@@ -211,8 +214,25 @@ export async function describePermissions(
     }));
 }
 
-/** The provenance for one user, once per request. */
+/**
+ * The provenance for one user, for the screens that show it.
+ *
+ * Cached, unlike getEffectivePermissions above, and the difference matters: that one
+ * decides what a request may do and must never be a moment stale, while this one draws
+ * a table. Tagged per user and on the role defaults, so a grant, a revoke, a reset, a
+ * role change or an edit to a role's defaults all invalidate exactly the pages that
+ * showed the old answer. Without this the detail page re-queried on every visit and the
+ * viewer watched a skeleton each time.
+ *
+ * React's cache() still wraps it, so two components on one render share one call.
+ */
+async function readUserPermissions(userId: string): Promise<PermissionDescription[]> {
+    'use cache';
+    cacheTag(userPermissionsTag(userId), ROLE_PERMISSIONS_TAG);
+    cacheLife({ stale: 30, revalidate: 300, expire: 3600 });
+    return describePermissions(prisma, userId);
+}
+
 export const describeUserPermissions = cache(
-    async (userId: string): Promise<PermissionDescription[]> =>
-        describePermissions(prisma, userId)
+    async (userId: string): Promise<PermissionDescription[]> => readUserPermissions(userId)
 );

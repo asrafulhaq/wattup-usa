@@ -112,6 +112,8 @@ export async function setRolePermission(
         meta: { role, permission, granted: enabled },
     });
 
+    // Every person's provenance table is tagged with this too, so one write here
+    // refreshes the Roles page and every user detail page at once.
     updateTag(ROLE_PERMISSIONS_TAG);
     // The team list and the per-user permission view show what a role grants, so they
     // are stale the moment this lands.

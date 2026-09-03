@@ -25,6 +25,11 @@ async function SidebarWrapper() {
             showUsers={hasPermission(permissions, Permission.VIEW_USERS)}
             showSettings={hasPermission(permissions, Permission.MANAGE_SITE_SETTINGS)}
             showLocations={hasPermission(permissions, Permission.VIEW_LOCATIONS)}
+            showAmenities={hasPermission(permissions, Permission.MANAGE_AMENITIES)}
+            // The same permission the dashboard's article reads require, so the entry
+            // appears exactly when the page behind it will answer.
+            showArticles={hasPermission(permissions, Permission.CREATE_POST)}
+            showActivity={hasPermission(permissions, Permission.VIEW_ACTIVITY_LOG)}
             // Role defaults, editable since ADR 0002 section 10. MANAGE_PERMISSIONS is
             // SUPER_ADMIN only by seed, so for everyone else the entry is not drawn at
             // all; /dashboard/roles answers NoAccess to a direct visit regardless.

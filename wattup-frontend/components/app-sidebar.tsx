@@ -17,6 +17,7 @@ import {
     LayoutDashboard,
     MapPin,
     Newspaper,
+    ScrollText,
     Settings,
     ShieldCheck,
     UserRound,
@@ -37,6 +38,9 @@ export function AppSidebar({
     showUsers,
     showSettings,
     showLocations,
+    showAmenities,
+    showArticles,
+    showActivity,
     showRoles,
     ...props
 }: React.ComponentProps<typeof Sidebar> & {
@@ -49,6 +53,9 @@ export function AppSidebar({
     showUsers?: boolean;
     showSettings?: boolean;
     showLocations?: boolean;
+    showAmenities?: boolean;
+    showArticles?: boolean;
+    showActivity?: boolean;
     showRoles?: boolean;
 }) {
     const groups: NavGroup[] = [
@@ -57,8 +64,13 @@ export function AppSidebar({
             items: [
                 { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
                 ...(showLocations
+                    ? [{ title: 'Locations', url: '/dashboard/locations', icon: MapPin }]
+                    : []),
+                // Its own permission, not Locations'. The amenity catalogue is network
+                // wide, and a role that may see sites is not necessarily one that may
+                // restructure the list every site draws from.
+                ...(showAmenities
                     ? [
-                          { title: 'Locations', url: '/dashboard/locations', icon: MapPin },
                           {
                               title: 'Amenities',
                               url: '/dashboard/locations/amenities',
@@ -72,7 +84,11 @@ export function AppSidebar({
         },
         {
             label: 'Content',
-            items: [{ title: 'Articles', url: '/dashboard/articles', icon: Newspaper }],
+            // Articles was the one entry shown to everybody. A role with no content
+            // permission at all, SALES for instance, saw it and got NoAccess on click.
+            items: showArticles
+                ? [{ title: 'Articles', url: '/dashboard/articles', icon: Newspaper }]
+                : [],
         },
         {
             label: 'Account',
@@ -93,6 +109,11 @@ export function AppSidebar({
                 ...(showRoles
                     ? [{ title: 'Roles', url: '/dashboard/roles', icon: ShieldCheck }]
                     : []),
+                // The whole audit trail, both applications. The per-person view lives on
+                // a user's page; this is the same data unfiltered.
+                ...(showActivity
+                    ? [{ title: 'Activity', url: '/dashboard/activity', icon: ScrollText }]
+                    : []),
             ],
         },
         ...(showSettings
@@ -106,7 +127,10 @@ export function AppSidebar({
                   },
               ]
             : []),
-    ];
+    ]
+        // A group whose every entry was filtered out would render as a heading with
+        // nothing under it, which tells the viewer exactly what they cannot reach.
+        .filter(group => group.items.length > 0);
 
     const userData = {
         name: user.name || 'Admin',

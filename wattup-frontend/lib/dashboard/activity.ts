@@ -111,16 +111,58 @@ const ACTIVITY_SELECT = {
 } as const;
 
 /**
+ * What the whole log can be narrowed to on the site-wide page. Every filter is optional
+ * and they combine, so "pro-forma sign-in failures" is one query rather than a scroll.
+ */
+export interface ActivityFilter {
+    /** 'dashboard' or 'proforma'. Anything else matches nothing rather than everything. */
+    app?: string;
+    /** One exact event name, as stored. */
+    event?: string;
+    /** Substring of the address the row is about, case insensitive. */
+    email?: string;
+}
+
+/** The where clause for the site-wide page: no user, just the filters that were given. */
+export function siteWideWhere(filter: ActivityFilter = {}): Prisma.ActivityLogWhereInput {
+    const where: Prisma.ActivityLogWhereInput = {};
+    if (filter.app) where.app = filter.app;
+    if (filter.event) where.event = filter.event;
+    if (filter.email) where.email = { contains: filter.email, mode: 'insensitive' };
+    return where;
+}
+
+/**
  * The pure read, over an injected client. Offset paging, newest first, matching the
  * page/pageSize shape the articles and users lists already use.
+ *
+ * `userId` narrows to one person; omitting it reads the whole log, which is what the
+ * site-wide page does. `scope` still applies either way, so the sign-in view works on
+ * both.
  */
 export async function readActivity(
     db: ActivitySource,
-    options: { userId: string; scope: ActivityScope; page?: number; pageSize?: number }
+    options: {
+        userId?: string;
+        scope: ActivityScope;
+        page?: number;
+        pageSize?: number;
+        filter?: ActivityFilter;
+    }
 ): Promise<ActivityPage> {
     const pageSize = options.pageSize ?? ACTIVITY_PAGE_SIZE;
     const page = Number.isFinite(options.page) ? Math.max(1, Math.floor(options.page ?? 1)) : 1;
-    const where = whereForScope(options.userId, options.scope);
+    const scoped = options.userId
+        ? whereForScope(options.userId, options.scope)
+        : options.scope === 'signin'
+          ? { event: { in: [...SIGNIN_EVENTS] } }
+          : {};
+    // Composed only when there is something to compose. An unfiltered read, which is
+    // every read the per-person page makes, keeps exactly the where it always had rather
+    // than gaining an AND wrapper around one clause.
+    const extra = siteWideWhere(options.filter);
+    const where: Prisma.ActivityLogWhereInput =
+        Object.keys(extra).length === 0 ? scoped : { AND: [scoped, extra] };
 
     const [rows, total] = await Promise.all([
         db.activityLog.findMany({
@@ -134,6 +176,54 @@ export async function readActivity(
     ]);
 
     return { rows, total, page, pageSize };
+}
+
+/** The cache tag every activity read shares, so one write invalidates them all. */
+export const ACTIVITY_TAG = 'activity-log';
+
+/**
+ * One page of the WHOLE log, for a caller holding VIEW_ACTIVITY_LOG (the dashboard's
+ * Activity page). Same reader and same shape as the per-person view; only the absence
+ * of a user id differs.
+ *
+ * Deliberately uncached, like the per-user read below. An audit table that lags is worse
+ * than one that costs a query: the reason to open it is usually that something just
+ * happened.
+ */
+export async function getSiteActivity(options: {
+    scope: ActivityScope;
+    page?: number;
+    pageSize?: number;
+    filter?: ActivityFilter;
+}): Promise<ActivityPage> {
+    const authorised = await requirePermission(Permission.VIEW_ACTIVITY_LOG);
+    if (!authorised) return EMPTY_ACTIVITY_PAGE;
+
+    try {
+        return await readActivity(prisma, options);
+    } catch (error) {
+        console.error('[activity] failed to read activity_log', error);
+        return EMPTY_ACTIVITY_PAGE;
+    }
+}
+
+/**
+ * The distinct app and event names actually present, so the filters offer what exists
+ * rather than a hardcoded list that drifts as either application adds an event.
+ */
+export async function getActivityFacets(): Promise<{ apps: string[]; events: string[] }> {
+    const authorised = await requirePermission(Permission.VIEW_ACTIVITY_LOG);
+    if (!authorised) return { apps: [], events: [] };
+    try {
+        const [apps, events] = await Promise.all([
+            prisma.activityLog.findMany({ distinct: ['app'], select: { app: true }, orderBy: { app: 'asc' } }),
+            prisma.activityLog.findMany({ distinct: ['event'], select: { event: true }, orderBy: { event: 'asc' } }),
+        ]);
+        return { apps: apps.map(a => a.app), events: events.map(e => e.event) };
+    } catch (error) {
+        console.error('[activity] failed to read facets', error);
+        return { apps: [], events: [] };
+    }
 }
 
 /**

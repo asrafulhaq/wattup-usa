@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -80,6 +82,38 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const DATE = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' });
 
+/** Holds the space a table will take, so the page does not jump when one arrives. */
+function TableSkeleton() {
+    return (
+        <div className='overflow-hidden rounded-lg border border-dash-border'>
+            <div className='h-10 border-b border-dash-border bg-dash-canvas/60' />
+            {Array.from({ length: 5 }, (_, row) => (
+                <div key={row} className='flex gap-4 border-b border-dash-border px-4 py-3 last:border-0'>
+                    <div className='h-4 w-32 animate-pulse rounded bg-dash-canvas' />
+                    <div className='h-4 w-24 animate-pulse rounded bg-dash-canvas' />
+                    <div className='h-4 flex-1 animate-pulse rounded bg-dash-canvas' />
+                </div>
+            ))}
+        </div>
+    );
+}
+
+/** One audit table, read where it is rendered so Suspense can stream it. */
+async function ActivitySection({
+    userId,
+    scope,
+    page,
+    basePath,
+}: {
+    userId: string;
+    scope: 'all' | 'signin';
+    page: number;
+    basePath: string;
+}) {
+    const result = await getUserActivity({ userId, scope, page });
+    return <ActivityTable result={result} scope={scope} basePath={basePath} subjectId={userId} />;
+}
+
 export default async function UserDetailPage({
     params,
     searchParams,
@@ -119,12 +153,6 @@ export default async function UserDetailPage({
 
     const permissionRows = await describeUserPermissions(user.id);
 
-    const [activity, signIns] = canSeeActivity
-        ? await Promise.all([
-              getUserActivity({ userId: user.id, scope: 'all', page: pageParam(query.activityPage) }),
-              getUserActivity({ userId: user.id, scope: 'signin', page: pageParam(query.signinPage) }),
-          ])
-        : [null, null];
 
     const basePath = `/dashboard/users/${user.id}`;
     const initials = user.name.slice(0, 2).toUpperCase();
@@ -237,26 +265,44 @@ export default async function UserDetailPage({
                 />
             </Section>
 
-            {/* 4c.6 Activity, both apps */}
-            {canSeeActivity && activity && (
-                <Section
-                    id='all'
-                    title='Activity'
-                    description='Everything recorded for this account, from the dashboard and the pro-forma builder alike.'
-                >
-                    <ActivityTable result={activity} scope='all' basePath={basePath} subjectId={user.id} />
-                </Section>
-            )}
+            {/* 4c.6 and 4c.7. Streamed, not awaited above: the audit log is the one thing
+                on this page that cannot be cached, because the pro-forma app writes to it
+                and cannot invalidate this app's cache. Awaiting it held the whole page
+                behind four queries to a remote database, which is what made every visit
+                show a skeleton. Now the identity, role and permissions paint from cache
+                and the two tables arrive when they arrive. */}
+            {canSeeActivity && (
+                <>
+                    <Section
+                        id='all'
+                        title='Activity'
+                        description='Everything recorded for this account, from the dashboard and the pro-forma builder alike.'
+                    >
+                        <Suspense fallback={<TableSkeleton />}>
+                            <ActivitySection
+                                userId={user.id}
+                                scope='all'
+                                page={pageParam(query.activityPage)}
+                                basePath={basePath}
+                            />
+                        </Suspense>
+                    </Section>
 
-            {/* 4c.7 Sign-in history */}
-            {canSeeActivity && signIns && (
-                <Section
-                    id='signin'
-                    title='Sign-in history'
-                    description='Sign-ins and code requests, with the address and browser they came from.'
-                >
-                    <ActivityTable result={signIns} scope='signin' basePath={basePath} subjectId={user.id} />
-                </Section>
+                    <Section
+                        id='signin'
+                        title='Sign-in history'
+                        description='Sign-ins and code requests, with the address and browser they came from.'
+                    >
+                        <Suspense fallback={<TableSkeleton />}>
+                            <ActivitySection
+                                userId={user.id}
+                                scope='signin'
+                                page={pageParam(query.signinPage)}
+                                basePath={basePath}
+                            />
+                        </Suspense>
+                    </Section>
+                </>
             )}
         </PageShell>
     );

@@ -3,6 +3,7 @@ import 'server-only';
 import { requirePermission } from '@/lib/permission-guard';
 import { Permission } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
+import { USERS_TAG, userTag } from '@/lib/cache-tags';
 import { cacheLife, cacheTag } from 'next/cache';
 import type { ManagedUser } from '@/app/_actions/admin-user-actions';
 
@@ -27,7 +28,7 @@ import type { ManagedUser } from '@/app/_actions/admin-user-actions';
 async function readUsers(pageSize: number) {
     'use cache';
     cacheLife({ stale: 60, revalidate: 300, expire: 3600 });
-    cacheTag('users');
+    cacheTag(USERS_TAG);
 
     const [rows, total] = await Promise.all([
         prisma.user.findMany({
@@ -99,9 +100,18 @@ export interface DashboardUserDetail {
  * updateTag('users'), so a cached read here would keep showing a role and a ban state
  * that a grant made stale seconds ago.
  */
-export async function getDashboardUser(userId: string): Promise<DashboardUserDetail | null> {
-    const authorised = await requirePermission(Permission.VIEW_USERS);
-    if (!authorised) return null;
+/**
+ * The row itself, cached. The permission check stays outside, in the wrapper below: a
+ * cached scope may not read headers, and the answer must not depend on who asked.
+ *
+ * Tagged per user and with the team list, so a role change, a ban or a delete
+ * invalidates it the moment it happens. Before this the detail page re-queried on every
+ * visit and the viewer watched a skeleton each time.
+ */
+async function readDashboardUser(userId: string): Promise<DashboardUserDetail | null> {
+    'use cache';
+    cacheTag(USERS_TAG, userTag(userId));
+    cacheLife({ stale: 30, revalidate: 300, expire: 3600 });
 
     const row = await prisma.user.findUnique({
         where: { id: userId },
@@ -121,4 +131,10 @@ export async function getDashboardUser(userId: string): Promise<DashboardUserDet
     });
     if (!row) return null;
     return { ...row, banned: row.banned ?? false };
+}
+
+export async function getDashboardUser(userId: string): Promise<DashboardUserDetail | null> {
+    const authorised = await requirePermission(Permission.VIEW_USERS);
+    if (!authorised) return null;
+    return readDashboardUser(userId);
 }

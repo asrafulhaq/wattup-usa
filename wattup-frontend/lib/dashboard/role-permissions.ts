@@ -19,7 +19,11 @@ import { cacheLife, cacheTag } from 'next/cache';
  * at worst draw a stale checkbox for a few seconds; it can never let anyone do anything.
  */
 
-export const ROLE_PERMISSIONS_TAG = 'role-permissions';
+// Defined in lib/cache-tags.ts and re-exported here, so the many modules that already
+// import it from this path keep working while the string itself lives somewhere that
+// drags no module graph behind it.
+export { ROLE_PERMISSIONS_TAG } from '@/lib/cache-tags';
+import { ROLE_PERMISSIONS_TAG } from '@/lib/cache-tags';
 
 /** role -> the permissions role_permission currently grants it. */
 export type RolePermissionMatrix = Record<Role, readonly Permission[]>;

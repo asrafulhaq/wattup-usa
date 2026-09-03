@@ -16,6 +16,7 @@ import {
 } from '@/lib/permissions';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
+import { invalidateUserAccess } from '@/lib/cache-tags';
 import { updateTag } from 'next/cache';
 
 // Every export gates itself with requirePermission, which resolves the caller's set
@@ -174,7 +175,7 @@ export async function createUser(data: {
             }
         }
 
-        updateTag('users');
+        invalidateUserAccess(updateTag, result.user.id);
         return { success: true, userId: result.user.id, emailError: emailError ?? undefined };
     } catch (err: any) {
         console.error('createUser error:', err);
@@ -223,7 +224,7 @@ export async function updateUserRole(
             target: { id: target.id, email: target.email },
             meta: { from: target.role, to: role },
         });
-        updateTag('users');
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error('updateUserRole error:', err);
@@ -264,7 +265,7 @@ export async function banUser(
             target: { id: target.id, email: target.email },
             meta: { reason: banReason },
         });
-        updateTag('users');
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error('banUser error:', err);
@@ -295,7 +296,7 @@ export async function unbanUser(
             actor: { id: session.id, email: session.email },
             target: { id: target.id, email: target.email },
         });
-        updateTag('users');
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error('unbanUser error:', err);
@@ -340,7 +341,7 @@ export async function deleteUser(
             target: { id: null, email: target.email },
             meta: { role: target.role },
         });
-        updateTag('users');
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error('deleteUser error:', err);
@@ -443,6 +444,9 @@ async function setPermissionOverride(
             target: { id: target.id, email: target.email },
             meta: { permission },
         });
+        // The detail page and the profile page both draw from the cached provenance, and
+        // the team list shows nothing about overrides but is cheap to refresh alongside.
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error(granted ? 'grantPermission error:' : 'revokePermission error:', err);
@@ -506,6 +510,9 @@ export async function clearPermissionOverride(
                 meta: { permission },
             });
         }
+        // Even when nothing was deleted: the cheapest correct thing, and a no-op refresh
+        // costs one query while a missed one shows a control that disagrees with itself.
+        invalidateUserAccess(updateTag, target.id);
         return { success: true };
     } catch (err: any) {
         console.error('clearPermissionOverride error:', err);
