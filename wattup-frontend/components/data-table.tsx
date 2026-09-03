@@ -79,6 +79,18 @@ interface DataTableProps<TData, TValue> {
     paginationState?: { pageIndex: number; pageSize: number };
     onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void;
     manualPagination?: boolean;
+    /** Nothing to show yet: draws a skeleton the size of a page. */
+    isLoading?: boolean;
+    /**
+     * Rows are on screen but belong to the previous request. They dim rather than being
+     * replaced, because what is there is still true and showing it beats showing bones.
+     * This is the difference between a list that feels instant and one that flashes.
+     */
+    isStale?: boolean;
+    /** Shown when there are no rows. Two wordings, because "empty" and "no match" differ. */
+    emptyTitle?: string;
+    emptyDescription?: string;
+    isFiltered?: boolean;
 }
 
 function DraggableRow<TData>({ row }: { row: Row<TData> }) {
@@ -117,6 +129,11 @@ export function DataTable<TData extends { id: string | number }, TValue>({
     paginationState: externalPaginationState,
     onPaginationChange: onExternalPaginationChange,
     manualPagination = false,
+    isLoading = false,
+    isStale = false,
+    emptyTitle = 'Nothing here yet',
+    emptyDescription,
+    isFiltered = false,
 }: DataTableProps<TData, TValue>) {
     const [data, setData] = React.useState(() => initialData);
     const [rowSelection, setRowSelection] = React.useState({});
@@ -262,7 +279,12 @@ export function DataTable<TData extends { id: string | number }, TValue>({
             )}
 
             {/* Table */}
-            <div className='dash-card overflow-hidden'>
+            <div
+                aria-busy={isStale}
+                className={
+                    'dash-card overflow-hidden transition-opacity duration-150 ' +
+                    (isStale ? 'pointer-events-none opacity-50' : 'opacity-100')
+                }>
                 <DndContext
                     collisionDetection={closestCenter}
                     modifiers={[restrictToVerticalAxis]}
@@ -295,7 +317,19 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                             ))}
                         </TableHeader>
                         <TableBody className='**:data-[slot=table-cell]:first:w-8'>
-                            {table.getRowModel().rows?.length ? (
+                            {isLoading && !table.getRowModel().rows?.length ? (
+                                // Only when there is genuinely nothing to show. A table
+                                // that already has rows keeps them and dims instead.
+                                Array.from({ length: 8 }, (_, row) => (
+                                    <TableRow key={`skeleton-${row}`} className='border-dash-border'>
+                                        {columns.map((_column, cell) => (
+                                            <TableCell key={cell} className='py-3'>
+                                                <div className='h-4 animate-pulse rounded bg-dash-canvas' />
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : table.getRowModel().rows?.length ? (
                                 <SortableContext
                                     items={dataIds}
                                     strategy={verticalListSortingStrategy}>
@@ -308,7 +342,16 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                                     <TableCell
                                         colSpan={columns.length}
                                         className='h-28 text-center text-[13.5px] text-dash-muted'>
-                                        Nothing matches those filters.
+                                        <p className='font-medium text-dark'>
+                                            {isFiltered ? 'Nothing matches' : emptyTitle}
+                                        </p>
+                                        {(isFiltered || emptyDescription) && (
+                                            <p className='mt-1 text-dash-muted'>
+                                                {isFiltered
+                                                    ? 'No row matches these filters. Try widening them or clearing them.'
+                                                    : emptyDescription}
+                                            </p>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             )}

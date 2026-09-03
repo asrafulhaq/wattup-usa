@@ -21,6 +21,7 @@ import type { ActivityScope } from '@/lib/dashboard/activity';
 export interface ActivityListParams {
     scope: ActivityScope;
     page: number;
+    limit: number;
     app: string;
     event: string;
     email: string;
@@ -31,6 +32,12 @@ export const activityKeys = {
     lists: () => [...activityKeys.all, 'list'] as const,
     list: (params: ActivityListParams) => [...activityKeys.lists(), params] as const,
     facets: () => [...activityKeys.all, 'facets'] as const,
+};
+
+export const articleKeys = {
+    all: ['articles'] as const,
+    lists: () => [...articleKeys.all, 'list'] as const,
+    list: (page: number, pageSize: number) => [...articleKeys.lists(), { page, pageSize }] as const,
 };
 
 export const userKeys = {

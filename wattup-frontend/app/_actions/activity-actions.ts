@@ -27,6 +27,7 @@ import {
 export async function fetchActivityPage(
     scope: ActivityScope,
     page: number,
+    pageSize: number,
     app: string,
     event: string,
     email: string
@@ -34,6 +35,7 @@ export async function fetchActivityPage(
     return getSiteActivity({
         scope,
         page,
+        pageSize,
         filter: {
             app: app || undefined,
             event: event || undefined,

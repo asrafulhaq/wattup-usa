@@ -206,6 +206,7 @@ const ACTIVITY_CACHE = { stale: 15, revalidate: 30, expire: 300 } as const;
 async function readSiteActivity(
     scope: ActivityScope,
     page: number,
+    pageSize: number,
     app: string,
     event: string,
     email: string
@@ -219,6 +220,7 @@ async function readSiteActivity(
         return await readActivity(prisma, {
             scope,
             page,
+            pageSize,
             filter: { app: app || undefined, event: event || undefined, email: email || undefined },
         });
     } catch (error) {
@@ -239,6 +241,7 @@ export async function getSiteActivity(options: {
     return readSiteActivity(
         options.scope,
         options.page ?? 1,
+        options.pageSize ?? ACTIVITY_PAGE_SIZE,
         options.filter?.app ?? '',
         options.filter?.event ?? '',
         options.filter?.email ?? ''

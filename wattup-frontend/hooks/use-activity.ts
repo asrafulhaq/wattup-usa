@@ -22,7 +22,14 @@ export function useActivityPage(params: ActivityListParams, initialData?: Activi
     return useQuery({
         queryKey: activityKeys.list(params),
         queryFn: () =>
-            fetchActivityPage(params.scope, params.page, params.app, params.event, params.email),
+            fetchActivityPage(
+                params.scope,
+                params.page,
+                params.limit,
+                params.app,
+                params.event,
+                params.email
+            ),
         placeholderData: keepPreviousData,
         // The page the server already rendered, so the first paint is not a loading
         // state for data that is on the screen. Only the first, unfiltered view has it.

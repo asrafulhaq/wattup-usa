@@ -1,101 +1,90 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { getArticlesForDashboard } from '@/app/_actions/postActions';
-import { DataTable } from '@/components/data-table';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+
+import { DataTable } from '@/components/data-table';
+import { useTableState } from '@/components/data-table/use-table-state';
+import { useArticles } from '@/hooks/use-articles';
+
 import { Article, ArticleBatchActions, createColumns } from './columns';
 
-interface ArticlesDataTableProps {
-    initialData: Article[];
-    initialTotalCount: number;
-    canPublish?: boolean;
-}
-
+/**
+ * The article list.
+ *
+ * Was a useState plus useEffect fetch machine with its own loading flag, its own row
+ * count and a guard to skip the first fetch. It is now the shape every list on this
+ * dashboard uses: useTableState owns the URL, a query hook owns the data, and the shared
+ * DataTable owns the rendering. The page it is on now survives a reload and can be
+ * linked to, which the local state could not do.
+ */
 export function ArticlesDataTable({
     initialData,
     initialTotalCount,
     canPublish = false,
-}: ArticlesDataTableProps) {
-    const [data, setData] = useState<Article[]>(initialData);
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10,
-    });
-    const [totalCount, setTotalCount] = useState(initialTotalCount);
-    const [isLoading, setIsLoading] = useState(false);
+}: {
+    initialData: Article[];
+    initialTotalCount: number;
+    canPublish?: boolean;
+}) {
+    const state = useTableState({ defaultLimit: 10 });
 
-    useEffect(() => {
-        // Skip fetch on initial mount as we already have initialData
-        if (
-            pagination.pageIndex === 0 &&
-            pagination.pageSize === 10 &&
-            data === initialData
-        ) {
-            return;
-        }
+    // No cache seed: the page hands down rows whose dates are already formatted for
+    // display, and the action returns raw ones. Seeding the cache with a different shape
+    // than the query produces is how a list starts disagreeing with itself. The rendered
+    // rows fall back to these until the first fetch lands, so nothing flashes.
+    const { data, isPlaceholderData, isPending } = useArticles(state.page, state.limit);
 
-        const fetchData = async () => {
-            setIsLoading(true);
-            const result = await getArticlesForDashboard(
-                pagination.pageIndex + 1,
-                pagination.pageSize
-            );
+    const rows = useMemo(() => {
+        const articles = data?.articles ?? initialData;
+        // The table wants dates it can print; the action returns Date objects.
+        return articles.map(article => ({
+            ...article,
+            author: article.author || null,
+            authorUrl: article.authorUrl || null,
+            publishedAt: article.publishedAt
+                ? new Date(article.publishedAt).toLocaleDateString()
+                : null,
+            createdAt: new Date(article.createdAt).toLocaleDateString(),
+        })) as Article[];
+    }, [data, initialData]);
 
-            const formattedArticles = result.articles.map(article => ({
-                ...article,
-                author: article.author || null,
-                authorUrl: article.authorUrl || null,
-                publishedAt: article.publishedAt
-                    ? new Date(article.publishedAt).toLocaleDateString()
-                    : null,
-                createdAt: new Date(article.createdAt).toLocaleDateString(),
-            })) as any[];
-
-            setData(formattedArticles);
-            setTotalCount(result.totalCount);
-            setIsLoading(false);
-        };
-        fetchData();
-    }, [pagination, initialData]);
-
-    const columns = createColumns({ canPublish });
+    const total = data?.totalCount ?? initialTotalCount;
+    const columns = useMemo(() => createColumns({ canPublish }), [canPublish]);
 
     return (
-        <div className='flex flex-1 flex-col gap-4 relative'>
-            {isLoading && (
-                <div className='absolute inset-0 bg-background/50 z-50 flex items-center justify-center rounded-md'>
-                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
-                </div>
+        <DataTable
+            data={rows}
+            columns={columns}
+            searchColumn='title'
+            searchPlaceholder='Filter articles...'
+            isLoading={isPending}
+            isStale={isPlaceholderData}
+            emptyTitle='No press releases yet'
+            emptyDescription='Write the first one and it will appear here.'
+            manualPagination
+            pageCount={Math.max(1, Math.ceil(total / state.limit))}
+            paginationState={{ pageIndex: state.page - 1, pageSize: state.limit }}
+            onPaginationChange={next => {
+                if (next.pageSize !== state.limit) state.setLimit(next.pageSize);
+                else state.setPage(next.pageIndex + 1);
+            }}
+            actionButton={
+                <Link href='/dashboard/articles/create'>
+                    <button className='flex border rounded justify-center items-center border-border text-dark/70 hover:bg-primary transition-colors duration-300 hover:text-white gap-2 py-2 px-6'>
+                        <IconPlus className='size-5' />
+                        <span className='font-normal'>Write Article</span>
+                    </button>
+                </Link>
+            }
+            batchActions={(selectedRows, clearSelection) => (
+                <ArticleBatchActions
+                    selectedRows={selectedRows}
+                    clearSelection={clearSelection}
+                    canPublish={canPublish}
+                />
             )}
-            <DataTable
-                data={data}
-                columns={columns}
-                searchColumn='title'
-                searchPlaceholder='Filter articles...'
-                pageCount={Math.ceil(totalCount / pagination.pageSize)}
-                paginationState={pagination}
-                onPaginationChange={setPagination}
-                manualPagination={true}
-                actionButton={
-                    <Link href='/dashboard/articles/create'>
-                        <button className='flex border rounded   justify-center items-center border-border text-dark/70 hover:bg-primary transition-colors duration-300 hover:text-white gap-2 py-2 px-6'>
-                            <IconPlus className='size-5' />
-                            <span className='  font-normal'>Write Article</span>
-                        </button>
-                    </Link>
-                }
-                batchActions={(selectedRows, clearSelection) => (
-                    <ArticleBatchActions
-                        selectedRows={selectedRows}
-                        clearSelection={clearSelection}
-                        canPublish={canPublish}
-                    />
-                )}
-            />
-        </div>
+        />
     );
 }
-
