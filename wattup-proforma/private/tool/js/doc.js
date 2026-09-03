@@ -31,6 +31,18 @@ html,body { font-family:'Helvetica Neue',Arial,sans-serif; color:var(--ink); bac
 .cover .glow { position:absolute; width:900px; height:900px; border-radius:50%;
   background:radial-gradient(circle, rgba(59,125,255,0.28) 0%, rgba(59,125,255,0) 62%);
   top:-260px; right:-260px; }
+.cover .photo { position:absolute; top:0; left:0; right:0; height:5in; object-fit:cover; width:100%; z-index:1; }
+/* 5in, not more: the station render is 1.9:1 and the page is 8.5in wide, so a taller band
+   would crop a quarter of the width off and lose the outer cabinets. At this height nearly
+   the whole scene survives.
+   The photograph runs to the page edge and fades into the ink, so the title block below
+   sits on flat colour and stays readable whatever the picture is. The gradient is darkest
+   at the very top and at the bottom: the top keeps the wordmark legible over a bright
+   sky or a pale building, the bottom hides the seam where the picture meets the ink. The
+   middle stays light so the photograph is still the photograph. */
+.cover .photo-fade { position:absolute; top:0; left:0; right:0; height:5in; z-index:1;
+  background:linear-gradient(180deg, rgba(11,15,25,0.62) 0%, rgba(11,15,25,0.30) 22%, rgba(11,15,25,0.34) 55%, rgba(11,15,25,0.92) 88%, var(--ink) 100%); }
+.cover.has-photo .cover-logo { position:relative; z-index:3; }
 .cover .glow2 { position:absolute; width:640px; height:640px; border-radius:50%;
   background:radial-gradient(circle, rgba(59,125,255,0.16) 0%, rgba(59,125,255,0) 66%);
   bottom:-220px; left:-200px; }
@@ -366,8 +378,9 @@ function renderDoc(d, A) {
 <body>
 
 <!-- ================= COVER ================= -->
-<div class="page cover">
+<div class="page cover${A && A.cover ? ' has-photo' : ''}">
   <div class="glow"></div><div class="glow2"></div>
+  ${A && A.cover ? `<img class="photo" src="${A.cover}" alt=""/><div class="photo-fade"></div>` : ''}
   <div class="cover-inner">
     <img class="cover-logo" src="${A.logo_type_light}" alt="WattUpUSA"/>
     <div class="eyebrow">${dsg.eyebrow}</div>

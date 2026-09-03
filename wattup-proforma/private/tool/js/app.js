@@ -4,7 +4,7 @@ const LS_KEY = 'wattup_proforma_scenarios_v1';
 const LS_LAST = 'wattup_proforma_last_v1';
 
 let INPUTS = deepClone(DEFAULT_INPUTS);
-let IMAGES = { aerial: null, design: null };   // data URLs
+let IMAGES = { cover: null, aerial: null, design: null };   // data URLs
 let GALLERY = [];                               // [{ src, caption }]
 let EVPIN = { status: '', detail: '' };
 let ASSETS = {};                                // logo data URLs
@@ -79,8 +79,9 @@ const SECTIONS = [
   },
   {
     id: 'img', n: '5', title: 'Site imagery',
-    note: 'Both optional. The aerial sits on the executive summary, the to-scale layout on the operating-assumptions page.',
+    note: 'All optional. The cover ships with a WattUpUSA station photograph; add one here to use this site instead. The aerial sits on the executive summary and the to-scale layout on the operating-assumptions page.',
     fields: [
+      { k: '_img_cover', label: 'Cover photograph (replaces the default)', type: 'image', slot: 'cover' },
       { k: '_img_aerial', label: 'Site aerial (executive summary)', type: 'image', slot: 'aerial' },
       { k: '_img_design', label: 'To-scale site design (operating assumptions)', type: 'image', slot: 'design' },
       { k: '_gallery', label: 'Charger placement & renderings', type: 'gallery',
@@ -419,6 +420,7 @@ function recompute() {
   rafId = requestAnimationFrame(() => {
     MODEL = buildModel(INPUTS);
     const A = Object.assign({}, ASSETS);
+    A.cover = IMAGES.cover || ASSETS.cover_default;
     if (IMAGES.aerial) A.aerial = IMAGES.aerial;
     if (IMAGES.design) A.design = IMAGES.design;
     A.gallery = GALLERY;
@@ -586,7 +588,7 @@ function restoreLast() {
     const j = JSON.parse(raw);
     if (!j.inputs) return false;
     INPUTS = Object.assign(deepClone(DEFAULT_INPUTS), j.inputs);
-    if (j.images) IMAGES = Object.assign({ aerial: null, design: null }, j.images);
+    if (j.images) IMAGES = Object.assign({ cover: null, aerial: null, design: null }, j.images);
     if (Array.isArray(j.gallery)) GALLERY = j.gallery;
     return true;
   } catch (e) { return false; }
@@ -629,6 +631,24 @@ function toast(msg) {
 }
 
 /* ---------------- boot ---------------- */
+/* The cover photograph, and any other raster shipped with the tool. Same reasoning as
+   svgDataUrl below: the document lives in a srcdoc iframe and is printed to PDF, and a
+   data URL is the one form that survives both without a network fetch. */
+async function rasterDataUrl(path) {
+  try {
+    const r = await fetch(path);
+    const blob = await r.blob();
+    return await new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+  } catch (e) {
+    return path;   // relative path still resolves inside srcdoc in most browsers
+  }
+}
+
 async function svgDataUrl(path) {
   try {
     const r = await fetch(path);
@@ -642,6 +662,11 @@ async function svgDataUrl(path) {
 async function boot() {
   ASSETS.logo_type_light = await svgDataUrl('assets/logo_type_light.svg');
   ASSETS.mark_dark = await svgDataUrl('assets/mark_dark.svg');
+  // The cover photograph every document starts with. This is WattUpUSA's own station
+  // render, taken from the live tool's js/brand.js, where it ships as an embedded data
+  // URL under the key station_wide. Section 5 replaces it per site; nothing has to be
+  // uploaded for a cover to look finished.
+  ASSETS.cover_default = await rasterDataUrl('assets/render-station-wide.jpg');
 
   if (!restoreLast()) {
     // seed with the reference deal so the preview is never empty
@@ -666,7 +691,7 @@ async function boot() {
   document.getElementById('btnReset').addEventListener('click', () => {
     if (!confirm('Clear every field back to the WattUpUSA defaults?')) return;
     INPUTS = deepClone(DEFAULT_INPUTS);
-    IMAGES = { aerial: null, design: null };
+    IMAGES = { cover: null, aerial: null, design: null };
     GALLERY = [];
     renderForm(); recompute();
   });

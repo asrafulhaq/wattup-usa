@@ -23,19 +23,34 @@ replacing a shared password.
 
 ## Two halves
 
-**The tool** — `private/tool/`, byte-identical to `../docs/Pro-Forma source/`. Plain HTML, CSS
+**The tool** — `private/tool/`, the source in `../docs/Pro-Forma source/` bar the two exceptions below. Plain HTML, CSS
 and four JavaScript files: `model.js` (the financial model, ported from Python and verified to
 the cent), `doc.js` (renders the six-page document), `evpin.js` (parses EVpin site reports),
 `app.js` (form, live preview, JSON import/export, print). No framework, no server, no stored
-state — everything typed lives in the browser tab. **Do not modify these files, with one
-recorded exception.**
+state — everything typed lives in the browser tab. **Do not modify these files, with two
+recorded exceptions.**
 
-> **The exception:** `evpin.js`'s `EVPIN_READERS` array and `evpinFetchText`, replaced by a
-> call to `/api/tool/evpin-fetch` (checklist 5.15). The tool used to send a pasted report URL
-> to `r.jina.ai` and `api.allorigins.win`, so a landlord's confidential report travelled
+> **Exception 1, privacy:** `evpin.js`'s `EVPIN_READERS` array and `evpinFetchText`, replaced
+> by a call to `/api/tool/evpin-fetch` (checklist 5.15). The tool used to send a pasted report
+> URL to `r.jina.ai` and `api.allorigins.win`, so a landlord's confidential report travelled
 > through two companies WattUp has no agreement with. The parser below that function, the
-> paste-the-text-yourself path, and every other file are untouched. To revert, restore the
-> array from git history.
+> paste-the-text-yourself path, and every other file are untouched.
+>
+> **Exception 2, the cover photograph:** the cover in this copy of the source is a gradient
+> with no image at all, while the live tool at hostlocation-proforma.pplx.app shows WattUp's
+> station render there. That live build is a later version than `docs/Pro-Forma source` and is
+> not in this repository: it carries a `js/brand.js`, a PDF.js vendor bundle and a
+> file-upload EVpin flow that our copy has never had. Rather than leave the cover blank,
+> `assets/render-station-wide.jpg` was extracted from that build's `brand.js`, where it ships
+> as an embedded data URL under the key `station_wide`, and:
+>
+> - `doc.js` renders it behind the cover content with a scrim, in a 5in band (the render is
+>   1.9:1 and the page is 8.5in wide, so a taller band crops the outer cabinets off);
+> - `app.js` gains a `cover` image slot in section 5 and loads the shipped render as its
+>   default through a new `rasterDataUrl`, so a cover looks finished with nothing uploaded.
+>
+> **If the newer source arrives, diff against it and prefer it over both exceptions.** Revert
+> either by restoring the file from git history; nothing else in the tool depends on them.
 
 **The gate** — everything else in this app.
 
@@ -137,7 +152,7 @@ lib/activity-log.ts          logActivity: the four audit events into activity_lo
 lib/prisma.ts                Prisma client, pooled
 lib/email.ts                 Resend + the OTP template; maskEmail for logs
 prisma/schema.prisma         narrow mirror, never migrated from here; activity_log is the one table it writes
-private/tool/                the untouched calculator (phase 3)
+private/tool/                the calculator, source-identical bar the two exceptions above
 ```
 
 ## Commands
