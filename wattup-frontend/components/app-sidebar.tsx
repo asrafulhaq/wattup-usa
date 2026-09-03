@@ -143,7 +143,7 @@ export function AppSidebar({
             <SidebarHeader className='px-3 pt-4 pb-2'>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <Link href='/dashboard' className='block px-1'>
+                        <Link href='/dashboard' prefetch className='block px-1'>
                             <Image
                                 src={'/assets/images/shared/logo_dark.svg'}
                                 alt='WattUp'

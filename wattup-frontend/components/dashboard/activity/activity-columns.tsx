@@ -68,6 +68,7 @@ export function makeActivityColumns(options: {
                         {userId ? (
                             <Link
                                 href={`/dashboard/users/${userId}`}
+                                prefetch
                                 className='text-primary hover:underline'
                                 // The row itself is not clickable here, so stop this from
                                 // being swallowed if it ever becomes so.

@@ -70,8 +70,12 @@ export function ArticlesDataTable({
                 if (next.pageSize !== state.limit) state.setLimit(next.pageSize);
                 else state.setPage(next.pageIndex + 1);
             }}
+            // prefetch: the editor is the heaviest route in the app. Its chunks go on
+            // the wire while the pointer is still on the button rather than after the
+            // click. Under cacheComponents the prefetch buys chunks and the App Shell,
+            // never the data, which is paid on click either way.
             actionButton={
-                <Link href='/dashboard/articles/create'>
+                <Link href='/dashboard/articles/create' prefetch>
                     <button className='flex border rounded justify-center items-center border-border text-dark/70 hover:bg-primary transition-colors duration-300 hover:text-white gap-2 py-2 px-6'>
                         <IconPlus className='size-5' />
                         <span className='font-normal'>Write Article</span>

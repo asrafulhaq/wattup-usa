@@ -82,7 +82,7 @@ function Pagination({
             );
         }
         return (
-            <Link href={href(to)} className={`${box} text-dark hover:bg-dash-canvas`}>
+            <Link href={href(to)} prefetch className={`${box} text-dark hover:bg-dash-canvas`}>
                 {label}
             </Link>
         );

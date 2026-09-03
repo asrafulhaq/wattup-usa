@@ -45,6 +45,7 @@ async function Overview() {
                     canSeeNetwork ? (
                         <Link
                             href='/dashboard/locations'
+                            prefetch
                             className='flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-medium text-white transition-colors hover:bg-primary-hover'>
                             Manage locations
                             <ArrowUpRight className='size-4' />
@@ -215,6 +216,7 @@ function PendingRow({
             <div className='min-w-0'>
                 <Link
                     href={href}
+                    prefetch
                     className='text-[14px] font-medium text-dash-heading hover:text-primary'>
                     {label}
                 </Link>
@@ -263,6 +265,7 @@ function QuickLink({
     return (
         <Link
             href={href}
+            prefetch
             className='dash-card group flex flex-col gap-2 p-5 transition-colors hover:border-dash-border-strong hover:bg-white'>
             <span className='flex size-9 items-center justify-center rounded-[10px] bg-dash-canvas text-dash-muted transition-colors group-hover:bg-primary/10 group-hover:text-primary'>
                 <Icon className='size-[18px]' />

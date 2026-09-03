@@ -40,7 +40,7 @@ export default function FormHeader({
     return (
         <div className='sticky top-0 z-20 -mx-2 sm:-mx-4 bg-background/90 backdrop-blur-sm border-b border-border px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
             <div className='flex items-center gap-2 min-w-0'>
-                <Link href='/dashboard/articles'>
+                <Link href='/dashboard/articles' prefetch>
                     <Button
                         variant='ghost'
                         size='icon'

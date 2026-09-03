@@ -174,6 +174,7 @@ export function LocationsClient({ locations, canManage, canDelete }: Props) {
                         {canManage && (
                             <Link
                                 href='/dashboard/locations/create'
+                                prefetch
                                 className='flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-medium text-white transition-colors hover:bg-primary-hover'>
                                 <IconPlus className='size-4' />
                                 Add location

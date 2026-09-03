@@ -281,6 +281,7 @@ function UserRow({
                             rather than as parts of a link. */}
                         <Link
                             href={`/dashboard/users/${user.id}`}
+                            prefetch
                             className='block truncate text-sm font-medium text-dark hover:text-primary hover:underline'
                         >
                             {user.name}

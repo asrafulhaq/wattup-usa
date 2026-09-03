@@ -169,7 +169,7 @@ export default async function UserDetailPage({
 
     return (
         <PageShell>
-            <Link href='/dashboard/users' className='text-sm text-primary hover:underline'>
+            <Link href='/dashboard/users' prefetch className='text-sm text-primary hover:underline'>
                 ← Back to team
             </Link>
             <PageHeader title={user.name} description={user.email} />
