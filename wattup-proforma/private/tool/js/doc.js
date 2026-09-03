@@ -31,18 +31,19 @@ html,body { font-family:'Helvetica Neue',Arial,sans-serif; color:var(--ink); bac
 .cover .glow { position:absolute; width:900px; height:900px; border-radius:50%;
   background:radial-gradient(circle, rgba(59,125,255,0.28) 0%, rgba(59,125,255,0) 62%);
   top:-260px; right:-260px; }
-.cover .photo { position:absolute; top:0; left:0; right:0; height:5in; object-fit:cover; width:100%; z-index:1; }
-/* 5in, not more: the station render is 1.9:1 and the page is 8.5in wide, so a taller band
-   would crop a quarter of the width off and lose the outer cabinets. At this height nearly
-   the whole scene survives.
-   The photograph runs to the page edge and fades into the ink, so the title block below
-   sits on flat colour and stays readable whatever the picture is. The gradient is darkest
-   at the very top and at the bottom: the top keeps the wordmark legible over a bright
-   sky or a pale building, the bottom hides the seam where the picture meets the ink. The
-   middle stays light so the photograph is still the photograph. */
-.cover .photo-fade { position:absolute; top:0; left:0; right:0; height:5in; z-index:1;
-  background:linear-gradient(180deg, rgba(11,15,25,0.62) 0%, rgba(11,15,25,0.30) 22%, rgba(11,15,25,0.34) 55%, rgba(11,15,25,0.92) 88%, var(--ink) 100%); }
-.cover.has-photo .cover-logo { position:relative; z-index:3; }
+/* The cover photograph. These three rules are copied exactly from the live build at
+   hostlocation-proforma.pplx.app (its js/doc.js), so the render sits and crops on the
+   page precisely as it does there: a 6.1in band, and object-position 42% down, which is
+   what keeps the cabinets and the skyline in frame instead of centring on the tarmac.
+   The scrim keeps its six stops unchanged: dark at the top so the wordmark stays legible,
+   light through the middle so the picture reads as a picture, into flat ink at the bottom
+   so the title block below sits on solid colour.
+   The one departure: our copy feeds the img from the cover image slot (A.cover) rather
+   than that build's BRAND_RENDERS global, which this repo does not have. */
+.cover-render { position:absolute; top:0; left:0; right:0; height:6.1in; z-index:1; overflow:hidden; }
+.cover-render img { width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block; }
+.cover-render .scrim { position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(14,17,22,0.88) 0%, rgba(14,17,22,0.54) 11%, rgba(14,17,22,0.22) 34%, rgba(14,17,22,0.55) 66%, rgba(14,17,22,0.94) 86%, var(--ink) 100%); }
 .cover .glow2 { position:absolute; width:640px; height:640px; border-radius:50%;
   background:radial-gradient(circle, rgba(59,125,255,0.16) 0%, rgba(59,125,255,0) 66%);
   bottom:-220px; left:-200px; }
@@ -378,9 +379,9 @@ function renderDoc(d, A) {
 <body>
 
 <!-- ================= COVER ================= -->
-<div class="page cover${A && A.cover ? ' has-photo' : ''}">
+<div class="page cover">
+  ${A && A.cover ? `<div class="cover-render"><img src="${A.cover}" alt=""/><div class="scrim"></div></div>` : ''}
   <div class="glow"></div><div class="glow2"></div>
-  ${A && A.cover ? `<img class="photo" src="${A.cover}" alt=""/><div class="photo-fade"></div>` : ''}
   <div class="cover-inner">
     <img class="cover-logo" src="${A.logo_type_light}" alt="WattUpUSA"/>
     <div class="eyebrow">${dsg.eyebrow}</div>

@@ -44,10 +44,19 @@ recorded exceptions.**
 > `assets/render-station-wide.jpg` was extracted from that build's `brand.js`, where it ships
 > as an embedded data URL under the key `station_wide`, and:
 >
-> - `doc.js` renders it behind the cover content with a scrim, in a 5in band (the render is
->   1.9:1 and the page is 8.5in wide, so a taller band crops the outer cabinets off);
+> - `doc.js` gains that build's own `.cover-render`, `.cover-render img` and
+>   `.cover-render .scrim` rules, copied from it verbatim: a 6.1in band, `object-fit:cover`
+>   with `object-position:center 42%`, and the six-stop scrim. Both builds were measured in
+>   a browser and agree to the pixel (band 585.594px, `50% 42%`, source 1500x788), so the
+>   cover crops and sits exactly as the live one does. Do not retune these by eye;
 > - `app.js` gains a `cover` image slot in section 5 and loads the shipped render as its
->   default through a new `rasterDataUrl`, so a cover looks finished with nothing uploaded.
+>   default through a new `rasterDataUrl`, so a cover looks finished with nothing uploaded;
+> - the tool route's `CONTENT_TYPES` gains `.jpg` and `.jpeg`, without which that fetch 404s
+>   and the cover renders broken through the gate while working off a plain static server.
+>
+> The live build feeds the same img from a `BRAND_RENDERS` global in its `js/brand.js`,
+> gated by a `brand_imagery` flag. Ours feeds it from the image slot instead, because this
+> repo has no `brand.js`. That is the only departure in the cover markup.
 >
 > **If the newer source arrives, diff against it and prefer it over both exceptions.** Revert
 > either by restoring the file from git history; nothing else in the tool depends on them.

@@ -140,7 +140,10 @@ describe('path safety: never a file that is not a plain name in private/tool/ wi
         ['a . segment', `${SITE}/tool/./index.html`, ['.', 'index.html']],
         ['a dotfile', `${SITE}/tool/.env`, ['.env']],
         ['.env one level up', `${SITE}/tool/../.env`, ['..', '.env']],
-        ['an unlisted extension that IS on disk (.jpg)', `${SITE}/tool/assets/brand/wattup-mark-light.jpg`, ['assets', 'brand', 'wattup-mark-light.jpg']],
+        // .jpg became servable when the cover photograph needed it, so nothing on disk
+        // carries an unlisted extension any more. The rule is still the rule: an
+        // extension that is not in the map is refused whether or not a file is there.
+        ['an unlisted extension (.md)', `${SITE}/tool/README.md`, ['README.md']],
         ['a directory with a trailing slash', `${SITE}/tool/css/`, ['css']],
         ['a directory without one', `${SITE}/tool/js`, ['js']],
         ['a listed extension that is not on disk', `${SITE}/tool/js/nope.js`, ['js', 'nope.js']],
@@ -167,10 +170,43 @@ describe('path safety: never a file that is not a plain name in private/tool/ wi
         expect(await response.text()).toBe('');
     });
 
+    it('serves the cover photograph, which the document inlines as a data URL', async () => {
+        // app.js fetches this and turns it into a data URL. When .jpg was not in the
+        // content-type map the fetch 404d, the loader fell back to a relative path, and
+        // the cover rendered a broken image through the gate while working off a plain
+        // static server. That is the bug this pins.
+        signedIn();
+
+        const response = await get(
+            `${SITE}/tool/assets/render-station-wide.jpg`,
+            ['assets', 'render-station-wide.jpg']
+        );
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('content-type')).toBe('image/jpeg');
+        // The bytes themselves, not a content-length header the route does not set.
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        expect(bytes.byteLength).toBeGreaterThan(50_000);
+        // A real JPEG, not an error page with the right content type: SOI marker.
+        expect([bytes[0], bytes[1]]).toEqual([0xff, 0xd8]);
+    });
+
+    it('signed out, the cover photograph is a redirect and no bytes', async () => {
+        signedOut();
+
+        const response = await get(
+            `${SITE}/tool/assets/render-station-wide.jpg`,
+            ['assets', 'render-station-wide.jpg']
+        );
+
+        expect(response.status).toBe(302);
+        expect(await response.text()).toBe('');
+    });
+
     it('every refusal is the same bytes, so probing reveals nothing about which files exist', async () => {
         signedIn();
         const missing = await get(`${SITE}/tool/js/nope.js`, ['js', 'nope.js']);
-        const present = await get(`${SITE}/tool/assets/brand/wattup-mark-light.jpg`, ['assets', 'brand', 'wattup-mark-light.jpg']);
+        const present = await get(`${SITE}/tool/README.md`, ['README.md']);
         const traversal = await get(`${SITE}/tool/../package.json`, ['..', 'package.json']);
 
         const shape = async (r: Response) => ({ status: r.status, body: await r.text(), headers: Object.fromEntries(r.headers) });

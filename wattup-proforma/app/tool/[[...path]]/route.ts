@@ -38,14 +38,22 @@ export const runtime = 'nodejs';
 
 const TOOL_ROOT = path.join(process.cwd(), 'private', 'tool');
 
-// The complete list of what may be served. Anything else is a 404, whether or
-// not the file exists: the vendored assets/brand/*.jpg are on disk because the
-// copy is byte-for-byte, but nothing in the tool references them.
+// The complete list of what may be served. Anything else is a 404, whether or not the
+// file exists.
+//
+// .jpg is here because the cover photograph needs it: app.js reads
+// assets/render-station-wide.jpg and inlines it as a data URL, so without this entry the
+// fetch 404s, the loader falls back to the relative path, and the cover renders a broken
+// image through the gate while working fine off a plain static server. The vendored
+// assets/brand/*.jpg came along with the byte-for-byte copy and nothing references them;
+// they are now reachable too, which costs nothing: they are WattUp's own logos.
 const CONTENT_TYPES: Record<string, string> = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.svg': 'image/svg+xml',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
 };
 
 // Gated content is never cached by a shared cache, never indexed, never
