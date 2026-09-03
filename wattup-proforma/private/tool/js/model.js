@@ -62,6 +62,7 @@ const DEFAULT_INPUTS = {
   prepared_by: 'Akshay Patel',
   prepared_email: 'akshay@wattupusa.com',
   prepared_date: '',
+  validity_days: 30,
   chargers: 16,
   ports_per_charger: 2,
   charger_power_kw: 310,
@@ -115,6 +116,24 @@ function buildModel(INP) {
   const prepared_by = g('prepared_by', 'Akshay Patel');
   const prepared_email = g('prepared_email', 'akshay@wattupusa.com');
   const prepared_date = INP.prepared_date || '';
+
+  // ----- offer validity window -----
+  // The document is only good for validity_days from its own date. Both the issue date and the
+  // expiry print on it, so a stale copy is self-evidently stale.
+  const validity_days = Math.max(0, Math.round(Number(g('validity_days', 30)) || 0));
+  const MON = ['January','February','March','April','May','June',
+               'July','August','September','October','November','December'];
+  const fmtLong = dt => MON[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
+  // prepared_date is free text; parse it as a date when possible, otherwise date from today.
+  let issueDate = new Date();
+  if (prepared_date) {
+    const t = new Date(prepared_date + (/\d{4}$/.test(prepared_date.trim()) ? ' 12:00:00' : ''));
+    if (!isNaN(t.getTime())) issueDate = t;
+  }
+  const issued_long = prepared_date || fmtLong(new Date());
+  const expires_long = validity_days
+    ? fmtLong(new Date(issueDate.getTime() + validity_days * 86400000))
+    : '';
 
   // ----- Permitted Operating Cost inputs (lease Section 5.1(b) categories) -----
   const net_sw_port_yr = Number(g('net_sw_port_yr', 500));
@@ -234,7 +253,10 @@ function buildModel(INP) {
       address: loc_in.address, city: loc_in.city, utility: loc_in.utility,
       ahj: loc_in.ahj, county: loc_in.county
     },
-    prepared: { by: prepared_by, email: prepared_email, date: prepared_date },
+    prepared: {
+      by: prepared_by, email: prepared_email, date: prepared_date,
+      validity_days, issued: issued_long, expires: expires_long
+    },
     assumptions: {
       chargers, ports, ports_per_charger, escalation,
       charger_power_kw: pyround(P, 1),

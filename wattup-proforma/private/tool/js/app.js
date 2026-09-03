@@ -108,8 +108,10 @@ const SECTIONS = [
     ]
   },
   {
-    id: 'prep', n: '7', title: 'Preparer & branding',
+    id: 'prep', n: '7', title: 'Preparer, validity & branding',
+    note: 'The validity window prints on the cover as <b>Valid through</b>, so the deal points cannot be read as open-ended. Set it to 0 to leave the line off.',
     fields: [
+      { k: 'validity_days', label: 'Proposal valid for', type: 'number', unit: 'days', step: 1, min: 0, half: true },
       { k: 'prepared_by', label: 'Prepared by', type: 'text', half: true },
       { k: 'prepared_email', label: 'Email', type: 'text', half: true },
       { k: 'prepared_date', label: 'Date on document', type: 'text', ph: 'blank = today', half: true },

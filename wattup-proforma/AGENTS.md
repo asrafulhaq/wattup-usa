@@ -23,11 +23,11 @@ replacing a shared password.
 
 ## Two halves
 
-**The tool** — `private/tool/`, the source in `../docs/Pro-Forma source/` bar the two exceptions below. Plain HTML, CSS
+**The tool** — `private/tool/`, the source in `../docs/Pro-Forma source/` bar the three exceptions below. Plain HTML, CSS
 and four JavaScript files: `model.js` (the financial model, ported from Python and verified to
 the cent), `doc.js` (renders the six-page document), `evpin.js` (parses EVpin site reports),
 `app.js` (form, live preview, JSON import/export, print). No framework, no server, no stored
-state — everything typed lives in the browser tab. **Do not modify these files, with two
+state — everything typed lives in the browser tab. **Do not modify these files, with three
 recorded exceptions.**
 
 > **Exception 1, privacy:** `evpin.js`'s `EVPIN_READERS` array and `evpinFetchText`, replaced
@@ -58,7 +58,32 @@ recorded exceptions.**
 > gated by a `brand_imagery` flag. Ours feeds it from the image slot instead, because this
 > repo has no `brand.js`. That is the only departure in the cover markup.
 >
-> **If the newer source arrives, diff against it and prefer it over both exceptions.** Revert
+> **Exception 3, the offer validity window:** the live tool prints `Valid through <date>`
+> under the confidentiality badge on the cover, and this copy of the source has no such
+> concept at all: no `validity_days` input, no expiry, no `.valid` rule. The window was
+> ported from the live build, again verbatim where it exists there:
+>
+> - `model.js` gains the `validity_days` default of 30, the offer validity block that
+>   derives `issued` and `expires` from `prepared_date`, and three new fields on the
+>   `prepared` output. **No financial figure moves.** That was proved, not assumed: the
+>   model was built from `DEFAULT_INPUTS` before and after and every other section
+>   (location, assumptions, operations_y1, opex, host_economics, competitive, avoidance,
+>   projection, market, design) is byte-identical. Re-run that check if you touch it;
+> - `app.js` gains the `Proposal valid for` field, so section 7 is now
+>   `Preparer, validity & branding`;
+> - `doc.js` gains the live build's `.cover .foot .bstack` and `.cover .valid` rules and
+>   the stacked badge markup. Measured against the live tool: `column`, `flex-end`, `7px`,
+>   `9.5px`, `rgb(196,203,214)`, `0.4px`, and the same rendered date.
+>
+> `validity_days: 0` prints no line, which is the live build's own behaviour.
+>
+> **Two halves of this feature are deliberately NOT ported**, because our page structure
+> has no place for them: the live build also prints the window as a `Validity of this
+> proposal` term on its last page (our source has no `class="tt"` terms block at all), and
+> its section 7 carries `prepared_for` and `prepared_for_company`, which drive a
+> `Prepared for` line on the cover. Both need the newer source.
+>
+> **If the newer source arrives, diff against it and prefer it over all three exceptions.** Revert
 > either by restoring the file from git history; nothing else in the tool depends on them.
 
 **The gate** — everything else in this app.
@@ -161,7 +186,7 @@ lib/activity-log.ts          logActivity: the four audit events into activity_lo
 lib/prisma.ts                Prisma client, pooled
 lib/email.ts                 Resend + the OTP template; maskEmail for logs
 prisma/schema.prisma         narrow mirror, never migrated from here; activity_log is the one table it writes
-private/tool/                the calculator, source-identical bar the two exceptions above
+private/tool/                the calculator, source-identical bar the three exceptions above
 ```
 
 ## Commands

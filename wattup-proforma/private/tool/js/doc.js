@@ -63,6 +63,8 @@ html,body { font-family:'Helvetica Neue',Arial,sans-serif; color:var(--ink); bac
 .cover .foot { margin-top:34px; display:flex; justify-content:space-between; align-items:flex-end; }
 .cover .foot .prep { font-size:12px; color:#C4CBD6; }
 .cover .foot .prep b { color:#fff; }
+.cover .foot .bstack { display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
+.cover .valid { font-size:9.5px; letter-spacing:0.4px; color:#C4CBD6; }
 .cover .badge { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); border:1px solid rgba(255,255,255,0.2); padding:7px 12px; border-radius:40px; }
 
 /* ---------- SHARED ---------- */
@@ -283,6 +285,7 @@ function renderDoc(d, A) {
   const _by = prep.by || '';
   const _email = prep.email || '';
   const _date = prep.date || (MONTHS[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear());
+  const _expires = prep.expires || '';
   const _gen = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
   const has_aerial = !!(A && A.aerial);
   const has_design = !!(A && A.design);
@@ -398,7 +401,10 @@ function renderDoc(d, A) {
 
     <div class="foot">
       <div class="prep">Prepared by <b>WattUpUSA</b> &nbsp;·&nbsp; ${_by}<br>${_email} &nbsp;·&nbsp; ${_date}</div>
-      <div class="badge">${dsg.badge}</div>
+      <div class="bstack">
+        <div class="badge">${dsg.badge}</div>
+        ${_expires ? `<div class="valid">Valid through ${_expires}</div>` : ''}
+      </div>
     </div>
   </div>
 </div>
