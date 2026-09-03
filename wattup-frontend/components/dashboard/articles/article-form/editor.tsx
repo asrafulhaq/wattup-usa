@@ -1,10 +1,36 @@
 'use client';
 
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import dynamic from 'next/dynamic';
+
+/**
+ * TipTap arrives after the page does, not inside it.
+ *
+ * SimpleEditor pulls seventeen @tiptap packages, the whole components/tiptap-* tree and
+ * ProseMirror: 186 KB gzipped, plus lowlight. Statically imported it made
+ * /dashboard/articles/create the heaviest route in the app at 547 KB gzipped, all of it
+ * in the initial document, and the title field above it could not be typed into until
+ * that had parsed.
+ *
+ * ssr: false costs nothing here: useEditor is already configured with
+ * immediatelyRender: false, so the editor never rendered on the server anyway.
+ */
+const SimpleEditor = dynamic(
+    () => import('@/components/tiptap-templates/simple/simple-editor').then(m => m.SimpleEditor),
+    {
+        ssr: false,
+        loading: () => (
+            <div className='space-y-2'>
+                <Skeleton className='h-11 w-full rounded-md' />
+                <Skeleton className='h-[420px] w-full rounded-md' />
+            </div>
+        ),
+    }
+);
 
 interface FormEditorProps {
     title: string;

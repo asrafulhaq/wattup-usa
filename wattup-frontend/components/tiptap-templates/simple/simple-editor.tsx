@@ -2,7 +2,7 @@
 'use client';
 
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
-import { common, createLowlight } from 'lowlight';
+import { createLowlight } from 'lowlight';
 import { useEffect, useRef, useState } from 'react';
 
 // --- Tiptap Core Extensions ---
@@ -16,7 +16,41 @@ import { Typography } from '@tiptap/extension-typography';
 import { Selection } from '@tiptap/extensions';
 import { StarterKit } from '@tiptap/starter-kit';
 
-const lowlight = createLowlight(common);
+/**
+ * Nine grammars, hand registered, rather than lowlight's `common` set of thirty seven.
+ *
+ * There is no language picker anywhere in this editor: components/tiptap-ui/
+ * code-block-button toggles the node and passes no language, and there is no code block
+ * node view, so lowlight only ever auto-detects. Thirty seven grammars for a press
+ * release editor was 45 KB gzipped of highlight.js for a feature with no interface.
+ *
+ * These are the nine a WattUp article plausibly contains. Adding one is a two line
+ * change: import it from highlight.js/lib/languages and register it below. Anything not
+ * on the list still renders as a code block, just without colouring, which is the right
+ * way for this to degrade.
+ */
+import bash from 'highlight.js/lib/languages/bash';
+import css from 'highlight.js/lib/languages/css';
+import javascript from 'highlight.js/lib/languages/javascript';
+import json from 'highlight.js/lib/languages/json';
+import markdown from 'highlight.js/lib/languages/markdown';
+import python from 'highlight.js/lib/languages/python';
+import sql from 'highlight.js/lib/languages/sql';
+import typescript from 'highlight.js/lib/languages/typescript';
+import xml from 'highlight.js/lib/languages/xml';
+
+const lowlight = createLowlight({
+    bash,
+    css,
+    javascript,
+    json,
+    markdown,
+    python,
+    sql,
+    typescript,
+    // xml is highlight.js' name for HTML as well, so this covers both.
+    xml,
+});
 
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button';

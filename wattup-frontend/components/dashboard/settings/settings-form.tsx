@@ -12,11 +12,34 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { ScriptEditor } from './script-editor';
 import { IconDeviceFloppy } from '@tabler/icons-react';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { toast } from 'sonner';
+
+/**
+ * CodeMirror arrives when the Scripts tab is opened, not with the document.
+ *
+ * ScriptEditor statically imported @uiw/react-codemirror and @codemirror/lang-html,
+ * which is a 189 KB gzipped chunk, and it was in /dashboard/settings' initial JS even
+ * though the three fields that use it live behind a tab nobody lands on: the form opens
+ * on 'google'. PageContent was already inside a Suspense with SettingsBodySkeleton, but
+ * a Suspense boundary does not split a client chunk, only a static import does.
+ *
+ * ssr: false because there is nothing to server render. The value lives in the parent's
+ * useState, nothing reads the editor's markup, and the three fields are not inside a
+ * <form>, so no submit depends on the DOM being there.
+ */
+const ScriptEditor = dynamic(
+    () => import('./script-editor').then(m => m.ScriptEditor),
+    {
+        ssr: false,
+        // minHeight on the real editor is 140px, so the tab does not jump on arrival.
+        loading: () => <Skeleton className='h-[140px] w-full rounded-lg' />,
+    }
+);
 
 type NullableSettings = {
     [K in keyof SiteSettingsData]: string | null | undefined;

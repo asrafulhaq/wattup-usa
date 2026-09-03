@@ -52,12 +52,28 @@ import {
     ShieldOff,
     Trash2,
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { InviteUserDialog } from './invite-user-dialog';
+
+/**
+ * The invite dialog arrives when somebody who may invite opens the page, not before.
+ *
+ * It was a static import, so zod and @hookform/resolvers/zod, 74 KB gzipped across two
+ * chunks, were in every visitor's initial JS for /dashboard/users, including roles
+ * without INVITE_USERS, who never see the button. The dialog is already rendered
+ * conditionally on canInvite; this makes the download conditional too.
+ *
+ * ssr: false because it is a Radix dialog that renders nothing until it is opened.
+ */
+const InviteUserDialog = dynamic(
+    () => import('./invite-user-dialog').then(m => m.InviteUserDialog),
+    { ssr: false, loading: () => <Skeleton className='h-10 w-36 rounded-[10px]' /> }
+);
 
 interface Props {
     users: ManagedUser[];

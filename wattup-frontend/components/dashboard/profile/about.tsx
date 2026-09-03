@@ -1,6 +1,7 @@
 'use client';
 import { updateUserInformationById } from '@/app/_actions/userActions';
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
+import { Skeleton } from '@/components/ui/skeleton';
+import dynamic from 'next/dynamic';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +15,24 @@ import { Label } from '@/components/ui/label';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { Suspense, useState } from 'react';
 import { toast } from 'sonner';
+
+/**
+ * The same split as the article editor: TipTap and ProseMirror are 186 KB gzipped and
+ * this is the second route that mounts them, so /dashboard/profile was carrying the
+ * whole editor in its initial JS to draw an About box most visits never touch.
+ */
+const SimpleEditor = dynamic(
+    () => import('@/components/tiptap-templates/simple/simple-editor').then(m => m.SimpleEditor),
+    {
+        ssr: false,
+        loading: () => (
+            <div className='space-y-2'>
+                <Skeleton className='h-11 w-full rounded-md' />
+                <Skeleton className='h-[320px] w-full rounded-md' />
+            </div>
+        ),
+    }
+);
 
 interface AboutProps {
     profile: {
