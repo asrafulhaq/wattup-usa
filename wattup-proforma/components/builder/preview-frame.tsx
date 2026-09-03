@@ -121,18 +121,53 @@ export const PreviewFrame = forwardRef<PreviewHandle, PreviewFrameProps>(functio
         },
     }));
 
-    // Measure only once the new srcdoc has parsed. The load event is the reliable
-    // signal; the timeout covers browsers that reuse a document without firing it.
     const runFit = useCallback(() => fitPages(frameRef.current), []);
+
+    /*
+     * Update the document IN PLACE. Never through the srcdoc attribute.
+     *
+     * Handing React a new `srcDoc` makes the iframe navigate: it blanks, parses
+     * half a megabyte, and repaints. Measured before this change, typing eleven
+     * characters fired eleven load events, and that white flash per character was
+     * the blink.
+     *
+     * Writing into the live document has no navigation and therefore no blank
+     * frame. The head is only touched when it actually differs, because it holds
+     * the whole stylesheet and replacing it forces a full restyle of six to nine
+     * pages for nothing; on a keystroke only the body has changed.
+     */
     useEffect(() => {
-        const f = frameRef.current;
-        if (!f) return;
-        f.addEventListener('load', runFit, { once: true });
-        const t = setTimeout(runFit, 60);
-        return () => {
-            f.removeEventListener('load', runFit);
-            clearTimeout(t);
-        };
+        const frame = frameRef.current;
+        if (!frame || !html) return;
+
+        let doc: Document | null | undefined;
+        try {
+            doc = frame.contentDocument;
+        } catch {
+            return;
+        }
+        if (!doc) return;
+
+        if (!doc.body || !doc.body.firstChild) {
+            // First paint. open/write/close is synchronous, so there is no window
+            // in which the frame is empty and no load event to wait for.
+            doc.open();
+            doc.write(html);
+            doc.close();
+        } else {
+            const next = new DOMParser().parseFromString(html, 'text/html');
+            if (doc.head.innerHTML !== next.head.innerHTML) {
+                doc.head.innerHTML = next.head.innerHTML;
+            }
+            if (doc.body.className !== next.body.className) {
+                doc.body.className = next.body.className;
+            }
+            doc.body.innerHTML = next.body.innerHTML;
+        }
+
+        // Layout is only measurable once the new content is in the tree.
+        const t = setTimeout(runFit, 0);
+        return () => clearTimeout(t);
     }, [html, runFit]);
 
     const docHeight = PAGE_H_IN * pageCount * DPI;
@@ -163,12 +198,16 @@ export const PreviewFrame = forwardRef<PreviewHandle, PreviewFrameProps>(functio
                             transform: `scale(${zoom})`,
                         }}
                     >
+                        {/*
+                          * No srcDoc prop: the effect above owns this document's
+                          * content. Letting React set srcdoc would re-navigate the
+                          * frame on every change, which is the flicker this avoids.
+                          */}
                         <iframe
                             ref={frameRef}
                             title='Pro-forma preview'
                             // allow-modals is what lets print() run inside the frame.
                             sandbox='allow-same-origin allow-modals'
-                            srcDoc={html}
                             className='w-full border-0 bg-white'
                             style={{ height: docHeight }}
                         />

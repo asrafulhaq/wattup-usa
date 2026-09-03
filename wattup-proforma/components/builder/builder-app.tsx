@@ -46,6 +46,7 @@ import {
 } from '@/lib/proforma/state';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { readRailWidth, writeRailWidth } from '@/lib/proforma/rail-width';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { useHydrated } from '@/lib/use-hydrated';
 import { LG, useMediaQuery } from '@/lib/use-media-query';
 import { BuilderSkeleton } from './builder-skeleton';
@@ -158,9 +159,24 @@ function Builder() {
         };
     }, [assets, images, gallery]);
 
+    /*
+     * The document lags the model by a beat, and only the document.
+     *
+     * renderDoc produces about half a megabyte of HTML, which then has to be
+     * parsed into the preview. Doing that per keystroke is what made the paper
+     * blink: eleven characters produced eleven full document rebuilds. The KPI
+     * strip still reads `model` directly and stays instant, because building the
+     * model is arithmetic and costs nothing.
+     *
+     * 160ms is under the ~200ms that reads as a delay, and above a fast typist's
+     * inter-key gap, so a burst of typing produces one rebuild rather than one per
+     * character.
+     */
+    const settledModel = useDebouncedValue(model, 160);
+
     const html = useMemo(
-        () => (docAssets ? renderDoc(model, docAssets) : ''),
-        [model, docAssets]
+        () => (docAssets ? renderDoc(settledModel, docAssets) : ''),
+        [settledModel, docAssets]
     );
 
     /* Keep the working copy on the device so a reload does not lose the site. */
