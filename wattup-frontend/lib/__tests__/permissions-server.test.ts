@@ -7,13 +7,25 @@ import {
     ROLE_PERMISSIONS,
 } from '@/lib/permissions';
 
-// The module imports the Prisma singleton for getEffectivePermissions; the tests below
-// go through resolvePermissions with a stub, so the singleton is never constructed.
-vi.mock('@/lib/prisma', () => ({ default: {} }));
+// Most tests below go through resolvePermissions with their own stub client, so the
+// singleton is never touched. resolvePermissionsForKnownUser is the exception: it reads
+// through the singleton by design, since there is nothing to inject into it, so the
+// mock carries the two delegates it uses.
+const { singleton } = vi.hoisted(() => ({
+    singleton: {
+        rolePermission: { findMany: vi.fn() },
+        userPermission: { findMany: vi.fn() },
+    },
+}));
+vi.mock('@/lib/prisma', () => ({ default: singleton }));
+// readAllRoleDefaults is a 'use cache' scope, which needs a Next build. Under Vitest the
+// directive is an inert string and these two are the only Next imports the module makes.
+vi.mock('next/cache', () => ({ cacheLife: vi.fn(), cacheTag: vi.fn() }));
 
 import {
     describePermissions,
     resolvePermissions,
+    resolvePermissionsForKnownUser,
     type PermissionDescription,
     type PermissionSource,
 } from '@/lib/permissions-server';
@@ -161,6 +173,146 @@ describe('resolvePermissions', () => {
         const boom = Object.assign(new Error('connection refused'), { code: 'P1001' });
         const db = stubDb({ user: editor, roleRows: boom });
         await expect(resolvePermissions(db, 'user-1')).rejects.toBe(boom);
+    });
+});
+
+// ─── The known-user resolver (perf audit finding 1) ───────────────────────────
+
+/**
+ * The sibling that skips loadUser because the caller has already read the row on this
+ * request, out of Better Auth's own uncached session read.
+ *
+ * It must answer exactly what resolvePermissions answers for the same row: same ban
+ * arithmetic, same defaults, same overrides. The one thing it may not do is take the
+ * caller's word for what they hold, so the override read is still a live query.
+ */
+describe('resolvePermissionsForKnownUser', () => {
+    const known = {
+        id: 'user-1',
+        role: Role.EDITOR,
+        banned: false as boolean | null,
+        banExpires: null as Date | null,
+    };
+
+    beforeEach(() => {
+        singleton.rolePermission.findMany.mockReset();
+        singleton.userPermission.findMany.mockReset();
+        singleton.rolePermission.findMany.mockResolvedValue(
+            ROLE_PERMISSIONS.EDITOR.map(permission => ({ role: Role.EDITOR, permission }))
+        );
+        singleton.userPermission.findMany.mockResolvedValue([]);
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('never reads the "user" row: that read is the whole point of this function', async () => {
+        await resolvePermissionsForKnownUser(known);
+
+        // The mocked singleton has no `user` delegate at all, so a re-read would throw
+        // rather than pass quietly. Asserted explicitly so the intent survives a refactor.
+        expect(singleton).not.toHaveProperty('user');
+    });
+
+    it('still reads the per-user overrides on every call, for THAT user', async () => {
+        await resolvePermissionsForKnownUser({ ...known, id: 'user-9' });
+
+        expect(singleton.userPermission.findMany).toHaveBeenCalledWith({
+            where: { userId: 'user-9' },
+            select: { permission: true, granted: true },
+        });
+    });
+
+    it('answers the role defaults when there are no overrides', async () => {
+        const set = await resolvePermissionsForKnownUser(known);
+
+        expect([...set].sort()).toEqual([...ROLE_PERMISSIONS.EDITOR].sort());
+    });
+
+    it('applies a grant and a revoke, exactly as resolvePermissions does', async () => {
+        singleton.userPermission.findMany.mockResolvedValue([
+            { permission: Permission.ACCESS_PROFORMA, granted: true },
+            { permission: Permission.CREATE_POST, granted: false },
+        ]);
+
+        const set = await resolvePermissionsForKnownUser(known);
+
+        expect(set.has(Permission.ACCESS_PROFORMA)).toBe(true);
+        expect(set.has(Permission.CREATE_POST)).toBe(false);
+    });
+
+    it('ignores a revoke for SUPER_ADMIN, the same exception the reading resolver makes', async () => {
+        singleton.rolePermission.findMany.mockResolvedValue(
+            ROLE_PERMISSIONS.SUPER_ADMIN.map(permission => ({
+                role: Role.SUPER_ADMIN,
+                permission,
+            }))
+        );
+        singleton.userPermission.findMany.mockResolvedValue([
+            { permission: Permission.MANAGE_PERMISSIONS, granted: false },
+        ]);
+
+        const set = await resolvePermissionsForKnownUser({ ...known, role: Role.SUPER_ADMIN });
+
+        expect(set.has(Permission.MANAGE_PERMISSIONS)).toBe(true);
+    });
+
+    it('a live ban resolves to nothing, and does not go on to read the grants', async () => {
+        const set = await resolvePermissionsForKnownUser({ ...known, banned: true });
+
+        expect(set).toBe(NO_PERMISSIONS);
+        expect(singleton.userPermission.findMany).not.toHaveBeenCalled();
+    });
+
+    it('a ban with a future expiry is still a ban', async () => {
+        const set = await resolvePermissionsForKnownUser({
+            ...known,
+            banned: true,
+            banExpires: new Date(Date.now() + 60_000),
+        });
+
+        expect(set.size).toBe(0);
+    });
+
+    it('an expired ban is no ban, so the expiry survives the trip through the guard', async () => {
+        // The Date is serialised to a timestamp for React's cache key and rebuilt, so
+        // an off-by-a-conversion here would silently lock out a user whose ban lapsed.
+        const set = await resolvePermissionsForKnownUser({
+            ...known,
+            banned: true,
+            banExpires: new Date(Date.now() - 60_000),
+        });
+
+        expect([...set].sort()).toEqual([...ROLE_PERMISSIONS.EDITOR].sort());
+    });
+
+    it('banned null or false is not a ban', async () => {
+        for (const banned of [null, false]) {
+            expect((await resolvePermissionsForKnownUser({ ...known, banned })).size).toBe(
+                ROLE_PERMISSIONS.EDITOR.length
+            );
+        }
+    });
+
+    it('agrees with resolvePermissions, permission for permission, on the same row', async () => {
+        const overrides = [
+            { permission: Permission.ACCESS_PROFORMA, granted: true },
+            { permission: Permission.CREATE_POST, granted: false },
+        ];
+        singleton.userPermission.findMany.mockResolvedValue(overrides);
+
+        const fromKnown = await resolvePermissionsForKnownUser(known);
+        const fromRead = await resolvePermissions(
+            stubDb({
+                user: { role: Role.EDITOR, banned: false, banExpires: null },
+                roleRows: ROLE_PERMISSIONS.EDITOR.map(permission => ({ permission })),
+                overrideRows: overrides,
+            }),
+            'user-1'
+        );
+
+        expect([...fromKnown].sort()).toEqual([...fromRead].sort());
     });
 });
 

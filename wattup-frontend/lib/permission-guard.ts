@@ -1,8 +1,11 @@
 import 'server-only';
 
 import { getSession } from '@/app/_actions/auth-actions';
-import { hasPermission, type Permission, type PermissionSet } from '@/lib/permissions';
-import { getEffectivePermissions } from '@/lib/permissions-server';
+import { hasPermission, isRole, type Permission, type PermissionSet } from '@/lib/permissions';
+import {
+    getEffectivePermissions,
+    resolvePermissionsForKnownUser,
+} from '@/lib/permissions-server';
 
 /**
  * The server side half of every permission check.
@@ -34,7 +37,26 @@ export interface Authorised {
 export async function getSessionPermissions(): Promise<Authorised | null> {
     const session = await getSession();
     if (!session) return null;
-    const permissions = await getEffectivePermissions(session.id);
+
+    // Perf audit finding 1. getSession has just read this user's row through Better
+    // Auth, with disableCookieCache so it is a live read, and now carries the role and
+    // the ban state out of it. Handing those to the resolver skips an identical second
+    // SELECT on "user" and takes a dashboard page from four sequential round trips to
+    // three. It skips ONLY that read: role defaults and per-user overrides are still
+    // resolved from the database on every request, and a ban still ends the resolution.
+    //
+    // session.role is a plain string, so an unknown value falls back to the resolver
+    // that reads the row itself rather than being guessed at. That path also covers a
+    // role added to the database before lib/permissions.ts learns about it.
+    const permissions = isRole(session.role)
+        ? await resolvePermissionsForKnownUser({
+              id: session.id,
+              role: session.role,
+              banned: session.banned,
+              banExpires: session.banExpires,
+          })
+        : await getEffectivePermissions(session.id);
+
     return { session, permissions };
 }
 

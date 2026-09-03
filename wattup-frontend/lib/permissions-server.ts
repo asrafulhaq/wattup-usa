@@ -186,10 +186,65 @@ export async function resolvePermissions(
  * requirePermission) rather than trusting anything handed down to it; a page may pass
  * the same set to the components it renders, since deciding what to draw is not an
  * authorisation decision.
+ *
+ * The fallback path since the perf audit: lib/permission-guard.ts prefers the sibling
+ * below, which skips loadUser. This one still answers whenever the session carries a
+ * role string that is not a known Role.
  */
 export const getEffectivePermissions = cache(
     async (userId: string): Promise<PermissionSet> => resolvePermissions(prisma, userId)
 );
+
+/**
+ * The same resolution as above for a user whose role and ban state the caller has
+ * ALREADY read from the database on this request, so loadUser is skipped.
+ *
+ * Perf audit finding 1. Better Auth's own getSession reads the whole "user" row, ban
+ * columns included, and app/_actions/auth-actions.ts now carries them out instead of
+ * dropping them. Before this, loadUser went back for id, role, banned and banExpires
+ * about 280ms after Better Auth had just selected the same three columns of the same
+ * row: a fourth sequential round trip that did no work.
+ *
+ * SAFE ONLY WHILE getSession PASSES disableCookieCache: true. That option is what makes
+ * the row Better Auth returns a live read rather than a five minute old signed cookie.
+ * Without it, role and banned here go stale and this becomes a stale authorisation
+ * decision, which is worse than finding F16 was. See the comment on getCachedSession in
+ * app/_actions/auth-actions.ts, and the test that pins the flag.
+ *
+ * Everything downstream of the row is unchanged: the ban check, the role defaults and
+ * the per-user overrides are still read exactly as resolvePermissions reads them, and
+ * user_permission is still a live query on every request.
+ *
+ * Arguments are primitives so React's cache() keys on their values. Two callers on one
+ * request therefore share one resolution, the way getEffectivePermissions does.
+ */
+const resolveForKnownUser = cache(
+    async (
+        userId: string,
+        role: Role,
+        banned: boolean | null,
+        banExpiresAt: number | null
+    ): Promise<PermissionSet> => {
+        const banExpires = banExpiresAt === null ? null : new Date(banExpiresAt);
+        if (isBanned({ banned, banExpires })) return NO_PERMISSIONS;
+        const { defaults, overrides } = await loadGrants(prisma, role, userId);
+        return applyOverrides(defaults, overrides, role);
+    }
+);
+
+export async function resolvePermissionsForKnownUser(user: {
+    id: string;
+    role: Role;
+    banned: boolean | null;
+    banExpires: Date | null;
+}): Promise<PermissionSet> {
+    return resolveForKnownUser(
+        user.id,
+        user.role,
+        user.banned,
+        user.banExpires === null ? null : user.banExpires.getTime()
+    );
+}
 
 // ─── Provenance ───────────────────────────────────────────────────────────────
 

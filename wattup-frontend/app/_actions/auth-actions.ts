@@ -19,10 +19,33 @@ import { cache } from 'react';
 // The cost is one session read per request render tree, not per call: React's cache()
 // below already collapses the many callers of getSession into one. wattup-proforma pays
 // exactly this on every gated request for the same reason (checklist 3.13).
+//
+// LOAD BEARING BEYOND F16. lib/permissions-server.ts#resolvePermissionsForKnownUser now
+// resolves a caller's permissions from the role and ban state this call returns, instead
+// of reading the same "user" row a second time. That is sound only while this query is a
+// real, uncached read. Take disableCookieCache away and role and banned become up to five
+// minutes stale, and the shortcut turns F16 from read-only staleness into a stale
+// AUTHORISATION answer, which is strictly worse than F16 ever was. Two tests pin it:
+// app/_actions/__tests__/auth-session.test.ts asserts the flag and the two fields.
 const getCachedSession = cache(async () => {
     const h = await headers();
     return auth.api.getSession({ headers: h, query: { disableCookieCache: true } });
 });
+
+/**
+ * Better Auth hands back whatever the adapter stored for banExpires. Prisma gives a Date;
+ * a different adapter or a serialisation hop could give a string. Normalised here so the
+ * ban arithmetic in lib/permissions-server.ts never compares against an Invalid Date, and
+ * anything unrecognisable reads as "no expiry set" rather than as an expired ban.
+ */
+function toDate(value: unknown): Date | null {
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+    if (typeof value === 'string' || typeof value === 'number') {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    return null;
+}
 
 /**
  * Logout action — signs out via Better Auth server API and redirects.
@@ -40,6 +63,17 @@ export async function logout() {
  * an authorisation answer. lib/permission-guard.ts builds on this to resolve what the
  * caller may do. (getAdminSession, the role-gated variant, is gone: every module that
  * used it now checks a permission.)
+ *
+ * banned and banExpires are carried through because Better Auth has already read them,
+ * on this request, out of the same "user" row role came from. Discarding them cost a
+ * second identical SELECT on "user" 273ms later, from loadUser in
+ * lib/permissions-server.ts: four sequential round trips on every dashboard page where
+ * three would do. This is not a widened disclosure, since the session is resolved from
+ * the caller's own cookie and tells them only about themselves.
+ *
+ * They are still not an authorisation answer. What a caller may DO is resolved from
+ * role_permission and user_permission on every request; these two fields only save the
+ * re-read of a row this request already has.
  */
 export async function getSession() {
     try {
@@ -47,12 +81,19 @@ export async function getSession() {
 
         if (!session) return null;
 
+        const user = session.user as typeof session.user & {
+            banned?: boolean | null;
+            banExpires?: unknown;
+        };
+
         return {
-            id: session.user.id,
-            email: session.user.email,
-            role: session.user.role as string,
-            name: session.user.name,
-            image: session.user.image,
+            id: user.id,
+            email: user.email,
+            role: user.role as string,
+            name: user.name,
+            image: user.image,
+            banned: user.banned ?? null,
+            banExpires: toDate(user.banExpires),
         };
     } catch {
         return null;
