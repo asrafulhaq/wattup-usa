@@ -1,5 +1,4 @@
 import { notFoundImageUrls } from '@/lib/images/not-found';
-import { FadeUp } from '@/components/ui/fade-up';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -70,23 +69,34 @@ export default function NotFound() {
                         'flex flex-col items-center justify-start pt-[140px] md:pt-[200px] grow w-full z-10 bg-transparent'
                     )}>
                     <div className='relative z-10 container mx-auto flex flex-col items-center text-center text-white'>
-                        <FadeUp yOffset={30}>
-                            <h1
-                                className={cn(
-                                    'text-[100px] md:text-[250px] font-semibold leading-[130%] tracking-[-3%] mb-4 md:mb-6'
-                                )}>
-                                404
-                            </h1>
-                        </FadeUp>
+                        {/* The CSS keyframe, not <FadeUp>.
 
-                        <FadeUp delay={0.2} yOffset={20}>
-                            <p
-                                className={cn(
-                                    'text-[20px] md:text-[32px] font-normal max-w-[416px] mx-auto leading-[120%]'
-                                )}>
-                                Page not found
-                            </p>
-                        </FadeUp>
+                            FadeUp is a client component that imports gsap and
+                            gsap/ScrollTrigger and calls registerPlugin at module scope.
+                            Next puts the root not-found boundary in EVERY route's client
+                            bundle, and this file was the only thing in the root tree
+                            reaching gsap, so a 42 KB gzipped, 113 KB parsed animation
+                            library shipped with /dashboard, /admin and every marketing
+                            page. Measured from the served HTML: one reference to the gsap
+                            chunk on every dashboard route.
+
+                            .wattup-page-enter is the keyframe globals.css already carries
+                            for exactly this, added when a JS animation left content at
+                            opacity 0 on a slow load. A 404 does not need a scroll
+                            triggered timeline: nothing here can be below the fold. */}
+                        <h1
+                            className={cn(
+                                'wattup-page-enter text-[100px] md:text-[250px] font-semibold leading-[130%] tracking-[-3%] mb-4 md:mb-6'
+                            )}>
+                            404
+                        </h1>
+
+                        <p
+                            className={cn(
+                                'wattup-page-enter text-[20px] md:text-[32px] font-normal max-w-[416px] mx-auto leading-[120%] [animation-delay:200ms]'
+                            )}>
+                            Page not found
+                        </p>
                     </div>
                 </div>
             </section>
