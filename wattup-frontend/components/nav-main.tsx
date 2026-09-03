@@ -82,7 +82,14 @@ export function NavMain({ groups }: { groups: NavGroup[] }) {
                                             }`}>
                                             <Link
                                                 href={item.url}
-                                                prefetch={item.prefetch}
+                                                // Prefetch every dashboard link, not
+                                                // just the one that asked for it. The
+                                                // pages are behind auth so none of them
+                                                // is statically cached, and the payload
+                                                // a hover fetches is the round trip the
+                                                // click would otherwise wait for. There
+                                                // are nine of them, all small.
+                                                prefetch={item.prefetch ?? true}
                                                 onClick={() => setOpenMobile(false)}>
                                                 {Icon && (
                                                     <Icon

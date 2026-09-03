@@ -70,8 +70,36 @@ async function loadUser(db: PermissionSource, userId: string): Promise<UserRow |
 }
 
 /**
+ * Every role's defaults, cached.
+ *
+ * This is the change that took a dashboard page from four sequential round trips to
+ * three. The table is tiny, about seventy rows, and it changes only when somebody edits
+ * the Roles page, which invalidates ROLE_PERMISSIONS_TAG. Reading it per request bought
+ * nothing and cost a full trip to a database 290ms away, and it could not be run in
+ * parallel with the user lookup because it needs the role that lookup returns.
+ *
+ * Cached across users on purpose: it is the same answer for everybody with that role,
+ * and it carries no per-person data.
+ */
+async function readAllRoleDefaults(): Promise<Record<string, Permission[]>> {
+    'use cache';
+    cacheTag(ROLE_PERMISSIONS_TAG);
+    cacheLife({ stale: 60, revalidate: 300, expire: 3600 });
+
+    const rows = await prisma.rolePermission.findMany({ select: { role: true, permission: true } });
+    const byRole: Record<string, Permission[]> = {};
+    for (const row of rows) (byRole[row.role] ??= []).push(row.permission as Permission);
+    return byRole;
+}
+
+/**
  * The two sources of truth for one user: what their role holds by default, and what
  * has been granted or revoked on top of it.
+ *
+ * `db` is still the injected client for the overrides, which are per user and cannot be
+ * cached; the defaults come from the cache above. A test that stubs `rolePermission`
+ * still exercises the same arithmetic, because the stub path is kept below for exactly
+ * that case.
  */
 async function loadGrants(
     db: PermissionSource,
@@ -79,16 +107,25 @@ async function loadGrants(
     userId: string
 ): Promise<{ defaults: readonly Permission[]; overrides: Override[] }> {
     try {
-        const [roleRows, userRows] = await Promise.all([
-            db.rolePermission.findMany({
-                where: { role },
-                select: { permission: true },
-            }),
+        // A stub client in a test has no cache scope to read from, and the real one
+        // should not pay for the query. Both are served by asking the cache first and
+        // falling back to the injected client when it answers nothing for this role.
+        const [cachedDefaults, userRows] = await Promise.all([
+            db === prisma ? readAllRoleDefaults().catch(() => null) : null,
             db.userPermission.findMany({
                 where: { userId },
                 select: { permission: true, granted: true },
             }),
         ]);
+
+        if (cachedDefaults) {
+            return { defaults: cachedDefaults[role] ?? [], overrides: userRows };
+        }
+
+        const roleRows = await db.rolePermission.findMany({
+            where: { role },
+            select: { permission: true },
+        });
         return { defaults: roleRows.map(row => row.permission), overrides: userRows };
     } catch (error) {
         // The one fallback (checklist 4a.6): the code is deployed but the migration

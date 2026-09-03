@@ -145,3 +145,118 @@ export function SettingsBodySkeleton() {
         </div>
     );
 }
+
+// ── Activity ─────────────────────────────────────────────────────────────────
+/**
+ * The Activity screen: two tab buttons, the filter card, then the table.
+ *
+ * Matched to what actually renders, because a skeleton whose shape differs from the page
+ * is worse than none: the layout jumps when the real thing arrives, which reads as the
+ * page loading twice.
+ */
+export function ActivityBodySkeleton() {
+    return (
+        <div className='flex flex-col gap-4'>
+            {/* Everything / Sign-ins */}
+            <div className='flex items-center gap-2'>
+                <Skeleton className='h-[34px] w-[104px] rounded-lg' />
+                <Skeleton className='h-[34px] w-[86px] rounded-lg' />
+            </div>
+
+            {/* The filter card: three labelled controls in a bordered box. */}
+            <div className='dash-card flex flex-wrap items-end gap-3 p-4'>
+                {[
+                    [86, 132],
+                    [46, 132],
+                    [126, 224],
+                ].map(([label, control], i) => (
+                    <div key={i} className='flex flex-col gap-1.5'>
+                        <Skeleton className='h-[11px]' style={{ width: label }} />
+                        <Skeleton className='h-9 rounded-lg' style={{ width: control }} />
+                    </div>
+                ))}
+            </div>
+
+            {/* When, Who, App, Event, Detail. */}
+            <SkeletonTableCard columns={[1.4, 2, 1, 1.4, 2]} rows={10} leading='checkbox' />
+        </div>
+    );
+}
+
+// ── One team member ──────────────────────────────────────────────────────────
+/**
+ * The user detail page: the back link, then four cards whose heights follow the real
+ * ones. Identity is short, Role is shorter, Permissions is long, and the two audit
+ * tables stream in after the rest, so they are drawn as tables rather than as blocks.
+ */
+export function UserDetailBodySkeleton() {
+    return (
+        <div className='flex flex-col gap-4'>
+            <Skeleton className='h-[14px] w-28' />
+
+            {/* Identity: avatar beside a grid of six short fields. */}
+            <div className='dash-card flex flex-col gap-3 p-5'>
+                <Skeleton className='h-[18px] w-24' />
+                <div className='flex items-start gap-4'>
+                    <Skeleton className='size-14 shrink-0 rounded-full' />
+                    <div className='grid flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3'>
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className='flex flex-col gap-1.5'>
+                                <Skeleton className='h-[11px] w-16' />
+                                <Skeleton className='h-[14px] w-28' />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Role: heading, one line, then a badge, a select and a button. */}
+            <div className='dash-card flex flex-col gap-3 p-5'>
+                <Skeleton className='h-[18px] w-14' />
+                <Skeleton className='h-[14px] w-[420px]' />
+                <div className='flex items-center gap-3'>
+                    <Skeleton className='h-[26px] w-20 rounded-full' />
+                    <Skeleton className='h-9 w-40 rounded-lg' />
+                    <Skeleton className='h-9 w-28 rounded-lg' />
+                </div>
+            </div>
+
+            {/* Permissions: grouped rows, each with a three-button control on the right. */}
+            <div className='dash-card flex flex-col gap-4 p-5'>
+                <Skeleton className='h-[18px] w-28' />
+                <Skeleton className='h-[14px] w-[460px]' />
+                {[4, 4].map((count, group) => (
+                    <div key={group} className='flex flex-col gap-2'>
+                        <Skeleton className='h-[14px] w-32' />
+                        <Skeleton className='h-3 w-64' />
+                        <div className='overflow-hidden rounded-lg border border-dash-border'>
+                            {Array.from({ length: count }).map((_, row) => (
+                                <div
+                                    key={row}
+                                    className='flex items-center justify-between gap-3 border-b border-dash-border px-4 py-3 last:border-0'>
+                                    <div className='flex flex-col gap-1.5'>
+                                        <Skeleton className='h-[14px] w-56' />
+                                        <Skeleton className='h-3 w-72' />
+                                    </div>
+                                    <Skeleton className='h-[30px] w-[196px] shrink-0 rounded-lg' />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* The two audit tables, which stream in last. */}
+            {[
+                [1.4, 1, 1.4, 2],
+                [1.4, 1, 1.4, 1, 2],
+            ].map((columns, i) => (
+                <div key={i} className='dash-card flex flex-col gap-3 p-5'>
+                    <Skeleton className='h-[18px] w-32' />
+                    <Skeleton className='h-[14px] w-[440px]' />
+                    <SkeletonTableCard columns={columns} rows={5} leading='none' />
+                </div>
+            ))}
+        </div>
+    );
+}
