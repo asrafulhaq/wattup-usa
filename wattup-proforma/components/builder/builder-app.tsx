@@ -50,6 +50,7 @@ import { readRailWidth, writeRailWidth } from '@/lib/proforma/rail-width';
 import { useHydrated } from '@/lib/use-hydrated';
 import { LG, useMediaQuery } from '@/lib/use-media-query';
 import { BuilderSkeleton } from './builder-skeleton';
+import { BuilderThemeScope } from './builder-theme-scope';
 import { KpiStrip } from './kpi-strip';
 import { PreviewFrame, type PreviewHandle } from './preview-frame';
 import { Rail } from './rail';
@@ -400,6 +401,7 @@ function Builder() {
 
     return (
         <div data-builder className='bg-background flex h-dvh flex-col overflow-hidden'>
+            <BuilderThemeScope />
             <Sheet open={railOpen && !wide} onOpenChange={setRailOpen}>
                 <SheetContent side='left' className='flex w-[min(92vw,420px)] flex-col p-0'>
                     <SheetHeader className='border-border/60 border-b px-4 py-3'>
@@ -430,10 +432,10 @@ function Builder() {
                     <Button
                         variant='outline'
                         size='sm'
-                        className='h-8 gap-1.5 lg:hidden'
+                        className='h-8 shrink-0 gap-1.5 px-2.5 lg:hidden'
                         onClick={() => setRailOpen(true)}
                     >
-                        <SlidersHorizontal className='size-3.5' />
+                        <SlidersHorizontal className='size-4' />
                         Inputs
                     </Button>
                 }

@@ -139,48 +139,75 @@ export const PreviewFrame = forwardRef<PreviewHandle, PreviewFrameProps>(functio
 
     return (
         <>
-            <div ref={viewerRef} className='bg-muted/40 min-h-0 flex-1 overflow-auto p-6'>
+            <div ref={viewerRef} className='bg-muted/40 min-h-0 flex-1 overflow-auto p-3 sm:p-6'>
+                {/*
+                  * Two elements, and the outer one is not decoration.
+                  *
+                  * `transform: scale()` paints smaller but does NOT shrink the layout
+                  * box: the page stayed 816px wide whatever the zoom, so on a phone at
+                  * 45% the viewer reserved 816px, scrolled sideways, and left a wide
+                  * dead margin beside a document that was visibly only ~370px across.
+                  * The outer element carries the SCALED size so layout agrees with what
+                  * is on screen; the inner one keeps the true page size and scales from
+                  * its top left corner into it.
+                  */}
                 <div
-                    className='mx-auto origin-top shadow-2xl'
-                    style={{
-                        width: PAGE_W_IN * DPI,
-                        height: docHeight * zoom,
-                        transform: `scale(${zoom})`,
-                    }}
+                    className='mx-auto'
+                    style={{ width: PAGE_W_IN * DPI * zoom, height: docHeight * zoom }}
                 >
-                    <iframe
-                        ref={frameRef}
-                        title='Pro-forma preview'
-                        // allow-modals is what lets print() run inside the frame.
-                        sandbox='allow-same-origin allow-modals'
-                        srcDoc={html}
-                        className='w-full border-0 bg-white'
-                        style={{ height: docHeight }}
-                    />
+                    <div
+                        className='origin-top-left shadow-2xl'
+                        style={{
+                            width: PAGE_W_IN * DPI,
+                            height: docHeight,
+                            transform: `scale(${zoom})`,
+                        }}
+                    >
+                        <iframe
+                            ref={frameRef}
+                            title='Pro-forma preview'
+                            // allow-modals is what lets print() run inside the frame.
+                            sandbox='allow-same-origin allow-modals'
+                            srcDoc={html}
+                            className='w-full border-0 bg-white'
+                            style={{ height: docHeight }}
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className='border-border/60 flex shrink-0 items-center gap-3 border-t px-5 py-2.5'>
-                <span className='text-muted-foreground text-[11px] font-medium'>Zoom</span>
+            {/* Wraps to a second row rather than overflowing: responsive first. */}
+            <div className='border-border/60 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 border-t px-3 py-2 sm:px-5 sm:py-2.5'>
+                <span className='text-muted-foreground hidden text-[11px] font-medium sm:inline'>
+                    Zoom
+                </span>
                 <Slider
                     value={[zoom]}
                     min={0.25}
                     max={1.4}
                     step={0.01}
                     onValueChange={([v]) => onZoomChange(v)}
-                    className='w-40'
+                    className='w-24 sm:w-40'
                     aria-label='Preview zoom'
                 />
-                <span className='text-muted-foreground w-10 text-[11px] tabular-nums'>
+                <span className='text-muted-foreground w-9 text-[11px] tabular-nums'>
                     {Math.round(zoom * 100)}%
                 </span>
-                <Button type='button' variant='ghost' size='sm' onClick={onFitWidth} className='h-7 gap-1.5'>
+                <Button
+                    type='button'
+                    variant='ghost'
+                    size='sm'
+                    onClick={onFitWidth}
+                    className='h-7 gap-1.5 px-2'
+                >
                     <Maximize2 className='size-3' />
-                    Fit width
+                    <span className='hidden sm:inline'>Fit width</span>
                 </Button>
-                <span className='flex-1' />
-                <span className='text-muted-foreground text-[11px] tabular-nums'>
-                    {pageCountLabel(pageCount)}
+                <span className='hidden flex-1 sm:block' />
+                {/* The long form only when there is room for it on one line. */}
+                <span className='text-muted-foreground ml-auto text-[11px] whitespace-nowrap tabular-nums'>
+                    <span className='hidden sm:inline'>{pageCountLabel(pageCount)}</span>
+                    <span className='sm:hidden'>{pageCount} pages</span>
                 </span>
             </div>
         </>

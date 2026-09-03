@@ -148,7 +148,9 @@ export function Topbar(props: TopbarProps) {
     };
 
     return (
-        <header className='border-border/60 flex h-14 shrink-0 items-center gap-1.5 border-b px-3 sm:gap-2 sm:px-4'>
+        // Wraps to a second row rather than overflowing the viewport. The height is
+        // a minimum, not a fixed 14, so a wrapped row is not clipped.
+        <header className='border-border/60 flex min-h-14 shrink-0 flex-wrap items-center gap-x-1.5 gap-y-1 border-b px-3 py-1.5 sm:gap-x-2 sm:px-4'>
             {props.railTrigger}
             <div className='flex min-w-0 items-center gap-3'>
                 {/*
@@ -161,14 +163,14 @@ export function Topbar(props: TopbarProps) {
                 <img
                     src='/proforma/logo_type_dark.svg'
                     alt='WattUpUSA'
-                    className='h-5 w-auto dark:hidden'
+                    className='hidden h-5 w-auto sm:block dark:hidden'
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src='/proforma/logo_type_light.svg'
                     alt=''
                     aria-hidden='true'
-                    className='hidden h-5 w-auto dark:block'
+                    className='hidden h-5 w-auto sm:dark:block'
                 />
                 <Separator orientation='vertical' className='hidden h-7 sm:block' />
                 <div className='hidden min-w-0 leading-tight sm:block'>
@@ -179,14 +181,20 @@ export function Topbar(props: TopbarProps) {
                 </div>
             </div>
 
-            <span className='flex-1' />
+            <span className='hidden flex-1 sm:block' />
+            <span className='ml-auto sm:hidden' />
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='sm' className='h-8 gap-1'>
-                        <FolderOpen className='size-3.5' />
+                    <Button
+                        variant='ghost'
+                        size='sm'
+                        className='h-8 gap-1 px-2 md:px-3'
+                        aria-label='Scenarios'
+                    >
+                        <FolderOpen className='size-4' />
                         <span className='hidden md:inline'>Scenarios</span>
-                        <ChevronDown className='size-3' />
+                        <ChevronDown className='hidden size-3 md:block' />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-64'>
@@ -241,10 +249,15 @@ export function Topbar(props: TopbarProps) {
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='sm' className='h-8 gap-1'>
-                        <FileJson className='size-3.5' />
+                    <Button
+                        variant='ghost'
+                        size='sm'
+                        className='h-8 gap-1 px-2 md:px-3'
+                        aria-label='File'
+                    >
+                        <FileJson className='size-4' />
                         <span className='hidden md:inline'>File</span>
-                        <ChevronDown className='size-3' />
+                        <ChevronDown className='hidden size-3 md:block' />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-56'>
@@ -291,15 +304,20 @@ export function Topbar(props: TopbarProps) {
             <Button
                 variant='outline'
                 size='sm'
-                className='h-8 gap-1.5'
+                className='h-8 gap-1.5 px-2 lg:px-3'
                 onClick={props.onOpenDocument}
                 aria-label='Open document'
             >
-                <ExternalLink className='size-3.5' />
+                <ExternalLink className='size-4' />
                 <span className='hidden lg:inline'>Open document</span>
             </Button>
-            <Button size='sm' className='h-8 gap-1.5' onClick={props.onPrint} aria-label='Save as PDF'>
-                <Printer className='size-3.5' />
+            <Button
+                size='sm'
+                className='h-8 gap-1.5 px-2.5 sm:px-3'
+                onClick={props.onPrint}
+                aria-label='Save as PDF'
+            >
+                <Printer className='size-4' />
                 <span className='hidden sm:inline'>Save as PDF</span>
             </Button>
 

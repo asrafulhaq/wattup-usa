@@ -8,7 +8,8 @@
  * County side by side rather than stacked down a column of ten. And sections 0, 1
  * and 2 stand open on first load, so the tool opens on something to fill in.
  */
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useState } from 'react';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Field, Section } from '@/lib/proforma/sections';
 import { DEFAULT_OPEN_SECTIONS, RAIL_INTRO_HTML, SECTIONS } from '@/lib/proforma/sections';
@@ -24,6 +25,7 @@ import {
     SelectField,
     TextField,
 } from './fields';
+import { RailSection } from './rail-section';
 
 export interface RailProps {
     inputs: ProformaInputs;
@@ -61,6 +63,11 @@ function packRows(fields: Field[]): Field[][] {
 
 export function Rail(props: RailProps) {
     const { inputs, images, gallery, evpin } = props;
+    // Which sections stand open. Held here rather than inside each section so the
+    // set is one piece of state, the way Radix's `type="multiple"` held it.
+    const [open, setOpen] = useState<string[]>(() =>
+        SECTIONS.slice(0, DEFAULT_OPEN_SECTIONS).map((s) => s.id)
+    );
 
     const renderField = (field: Field) => {
         switch (field.type) {
@@ -113,37 +120,36 @@ export function Rail(props: RailProps) {
     };
 
     const renderSection = (s: Section) => (
-        <AccordionItem key={s.id} value={s.id} className='border-border/60 px-4'>
-            <AccordionTrigger className='gap-3 py-3.5 hover:no-underline'>
-                <span className='flex min-w-0 items-center gap-2.5'>
-                    <span className='bg-primary/10 text-primary flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold tabular-nums'>
-                        {s.n}
-                    </span>
-                    <span className='truncate text-[13px] font-semibold tracking-wide uppercase'>
-                        {s.title}
-                    </span>
-                </span>
-            </AccordionTrigger>
-            <AccordionContent className='space-y-3.5 pb-5'>
-                {s.note ? (
-                    /*
-                     * The section notes are the tool's documentation, authored in this
-                     * repo and carried across verbatim from the static build. They are
-                     * trusted markup, never user input: the only HTML in them is the
-                     * <b> in sections 4 and 7.
-                     */
-                    <div
-                        className='bg-muted/50 text-muted-foreground rounded-lg px-3 py-2.5 text-[11px] leading-relaxed [&_b]:text-foreground [&_b]:font-semibold'
-                        dangerouslySetInnerHTML={{ __html: s.note }}
-                    />
-                ) : null}
-                {packRows(s.fields).map((row, i) => (
-                    <div key={i} className={row.length > 1 ? 'flex gap-3' : undefined}>
-                        {row.map(renderField)}
-                    </div>
-                ))}
-            </AccordionContent>
-        </AccordionItem>
+        <RailSection
+            key={s.id}
+            id={s.id}
+            n={s.n}
+            title={s.title}
+            open={open.includes(s.id)}
+            onToggle={() =>
+                setOpen((prev) =>
+                    prev.includes(s.id) ? prev.filter((x) => x !== s.id) : [...prev, s.id]
+                )
+            }
+        >
+            {s.note ? (
+                /*
+                 * The section notes are the tool's documentation, authored in this
+                 * repo and carried across verbatim from the static build. They are
+                 * trusted markup, never user input: the only HTML in them is the
+                 * <b> in sections 4 and 7.
+                 */
+                <div
+                    className='bg-muted/50 text-muted-foreground rounded-lg px-3 py-2.5 text-[11px] leading-relaxed [&_b]:text-foreground [&_b]:font-semibold'
+                    dangerouslySetInnerHTML={{ __html: s.note }}
+                />
+            ) : null}
+            {packRows(s.fields).map((row, i) => (
+                <div key={i} className={row.length > 1 ? 'flex gap-3' : undefined}>
+                    {row.map(renderField)}
+                </div>
+            ))}
+        </RailSection>
     );
 
     return (
@@ -154,13 +160,7 @@ export function Rail(props: RailProps) {
                     dangerouslySetInnerHTML={{ __html: RAIL_INTRO_HTML }}
                 />
             </div>
-            <Accordion
-                type='multiple'
-                defaultValue={SECTIONS.slice(0, DEFAULT_OPEN_SECTIONS).map((s) => s.id)}
-                className='pb-16'
-            >
-                {SECTIONS.map(renderSection)}
-            </Accordion>
+            <div className='pb-16'>{SECTIONS.map(renderSection)}</div>
         </ScrollArea>
     );
 }

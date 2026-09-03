@@ -267,77 +267,64 @@ body {
 }
 
 /*
- * The rail's accordion.
+ * Thin, theme-matched scrollbars.
  *
- * Written against Radix's own data-state attributes rather than as Tailwind
- * `animate-*` utilities. The utility route was tried first and silently did
- * nothing: `@theme inline` deliberately does not emit a custom property, and the
- * generated class never carried the animation name, so the sections snapped open
- * with a duration and no keyframes. This is deterministic, and a browser check
- * confirms animation-name resolves.
+ * The rail, the KPI strip and the document viewer all scroll, and the platform
+ * default is a heavy light-grey bar that reads as chrome from another
+ * application, especially in dark mode where it stays light.
  *
- * Radix measures the panel and publishes the height, which is the only way to
- * animate to `auto`.
- *
- * Three things make it feel smooth rather than merely slow:
- *
- * 1. `contain: layout paint` on the panel. Animating height reflows whatever
- *    follows it, and a section holds up to thirteen fields; containment lets the
- *    browser treat the panel as its own layout root so the other seven sections
- *    are not re-laid-out sixty times a second.
- * 2. The height curve is an ease-out quint. It covers most of the distance early
- *    and settles gently, which reads as smooth; a symmetric ease reads as slow.
- * 3. The content fades and lifts on its own slightly faster curve, so the panel
- *    is never a blank box being stretched.
- *
- * Opening is a little longer than closing on purpose: revealing wants to feel
- * considered, dismissing wants to feel immediate.
+ * Deliberately NOT applied to the document: it renders inside its own iframe
+ * with its own stylesheet, and nothing here reaches it. That is the same
+ * boundary that keeps the theme out of the printed page.
  */
-@keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+/*
+ * The two mechanisms are mutually exclusive and MUST NOT both be set. Chrome
+ * supports `scrollbar-width`, and the moment it is present it wins and the
+ * ::-webkit-scrollbar sizing is ignored: that is how this first landed at
+ * Chrome's own 11px "thin" instead of the 7px asked for. So the webkit rules run
+ * unguarded, and the standard properties are scoped to engines that have no
+ * webkit pseudo-element, which is Firefox.
+ */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
 }
 
-@keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+*::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
 }
 
-@keyframes accordion-content-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
+*::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-@keyframes accordion-content-out {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-4px); }
+*::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 999px;
 }
 
-[data-slot='accordion-content'] {
-    contain: layout paint;
-    will-change: height;
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
 }
 
-[data-slot='accordion-content'][data-state='open'] {
-    animation: accordion-down 320ms cubic-bezier(0.22, 1, 0.36, 1);
+*::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
-[data-slot='accordion-content'][data-state='closed'] {
-    animation: accordion-up 240ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-slot='accordion-content'][data-state='open'] > * {
-    animation: accordion-content-in 300ms cubic-bezier(0.22, 1, 0.36, 1) 40ms backwards;
-}
-
-[data-slot='accordion-content'][data-state='closed'] > * {
-    animation: accordion-content-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-
-/* The chevron settles on the same curve as the panel it belongs to. */
-[data-slot='accordion-trigger'] > svg {
-    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-}
+/*
+ * The rail's accordion animates in components/builder/rail-section.tsx, with
+ * Motion, not here.
+ *
+ * Two earlier attempts are recorded so neither is repeated. Tailwind `animate-*`
+ * utilities produced a duration with no keyframe name and the sections snapped.
+ * Hand-written CSS keyframes on Radix's data-state attributes animated correctly
+ * but could not be interrupted: clicking a section twice quickly restarted the
+ * keyframe from its beginning. A spring keeps its height and velocity and
+ * retargets, which is the difference you can feel.
+ */
 
 /*
  * One easing and one duration for the small stuff, so hovers, focus rings, drop
