@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Deploying WattUp - the operator runbook.
+
+  Generated from docs/plan/RUNBOOK-DEPLOY.md, which is the canonical copy: edit the
+  markdown, then regenerate this. Also published as an artifact at
+  https://claude.ai/code/artifact/ea373489-4fb0-485b-a6ee-7480a05378a0
+
+  Self-contained apart from the Google Fonts stylesheet; it falls back to system
+  faces offline.
+-->
+<style>
+  :root { color-scheme: light dark; }
+  html { -webkit-text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>WattUp Deployment Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@1,400;1,500&display=swap">
+<style>
+  :root {
+    --paper:      #ffffff;
+    --surface:    #f4f6fa;
+    --surface-2:  #eaeef5;
+    --ink:        #11151c;
+    --ink-2:      #454f5e;
+    --ink-3:      #6b7789;
+    --rule:       #dfe4ec;
+    --rule-2:     #c8d0dd;
+    --accent:     #2563d9;
+    --accent-ink: #1b4aa8;
+    --accent-wash:#e8effc;
+    --danger:     #b42318;
+    --danger-wash:#fdecea;
+    --warn:       #9a5b06;
+    --warn-wash:  #fdf3e3;
+    --ok:         #06713f;
+    --ok-wash:    #e6f4ec;
+
+    --step: clamp(2rem, 5vw, 3.25rem);
+    --col: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0d1117;
+      --surface:    #141a23;
+      --surface-2:  #1b222d;
+      --ink:        #e8ecf3;
+      --ink-2:      #aeb8c7;
+      --ink-3:      #7f8b9d;
+      --rule:       #232b37;
+      --rule-2:     #333d4c;
+      --accent:     #6f9bf0;
+      --accent-ink: #a8c4f7;
+      --accent-wash:#16213a;
+      --danger:     #f0837a;
+      --danger-wash:#2a1614;
+      --warn:       #e0a552;
+      --warn-wash:  #271c0d;
+      --ok:         #5ec98d;
+      --ok-wash:    #0f2419;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0d1117;
+    --surface:    #141a23;
+    --surface-2:  #1b222d;
+    --ink:        #e8ecf3;
+    --ink-2:      #aeb8c7;
+    --ink-3:      #7f8b9d;
+    --rule:       #232b37;
+    --rule-2:     #333d4c;
+    --accent:     #6f9bf0;
+    --accent-ink: #a8c4f7;
+    --accent-wash:#16213a;
+    --danger:     #f0837a;
+    --danger-wash:#2a1614;
+    --warn:       #e0a552;
+    --warn-wash:  #271c0d;
+    --ok:         #5ec98d;
+    --ok-wash:    #0f2419;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 78rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 6rem; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding: clamp(2.5rem, 6vw, 4rem) 0 2rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 3.1rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ink-2);
+    max-width: var(--col);
+    margin: 0;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    padding-top: 0.25rem;
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- the blocker ---------- */
+  .blocker {
+    margin: 2.5rem 0 0;
+    border: 1px solid var(--rule-2);
+    border-left: 4px solid var(--accent);
+    background: var(--accent-wash);
+    border-radius: 3px;
+    padding: 1.25rem 1.5rem;
+    display: grid;
+    gap: 0.4rem;
+    max-width: 62rem;
+  }
+  .blocker .k {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .blocker p { margin: 0; color: var(--ink); }
+  .blocker p + p { color: var(--ink-2); font-size: 0.92rem; }
+
+  /* ---------- section spine ---------- */
+  section { padding-top: var(--step); }
+  .sec-head {
+    display: grid;
+    grid-template-columns: 3.25rem 1fr;
+    align-items: baseline;
+    gap: 0 0.5rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  .num {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .sec-head h2 {
+    font-size: clamp(1.3rem, 2.6vw, 1.65rem);
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .sec-head .sub {
+    grid-column: 2;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+    margin: 0.3rem 0 0;
+  }
+  .body { grid-column: 2; }
+  .indent { padding-left: 3.75rem; }
+  @media (max-width: 42rem) { .indent { padding-left: 0; } .sec-head { grid-template-columns: 2.25rem 1fr; } }
+
+  p, li { max-width: var(--col); }
+  p { margin: 0 0 1rem; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.15rem; }
+  li { margin-bottom: 0.4rem; }
+  h3 {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin: 1.75rem 0 0.75rem;
+  }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  code, .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.86em;
+  }
+  p code, li code, td code, th code {
+    background: var(--surface-2);
+    border-radius: 3px;
+    padding: 0.1em 0.36em;
+    color: var(--ink);
+  }
+
+  pre {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    margin: 0 0 1.25rem;
+    color: var(--ink);
+    max-width: 62rem;
+  }
+  pre .c { color: var(--ink-3); }
+  pre .ok { color: var(--ok); }
+  pre .em { color: var(--accent); }
+
+  /* ---------- tables ---------- */
+  .tw { overflow-x: auto; margin: 0 0 1.5rem; max-width: 62rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  caption {
+    text-align: left;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 0.6rem;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.9rem 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    border-bottom-color: var(--rule-2);
+    white-space: nowrap;
+  }
+  td:first-child { white-space: nowrap; padding-right: 1.5rem; }
+  td.v { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8rem; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .chip.req { background: var(--danger-wash); color: var(--danger); }
+  .chip.opt { background: var(--surface-2); color: var(--ink-3); }
+  .chip.cron { background: var(--warn-wash); color: var(--warn); }
+  .chip.dead { background: var(--surface-2); color: var(--ink-3); text-decoration: line-through; }
+
+  /* ---------- callouts ---------- */
+  .note {
+    border-left: 3px solid var(--rule-2);
+    padding: 0.15rem 0 0.15rem 1.15rem;
+    margin: 0 0 1.5rem;
+    max-width: 62rem;
+    color: var(--ink-2);
+  }
+  .note p { margin: 0 0 0.6rem; max-width: none; }
+  .note p:last-child { margin-bottom: 0; }
+  .note .lede {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    display: block; margin-bottom: 0.35rem;
+  }
+  .note.stop { border-left-color: var(--danger); background: var(--danger-wash); padding: 0.9rem 1.15rem; border-radius: 0 3px 3px 0; }
+  .note.stop .lede { color: var(--danger); }
+  .note.stop p { color: var(--ink); }
+  .note.care { border-left-color: var(--warn); background: var(--warn-wash); padding: 0.9rem 1.15rem; border-radius: 0 3px 3px 0; }
+  .note.care .lede { color: var(--warn); }
+  .note.care p { color: var(--ink); }
+
+  /* ---------- two-app table ---------- */
+  .apps th:first-child { width: 12rem; }
+  .apps td strong { font-weight: 600; }
+
+  /* ---------- checklist ---------- */
+  .short {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    max-width: 62rem;
+    counter-reset: s;
+  }
+  .short ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+  .short li {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+    counter-increment: s;
+    margin: 0;
+    max-width: none;
+    font-size: 0.92rem;
+  }
+  .short li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .short li b { font-weight: 600; }
+  .short li .m { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.78rem; color: var(--ink-2); }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: var(--step);
+    padding-top: 1.5rem;
+    color: var(--ink-3);
+    font-size: 0.82rem;
+  }
+  footer p { max-width: 62rem; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">Runbook · Operator</span>
+    <h1>Deploying WattUp</h1>
+    <p class="standfirst">Two Next.js applications, one Postgres database, and one setting that stops everything if it is wrong.</p>
+    <div class="meta">
+      <span>Written <b>3 Sep 2026</b></span>
+      <span>Against commit <b>ccb488c</b></span>
+      <span>Canonical copy <b>docs/plan/RUNBOOK-DEPLOY.md</b></span>
+    </div>
+  </header>
+
+  <div class="blocker">
+    <span class="k">Read this before opening Vercel</span>
+    <p><strong>This repository is not a pnpm workspace, and must not become one.</strong> Each app has its own lockfile and installs independently. That means <strong>two Vercel projects</strong>, each with its <strong>Root Directory</strong> set to the app folder.</p>
+    <p>A project built from the repository root will not find an application. This is the step everything else waits on.</p>
+  </div>
+
+  <!-- ============ WHAT ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>What you are deploying</h2>
+      <p class="sub">Two separate applications from one repository. They never call each other; they meet only in the database.</p>
+    </div>
+    <div class="indent">
+      <div class="tw">
+        <table class="apps">
+          <thead>
+            <tr><th></th><th>wattup-frontend</th><th>wattup-proforma</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Purpose</th><td>Marketing site and team dashboard</td><td>Site Pro-Forma Builder, behind an email gate</td></tr>
+            <tr><th>Domain</th><td class="v">wattupusa.com</td><td class="v">proforma.wattupusa.com</td></tr>
+            <tr><th>Root Directory</th><td class="v"><strong>wattup-frontend</strong></td><td class="v"><strong>wattup-proforma</strong></td></tr>
+            <tr><th>Owns the schema</th><td><strong>Yes</strong> — the only app that migrates</td><td>No — read-mostly, no migrate script exists</td></tr>
+            <tr><th>Scheduled jobs</th><td>One cron, declared in <code>vercel.json</code></td><td>None</td></tr>
+            <tr><th>Required env vars</th><td>13, plus <code>CRON_SECRET</code></td><td>Exactly 6</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>State as of writing</h3>
+      <ul>
+        <li>Local <code>main</code> is at <code>23f7c39</code>, and <strong>both git remotes already carry that commit</strong> — verified over the network with <code>git ls-remote</code>. The code is on GitHub.</li>
+        <li><strong>No migrations have been applied to production</strong> by this process, and nothing is deployed yet. Confirm both before assuming.</li>
+        <li>Two remotes exist. <strong>Decide which one Vercel builds from</strong> and use only that one — two projects building the same code from different remotes will fight.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ DATABASE ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>The database</h2>
+      <p class="sub">Already provisioned on Neon. Both apps point at the same one. Nothing to create.</p>
+    </div>
+    <div class="indent">
+      <p>There are twelve migrations. The most recent, <code>20260903100000_rbac_permissions</code>, creates the <code>proforma_member</code> view that the pro-forma gate reads. <strong>Until it is applied, the pro-forma app can admit nobody.</strong></p>
+
+<pre><span class="c"># wattup-frontend is the only app that may do this</span>
+cd wattup-frontend
+pnpm install
+DATABASE_URL=<span class="em">'&lt;production url&gt;'</span> pnpm migrate:deploy</pre>
+
+      <p><code>migrate:deploy</code> applies what is pending and never resets. Use it — not <code>migrate:dev</code>, and never <code>db push</code>.</p>
+
+      <h3>After the first deploy, this runs itself</h3>
+      <p>The frontend's build runs <code>scripts/migrate-on-deploy.mjs</code> before <code>next build</code>, so a <strong>production</strong> deploy applies pending migrations on its own. You run the command above only for the first deploy, or to migrate without shipping code.</p>
+
+      <div class="note care">
+        <span class="lede">Why it is guarded to production only</span>
+        <p>There is <strong>one database</strong>, shared by both apps, with no preview or branch database configured. Without the guard, every Preview deployment would migrate production — so a pull request carrying a bad migration would alter live data before anyone reviewed it.</p>
+        <p><code>VERCEL_ENV</code> must be exactly <code>production</code>; anything else, a local <code>pnpm build</code> included, skips and says so in the log. A missing <code>DATABASE_URL</code> on a production build is refused, and a failed migration fails the build rather than shipping code whose schema change did not land.</p>
+      </div>
+
+      <div class="note stop">
+        <span class="lede">Migrations must be additive</span>
+        <p>Vercel runs the build <strong>before</strong> it promotes the deployment, so a migration takes effect while the previous version is still serving traffic. Adding a column or a table is invisible to that older code; dropping or renaming one breaks the running site for the length of the build.</p>
+        <p>Split a destructive change across two releases: add the new shape and write to it, ship, then remove the old shape once nothing reads it. If you later want migrations on Preview too, the clean answer is a <strong>Neon branch database per preview</strong> — not a looser guard.</p>
+      </div>
+
+      <div class="note stop">
+        <span class="lede">Never put this in a build command</span>
+        <p><code>pnpm db:seed</code> writes to whatever <code>DATABASE_URL</code> points at. It force-promotes <code>ADMIN_EMAIL</code> to <code>SUPER_ADMIN</code> and recreates that account from <code>ADMIN_PASSWORD</code>. It ran on every production build until finding F13 removed it.</p>
+        <p>To create the first administrator, use <code>pnpm seed:admins</code> instead — it touches <code>user</code> and <code>account</code> only, and adds nobody who is not in <code>ADMIN_EMAILS</code>.</p>
+        <p>This one stays manual <em>deliberately</em>, unlike migrations: automating it would put <code>ADMIN_PASSWORD</code> permanently in Vercel, and an admin you deleted would come back on the next deploy.</p>
+      </div>
+
+      <h3>Verify</h3>
+<pre>psql "$DATABASE_URL" -c <span class="em">"select count(*) from _prisma_migrations where finished_at is not null;"</span>
+psql "$DATABASE_URL" -c <span class="em">"select count(*) from proforma_member;"</span>
+
+<span class="c"># The view must exist. Zero rows is fine here; a missing relation is not.</span></pre>
+    </div>
+  </section>
+
+  <!-- ============ SECRETS ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Generate the secrets</h2>
+      <p class="sub">Three values, and two of them must not match.</p>
+    </div>
+    <div class="indent">
+<pre>openssl rand -base64 32   <span class="c"># -> wattup-frontend  BETTER_AUTH_SECRET</span>
+openssl rand -base64 32   <span class="c"># -> wattup-proforma  BETTER_AUTH_SECRET</span>
+openssl rand -base64 32   <span class="c"># -> wattup-frontend  CRON_SECRET</span></pre>
+
+      <div class="note care">
+        <span class="lede">The two auth secrets must differ</span>
+        <p>They are what keep the two apps' sessions separate on a shared parent domain, so rotating one does not sign out the other's users. The cookie prefix (<code>wup</code> for the pro-forma) separates the cookie <em>names</em>; the secret separates the <em>trust</em>.</p>
+        <p>Rotating a <code>BETTER_AUTH_SECRET</code> invalidates every existing session for that app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECT A ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Vercel project A — wattup-frontend</h2>
+      <p class="sub">The marketing site and dashboard, at the apex domain.</p>
+    </div>
+    <div class="indent">
+      <ol>
+        <li><strong>Add New → Project</strong>, import the GitHub repo you chose.</li>
+        <li><strong>Root Directory: <code>wattup-frontend</code>.</strong> Not the repository root.</li>
+        <li>Framework preset: <strong>Next.js</strong> (detected).</li>
+        <li>Build command: leave the default. <code>pnpm build</code> is <code>node scripts/migrate-on-deploy.mjs &amp;&amp; next build</code>, which migrates on production deploys only. <strong>Do not add a seed step.</strong></li>
+        <li>Install command: default. <code>postinstall</code> already runs <code>prisma generate</code>.</li>
+        <li>Node.js version: <strong>20.x or newer</strong> — Next 16 requires it.</li>
+      </ol>
+
+      <div class="tw">
+        <table>
+          <caption>Environment — required</caption>
+          <thead><tr><th>Variable</th><th></th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td class="v">DATABASE_URL</td><td><span class="chip req">req</span></td><td>The Neon <strong>pooled</strong> connection string</td></tr>
+            <tr><td class="v">BETTER_AUTH_SECRET</td><td><span class="chip req">req</span></td><td>From step 03. Must differ from the pro-forma's</td></tr>
+            <tr><td class="v">BETTER_AUTH_URL</td><td><span class="chip req">req</span></td><td class="v">https://wattupusa.com</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_APP_URL</td><td><span class="chip req">req</span></td><td>Same. Used by robots.txt, sitemap and layout</td></tr>
+            <tr><td class="v">RESEND_API_KEY</td><td><span class="chip req">req</span></td><td>Resend API key</td></tr>
+            <tr><td class="v">MAIL_FROM</td><td><span class="chip req">req</span></td><td class="v">WattUp &lt;noreply@wattupusa.com&gt;</td></tr>
+            <tr><td class="v">MAPBOX_ACCESS_TOKEN</td><td><span class="chip req">req</span></td><td>Station finder and geocoding</td></tr>
+            <tr><td class="v">CLOUDINARY_CLOUD_NAME</td><td><span class="chip req">req</span></td><td>Server-side uploads</td></tr>
+            <tr><td class="v">CLOUDINARY_API_KEY</td><td><span class="chip req">req</span></td><td>″</td></tr>
+            <tr><td class="v">CLOUDINARY_API_SECRET</td><td><span class="chip req">req</span></td><td>″</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</td><td><span class="chip req">req</span></td><td>Client-side image URLs</td></tr>
+            <tr><td class="v">CONTACT_EMAIL</td><td><span class="chip req">req</span></td><td>Where the contact form is delivered</td></tr>
+            <tr><td class="v">ADMIN_EMAIL</td><td><span class="chip req">req</span></td><td>Also read by the contact action, so it is needed at runtime — not only by the seed</td></tr>
+            <tr><td class="v">CRON_SECRET</td><td><span class="chip cron">cron</span></td><td>From step 03. <strong>While unset, the purge route answers 401 to everything</strong>, so the job silently never runs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tw">
+        <table>
+          <caption>Environment — optional</caption>
+          <thead><tr><th>Variable</th><th></th><th>Default if unset</th></tr></thead>
+          <tbody>
+            <tr><td class="v">ACTIVITY_LOG_RETENTION_DAYS</td><td><span class="chip opt">opt</span></td><td><code>90</code>. Must be a whole number ≥ 1</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_GOOGLE_ANALYTICS_ID</td><td><span class="chip opt">opt</span></td><td>Analytics off</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID</td><td><span class="chip opt">opt</span></td><td>Off</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION</td><td><span class="chip opt">opt</span></td><td>No verification meta tag</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_COOKIEBOT_CBID</td><td><span class="chip opt">opt</span></td><td>Consent banner off</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_COOKIEYES_ID</td><td><span class="chip opt">opt</span></td><td>Consent banner off</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note stop">
+        <span class="lede">Do not set these in Vercel</span>
+        <p><code>ADMIN_EMAILS</code>, <code>ADMIN_NAME</code> and <code>ADMIN_PASSWORD</code> are read only by the two seed scripts. They belong in a local shell for the one-off bootstrap in step 07. <code>ADMIN_PASSWORD</code> in a deployed environment is a standing credential sitting in a dashboard.</p>
+      </div>
+
+      <div class="tw">
+        <table>
+          <caption>Set today, read by no code — safe to delete</caption>
+          <thead><tr><th>Variable</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="v">CLOUDINARY_URL</td><td><span class="chip dead">unused</span></td></tr>
+            <tr><td class="v">NEW_API_KEY</td><td><span class="chip dead">unused</span></td></tr>
+            <tr><td class="v">NEW_API_SECRET</td><td><span class="chip dead">unused</span></td></tr>
+            <tr><td class="v">NEW_CLOUD_NAME</td><td><span class="chip dead">unused</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The scheduled job</h3>
+      <p><code>vercel.json</code> already declares it, so there is nothing to click:</p>
+<pre>{ "crons": [{ "path": "/api/cron/purge-activity-log", "schedule": "17 3 * * *" }] }</pre>
+      <p>Vercel registers it on every deploy and sends <code>Authorization: Bearer &lt;CRON_SECRET&gt;</code>; the route compares hashes and answers 401 to anything else. <strong>There is no manual step here</strong> — setting <code>CRON_SECRET</code> once is the whole job.</p>
+    </div>
+  </section>
+
+  <!-- ============ PROJECT B ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Vercel project B — wattup-proforma</h2>
+      <p class="sub">A second, separate project in the same account, from the same repository.</p>
+    </div>
+    <div class="indent">
+      <ol>
+        <li><strong>Add New → Project</strong>, import the same repo again.</li>
+        <li><strong>Root Directory: <code>wattup-proforma</code>.</strong></li>
+        <li>Build command: default. Node.js 20.x or newer.</li>
+        <li>Domain: <code>proforma.wattupusa.com</code>.</li>
+      </ol>
+
+      <div class="note">
+        <span class="lede">This app tells you what is missing</span>
+        <p><code>lib/env.ts</code> defines exactly six required variables, and both gate routes answer <strong>503 naming the missing ones</strong> before anything else runs. An empty string counts as missing — <code>RESEND_API_KEY=</code> is the commonest way for a variable to be set and useless.</p>
+      </div>
+
+      <div class="tw">
+        <table>
+          <caption>Environment — required, or the gate answers 503</caption>
+          <thead><tr><th>Variable</th><th></th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td class="v">BETTER_AUTH_SECRET</td><td><span class="chip req">req</span></td><td>From step 03. <strong>Different from the frontend's</strong></td></tr>
+            <tr><td class="v">BETTER_AUTH_URL</td><td><span class="chip req">req</span></td><td class="v">https://proforma.wattupusa.com</td></tr>
+            <tr><td class="v">NEXT_PUBLIC_APP_URL</td><td><span class="chip req">req</span></td><td class="v">https://proforma.wattupusa.com</td></tr>
+            <tr><td class="v">DATABASE_URL</td><td><span class="chip req">req</span></td><td>The same Neon <strong>pooled</strong> string</td></tr>
+            <tr><td class="v">RESEND_API_KEY</td><td><span class="chip req">req</span></td><td>Resend API key</td></tr>
+            <tr><td class="v">MAIL_FROM</td><td><span class="chip req">req</span></td><td class="v">WattUp &lt;noreply@wattupusa.com&gt;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tw">
+        <table>
+          <caption>Environment — optional</caption>
+          <thead><tr><th>Variable</th><th></th><th>Behaviour</th></tr></thead>
+          <tbody>
+            <tr><td class="v">SESSION_TTL_DAYS</td><td><span class="chip opt">opt</span></td><td>Default <code>7</code>. Must be a positive integer or the app 503s</td></tr>
+            <tr><td class="v">OTP_TTL_SECONDS</td><td><span class="chip opt">opt</span></td><td>Default <code>600</code>. Same rule</td></tr>
+            <tr><td class="v">MAIL_REPLY_TO</td><td><span class="chip opt">opt</span></td><td>Deliberately empty — the code email is <code>noreply</code> on purpose</td></tr>
+            <tr><td class="v">EVPIN_ALLOWED_HOSTS</td><td><span class="chip opt">opt</span></td><td>Comma separated. Extends the EVpin reader's host allowlist, so a hostname change there needs an env edit rather than a deploy</td></tr>
+            <tr><td class="v">PROFORMA_ALLOWLIST</td><td><span class="chip opt">opt</span></td><td><strong>Ignored in production</strong>, with a warning. It exists so development needs no real members — and so an env list can never bypass a revocation made in the dashboard</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note care">
+        <span class="lede">The subdomain is “proforma”</span>
+        <p>The older <code>RUNBOOK-dns-email-env.md</code> says <code>hostproposal</code> throughout. That spelling is superseded.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESEND ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Resend and DNS</h2>
+      <p class="sub">Verify the sending domain, add the records it gives you, use the same key for both apps.</p>
+    </div>
+    <div class="indent">
+      <p>Full detail is Part 3 and Part 4 of <code>RUNBOOK-dns-email-env.md</code>, which remains accurate for this. Two items are open, and neither blocks a deploy:</p>
+      <ul>
+        <li><strong>Ask J</strong> — who owns the Resend account.</li>
+        <li><strong>Ask K</strong> — the apex SPF record needs fixing.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Create the first administrator</h2>
+      <p class="sub">Public registration is closed twice over, so this is the only way in.</p>
+    </div>
+    <div class="indent">
+<pre>cd wattup-frontend
+DATABASE_URL=<span class="em">'&lt;production url&gt;'</span> \
+ADMIN_EMAILS=<span class="em">'someone@wattupusa.com'</span> \
+ADMIN_PASSWORD=<span class="em">'&lt;a strong password, used once&gt;'</span> \
+pnpm seed:admins</pre>
+      <p>Then sign in at <code>/admin</code> and <strong>change that password immediately</strong>.</p>
+      <p>Grant <code>ACCESS_PROFORMA</code> from the dashboard to whoever needs the builder. Until someone has it, <code>proforma_member</code> is empty and the gate admits nobody — which is correct, not a fault.</p>
+    </div>
+  </section>
+
+  <!-- ============ VERIFY ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Verify</h2>
+      <p class="sub">These replace two checks in the older runbook that no longer describe the app.</p>
+    </div>
+    <div class="indent">
+<pre><span class="c"># 1. A stranger gets the LOGIN redirect, never the tool — and no HTML at all.</span>
+curl -sI https://proforma.wattupusa.com/tool | head -1
+<span class="c">#    expect:</span> <span class="ok">HTTP/2 307</span>
+
+curl -s https://proforma.wattupusa.com/tool | wc -c
+<span class="c">#    expect:</span> <span class="ok">0</span>
+
+<span class="c"># 2. Nothing of the calculator leaks.
+#    The old test curled /js/model.js. That route no longer exists: the engine
+#    is bundled now and the file-serving route was deleted, so the whole class
+#    of path traversal went with it. What matters is that the PAGE leaks nothing.</span>
+curl -s https://proforma.wattupusa.com/tool | grep -ci "Permitted operating costs"
+<span class="c">#    expect:</span> <span class="ok">0</span>
+
+<span class="c"># 3. Told to stay away.</span>
+curl -sI https://proforma.wattupusa.com | grep -i "x-robots-tag"   <span class="c"># noindex, nofollow</span>
+curl -s  https://proforma.wattupusa.com/robots.txt                 <span class="c"># Disallow: /</span>
+
+<span class="c"># 4. Enumeration. THE important one: these two must be identical in
+#    status, body AND timing.</span>
+curl -s -w '\n%{http_code} %{time_total}\n' -X POST \
+  https://proforma.wattupusa.com/api/gate/request-code \
+  -H 'content-type: application/json' -d '{"email":"&lt;a real member&gt;"}'
+
+curl -s -w '\n%{http_code} %{time_total}\n' -X POST \
+  https://proforma.wattupusa.com/api/gate/request-code \
+  -H 'content-type: application/json' -d '{"email":"nobody@example.com"}'</pre>
+
+      <h3>Then, by hand, signed in as a member</h3>
+      <ul>
+        <li><code>/tool</code> renders the builder and the document appears in the preview.</li>
+        <li>Typing updates the KPI strip immediately and the document a beat later, <strong>without the preview blanking</strong>.</li>
+        <li><strong>Save as PDF</strong> produces the six-page document.</li>
+        <li><strong>Sign out</strong> shows the spinner overlay and lands on <code>/login</code>.</li>
+        <li>On the frontend: sign in at <code>/admin</code>, and confirm <code>/dashboard/activity</code> shows rows — sign-ins from both apps land in the same table.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ ROLLBACK ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">09</span>
+      <h2>Rollback</h2>
+      <p class="sub">Promoting a previous deployment is instant. Two things it will not undo.</p>
+    </div>
+    <div class="indent">
+      <p>Vercel keeps every build — <strong>promote the previous deployment</strong> from the Deployments tab; no rebuild needed.</p>
+      <ul>
+        <li><strong>Migrations are forward-only here.</strong> A schema change that breaks the previous build cannot be undone by promoting it. Read a migration before applying it to production.</li>
+        <li><strong>Seed effects persist.</strong> A promoted user stays promoted.</li>
+      </ul>
+      <p>To close the gate immediately without a deploy: remove <code>ACCESS_PROFORMA</code> from every role and user in the dashboard. <code>proforma_member</code> empties and the gate admits nobody on the very next request, because the session is read from the database and not a cookie cache.</p>
+    </div>
+  </section>
+
+  <!-- ============ KNOWN ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">10</span>
+      <h2>Known issues to weigh first</h2>
+      <p class="sub">None of these block a deploy. All of them are better known than discovered.</p>
+    </div>
+    <div class="indent">
+      <ol>
+        <li><strong><code>Cache-Control: no-store</code> is applied to every path in the pro-forma</strong>, including <code>/_next/static/*</code>. Those files are content-hashed build artefacts, identical for every visitor, carrying no user data. The header forces a full re-download of the app shell on every load and is the single largest repeat-load cost in that app. Narrowing it is a deliberate security decision that has not been made.</li>
+        <li><strong><code>pnpm lint</code> fails in <code>wattup-frontend</code></strong> — 17 errors across fourteen files, pre-existing and unrelated to recent work, though that app's own <code>CLAUDE.md</code> says lint must pass. It does not block a build.</li>
+        <li><strong>F17, Cloudinary separation</strong>, is still open.</li>
+        <li><strong>The break-glass admin account</strong> is still an open client question: whether it should exist at all.</li>
+        <li><strong>Sessions have been observed disappearing</strong> from the <code>session</code> table unexplained during development. If users report spurious sign-outs after launch, start there.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ SHORT ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="num">11</span>
+      <h2>The short version</h2>
+      <p class="sub">For the second time you do this.</p>
+    </div>
+    <div class="indent">
+      <div class="short">
+        <ol>
+          <li><b>Apply migrations</b> <span class="m">pnpm migrate:deploy — first deploy only; production builds migrate themselves after that</span></li>
+          <li><b>Generate 3 secrets</b> <span class="m">openssl rand -base64 32 ×3 — two must differ</span></li>
+          <li><b>Vercel project A</b> <span class="m">Root Directory = wattup-frontend</span></li>
+          <li><b>…its env</b> <span class="m">13 required, plus CRON_SECRET</span></li>
+          <li><b>Vercel project B</b> <span class="m">Root Directory = wattup-proforma</span></li>
+          <li><b>…its env</b> <span class="m">exactly 6; it 503s and names any missing</span></li>
+          <li><b>Domains</b> <span class="m">wattupusa.com and proforma.wattupusa.com</span></li>
+          <li><b>Resend</b> <span class="m">verify the domain, add DKIM + SPF</span></li>
+          <li><b>First admin</b> <span class="m">pnpm seed:admins, then change the password</span></li>
+          <li><b>Verify</b> <span class="m">step 08, especially the two identical gate responses</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Every variable name here was read out of the source at commit <code>23f7c39</code> rather than assumed, and anything unused or uncertain is marked as such. The canonical copy lives at <code>docs/plan/RUNBOOK-DEPLOY.md</code>; <code>RUNBOOK-dns-email-env.md</code> remains the deeper reference for DNS and Resend, with the two corrections noted in step 08.</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
