@@ -44,6 +44,7 @@ import {
     type ImageSlot,
     type ImageSlots,
 } from '@/lib/proforma/state';
+import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { readRailWidth, writeRailWidth } from '@/lib/proforma/rail-width';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
@@ -51,7 +52,6 @@ import { useHydrated } from '@/lib/use-hydrated';
 import { LG, useMediaQuery } from '@/lib/use-media-query';
 import { BuilderSkeleton } from './builder-skeleton';
 import { BuilderThemeScope } from './builder-theme-scope';
-import { MotionButton } from './motion-button';
 import { KpiStrip } from './kpi-strip';
 import { PreviewFrame, type PreviewHandle } from './preview-frame';
 import { Rail } from './rail';
@@ -445,7 +445,7 @@ function Builder() {
                 railTrigger={
                     // The sheet is controlled, so this is a plain button rather than a
                     // SheetTrigger, which would have to be a descendant of the root.
-                    <MotionButton
+                    <Button
                         variant='outline'
                         size='sm'
                         className='h-8 shrink-0 gap-1.5 px-2.5 lg:hidden'
@@ -453,7 +453,7 @@ function Builder() {
                     >
                         <SlidersHorizontal className='size-4' />
                         Inputs
-                    </MotionButton>
+                    </Button>
                 }
             />
 

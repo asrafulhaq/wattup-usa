@@ -267,6 +267,79 @@ body {
 }
 
 /*
+ * Overlays appear and leave softly: menus, dialogs, the mobile drawer, tooltips.
+ *
+ * The shadcn defaults are a 150ms zoom from 95% with no easing to speak of, which
+ * reads as a pop. These are slower, travel less, and use the same ease-out curve
+ * as the rail's sections, so the whole app decelerates the same way. Leaving is
+ * quicker than arriving, because a dismissal should feel immediate while a reveal
+ * should feel considered.
+ *
+ * Written here, on Radix's data-state attributes, rather than as utility classes
+ * on each component: it is one rule for every overlay in the app, and it cannot
+ * drift between them.
+ */
+[data-slot='dropdown-menu-content'],
+[data-slot='dropdown-menu-sub-content'],
+[data-slot='select-content'],
+[data-slot='popover-content'],
+[data-slot='tooltip-content'] {
+    animation-fill-mode: both;
+}
+
+[data-slot='dropdown-menu-content'][data-state='open'],
+[data-slot='dropdown-menu-sub-content'][data-state='open'],
+[data-slot='select-content'][data-state='open'],
+[data-slot='popover-content'][data-state='open'],
+[data-slot='tooltip-content'][data-state='open'] {
+    animation: overlay-in 190ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-slot='dropdown-menu-content'][data-state='closed'],
+[data-slot='dropdown-menu-sub-content'][data-state='closed'],
+[data-slot='select-content'][data-state='closed'],
+[data-slot='popover-content'][data-state='closed'],
+[data-slot='tooltip-content'][data-state='closed'] {
+    animation: overlay-out 130ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes overlay-in {
+    from { opacity: 0; transform: scale(0.985) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes overlay-out {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to { opacity: 0; transform: scale(0.99) translateY(-2px); }
+}
+
+/* The dialogs and the drawer, on the same curves. */
+[data-slot='dialog-content'][data-state='open'],
+[data-slot='alert-dialog-content'][data-state='open'] {
+    animation: overlay-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-slot='dialog-content'][data-state='closed'],
+[data-slot='alert-dialog-content'][data-state='closed'] {
+    animation: overlay-out 140ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+[data-slot='dialog-overlay'][data-state='open'],
+[data-slot='alert-dialog-overlay'][data-state='open'],
+[data-slot='sheet-overlay'][data-state='open'] {
+    animation: fade-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-slot='dialog-overlay'][data-state='closed'],
+[data-slot='alert-dialog-overlay'][data-state='closed'],
+[data-slot='sheet-overlay'][data-state='closed'] {
+    animation: fade-out 140ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/*
  * Thin, theme-matched scrollbars.
  *
  * The rail, the KPI strip and the document viewer all scroll, and the platform

@@ -38,7 +38,6 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { MotionButton } from './motion-button';
 import {
     Dialog,
     DialogContent,
@@ -100,7 +99,7 @@ function ThemeToggle() {
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <MotionButton
+                <Button
                     type='button'
                     variant='ghost'
                     size='icon'
@@ -117,7 +116,7 @@ function ThemeToggle() {
                     >
                         <Icon className='size-4' />
                     </motion.span>
-                </MotionButton>
+                </Button>
             </TooltipTrigger>
             <TooltipContent>
                 {mounted ? (isDark ? 'Switch to light' : 'Switch to dark') : 'Theme'}
@@ -187,7 +186,7 @@ export function Topbar(props: TopbarProps) {
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <MotionButton
+                    <Button
                         variant='ghost'
                         size='sm'
                         className='h-8 gap-1 px-2 md:px-3'
@@ -196,7 +195,7 @@ export function Topbar(props: TopbarProps) {
                         <FolderOpen className='size-4' />
                         <span className='hidden md:inline'>Scenarios</span>
                         <ChevronDown className='hidden size-3 md:block' />
-                    </MotionButton>
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-64'>
                     <DropdownMenuItem onSelect={openSave}>
@@ -250,7 +249,7 @@ export function Topbar(props: TopbarProps) {
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <MotionButton
+                    <Button
                         variant='ghost'
                         size='sm'
                         className='h-8 gap-1 px-2 md:px-3'
@@ -259,7 +258,7 @@ export function Topbar(props: TopbarProps) {
                         <FileJson className='size-4' />
                         <span className='hidden md:inline'>File</span>
                         <ChevronDown className='hidden size-3 md:block' />
-                    </MotionButton>
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-56'>
                     <DropdownMenuItem onSelect={() => fileRef.current?.click()}>
@@ -302,7 +301,7 @@ export function Topbar(props: TopbarProps) {
 
             <Separator orientation='vertical' className='mx-1 hidden h-7 sm:block' />
 
-            <MotionButton
+            <Button
                 variant='outline'
                 size='sm'
                 className='h-8 gap-1.5 px-2 lg:px-3'
@@ -311,8 +310,8 @@ export function Topbar(props: TopbarProps) {
             >
                 <ExternalLink className='size-4' />
                 <span className='hidden lg:inline'>Open document</span>
-            </MotionButton>
-            <MotionButton
+            </Button>
+            <Button
                 size='sm'
                 className='h-8 gap-1.5 px-2.5 sm:px-3'
                 onClick={props.onPrint}
@@ -320,7 +319,7 @@ export function Topbar(props: TopbarProps) {
             >
                 <Printer className='size-4' />
                 <span className='hidden sm:inline'>Save as PDF</span>
-            </MotionButton>
+            </Button>
 
             <input
                 ref={fileRef}
