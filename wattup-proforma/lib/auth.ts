@@ -6,6 +6,7 @@ import { nextCookies } from 'better-auth/next-js';
 import { emailOTP } from 'better-auth/plugins';
 import { after } from 'next/server';
 
+import { COOKIE_PREFIX, USE_SECURE_COOKIES } from '@/lib/auth-cookies';
 import prisma from '@/lib/prisma';
 
 /**
@@ -111,10 +112,10 @@ export const auth = betterAuth({
     ],
 
     advanced: {
-        useSecureCookies: process.env.NODE_ENV === 'production',
-        // Distinct from the dashboard's cookies, so the two apps' sessions cannot
-        // be confused for one another on a shared parent domain.
-        cookiePrefix: 'wup',
+        // Both from lib/auth-cookies.ts, because proxy.ts has to read the cookie
+        // this config writes and cannot import this file (Prisma). See that module.
+        useSecureCookies: USE_SECURE_COOKIES,
+        cookiePrefix: COOKIE_PREFIX,
         database: { generateId: false },
     },
 

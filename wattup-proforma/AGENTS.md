@@ -23,12 +23,30 @@ replacing a shared password.
 
 ## Two halves
 
-**The tool** — `private/tool/`, the source in `../docs/Pro-Forma source/` bar the three exceptions below. Plain HTML, CSS
-and four JavaScript files: `model.js` (the financial model, ported from Python and verified to
-the cent), `doc.js` (renders the six-page document), `evpin.js` (parses EVpin site reports),
-`app.js` (form, live preview, JSON import/export, print). No framework, no server, no stored
-state — everything typed lives in the browser tab. **Do not modify these files, with three
-recorded exceptions.**
+**The tool** — a Next.js page at `/tool`, built from two halves that are governed differently.
+
+> **The engine is vendor code.** `lib/proforma/model.js`, `document.js` and `evpin.js` are
+> `private/tool/js/{model,doc,evpin}.js` copied byte-for-byte, with only a header, an export
+> block and one import added. `model.js` is the financial model ported from Python and verified
+> to the cent; `document.js` renders the document; `evpin.js` parses EVpin site reports.
+> **Do not edit their bodies.** `tests/proforma/engine-parity.test.ts` runs the vendor files and
+> the ported ones over 22 input shapes and fails on a single differing character, which is what
+> makes "the document did not change" a checkable claim rather than a promise. To change one:
+> edit `private/tool/js/`, re-run the parity test, copy the result across.
+>
+> **The control panel is this app's own code**, in `components/builder/`, and may be changed
+> freely. Its field definitions in `lib/proforma/sections.ts` are generated from `app.js` and
+> pinned by `tests/proforma/sections-parity.test.ts`, so every section note and field hint stays
+> word for word what the static tool had.
+
+`private/tool/` is still in the repo and is still the frozen source in `../docs/Pro-Forma
+source/` bar the three exceptions below, but **nothing serves it any more**: it is the reference
+the parity tests compare against. The route that used to read it off disk is gone, and with it
+the whole class of path-traversal risk it existed to defend against.
+
+Nothing typed is sent anywhere. The model runs in the browser, images become data URLs and never
+leave it, and the only state written to the device is what section 2.2 of
+`../docs/plan/PROFORMA-NEXTJS-MIGRATION.md` describes.
 
 > **Exception 1, privacy:** `evpin.js`'s `EVPIN_READERS` array and `evpinFetchText`, replaced
 > by a call to `/api/tool/evpin-fetch` (checklist 5.15). The tool used to send a pasted report
@@ -122,6 +140,24 @@ on sign-in and make the member list meaningless).
 matcher mistake may be allowed to serve `model.js`. This needs `outputFileTracingIncludes` in
 `next.config.ts` or the serving route works in dev and 404s in production.
 
+**The cookie prefix is shared, never retyped.** `lib/auth.ts` sets `cookiePrefix: 'wup'` so
+this app's sessions cannot be confused with the dashboard's on a shared parent domain. Anything
+that READS that cookie must name the same prefix. `proxy.ts` did not, better-auth looked for its
+own default, and every signed-in member was bounced to `/login`, which saw a valid member and
+sent them straight back: an infinite loop that typechecked, linted, built and passed every test.
+Both now import `lib/auth-cookies.ts`. `tests/proforma/proxy.test.ts` pins it.
+
+**`proxy.ts` is not the membership check and must never be treated as one.** It is sync, reads
+the cookie only, and makes no database call, so it cannot know whether a session is valid, the
+user is banned, or they still hold `ACCESS_PROFORMA`. `app/tool/page.tsx` decides that with
+`requireMember`, against the database, and stays the authority. A test asserts a forged cookie
+gets past the proxy, precisely so nobody deletes the real check.
+
+**Theme switching never reaches the document.** `components/theme-provider.tsx` themes the
+control panel. The document renders in an iframe with its own stylesheet and its own
+`design.ink` and `design.accent`, because it is a printed sales document: a landlord's PDF must
+not change because whoever built it preferred a dark editor.
+
 **No migrations here.** `wattup-frontend` owns the schema. `package.json` has no `migrate` or
 `db push` script and `prisma.config.ts` declares no migrations path — keep it that way.
 `prisma/schema.prisma` is a narrow mirror: `User` is read-only and omits `role` so this app
@@ -166,7 +202,15 @@ app/api/gate/request-code/   POST: origin check, normalise, answer the same 200,
 app/api/gate/verify-code/    POST: origin check, sign in server-side, re-check membership, one identical 400
                              for every failure; the activity_log row is scheduled with after()
 app/robots.ts                /robots.txt, disallow all; next.config.ts carries the header backstop
-app/tool/[[...path]]/        serves private/tool/ to current members only
+app/tool/page.tsx            the builder. requireMember first, then <BuilderApp/>
+app/tool/loading.tsx         the builder's own shape while that check runs
+proxy.ts                     turns a cookie-less /tool request away before the page renders.
+                             MUST pass lib/auth-cookies' prefix; without it every member loops
+components/builder/          the control panel: rail, fields, KPI strip, preview frame, topbar
+components/ui/               shadcn primitives, copied from wattup-frontend by hand
+lib/proforma/                the engine (vendor, do not edit), plus sections, state, scenarios
+lib/auth-cookies.ts          COOKIE_PREFIX, shared by lib/auth.ts and proxy.ts so they cannot drift
+public/proforma/             the three brand assets the document embeds as data URLs
 app/login/                   the two-step screen: page.tsx validates ?next= and sends a current
                              member straight on; login-form.tsx is the client form
 app/page.tsx                 redirects to /tool/, which bounces a signed-out person to /login

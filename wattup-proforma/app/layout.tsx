@@ -1,12 +1,20 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+
 import './globals.css';
 
 /**
- * The only pages this layout wraps are the gate's own: /login, the redirect
- * at /, and the 404. The tool is served by a route handler and never renders
- * through here. Nothing under this app may be indexed.
+ * Wraps the gate's pages (/login, the redirect at /, the 404) and the builder at
+ * /tool, which is now a React page rather than a served folder of static files.
+ * Nothing under this app may be indexed.
+ *
+ * suppressHydrationWarning is required by next-themes and only by it: the theme
+ * class is written onto <html> by a blocking script before paint, so the server
+ * markup and the first client render legitimately differ on that one attribute.
+ * Without the script the panel flashes light before switching to dark.
  *
  * The font is the one wattup-frontend/app/layout.tsx loads, the same way, so
  * the login screen renders as a sibling of the dashboard's sign-in page.
@@ -25,8 +33,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
-        <html lang="en" className={`${plusJakartaSans.variable} h-full font-sans`}>
-            <body className="flex min-h-full flex-col font-sans antialiased">{children}</body>
+        <html
+            lang='en'
+            className={`${plusJakartaSans.variable} h-full font-sans`}
+            suppressHydrationWarning
+        >
+            <body className='flex min-h-full flex-col font-sans antialiased'>
+                <ThemeProvider>
+                    {children}
+                    <Toaster />
+                </ThemeProvider>
+            </body>
         </html>
     );
 }

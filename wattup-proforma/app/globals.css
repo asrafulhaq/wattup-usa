@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /*
  * Copied from wattup-frontend/app/globals.css on 2026-09-02; keep in sync by hand.
@@ -207,5 +208,45 @@ body {
     }
     .text-description {
         @apply text-[16px] md:text-[20px] font-semibold leading-[130%] tracking-[-3%];
+    }
+}
+
+/*
+ * The builder's own additions, below everything copied from wattup-frontend so a
+ * re-sync of the token block above stays a clean paste.
+ *
+ * Radix Accordion animates by measuring its own content and exposing the height as
+ * a custom property; without these two keyframes the rail's sections would snap
+ * open instead of sliding. They are not in the frontend's copy because nothing
+ * there uses an accordion.
+ */
+@theme inline {
+    --animate-accordion-down: accordion-down 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+    --animate-accordion-up: accordion-up 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes accordion-down {
+    from { height: 0; opacity: 0; }
+    to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+
+@keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); opacity: 1; }
+    to { height: 0; opacity: 0; }
+}
+
+/*
+ * Someone building a pro-forma is reading numbers that move as they type, so the
+ * whole panel honours a reduced-motion preference rather than only the decorative
+ * parts of it.
+ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
